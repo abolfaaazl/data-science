@@ -61,3 +61,47 @@ The seminar and proposal should be aligned from the start but should not be trea
 - **Synthesis bridge:** derive a candidate research gap from the seminar literature, then validate it against the deeper technical review and related work. Do not claim novelty or promise a contribution before this check.
 
 No full repository execution, dataset download, or baseline reproduction has been completed merely by checking public repository contents. Repository availability is not proof of reproducibility.
+
+
+## Additional second-pass checks (2026-10-21)
+
+### BenchMFC: A benchmark dataset for trustworthy malware family classification under concept drift (Computers & Security, 2024)
+
+- **Publication evidence:** ScienceDirect identifies this as a Computers & Security article, volume 139 (April 2024), article 103706, DOI `10.1016/j.cose.2024.103706`. The abstract describes 223K samples from 526 families, with family, packer, and timestamp tags.
+- **Repository correspondence:** The paper links to, and the public `crowdma/benchmfc` README identifies itself as, the same dataset/paper. README gives install instructions for Python 3.9 to below 3.10 and scripts for training, testing, and drift detection.
+- **Data footprint:** README lists the full sample archive at approximately 83 GB; the paper's experiment subset includes an Ember feature archive around 39 MB and sample archive around 7 GB, plus metadata. This suggests the feature-based experimental subset may be much more feasible than handling raw malware binaries, but exact download links, checksums, and the usable subset still need validation.
+- **Ground-truth quality:** Timestamps, family labels, and packer labels support temporal and type-specific analyses. “First seen” is an estimate of appearance time, not necessarily the exact causal onset of every drift event. Do not equate timestamp tags with exact drift-onset labels for all evaluation metrics.
+- **License/security/complexity:** Repository README says MIT. This is a malware-security application and involves a specialized domain; do not download or execute raw malware. A feature-only analysis could be possible if the relevant precomputed features and protocol are accessible.
+- **Assessment:** Strong benchmark/data paper for seminar discussion and evaluation design. Not a default thesis base for this student unless the project is intentionally narrowed to feature-level data and temporal drift; domain complexity and dataset size make it a higher-risk implementation path.
+
+### Unsupervised statistical concept drift detection for behaviour abnormality detection (Applied Intelligence, 2023 issue)
+
+- **Publication evidence:** Springer identifies the paper as published online 10 May 2022 and in Applied Intelligence volume 53 (2023), pages 2527–2537; DOI `10.1007/s10489-022-03611-3`.
+- **Method/evaluation clues:** Uses a variational autoencoder (VAE) to estimate parameters for a statistical test; evaluates four artificial drift types and applies the approach to smart-home activity data from 20 older adults.
+- **Ground truth/data limitation:** Authors explicitly state the real-world data are not publicly available due to privacy concerns and acknowledge that reliable ground-truth labels were unavailable for most real-world observations. Artificial data have known ground truth.
+- **Assessment:** Useful seminar case study for unsupervised detection, synthetic-vs-real validation, privacy, and ground-truth limitations. Poor default thesis base if the plan requires reproducing real-world experiments; VAE and healthcare-specific features also add complexity.
+
+### Concept drift detection and adaptation framework using optimized deep learning and adaptive sliding window (Expert Systems, 2023)
+
+- **Publication evidence:** Wiley identifies the paper as first published 11 July 2023, DOI `10.1111/exsy.13394`.
+- **Method clue:** The abstract combines an optimized Deep CNN, an aggressive-hunt optimization procedure for parameter tuning, and an optimized adaptive sliding-window method, reporting strong classification metrics.
+- **Code/data status:** No direct paper-matched public implementation or independently verified dataset package was confirmed in this pass. The abstract alone is insufficient to verify benchmark fairness, leakage control, statistical significance, or whether gains can be attributed to the drift method rather than the optimizer/classifier combination.
+- **Assessment:** Keep as a method-family comparison and possible critique case for the seminar; do not promote to thesis-base candidate until code, datasets, baseline details, and paper-repository correspondence are independently verified. The combined CNN/metaheuristic design is likely a higher implementation burden.
+
+### A systematic review on detection and adaptation of concept drift in streaming data using machine learning techniques (WIREs Data Mining and Knowledge Discovery, 2024)
+
+- **Publication evidence:** Wiley confirms first publication 19 March 2024, volume 14, issue 4, article e1536, DOI `10.1002/widm.1536`.
+- **Assessment:** Strong candidate for seminar foundations because it covers drift types, detection/adaptation approaches, metrics, limitations, and future directions. No code is required for its seminar role. Check overlap against the other surveys before retaining more than one broad review in the final 7–10.
+
+### Machine learning based concept drift detection for predictive maintenance
+
+- **Code/data status:** This search pass did not establish a paper-matched public repository or a clearly accessible dataset/protocol. This is **not** evidence that none exists; the exact source paper and its links must be rechecked from the extracted PDF before any exclusion.
+- **Assessment:** Retain provisionally if it contributes a distinct regression/predictive-maintenance angle; do not treat it as an implementation candidate yet.
+
+## Updated second-pass implications
+
+1. Add BenchMFC to the seminar/benchmark candidate pool; its metadata and temporal tags are valuable, but malware-domain and raw-data burdens make it a conditional, not default, thesis route.
+2. Retain the VAE smart-home paper for discussion of real-world ground-truth limitations, not as a preferred reproducibility base because its real data are private.
+3. Treat the optimized CNN/adaptive-window paper cautiously until its code, data, and comparative protocol are verified.
+4. Keep the 2024 WIREs review as a strong broad-review candidate, while avoiding redundant survey-heavy final selection.
+5. No repository has been executed and no paper's results have been reproduced during these checks.
