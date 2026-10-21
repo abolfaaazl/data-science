@@ -16,9 +16,9 @@ To minimize false exclusions, uncertain papers are retained in a separate group.
 ## Initial result
 
 - Provisional shortlist: 20 distinct papers.
-- Inspect further / reserve: 11 distinct papers.
+- Inspect further / reserve: 12 distinct papers.
 - Lower priority for the central set: 8 distinct papers.
-- Total distinct papers accounted for: 39.
+- Total distinct papers accounted for: 39 (40 category rows because the duplicate DRIFTLENS copy is separately listed in the audit/lower-priority section).
 - Duplicate text/PDF pairs: 2 pairs.
 
 ## A. Provisional shortlist — 20 papers
@@ -63,6 +63,7 @@ These remain in consideration and should not be discarded without further eviden
 | 29 | BenchMFC: A Benchmark Dataset for Trustworthy Malware Family Classification | Dataset paper motivated partly by concept drift; may complement LAMDA. | Explicit temporal annotations, public access, license, labels, and overlap with LAMDA. |
 | 30 | Benchmarking concept drift adoption strategies for high-speed data stream mining | Broad review/taxonomy of adaptation strategies. | Publication age/venue, rigor, and redundancy with newer systematic reviews. |
 | 31 | A review on real-time data stream classification and adapting to various concept drift scenarios | Older overview of streaming classifiers/adaptation; may support foundational context. | Publication date, depth, and redundancy with newer reviews. |
+| 32 | Review of Concept Drift Detection Method for Industrial Process Modeling | Domain-specific review of drift detection for industrial process modeling, including regression/process-variable concerns; potentially useful for a practical data-analysis angle. | Check venue, publication date, quality of methods taxonomy, and whether it contributes anything beyond the broader reviews. |
 
 ## C. Lower priority for the central seminar set — 8 papers
 
@@ -70,14 +71,14 @@ These remain in consideration and should not be discarded without further eviden
 
 | # | Paper / file identifier | Initial reason for lower priority | What could change the decision |
 |---:|---|---|---|
-| 32 | A Hybrid Recommendation System: A Review | Primarily a recommender-system review; concept drift is one component rather than the central research question. | Reconsider if a recommendation-system application is selected. |
-| 33 | A Systematic Review of Machine Learning and Deep Learning Approaches for Credit Card Fraud Detection | Fraud-detection review; the extracted abstract does not show concept drift as its central focus. | Reconsider if full text has a substantive drift section or unique streaming dataset. |
-| 34 | A survey about self-adaptive anomaly detection in software-defined systems | Adjacent anomaly/IDS topic; drift is one aspect of a broader adaptive-system review. | Could support an application-focused seminar section if it adds unique taxonomy/evidence. |
-| 35 | Development of an Efficient Supervised Machine Learning Model using Concept Drift Analysis: A Review | Initial text appears broad and less specific about a novel method or rigorous benchmark. | Check venue and references before a firm exclusion; retain if it offers unique coverage. |
-| 36 | Evolving Strategies in Machine Learning: A Systematic Review | Broad review of evolving strategies, not necessarily narrow enough on drift detection. | Check its review protocol, coverage, and unique recent methods. |
-| 37 | SDDObench: A Benchmark for Streaming Data-Driven Optimization | Focuses on streaming data-driven optimization/evolutionary algorithms rather than concept-drift detection itself. | Reconsider only if the thesis moves toward optimization under environmental change. |
-| 38 | Online machine learning for proactive DDoS defense | Focuses on proactive DDoS detection/mitigation; drift is not clearly central in the abstract. | Reconsider if full text explicitly evaluates drift or temporal shifts. |
-| 39 | Duplicate copy of DRIFTLENS | Same scientific paper as item 16 under a filename variation; not a separate paper. | Retain both files in the integrity audit, but count the paper once. |
+| 33 | A Hybrid Recommendation System: A Review | Primarily a recommender-system review; concept drift is one component rather than the central research question. | Reconsider if a recommendation-system application is selected. |
+| 34 | A Systematic Review of Machine Learning and Deep Learning Approaches for Credit Card Fraud Detection | Fraud-detection review; the extracted abstract does not show concept drift as its central focus. | Reconsider if full text has a substantive drift section or unique streaming dataset. |
+| 35 | A survey about self-adaptive anomaly detection in software-defined systems | Adjacent anomaly/IDS topic; drift is one aspect of a broader adaptive-system review. | Could support an application-focused seminar section if it adds unique taxonomy/evidence. |
+| 36 | Development of an Efficient Supervised Machine Learning Model using Concept Drift Analysis: A Review | Initial text appears broad and less specific about a novel method or rigorous benchmark. | Check venue and references before a firm exclusion; retain if it offers unique coverage. |
+| 37 | Evolving Strategies in Machine Learning: A Systematic Review | Broad review of evolving strategies, not necessarily narrow enough on drift detection. | Check its review protocol, coverage, and unique recent methods. |
+| 38 | SDDObench: A Benchmark for Streaming Data-Driven Optimization | Focuses on streaming data-driven optimization/evolutionary algorithms rather than concept-drift detection itself. | Reconsider only if the thesis moves toward optimization under environmental change. |
+| 39 | Online machine learning for proactive DDoS defense | Focuses on proactive DDoS detection/mitigation; drift is not clearly central in the abstract. | Reconsider if full text explicitly evaluates drift or temporal shifts. |
+| 40 | Duplicate copy of DRIFTLENS | Same scientific paper as item 16 under a filename variation; not a separate paper. | Retain both files in the integrity audit, but count the paper once. |
 
 ## Duplicate and integrity audit
 
