@@ -1,0 +1,687 @@
+Title: Towards Computational Performance Engineering for
+
+--- Page 1 ---
+                Towards Computational Performance Engineering for
+                        Unsupervised Concept Drift Detection -
+                    Complexities, Benchmarking, Performance Analysis
+
+
+                     Elias Werner1,2   a, Nishant Kumar2,3   b, Matthias Lieber1,4   c, Sunna Torge1,2   d, Stefan
+                                          Gumhold1,2,3   e, Wolfgang E. Nagel1,2,4
+                            1Center for Interdisciplinary Digital Sciences (CIDS), Technische Universit¨at Dresden, Germany
+                          2Center for Scalable Data Analytics and Artificial Intelligence (ScaDS.AI) Dresden/Leipzig. Germany
+                           3Chair of Computer Graphics and Visualization (CGV), Technische Universit¨at Dresden, Germany
+                   4Center for Information Services and High Performance Computing (ZIH), Technische Universit¨at Dresden, Germany
+                          {elias.werner, nishant.kumar, matthias.lieber, sunna.torge, stefan.gumhold, wolfgang.nagel}@tu-dresden.de
+2024
+               Keywords:    Concept Drift Detection, Performance Engineering, Complexities, Benchmark, Performance Analysis
+Jun          Abstract:     Concept drift detection is crucial for many AI systems to ensure the system’s reliability. These systems often
+                            have to deal with large amounts of data or react in real-time. Thus, drift detectors must meet computational
+                              requirements or constraints with a comprehensive performance evaluation. However, so far, the focus of de-10
+                              veloping drift detectors is on inference quality, e.g. accuracy, but not on computational performance, such
+                                as runtime. Many of the previous works consider computational performance only as a secondary objective
+                           and do not have a benchmark for such evaluation. Hence, we propose and explain performance engineering
+                                  for unsupervised concept drift detection that reflects on computational complexities, benchmarking, and per-
+                            formance analysis. We provide the computational complexities of existing unsupervised drift detectors and
+                                discuss why further computational performance investigations are required. Hence, we state and substantiate[cs.LG]                         the aspects of a benchmark for unsupervised drift detection reflecting on inference quality and computational
+                              performance. Furthermore, we demonstrate performance analysis practices that have proven their effective-
+                               ness in High-Performance Computing, by tracing two drift detectors and displaying their performance data.
+
+
+
+          1  INTRODUCTION                           However, many of these applications face differ-
+                                                                         ent challenges which concern 1.) the inference qual-
+               In the last years, the amount of available data in-      ity (e.g. accuracy) of the model and thus the effec-
+               creased significantly and  is expected to be about      tiveness of the application and 2.) the computational
+             175 ZB only for the year 2025 (Reinsel et al., 2018).     performance of the application in terms of the com-
+            The availability of vast amounts of data and the ex-     pute time and the compute resources.
+                ploitation of computing resources such as graphics       The effectiveness of the applications is often de-
+               processing units (GPUs) or tensor processing units     termined by the inference quality (e.g. accuracy) of
+             (TPUs) led to the emergence of deep learning (DL)      the DL model on a different data distribution than the
+             methods in many applications as predictive main-      distribution which the model was trained with. How-arXiv:2304.08319v3              tenance (Martinez et  al., 2018), marine photogra-      ever, while pure DL based applications work nicely
+             phy (Langenk¨amper et al., 2020), transportation plan-     on the training data distribution, they might not per-
+              ning (Grubitzsch et  al., 2021) or computer vision     form as well when the test data distribution is differ-
+                tasks such as object detection (Kumar et al., 2023).        ent from the training data distribution. Such changes
+                                                                             in the data distributions are referred to as concept
+                         a                                                               drift and are documented in many different applica-                        https://orcid.org/0000-0003-2549-7626
+                      b                                                        tion fields.  For example, (Grubitzsch et al., 2021)                        https://orcid.org/0000-0001-6684-2890
+                         c                                                     outlined that the robustness of AI models is question-                        https://orcid.org/0000-0003-3137-0648
+                      d                                                     able for sensor data-based transport mode recogni-                        https://orcid.org/0000-0001-9756-6390
+                         e                                                             tion. The reason is the variety of context information,                        https://orcid.org/0000-0003-2467-5734
+--- Page 2 ---
+e.g. device type or user behavior that introduces con-       1. We reflect on the existing literature and show that
+cept drift into the data. (Langenk¨amper et al., 2020)              it lacks computational performance evaluation for
+demonstrated concept drift when using different gear         unsupervised concept drift detection.
+or changing positions in marine photography and ex-                                                                2. We show a concrete path towards performance en-
+plained the effect on DL models. Hence, such appli-                                                            gineering of DDs and discuss complexity analy-
+cations need to be accompanied by approaches such                                                                             sis, benchmarking, and performance analysis.
+as concept drift detector (DD) to estimate changes in
+                                                                3. We provide the time and space complexities for athe data distribution and to decide the robustness of
+                                                                    set of existing DDs.a DL model on a given input. DDs that require the
+immediate availability of data labels are referred to       4. We state and substantiate the requirements for a
+as supervised and DDs that reduce the amount of re-        benchmark of unsupervised DD.
+quired data labels or can operate completely in the ab-
+                                                                5. We demonstrate the effectiveness of performance
+sence of labeled data are referred to as unsupervised.
+                                                              analysis tools by tracing two DDs and present the
+   The second challenge for applications is to han-
+                                                       performance data.
+dle large amounts of data or high-speed data streams
+and react in real-time. On the other hand, applica-       The rest of the paper consists of four parts.  In
+tions are often bound to certain hardware require-     Section 2, we introduce preliminaries and define con-
+ments or have to operate with limited computational     cept drift. Section 3, provides an overview of the prior
+resources. These observations should point to the ne-     works for unsupervised concept drift detection and
+cessity of thorough investigations concerning com-     explains the scope of previous computational perfor-
+putational performance, i.e. runtime, memory usage,    mance evaluation. In Section 4, we introduce perfor-
+and scalability. Thus, with DDs being an important    mance engineering for unsupervised concept drift de-
+part of a robust DL pipeline, it is also necessary to      tection. We provide computational complexities and
+conduct such investigations on DDs. Note that we re-      discuss them. Furthermore, we examine aspects for
+fer to metrics as runtime or memory usage as compu-     a comprehensive benchmark and give initial insights
+tational performance and to metrics such as accuracy      into performance analysis for DDs.
+or recall as inference quality. However, the literature
+does not focus on computational performance inves-
+tigations but concentrates on the methodological im-    2 BACKGROUND
+provements and inference quality evaluation of DDs
+on small-scale examples only as outlined in the survey     This section formally defines concept drift and intro-
+by (Gemaque et al., 2020). Moreover, while theoret-     duces supervised and unsupervised drift detection.
+ical computational complexities play a crucial role in      We follow the formal notations and definitions
+understanding algorithmic behaviors, they fall short     by (Webb et al., 2016) for the following illustrative
+of encompassing the real-world performance of an al-      equations, but also consider (Gama et al., 2014) and
+gorithm. This is attributed to various factors such as     (Hoens et al., 2012) among others. Note that our as-
+implementation, compiler optimizations, data distri-     sumptions hold for the discrete and continuous realms
+bution, and other external influences, which become      in principle. Nevertheless, for ease of simplification,
+significant when the algorithm operates on real hard-    we consider only the discrete realm in our notations.
+ware and processes real data.                      Assume for a machine learning (ML) problem there
+   Our work focuses on unsupervised DDs that can       is a random variable X over vectors of input features
+operate in the absence of data labels, as the provi-      [X0,X1,...,Xn]. Moreover, there is a random variable
+sion of labeled training data is very expensive and    Y over the output that can be either discrete (for classi-
+for many applications not given.   So  far,  there      fication tasks) or continuous (for regression tasks). In
+is no previous work comprehensively investigating      this case, P(X) and P(Y) represent the probability dis-
+the computational performance of unsupervised DDs.      tribution over X and Y respectively (priori). P(X,Y)
+In response, our work reflects on the field of per-      represents the joint probability distribution over X and
+formance engineering, which has its roots in High-    Y and refers to a concept. At a particular time t, a con-
+Performance Computing (HPC) and introduces it for     cept can now be denoted as Pt(X,Y). Concept drift
+unsupervised DDs. Thus, we discuss important pil-      refers to the change of an underlying probability dis-
+lars for a comprehensive consideration of computa-      tribution of a random variable over time. Formally:
+tional performance: complexity analysis, benchmark-
+ing, and performance analysis. This work’s key con-                     Pt(X,Y)̸ = Pt+1(X,Y)             (1)
+tributions include:
+                                                     Supervised drift detection is the process where the
+--- Page 3 ---
+data labels Y are always immediately available and     and the reproducibility of presented experiments is of-
+unsupervised DDs detect drift without labeled data.       ten questionable.
+                                                          Future applications with high data volumes, high
+                                                         data velocities, or computational resource constraints
+3 RELATED WORK                            will require resource-efficient approaches and imple-
+                                                        mentations. Contrarily, computational performance
+                                                         aspects for unsupervised concept drift detection were
+In the field of supervised drift detection, different in-
+                                                     only investigated as a secondary objective in the liter-
+vestigations by (Barros and Santos, 2018) and (Palli
+                                                               ature. Thus, we require proper and well-documented
+et al., 2022) exist, that present and compare multiple
+                                                     implementations that enable consistent computational
+supervised DDs. Additionally, (Mahgoub et al., 2022)
+                                                   performance evaluations to assess the applicability
+presents a benchmark of supervised DDs that consid-
+                                                         of DDs for use cases with high volumes and high-
+ers the runtime and memory usage of the related DDs
+                                                           velocity data.  Moreover, to obtain resource-efficient
+besides the DDs’ quality.
+                                             AI systems and to avoid waste of resources, scalable
+   To  the  best  of  our knowledge,  there  is no
+                                                         or parallel DDs and the resource-efficient deployment
+such benchmark for unsupervised DDs, Neverthe-
+                                                         of the approaches need to be investigated. For such
+less, surveys exist that summarize the related work.
+                                                     developments, the HPC community has broad exper-
+(Gemaque et al., 2020) and (Shen et al., 2023) pro-
+                                                                    tise in the field of performance engineering. Besides
+vide overviews and taxonomies to classify unsuper-
+                                                      computational complexity analysis and substantiated
+vised drift detectors following different criteria. Al-
+                                                           best practices in benchmarking, several tools such as
+though both surveys mention the importance of com-
+                                                    Score-P (Kn¨upfer et al., 2012) or Vampir (Kn¨upfer
+putational performance considerations, they did not
+                                                                 et al., 2008) are developed to support the system-
+incorporate such objectives in their overviews thor-
+                                                                 atic performance analysis of applications. Applying
+oughly.
+                                                         these methods to unsupervised DDs supports the eval-
+    Investigating prior methods for unsupervised DDs
+                                                         uation of the computational performance of differ-
+does also not provide enough evidence for thorough
+                                                          ent approaches and allows systematically setting up
+computational performance investigations.  Several
+                                                             resource-efficient solutions for future applications.
+works (Mustafa et al., 2017; Kifer et al., 2004; Dit-
+zler and Polikar, 2011; Haque et  al., 2016; Sethi
+and Kantardzic, 2017; Kim and Park, 2017; Zheng
+et al., 2019; Cerqueira et al., 2022; Lughofer et al.,    4 COMPUTATIONAL PERFOR-
+2016; de Mello et al., 2019; G¨oz¨uac¸ık et al., 2019;    MANCE ENGINEERING
+G¨oz¨uac¸ık and Can, 2021) do not conduct any runtime,
+memory, energy or scalability performance measure-                                                         In this section, we introduce our contributions to as-
+ments. Thus,  it is difficult to assess their computa-                                                           sess the computational performance of unsupervised
+tional performance in real-world applications. Other                                             DDs. This includes 1.) the computational complex-
+works by (Dasu et al., 2006; Gu et al., 2016; Lu                                                                   ity of a set of DDs in Section 4.1, 2.) the concept
+et al., 2014; Qahtan et al., 2015; Liu et al., 2017; Liu                                                         of a comprehensive benchmark in Section 4.2, and
+et al., 2018; Song et al., 2007; dos Reis et al., 2016;                                                                 3.) a clear workflow for performance analysis of DDs
+Greco and Cerquitelli, 2021; Pinag’e et al., 2020)                                                             in Section 4.3, exemplarily presented on two instru-
+conduct few experiments concerning runtime on mul-                                                mented implementations.
+tiple datasets and compared their approaches to other                                             As a motivating example, we randomly selected
+works sporadically. Only (Liu et al., 2018) investi-                                                          the two unsupervised DDs Incremental Kolmogorov-
+gated memory utilization.  In addition, not all papers                                                Smirnov (IKS) (dos Reis et al., 2016) and the student-
+perform their evaluation with the same setting and                                                         teacher approach STUDD (Cerqueira et  al., 2022)
+vary in the data sets chosen, the number and dimen-                                                 and measured the runtime and memory along with
+sion of data points, and how the computational perfor-                                                          the accuracy and amount of requested  labels of
+mance measurements are carried out. Although some                                                         four pipelines:  1.) IKS: retraining of the base ML
+works consider the theoretical computational com-                                               model after drift detection with IKS 2.) STUDD: re-
+plexity of their algorithms, this can not replace empir-                                                             training of the base ML model after drift detection
+ical measurements on real datasets and machines, e.g.                                                     with STUDD 3.) Baseline 1 (BL1): pipeline with-
+as shown by (Jin et al., 2012) highlighting the impact                                                       out re-training of the base ML model 4.) Baseline
+of computational performance bugs on the runtime of                                               2 (BL2): retraining of the base ML model after ev-
+implementations. However, as discussed by (Lukats                                                       ery 5000 samples.  IKS detects drift based on the
+and Stahl, 2023), source code is often not available                                                   changes in the raw input data distribution by continu-
+--- Page 4 ---
+  100 Accuracy (%)       100   Labels (%)        lowest computational demand on the dataset, i.e. low-
+                                                            100             est runtime and peak memory. However, it achieves
+        85
+                      80                                        the lowest accuracy without requiring any further data
+ 75        68                        75                            labels while processing the stream. BL2 has a slightly                  61
+                                               50                     higher computational demand than BL1 requests all
+ 50                     50                          data labels due to the continuous re-training of the
+                                                     base model and achieves much higher accuracy than
+ 25                     25                                               BL1. IKS consumes slightly more memory and run-
+                                                    3    0              time than BL2. It achieves slightly higher accuracy
+                                                       than BL2 while reducing the amount of required la-
+      IKSSTUDDBL1 BL2                  IKSSTUDDBL1 BL2           bels by 50%. STUDD requires more memory than
+                                                          the other pipelines and also the runtime is by far the
+   12k Runtime(s)           1.2k  Memory(MB)      highest. It achieves a higher accuracy than BL1 but
+           10218                                  1008                 lower than BL2. However, the strength of STUDD
+ 9k                    900                                is that the amount of requested labels is reduced to
+                                              704           698           only 3% of the total stream. Hence, we conclude that
+ 6k   5266                600                            for our setting, both DDs have their strengths: IKS
+                 4321 4432                              446
+                                                         leads to a moderate reduction of requested labels by
+ 3k                    300                         preserving high accuracy without high computational
+                                                       overhead. STUDD dramatically reduces the number
+                                                         of requested labels by improving accuracy over BL1
+                                                                 at a high computational cost.      IKSSTUDDBL1 BL2                  IKSSTUDDBL1 BL2
+                                                     However, based on those measurements, it is un-
+Figure 1: Accuracy, amount of labels, runtime, and peak      clear how DD based pipelines behave in different set-
+memory of the pipelines IKS, STUDD, BL1, and BL2 on                                                             tings since they highly rely on the chosen datasets, hy-
+Forest Covertype dataset.
+                                                        perparameters, or hardware constraints. (Barros and
+                                                         Santos, 2018) demonstrated different behaviors of su-ously applying a Kolmogorov-Smirnov test on a ref-
+                                                        pervised DDs on different datasets.  Thus, we neederence dataset and a detection dataset. STUDD con-
+                                                           also a benchmark comprising different unsupervisedsists of a student auxiliary ML model to mimic the
+                                             DDs. The Section 4.1. aims at an assessment of thebehavior of a primary teacher decision ML model.
+                                                          scaling behavior in space and time, and the complex-Drift is detected if the mimicking loss of the student
+                                                                   ity results support the evaluation of the computationalmodel changes with respect to the teacher’s predic-
+                                                   performance of DDs in a benchmark.tions. All pipelines are implemented in Python and
+use a Random Forest with 100 decision trees as the
+base classifier. The base classifier is trained with the     4.1  Complexity Analysis
+first 5000 samples of the dataset, the remaining data is
+processed as a stream by the several pipelines. We ap-   We determined the complexities for a set of DDs that
+plied all pipelines on the Forest Covertype (Blackard     do not rely on a ML model or another method, that is
+and Dean, 1999) dataset that consists of 54 features     highly dependent on the underlying use case or data.
+with seven different forest cover type designations in   We determined the complexities based on the mathe-
+5.8 ∗106 data samples.  All experiments ran with a     matical foundations and pseudo-code presented in the
+single CPU core of an AMD EPYC 7702, fixed to 2.0      original works. Additionally, we aligned complexities
+GHz frequency. Note that since the implementations      that have been presented in the literature according to
+do not run in parallel, we do not consider multiple     our notations. Finally, we state the complexities for
+CPU cores. However, using HPC still offers advan-      the approaches KL (Dasu et al., 2006), PR (Gu et al.,
+tages for benchmarking over a local setup, such as a     2016), CD (Qahtan et al., 2015), NM-DDM (Mustafa
+fixed CPU frequency and low system noise. In addi-      et al., 2017), HDDDM (Ditzler and Polikar, 2011),
+tion, we refer to best practices and methodologies in     IKS (dos Reis et al., 2016), BNDM (Xuan et al., 2020),
+the field of HPC in this section. The source code of   ECHO (Haque et al., 2016), OMV-PHT (Lughofer
+the experiments for the depicted results will be avail-      et al., 2016), DbDDA (Kim and Park, 2017), CM (Lu
+able publicly 1.                                                et  al., 2014). See the Appendix for our justifica-
+   Our results are depicted in Figure 1. BL1 has the      tions of the outlined complexities. Although most ap-
+                                                     proaches require an initialization phase for their drift
+                                                            detection, the amount of data computed in this phase
+    1https://github.com/elwer/Perf DD
+--- Page 5 ---
+Table 1:  Time and Space complexity per sample over
+the data stream.  Parameters:  d:  dimensions, w:  win-     complexity is constant, and for the ensemble case, the
+dow size, i.e examined data points, b: bins in histogram    number of ensemble members e. For the space com-
+(NM-DDM and OMV-PHT only), e: size of ensemble (Db-      plexity, KL, PR, IKS, BNDM and CM store all the
+DDA only), s: sampling times (NN-DVI only), δ: min-     data points, i.e. O(w × d). ECHO and DbDDA rely
+imum value for the box length property (KL only).       on w only since only one value per window needs to
+Approaches: KL (Dasu et al., 2006), PR (Gu et al., 2016),     be stored. For DbDDA ensemble, space complexity
+CD (Qahtan et al., 2015), NM-DDM (Mustafa et al., 2017),     grows proportionally with the ensemble size e and w.
+HDDDM (Ditzler and Polikar, 2011), IKS (dos Reis et al.,
+                                                        Complexities are important pillars in analyzing a
+2016), BNDM (Xuan et al., 2020), ECHO (Haque et al.,
+                                            DDs’ behavior concerning runtime and memory since2016), OMV-PHT (Lughofer et al., 2016), DbDDA (Kim
+and Park, 2017), CM (Lu et al., 2014)                       they highlight factors that influence time and space
+                                                     complexity behaviors. However, they are not enough
+ Approach   Time Complexity  Space Complexity       to assess real-world scenarios on real data since the
+                            1                              complexities only reflect the scaling behavior but no
+ KL       O(d ×log( σ))   O(w×d)
+                                                         absolute runtimes or memory requirements.  Thus,
+ PR         O(log 2w)      O(w×d)                                                   even if the complexity of one approach is higher than
+ CD        O(d)         O(w+d)              another one, better implementation and higher drift
+                        drift: O(d2 ×w)                             detection accuracy might overcome this theoretical
+ NM-DDM  O(w×d ×b)     O(d ×b)              drawback. Indeed, this should point to the necessity
+ HDDDM   O(⌊√w⌋×d)    O(⌊√w⌋×d)           of proper and optimized implementations, empirically
+                                                          verifying the estimated theoretical complexities. Ad-
+ IKS        O(log(w))      O(w×d)                 ditionally, the approaches’ detection accuracy is not
+ BNDM     O(log(w))      O(w×d)                reflected in the time and space complexities at all.
+                                                    Thus, we need empirical evidence reflecting on the
+ ECHO     O(w2)          O(w)
+                                                      computational performance and quality as a crucial
+ OMV-PHT O(w+b)       O(w+b)                additional investigation for concept drift detection.
+
+ DbDDA    O(1)           O(w)
+               ens.: O(e)          ens.: O(e×w)        4.2  Benchmarking
+ CM       O(w)         O(w×d)
+                                                   Conducting a benchmark in the field of ML often
+                                                              refers to comparing quality measures, e.g. accuracy or
+is much smaller than the amount of data processing                                                                recall of different approaches. Therefore, aiming for
+the stream. Therefore, we skip the complexities of the                                                      computational performance as one main objective in
+initialization phase and focus on the complexity per                                                  benchmarking faces particular challenges as initially
+sample while processing the stream.                                                       discussed in (Mattson et al., 2020). These particular
+   Table 1 shows the time and space complexities of                                                        challenges are explained in this section with respect
+the considered approaches when processing a stream.                                                             to the field of unsupervised concept drift detection.
+Only ECHO has a quadratic time complexity with re-
+spect to the window size, i.e. doubling w leads to qua-
+                                                       Diversity in Datasets:  The works identified in Sec-
+drupling the runtime. CD has a quadratic time com-
+                                                             tion 3 leverage different synthetic and real-world
+plexity with respect to the dimensions of the data only
+                                                            datasets that are used to benchmark unsupervised
+for the case of drift as reported in the original publi-
+                                             DDs.  Synthetic data allows defining drift patterns,
+cation. Therefore, CD’s time complexity is dependent
+                                                                 e.g. drift occurrence or frequency. Moreover, it is pos-
+on the nature of the data but also on the quality (ac-
+                                                               sible to define the kind of drift, i.e.  virtual vs real
+curacy) of the drift detection itself, i.e. reporting too
+                                                                        drift, or the temporal occurrence, e.g. abrupt, incre-
+much drift, leads to a high increase of the runtime.
+                                                        mental, gradual, or reoccurring (Webb et al., 2016).
+KL is the only approach that depends only on the data
+                                                    For a benchmark, this has the advantage of having
+dimensions d and an internal parameter δ for main-
+                                                     a ground truth, we can compare drift detection re-
+taining the data structure incrementally.  The other
+                                                                sults and create individual scenarios to reflect differ-
+approaches’ time complexities depend on the window
+                                                          ent settings for drift detection. Examples of synthetic
+size w directly, i.e. examined data points. The low-
+                                                         data sources are Hyperplane (Hulten et al., 2001) or
+est time complexity is determined for DbDDA by it-
+                                                Agrawal (Agrawal et al., 1993) among others, that are
+eratively maintaining the mean and standard devia-
+                                                  implemented in the Massive Online Analysis (Bifet
+tion over the ML model confidences in two windows
+                                                                 et al., 2010) framework.  However, the effectiveness
+and comparing this to a threshold. Therefore, the time
+                                                         of using synthetic data depends on how well the data
+--- Page 6 ---
+represents real-world characteristics. This is empha-      tant to reflect on different base models for a bench-
+sized by (Souza et al., 2020) explaining the impor-    mark comprehensively comparing DDs from groups
+tance and challenges for benchmarking against real-   A and B.
+world data and providing a broad overview of avail-
+able real-world datasets such as Abrupt Insects (dos     Baselines:  The literature often suggests no concept
+Reis et al., 2016), Gas (Vergara et al., 2012), Electric-       drift detection as a baseline for a benchmark (Souza
+ity (Harries et al., 1999), Forest Covertype (Blackard                                                                 et al., 2021; Cerqueira et al., 2022; dos Reis et al.,
+and Dean, 1999) or Airlines (Ikonomovska et  al.,                                                       2016). In particular, this refers to an initially trained
+2011). This is further affirmed by (Gemaque et al.,                               ML model that is not retrained during the process-
+2020), referring to the fact that the amount of data                                                       ing of a data stream, nor is any action beyond the
+used for evaluating DDs is small across the whole lit-                                                         inference process considered. Therefore, this is the
+erature.  Furthermore, we recognized a big gap be-                                                           best possible runtime for a given ML model and data
+tween the amount of data used for evaluating DDs                                                     stream and does not require any further labeled data.
+compared to benchmarks in the data streaming do-                                       On the other hand, this baseline indicates the mini-
+main that use datasets with multiple million data                                  mum inference quality (e.g. accuracy) that a pipeline
+points, e.g. Amazon movie reviews (McAuley and                                                     with a DD should achieve. Thus, a second baseline
+Leskovec, 2013) or Google web graph (Leskovec                                                     should reflect the best inference quality possible while
+et al., 2009). Additionally to data sizes, we propose                                                       processing the stream by re-training the ML model af-
+to reflect on class imbalances and multi-class data.                                                                   ter n samples. Therefore, it requires 100% of the true
+The multi-class scenario is given by many of the real-                                                                labels. (Souza et al., 2021) defines n = 1 and retrains
+world datasets, but should also be considered in syn-                                                          the ML model after each sample.  This results in a
+thetic scenarios explicitly. (Palli et al., 2022) give ev-                                                      very high runtime overhead for that pipeline due to
+idence on different behaviors of supervised DDs for                                                          the permanent re-training of the ML model but guar-
+class imbalances in comparison to evenly distributed                                                         antees the highest possible accuracy.
+class cases. They report similar results for multi-class                                                              Additionally, we propose to consider at least one
+data in comparison to binary class. We need to extend                                              more baseline. This is due to the asymptotic behav-
+this research for unsupervised DDs.                                                                ior of the runtime and the differing behavior of the
+                                                         inference quality, e.g.  accuracy, while increasing n
+Model  Dependency:  According  to  the  survey      that indicates the number of samples after which a
+by (Shen et al., 2023), DDs can be separated into      classifier is re-trained while processing a stream. To
+two groups: A) differences in data distribution and    show this, we processed the five introduced datasets:
+B) model quality monitoring. The latter can be con-     Abrupt Insects, Gas, Electricity, Forest Covertype and
+sidered model-dependent since it directly relies on a      Airlines. We implemented a Random Forest classifier,
+model’s quality, whereas the first group can be con-      that is trained on initial data and updated every n sam-
+sidered model-independent. For the model-dependent      ples. For the smaller datasets Abrupt Insects, Gas, and
+approaches, we identify two cases of unreliable drift      Electricity we used 500 samples for the initial train-
+detection. The first case is when the model reports      ing, while for the bigger Forest Covertype and Air-
+high inference quality (e.g. high confidence) after      lines datasets, we used 2000 samples. We initialized
+concept drift, leading to wrong predictions but no     n = 1 and increased n by 5 for each run while pro-
+detection by the DD. Even if there are no studies     cessing the small datasets. For the big ones, we ini-
+that prove this behavior in general, there are stud-      tialized n = 20 and increased n by 100. Our results
+ies that prove it for selected models. E.g. (Nguyen      are depicted in Figure 2.  For all datasets, the run-
+et  al., 2015) provides evidence that deep learning     time strongly decreases while increasing n. Accuracy
+models produce high confidence for incorrect predic-     decreases slowly for all datasets and higher n might
+tions, e.g. after concept drift. (Lughofer et al., 2016)     have a higher accuracy than lower n depending on the
+shows, that this is also the case for evolving fuzzy      dataset and how well the period of re-training matches
+classifiers. The second case is when the model reports      the drift pattern.  In fact, we suggest a value of n
+low inference quality (e.g. low confidences) without     such that the runtime is low, while still maintaining
+concept drift, leading to incorrectly detected drift and      the high accuracy provided at the bend of the runtime
+unnecessary computational overhead due to subse-     curve for all datasets.
+quent drift handling strategies. Overfitting (Hawkins,         (Cerqueira et  al., 2022) defines n = 100,  still
+2004) could be a reason for such behavior, which ap-     achieving high inference quality on their considered
+plies to all types of ML models. Thus, we conclude,      datasets while heavily reducing the runtime overhead
+due to the heterogeneity of ML models, it is impor-      since re-training is conducted only for each 100 sam-
+--- Page 7 ---
+Figure 2: Accuracy and runtime behavior while processing streams over different datasets. The X-axis indicates the number of
+samples after which re-training is conducted. The Y-axis (right/blue) shows runtime and Y-axis (left/green) shows accuracy.
+Gas, Electricity, Abrupt Insects where initialized with n = 1 and sampled in steps of 5, Forest Covertype, Airlines were
+initialized with n = 20 and sampled in steps of 100.
+
+
+ples. While this is a good starting point for a prag-      quality might also require further computational over-
+matic baseline, it might not be generally applicable     head as we also showed in Figure 2. Thus, we pro-
+since it does not necessarily reflect on an optimum of     pose two strategies:  1.)  select a threshold or set a
+the curves, balancing accuracy and runtime.  How-      target quality for the inference, and measure the com-
+ever, one can explore alternative values for n,  i.e.      putational resources to achieve that 2.) set a thresh-
+baselines depending on the dataset’s characteristics.       old for the runtime or memory and compute the infer-
+                                                    ence quality (accuracy) that is achievable under this
+Set of Metrics:  In (Barros and Santos, 2018), met-     resource constraints. As indicated by Table 1, a sim-
+                                                                       ilar runtime for two DDs might require different set-rics to track the inference quality of a supervised
+                                                             tings for DD parameters, e.g. window size w.DD such as Accuracy, Precision, Recall, F1-Score,
+                                      We highlighted four main considerations requiredTrue Positives, False Positives, Detection Delay, and
+                                                             for a comprehensive benchmark  of unsupervisedMathew’s Correlation Coefficient were used. Addi-
+                                             DDs. However, one preliminary requirement is thetionally, we propose to track the (cumulative) Accu-
+                                                                availability of proper implementations of the DDs, i.e.racy Gain per Drift as presented by (Wu et al., 2021)
+                                                      without crucial performance bugs that deteriorate theto measure the effectiveness of a DD throughout a
+                                                      computational performance of the implementations asstream and not only once for the whole dataset. For
+                                                          outlined by (Jin et al., 2012). Nevertheless, as inves-unsupervised DD we also suggest tracking the amount
+                                                             tigated by (Lukats and Stahl, 2023), implementationsof requested labels, since some DDs detect drift in
+                                                          are scarce, and prose details are often insufficient foran unsupervised manner but request labels for subse-
+                                                      proper re-implementations. This should point to thequent actions. To track computational performance,
+                                                          necessity of the provision of proper descriptions orwe propose metrics such as runtime, resource utiliza-
+                                                     implementations of the DDs by the community.tion, and efficiency, i.e. memory or CPU utilization.
+(Mahgoub et al., 2022) did a similar investigation and
+tracked the runtime and memory of several supervised     4.3  Performance Analysis
+DDs.  As explained in (Mattson et  al., 2020), in-
+ference quality and computational performance can’t     Performance analysis refers to testing, analyzing, and
+be considered independently, since achieving higher     optimizing systems to achieve computational perfor-
+--- Page 8 ---
+Figure 3: Vampir display of the IKS DD (left) and STUDD DD (right) performance data on the Forest Covertype dataset. In
+each display, the left part shows the call tree and the right part shows the function summary, i.e. accumulated exclusive time
+per function. User regions for the inference process are yellow, user regions for the drift detection are green, user regions for
+maintaining buffers, and the ML model is red. sklearn functions are blue. The remaining functions are shaded grey.
+
+
+mance goals and to identify and resolve performance      functions in blue and derived the following: As dis-
+bugs (Jin et al., 2012).  It usually follows a two-step     played in the function summary, the STUDD im-
+workflow:  1.)  profiling, i.e.  accumulating perfor-     plementation mostly relies on sklearn while pro-
+mance data, e.g. runtime of application functions or     cessing the stream.  Based on the call tree, we see
+memory 2.) tracing of an application to exactly record      that the time for drift detection (4780s, 76%) pre-
+program regions enter and exit over time. Both steps     dominates over time for inference (1409s, 22%).
+support a performance analyst in identifying compu-    The call tree also shows the high dependency of
+tational bottlenecks in implementations and improv-    user:STUDD DriftDetetion on the sklearn base
+ing an application’s behavior. For data science, it is      functionalities. With these insights, we conclude that
+also crucial to reflect on the quality (e.g. accuracy)      the runtime overhead for STUDD is significantly high
+when conducting performance analysis, emphasizing      for processing the stream only due to the drift detec-
+the importance of holistic performance engineering,      tion. This is mainly due to the approach of applying
+e.g. improving the runtime behavior of an implemen-     and maintaining an additional student model. How-
+tation while maintaining benchmark results.  Score-      ever, since it is mostly based on sklearn, which is
+P (Kn¨upfer et al., 2012) is an established, scalable     an established library with additional support for par-
+open-source framework that supports profiling and       allel execution, it is worth investigating how STUDD
+tracing.  With the Score-P Python bindings (Gocht      scales across multiple cores or nodes.
+et  al., 2021),  it supports the Python programming        For IKS, the most time for processing the pipeline
+language, which can be considered predominant in    was spent on the inference process (1191s, 56%) as
+data science.   Additionally, a Score-P Jupyter ker-    shown in the call tree and the function summary. Nev-
+nel (Werner et al., 2021) makes it available for exe-      ertheless,  drift detection also takes 784s (37%) as
+cution in Jupyter notebooks. Vampir (Kn¨upfer et al.,      the call tree node user:IKS DriftDetetion shows.
+2008) is a tool to display performance data as col-     This overhead is mostly based on the Add and Remove
+lected by Score-P.                                        functions of the IKS implementation, e.g. maintain-
+   To demonstrate the effectiveness of these work-     ing the internal Treap data representation. The time
+flows, we measured the run of the two Python-      for maintaining the ML model and buffers can be
+based DDs STUDD and IKS on the Forest Covertype     considered insignificant.   With Vampir’s timeline
+dataset.  Figure 3 displays the performance data of      chart, it is possible to get further insights into chrono-
+the STUDD and IKS run in Vampir.  The left part      logical sequences of called functions.  In Figure 4
+shows the call tree displaying the invocation hierar-    we selected the period between the inference of two
+chy across the functions and accumulates the runtime.     subsequent samples of the data stream to investigate
+The middle part displays a timeline of the called func-     IKS’ behavior per sample. We can see the recur-
+tions (top) and their call stack (bottom). The right part      sive call within IKS:Remove for removing the old-
+shows the function summary, i.e. accumulated exclu-      est sample in the reference window. Subsequently,
+sive time per function. For both displays, we consider      the current sample  is added and triggers a recur-
+user regions for the inference process (yellow), user      sive call within IKS:Add. Adding and removing a
+regions for the drift detection (green), user regions     sample mainly consists of a similar recursive se-
+for maintaining buffers, and the ML model (red). The     quence of methods,  i.e.  Treap:SplitKeepRight
+other functions are shaded grey.                              (light green) at the beginning, Treap:Merge (dark
+   For STUDD, we additionally colored sklearn      blue) at the end and either Treap:KeepGreatest
+--- Page 9 ---
+Figure 4: Vampir display of the IKS DD with timeline feature, i.e.  chronological sequence of the called functions. We
+selected the time window to show the called functions of the IKS per sample,  i.e.  between inference steps (yellow).
+The top display shows the master timeline and the bottom display the call stack. Treap.SplitKeepRight is light green,
+Treap.KeepGreatest cyan, Treap.KeepSmallest orange, Treap.Merge dark blue and other Treap functions are purple.
+
+
+(cyan) or Treap:KeepSmallest (orange) in between.      putational performance and inference quality. Us-
+IKS:Add consists of additional merges.                   ing gained insights, we aim to develop parallel and
+   Therefore, we conclude that IKS mostly relies      resource-efficient solutions for diverse applications.
+on the internal data representation.  The resource-
+efficient and potentially parallel implementation of
+maintaining this representation is the key to a low  ACKNOWLEDGMENT
+runtime overhead. While we did not perform an in-
+depth performance analysis of IKS and STUDD, we
+                                              The authors gratefully acknowledge the computing
+still show the effectiveness of such investigations for
+                                                     time made available to them on the high-performance
+DDs.  Further analysis should follow to support the
+                                                  computer at the NHR Center of TU Dresden.  This
+development of resource-efficient scalable DDs.
+                                                          center is jointly supported by the Federal Ministry
+                                                         of Education and Research and the state governments
+                                                             participating in the NHR (www.nhr-verein.de/unsere-
+5 CONCLUSION                                  partner).
+
+
+This work contributes to computational performance
+engineering  for unsupervised DDs by  discussing   REFERENCES
+computational complexities, a comprehensive bench-
+mark, and an initial performance analysis of two DDs.
+                                                    Agrawal, R., Imielinski, T., and Swami, A. (1993).
+We show the necessity of such investigation by high-
+                                                        Database mining: A performance perspective.
+lighting the gap in the prior evaluation and demon-
+                                               IEEE TKDE, 5(6):914–925.
+strating a high runtime of two DDs on a larger dataset.
+                                                         Barros, R. S. M. and Santos, S. G. T. C. (2018). A
+Although time and space complexities alone are not
+                                                                 large-scale comparison of concept drift detec-
+enough for comprehensive performance engineering,
+                                                                         tors. Information Sciences, 451:348–370.
+they are an important pillar for such investigations.
+Thus, we determined them for existing approaches.      Bifet, A., Holmes, G., Pfahringer, B., Kranen, P., Kre-
+The complexities can be reflected in a benchmark that          mer, H., Jansen, T., and Seidl, T. (2010). Moa:
+takes into account the important aspects we have dis-         Massive online analysis, a framework for stream
+cussed, i.e. diversity of datasets, model dependencies,           classification and clustering. In Proc. 1st Work-
+baselines, and the set of metrics.  Performance anal-         shop on Applications of Pattern Analysis, pages
+ysis provides in-depth insights into application be-         44–50. PMLR.
+haviors and supports the development of resource-     Blackard, J. A. and Dean, D. J. (1999).  Compara-
+efficient and parallel DDs. We provide an initial anal-            tive accuracies of artificial neural networks and
+ysis with the tools Score-P and Vampir to reveal po-          discriminant analysis in predicting forest cover
+tential bottlenecks in the implementations of two DD.          types from cartographic variables.  Computers
+   For future work, we plan to extend our com-         and Electronics in Agriculture, 24(3):131–151.
+plexity analysis and substantiate the determined time     Cerqueira, V., Gomes, H., Bifet, A., and Torgo, L.
+and space complexities with empirical measurements.          (2022).  Studd:  a student–teacher method for
+Moreover, we want  to provide a comprehensive          unsupervised concept drift detection. Machine
+benchmark of unsupervised DDs reflecting the com-          Learning, pages 1–28.
+--- Page 10 ---
+Dasu,  T.,  Krishnan,  S.,  Venkatasubramanian,  S.,     Haque, A., Khan, L., and M. Baron, B. Thuraising-
+    and Yi, K. (2006).  An information-theoretic         ham, C. A. (2016). Efficient handling of concept
+    approach  to  detecting  changes  in  multi-            drift and concept evolution over stream data. In
+    dimensional  data  streams.    In Proc. Symp.          Proc. IEEE 32nd Int. Conf. ICDE, pages 481–
+     Interface.                                             492. IEEE.
+de Mello, R. F., Vaz, Y., Grossi, C. H., and Bifet, A.      Harries, M., Wales, N. S., et al. (1999). Splice-2 com-
+     (2019). On learning guarantees to unsupervised           parative evaluation: Electricity pricing.
+     concept drift detection on data streams. Expert     Hawkins, D. M. (2004). The problem of overfitting.
+    Systems with Applications, 117:90–102.                 Journal of chemical information and computer
+Ditzler, G. and Polikar, R. (2011). Hellinger distance           sciences, 44(1):1–12.
+    based drift detection for nonstationary environ-     Hoens, T. R., Polikar, R., and Chawla, N. V. (2012).
+     ments.  In IEEE Symp. CIDUE, pages 41–48.         Learning from streaming data with concept drift
+    IEEE.                                            and imbalance: an overview. Progress in Artifi-
+dos Reis, D. M., Flach, P., Matwin, S., and Batista,           cial Intelligence, 1:89–101.
+    G. (2016). Fast unsupervised online drift detec-     Hulten, G., Spencer, L., and Domingos, P. (2001).
+     tion using incremental kolmogorov-smirnov test.         Mining time-changing data streams. In Proc. 7th
+     In Proc. 22nd ACM SIGKDD Int. Conf. KDD,      ACM SIGKDD Int. Conf. KDD, pages 97–106.
+    pages 1545–1554.                              Ikonomovska,  E.,  Gama,   J.,  and  Dˇzeroski,  S.
+Gama,  J., ˇZliobait˙e,  I., Bifet, A., Pechenizkiy, M.,          (2011). Learning model trees from evolving data
+    and Bouchachia, A. (2014). A survey on con-          streams. Data Mining and Knowledge Discov-
+     cept drift adaptation. ACM computing surveys,           ery, 23:128–168.
+     46(4):1–37.                                                Jin, G., Song, L., Shi, X., Scherpelz,  J., and Lu,
+Gemaque, R. N., Costa, A. F. J., Giusti, R., and San-           S. (2012).  Understanding and detecting real-
+      tos, E. M. D. (2020). An overview of unsuper-         world performance bugs. ACM SIGPLAN No-
+     vised drift detection methods. Wiley Interdisci-            tices, 47(6):77–88.
+     plinary Reviews: Data Mining and Knowledge      Kifer, D., Ben-David, S., and Gehrke, J. (2004). De-
+     Discovery, 10(6):e1381.                                    tecting change in data streams. In Proc. 30th Int.
+Gocht,  A.,  Sch¨one,  R., and  Frenzel,  J. (2021).         Conf VLDB, volume 4, pages 180–191. Toronto,
+    Advanced python performance monitoring with         Canada.
+     score-p. In Tools for High Performance Comput-    Kim, Y. and Park, C. H. (2017). An efficient concept
+     ing, pages 261–270. Springer.                                  drift detection method for streaming data under
+G¨oz¨uac¸ık, ¨O., B¨uy¨ukc¸akır, A., Bonab, H., and Can,           limited labeling. IEICE Transactions on Infor-
+      F. (2019). Unsupervised concept drift detection         mation and systems, 100(10):2537–2546.
+    with a discriminative classifier.  In Proc. 28th      Kn¨upfer, A., Brunst, H., Doleschal, J., Jurenz, M.,
+   ACM Int. Conf. CIKM, pages 2365–2368.                 Lieber, M., Mickler, H.,  M¨uller, M. S., and
+G¨oz¨uac¸ık, ¨O. and Can, F. (2021). Concept learning          Nagel, W. E. (2008). The vampir performance
+     using one-class classifiers for implicit drift de-           analysis tool-set.   In Resch, M.,  Keller,  R.,
+     tection in evolving data streams. Artificial Intel-         Himmler, V., Krammer, B., and Schulz, A., ed-
+     ligence Review, 54:3725–3747.                                 itors, Tools for High Performance Computing,
+Greco, S. and Cerquitelli, T. (2021).   Drift lens:         pages 139–155. Springer Berlin Heidelberg.
+     Real-time unsupervised concept drift detection      Kn¨upfer, A., R¨ossel, C., Mey, D., Biersdorff, S., Di-
+    by evaluating per-label embedding distributions.          ethelm, K., Eschweiler, D., Geimer, M., Gerndt,
+     In Proc. IEEE Int. Conf. ICDMW, pages 341–         M., Lorenz, D., Malony, A., et al. (2012). Score-
+     349. IEEE.                                                 p: A joint performance measurement run-time
+Grubitzsch, P., Werner, E., Matusek, D., Stojanov, V.,           infrastructure for periscope, scalasca, tau, and
+    and H¨ahnel, M. (2021). Ai-based transport mode          vampir. In Proc. 5th Int. Workshop on Parallel
+     recognition for transportation planning utilizing          Tools for HPC, pages 79–91. Springer.
+    smartphone sensor data from crowdsensing cam-     Kumar, N., ˇSegvi´c, S., Eslami, A., and Gumhold, S.
+     paigns.  In Proc. IEEE 24th Int. Conf. ITSC,          (2023). Normalizing flow based feature synthe-
+    pages 1306–1313. IEEE.                                       sis for outlier-aware object detection.  In Proc.
+Gu, F., Zhang, G., Lu, J., and Lin, C. (2016). Concept        IEEE Conf. CVPR, pages 5156–5165.
+      drift detection based on equal density estimation.     Langenk¨amper, D., Kevelaer, R. V., Purser, A., and
+     In Proc. Int. Conf. IJCNN, pages 24–30. IEEE.           Nattkemper, T. W. (2020).  Gear-induced con-
+--- Page 11 ---
+     cept drift in marine images and its effect on deep         dence predictions for unrecognizable images. In
+     learning classification. Frontiers in Marine Sci-          Proc. IEEE Conf. CVPR, pages 427–436.
+     ence, 7:506.                                                 Palli, A. S., Jaafar,  J., Gomes, H. M., Hashmani,
+Leskovec, J., Lang, K. J., Dasgupta, A., and Mahoney,        M. A., and Gilal, A. R. (2022). An experimen-
+    M. W. (2009). Community structure in large net-             tal analysis of drift detection methods on multi-
+    works: Natural cluster sizes and the absence of           class imbalanced data streams. Applied Sciences,
+     large well-defined clusters. Internet Mathemat-          12(22):11688.
+      ics, 6(1):29–123.                                    Pinag’e, F., dos Santos, E. M., and Gama, J. (2020). A
+Liu, A., J.Lu, Liu, F., and Zhang, G. (2018). Accumu-            drift detection method based on dynamic classi-
+     lating regional density dissimilarity for concept             fier selection. Data Mining and Knowledge Dis-
+      drift detection in data streams. Pattern Recogni-          covery, 34:50–74.
+      tion, 76:256–272.                                Qahtan, A. A., Alharbi, B., Wang, S., and Zhang, X.
+Liu, A., Song, Y., Zhang, G., and Lu, J. (2017). Re-          (2015). A pca-based change detection frame-
+     gional concept drift detection and density syn-        work for multidimensional data streams: Change
+     chronized drift adaptation.  In Proc. 26th Int.          detection in multidimensional data streams.  In
+     Conf. IJCAI.                                           Proc. 21st ACM SIGKDD Int. Conf. KDD, pages
+Lu, N., Zhang, G., and Lu, J. (2014). Concept drift         935–944.
+     detection via competence models.  Artificial In-      Reinsel, D., Gantz, J., and Rydning, J. (2018). Data
+     telligence, 209:11–28.                                age 2025: the digitization of the world from edge
+                                                                  to core. Seagate.Lughofer, E., Weigl, E., Heidl, W., Eitzinger, C., and
+     Radauer, T. (2016).  Recognizing input space      Sethi, T. S. and Kantardzic, M. (2017). On the reliable
+    and target concept drifts in data streams with          detection of concept drift from streaming unla-
+     scarcely labeled and unlabelled instances. Infor-          beled data.  Expert Systems with Applications,
+    mation Sciences, 355:127–151.                         82:77–99.
+Lukats, D. and Stahl, F. (2023). On reproducible im-     Shen, P., Ming, Y., Li, H., Gao, J., and Zhang, W.
+     plementations in unsupervised concept drift de-          (2023). Unsupervised concept drift detectors: A
+     tection algorithms research.  In Proc. 43rd Int.           survey.  In Proc. 18th Int. Conf. ICNC-FSKD,
+     Conf. SGAI, pages 204–209. Springer.                  pages 1117–1124. Springer.
+Mahgoub, M., Moharram, H., Elkafrawy,  P., and     Song, X., Wu, M., Jermaine,  C., and Ranka, S.
+    Awad, A. (2022). Benchmarking concept drift          (2007).  Statistical change detection for multi-
+     detectors for online machine learning. In Proc.          dimensional data. In Proc. 13th ACM SIGKDD
+    11th Int. Conf. MEDI, pages 43–57. Springer.                Int. Conf. KDD, pages 667–676.
+Martinez, I., Viles, E., and Cabrejas, I. (2018). La-     Souza, V. M. A., dos Reis, D. M., Maletzke, A. G.,
+     belling drifts in a fault detection system for wind         and Batista, G. E. (2020). Challenges in bench-
+     turbine maintenance.  In Proc. Conf. IDC XII,         marking stream learning algorithms with real-
+    pages 145–156. Springer.                             world data. Data Mining and Knowledge Dis-
+                                                              covery, 34:1805–1858.Mattson, P., Cheng, C., Diamos, G., Coleman, C., Mi-
+     cikevicius, P., Patterson, D., Tang, H., Wei, G.,     Souza, V. M. A., Parmezan, A. R. S., Chowdhury,
+     Bailis, P., Bittorf, V., et al. (2020). Mlperf train-            F. A., Mueen, A., and Abdullah (2021).  Ef-
+     ing benchmark. volume 2, pages 336–349.                  ficient unsupervised drift detector for fast and
+                                                           high-dimensional data streams. Knowledge andMcAuley, J. J. and Leskovec, J. (2013). From ama-
+                                                           Information Systems, 63:1497–1527.     teurs to connoisseurs: modeling the evolution of
+     user expertise through online reviews. In Proc.     Vergara, A., Shankar, V., Ayhan, T., Ryan, M. A.,
+    22nd Int. Conf. WWW, pages 897–908.                Homer, M. L., and Huerta, R. (2012). Chemi-
+                                                                  cal gas sensor drift compensation using classifier
+Mustafa, A. M., Ayoade, G., Al-Naami, K. W., Khan,
+                                                          ensembles. Sensors and Actuators B: Chemical,
+     L., Hamlen, K., Thuraisingham, B., and Araujo,
+                                                        166-167:320–329.
+      F. (2017).  Unsupervised deep embedding for
+     novel class detection over data stream. In Proc.    Webb, G., Hyde,  R., Cao, H., Nguyen, H., and
+    IEEE Int. Conf. Big Data, pages 1830–1839.           Petitjean,  F. (2016).   Characterizing concept
+    IEEE.                                                                 drift. Data Mining and Knowledge Discovery,
+                                                          30(4):964–994.
+Nguyen, A., Yosinski, J., and Clune, J. (2015). Deep
+                                                     Werner, E., Manjunath, L., Frenzel, J., and Torge, S.     neural networks are easily fooled: High confi-
+                                                             (2021). Bridging between data science and per-
+--- Page 12 ---
+    formance analysis: tracing of jupyter notebooks.          Drift detection  is performed by Hellinger dis-
+     In Proc. 1st Int. Conf. AIMLSys, pages 1–7.          tances between two histograms based on Sλ and St.
+Wu, O., Koh, Y. S., Dobbie, G., and Lacombe, T.    The histograms have ⌊√w⌋bins and the main com-
+     (2021). Nacre: Proactive recurrent concept drift      putational complexity is in the Hellinger distance be-
+     detection in data streams.  In Proc. Int. Conf.     tween these two histograms,  i.e. O(⌊√w⌋× d) to
+    IJCNN, pages 1–8. IEEE.                       compute the intermediate distances per bin of each
+                                                              feature, resulting in the final Hellinger distance. ForXuan, J., Lu, J., and Zhang, G. (2020). Bayesian non-
+                                                     space complexity, only the histograms must be kept     parametric unsupervised concept drift detection                                                             in memory, i.e. O(⌊√w⌋×d).     for data stream mining. ACM TIST, 12(1):1–22.
+                                            IKS (dos Reis et al., 2016) State the time com-
+Zheng, S., Zon, S., Pechenizkiy, M., Campos, C.,
+                                                            plexity of their approach in the publication. For the
+     Ipenburg, W., and Harder, H. (2019). Labelless
+                                                     space complexity, they store w instances with d fea-
+     concept drift detection and explanation. In Proc.
+                                                                 tures, i.e. O(w∗d)
+    Workshop Robust AI in FS.
+                                 BNDM (Xuan et al., 2020) State the time com-
+                                                            plexity of their approach in the publication. For the
+                                                     space complexity, they store w instances with d fea-
+APPENDIX                                              tures, i.e. O(w∗d)
+                                  ECHO (Haque et al., 2016) State the time and
+We justify the determined time and space complexi-     space complexity of their approach in the publication.
+ties. All approaches refer to at least two parameters:     OMV-PHT (Lughofer et al., 2016) b - number
+w - window size (number of examined data points)     of bins of estimated histogram   Propose an exten-
+and d - number of data dimensions per data point         sion of the Page-Hinkley test by only considering de-
+                                                              teriorations of the quality indicator (e.g.  accuracy)
+  KL (Dasu et al., 2006) δ - minimum value for the     and fading older samples for computing the quality
+property box length of their internal data representa-      indicator. Besides a supervised quality indicator, they
+tion kdq-tree   State the time and space complexity     propose a semi-supervised one, that relies on active
+in the publication.                                       user feedback, and an unsupervised quality indica-
+  PR (Gu et al., 2016) State the time complexity      tor which is considered in this study. To determine
+of their approach in the publication.  For the space      the quality of a model, they build histograms over the
+complexity, they store w instances with d features, i.e.     model confidence values during inference. Next, they
+O(w∗d)                                         compare the histograms of two windows by iterating
+  CD (Qahtan et al., 2015) Even not mentioned ex-     over the bins, i.e. O(b), and apply their faded Page-
+plicitly in their publication, processing a sample relies     Hinkley test in O(w) since the fading of older samples
+on the data dimensionality d since the projection of a     needs to be re-computed. An update of the histograms
+data point onto the PCs is done in O(d × k), where     can be done per sample in O(1). Therefore, the over-
+k is the number of PCs describing 99.9% of the vari-       all time complexity is O(w+b). Space complexity is
+ance and k can be considered as a constant. For drift,    O(w+b) to store the confidence histogram and the w
+they report O(d2 ×w). Space complexity for the PCs     magnitude values for the OMV-PHT test.
+with a fixed k is O(d) and O(w) due to the projection     DbDDA (Kim and Park, 2017) Calculates mean
+of the data points in the reference window on a fixed     and standard deviation for a reference and detection
+number of PCs, i.e. O(w+d).                      window of size w over the confidences of the ML
+  NM-DDM (Mustafa et al., 2017) b - number of     model in the inference. Mean and standard deviation
+bins of estimated histogram    State the time com-      are computed iteratively in O(1) per dimension with
+plexity of their approach in the publication. For the     space complexity O(w) to store all confidences. The
+space complexity, b number of bin values in each of      reference window is either fixed or moving for Db-
+the histograms for the d features are stored, i.e. d ∗b.    DDA. For the ensemble case, multiple reference win-
+  HDDDM (Ditzler and Polikar, 2011) Originally    dows are kept, and mean and standard deviation are
+HDDDM was proposed as a batch-based approach.     considered w.r.t. this ensemble, i.e. time complexity
+To apply  it incrementally on each sample, we as-     O(e) and space complexity O(e∗w).
+sume a naive procedure: we introduce an initialization    CM (Lu et al., 2014) State the time complexity
+phase over the first samples Si with i = 1,2,...w and     of their approach in the publication.  For the space
+initialize Dλ = Dw = S1,...Sw. For each new sample     complexity, they store w instances with d features, i.e.
+St and t = w+1,w+2,..., we initialize Dt = Dt−1 ∪St    O(w∗d)
+St−w to create a sliding window of size w. Now, we
+apply the HDDDM as usual.

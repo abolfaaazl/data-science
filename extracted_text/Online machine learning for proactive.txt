@@ -1,0 +1,967 @@
+Title: Online machine learning for proactive
+
+--- Page 1 ---
+Thaqi et al. Journal of Cloud Computing     (2026) 15:22                           Journal of Cloud Computing
+https://doi.org/10.1186/s13677-026-00848-y
+
+
+RESEARCH                                          Open Access
+
+Online machine learning for proactive
+threat intelligence and timely DDoS attack
+prediction
+
+Rrezearta Thaqi1, Gabriele Lenzini2, Marcus Völp2 and Blerim Rexha1*
+
+
+ Abstract
+  Distributed Denial of Service (DDoS) attacks are rapidly escalating in scale and sophistication, posing critical
+  threats to modern cloud infrastructures. Recent reports from Cloudflare show unprecedented attack volumes,
+  20·5 M attacks in Q1 2025, and sophisticated patterns such as low-rate stealth or bursty bots, underscoring the
+ need for timely, automated threat intelligence. Traditional defenses – static IDS signatures or threshold rules –
+ remain reactive and incur high false-alarm rates. To address these gaps, we propose a real-time ML framework for
+  proactive DDoS defense. We built a unified labeled dataset from public (CIC-IDS2017 DDoS and CIC-DDoS2019)
+ and proprietary, pfSense traffic captures, enriched with MISP threat indicators. In a comparative supervised
+  evaluation, we trained multiple classifiers (SVM, Random Forest, XGBoost) via cross-validated grid search, using
+  accuracy, precision, and recall as key metrics. The architecture routes all traffic through a pfSense gateway into
+ a Wazuh analytics node, with OpenSearch and Grafana, for streaming feature extraction and prediction. Results
+ show all models achieved near-perfect detection (≈99.99% accuracy, 100% precision/recall) on test data. XGBoost
+  slightly outperformed the others and maintained > 99.9 % accuracy even under 15,000 events/sec load and
+ was thus selected for deployment. The pipeline sustained inference latency < 50 ms, enabling timely alerts and
+ automated mitigation. These findings demonstrate that ML-based threat intelligence can greatly enhance DDoS
+  mitigation with minimal false alarms. In addition, we draw inspiration from fault tolerance to protect and improve
+ the availability of the watchmen themselves, by replicating threat intelligence, distributing them geographically,
+ and require them to reach consensus to filter spurious alerts, or worse, compromise of individual instances of
+ the servers on which they execute. Future work will close the loop to automated enforcement, such as dynamic
+  firewall updates, adapt models to evolving attack patterns, and advancing proactive cloud security.
+ Keywords  Cloud computing, DDoS attack, Cloud security, Threat intelligence, Machine learning
+
+
+
+
+
+*Correspondence:
+Blerim Rexha
+blerim.rexha@uni-pr.edu
+1Faculty of Electrical and Computer Engineering, University of Prishtina,
+Prishtina, Kosovo
+2Interdisciplinary Centre for Security Reliability and Trust (SnT), University
+of Luxembourg, Esch-sur-Alzette, Luxembourg
+
+
+                            © The Author(s) 2026. Open Access  This article is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0
+                                                   International License, which permits any non-commercial use, sharing, distribution and reproduction in any medium or format, as long as you
+                                               give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if you modified the
+                                                licensed material. You do not have permission under this licence to share adapted material derived from this article or parts of it. The images or
+                                             other third party material in this article are included in the article’s Creative Commons licence, unless indicated otherwise in a credit line to the
+                                                    material. If material is not included in the article’s Creative Commons licence and your intended use is not permitted by statutory regulation or
+                                          exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit ​h​t​t​p​:​/​/​c​r​e​a​t​i​
+                                                                                         v​e​c​o​m​m​o​n​s​.​o​r​g​/​l​i​c​e​n​s​e​s​/​b​y​-​n​c​-​n​d​/​4​.​0​/.
+--- Page 2 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                            Page 2 of 22
+
+
+
+Introduction                                           a signature-based IDS inspects  traffic against a data­
+Distributed  Denial  of  Service (DDoS)  attacks  have   base of known attack signatures and triggers alerts upon
+evolved into one of the most potent forms of cyberat­   matches.
+tacks, capable of overwhelming  critical infrastructure     In contrast to traditional systems that often suffer from
+by flooding it with illegitimate traffic. The scale and fre­   high false-positive rates and struggle to adapt to novel
+quency of these attacks are not only persistent but accel­    attacks, AI and machine learning-driven intrusion pre­
+erating. Cloudflare’s 2025 Q1 DDoS Threat Report [1]   vention systems have demonstrated significantly higher
+revealed 20.5 million blocked DDoS attacks in just three    effectiveness. A 2025 comparison study [7] found that
+months, representing a 358% year-over-year increase and   AI-based IDS/IPS systems reduced false-positive rates
+nearly double the volume from the previous quarter as   by nearly 30% and achieved much higher accuracy in
+shown in Fig. 1.                                            detecting previously unseen threats while offering scal­
+  Such evidence  highlights  the urgency  of  develop­    able, real-time performance where traditional systems
+ing more effective defenses, as adversaries increasingly   frequently failed [7].
+exploit the  elastic and distributed nature of modern     Unlike static IDS rules that only match predefined sig­
+cloud services.                                              natures, ML-based systems infer patterns from traffic sta­
+  In contemporary cloud-based environments, where    tistics and contextual features. This data-driven approach
+services are distributed, elastically scaled, and often con­   enables them to  flag variants and previously unseen
+tainerized, the impact of such attacks can be both wide­   attacks with greater reliability. Recent work confirms that
+spread and difficult to localize [2]. Unlike conventional   such models not only sustain high detection accuracy but
+on-premise systems, cloud-native architectures  intro­    also cut down on spurious alerts in operational settings
+duce new complexities in threat surface management,    [8].
+traffic routing, and inter-node visibility. These charac­    To enhance the detection process, the security com­
+teristics call for equally dynamic and adaptive defense   munity has turned toward threat intelligence (TI), under­
+mechanisms capable not only of detecting attacks in real   stood here as the use of real-time feeds and contextual
+time but also of anticipating them based on observed   indicators—such as IP/domain reputation lists, malicious
+network behavior patterns [3].                               infrastructure IOCs, and behavioral patterns observed in
+  Traditional defense strategies often rely on static rule-   the wild—to complement local traffic analysis [9]. Com­
+based intrusion detection systems (IDS), threshold-based   bined with ML, these signals move beyond static black­
+firewalls, or manual traffic analysis [4]. While these tools    listing and support predictive analytics that anticipate
+offer a first layer of defense, they are inherently reac­   emerging DDoS activity rather than only reacting once
+tive and  fall short in environments characterized by   attacks are underway [10, 11].
+rapid workload fluctuations, transient network  states,     In  parallel, watchmen, which gather  threat  intelli­
+and complex east-west  traffic patterns  [5]. Moreover,   gence, are increasingly also affected by DDoS and other
+these approaches typically do not scale well in systems    attacks, threatening the availability of alarms, specifically
+composed of ephemeral nodes such as those managed   ones of a predictive nature, like ours. To compensate for
+via auto  scaling groups  in cloud  infrastructure. An    this, we draw inspiration from the fault and intrusion
+example traditional setup is illustrated in Fig. 2, where    tolerant systems domain [12] and apply replication and
+
+
+
+
+
+Fig. 1  DDoS attacks by quarter [1]
+--- Page 3 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                            Page 3 of 22
+
+
+
+
+
+Fig. 2  Traditional signature-based NIDS architecture. Traffic is compared against an attack signature database, and alerts are triggered upon matches.
+While effective for known threats, such systems are reactive and cannot detect novel or evolving DDoS attacks until new signatures are defined [6]
+
+distributed  coordination  for  maintaining  consistency    selective rate limiting, or temporary scaling of replica
+among the decisions and for tolerating regional attacks   resources, before the traffic volume reaches saturation.
+against our watchmen infrastructure.                   Such proactive techniques directly address the availabil­
+  Proactive defense mechanisms are essential in the con­    ity threat by reducing the time window in which adver­
+text of DDoS attacks, since reactive measures alone often    sarial traffic can overwhelm the infrastructure.
+occur too late to prevent service degradation. Beyond     This paper proposes a novel architecture that combines
+migration and recovery strategies, we integrate predic­   these  paradigms:  threat  intelligence, machine  learn­
+tion-based defenses  that  forecast attack onset based    ing, and distributed coordination. The system leverages
+on traffic flow features. This allows the system to enact   pfSense as a traffic monitoring gateway deployed within
+preventive actions, such as firewall rule pre-deployment,   an AWS Virtual Private Cloud (VPC). All traffic from
+--- Page 4 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                            Page 4 of 22
+
+
+
+a dynamically scaling group of replica nodes is routed   evade traditional threshold-based intrusion prevention
+through the pfSense instance, enabling full visibility into   systems [15].
+communication flows. pfSense forwards structured logs    Machine learning (ML) has emerged as a robust solu­
+to a central analytics node running Wazuh, which inte­   tion to address the limitations of conventional detection
+grates with OpenSearch and Grafana for log indexing and   systems. Unlike rule-based methods, ML models can
+visualization.                                               learn complex, non-linear patterns in traffic and system
+  At the core of the system is a trained machine learn­   telemetry. Classifiers such as Random Forests, Support
+ing model, deployed on the Wazuh server, that performs   Vector Machines (SVM), K-Nearest Neighbors (KNN),
+DDoS prediction from flow-level features. This enables   and Deep Neural Networks have been applied to detect
+both real-time detection and early warning. While zero-   anomalies and malicious behavior in real-time  traffic
+day threats naturally lie outside the training data, volu­   streams [14, 16].
+metric characteristics like packet/byte rates, SYN/ACK     Recent research demonstrated that ML techniques,
+ratios, and source-IP entropy tend to persist across new    especially ensemble models and hybrid approaches, can
+variants and studies confirm that ML models using these   outperform conventional detection systems by achieving
+features generalize well to unseen DDoS behaviors [13].   higher precision, recall, and lower false-positive rates [17,
+To ensure robustness, we also embed BFT-inspired coor­    18]. Studies also highlight the need for adaptive learning
+dination so replicas reach consensus even during partial   algorithms capable of managing the challenges posed by
+failures or compromise.                                  zero-day attacks and the concept drift associated with
+  The contributions of this work are twofold: (1) we   evolving threats [19].
+introduce a hybrid detection and prediction framework     Threat intelligence (TI) augments ML by introduc­
+that integrates network observability with machine learn­   ing  contextual  awareness—fusing  external  indicators
+ing to enhance DDoS mitigation capabilities, and (2) we    of compromise (IOCs), IP reputation scores, dark web
+ensure reliability of detection outcomes and availability    surveillance, and vulnerability feeds into the decision-
+of detectors through replication and lightweight consen­   making process. This integration enhances ML classifiers
+sus among monitoring replicas. While our focus is lim­   by weighting features based on threat context, thereby
+ited to DDoS attacks where adversaries primarily aim to   improving detection accuracy and enabling proactive
+overwhelm availability rather than compromise nodes,   mitigation strategies [18].
+the consensus mechanism helps avoid inconsistent or     Moreover,  threat  intelligence  aids  in reducing  the
+erroneous alerts from individual detectors. Moreover, it   latency of response by facilitating real-time updates on
+provides coordination among geographically distributed   emerging threats and known malicious infrastructure.
+monitoring replicas that are less likely to be affected by   For example, fusing dynamic threat feeds with network
+the DDoS attack in one region. This system is particu­   flow analysis enables rapid detection of known botnet
+larly suited for cloud-native environments where scal­   signatures and command-and-control (C2) traffic, even if
+ability, automation, and proactive threat response are   payload-level inspection is encrypted or obfuscated.
+mission-critical.                                     Complementary  to  these  findings,  Benjamin  [20]
+                                                        explored the fusion of real-time threat intelligence feeds
+Machine learning and threat intelligence in the       with machine learning pipelines to enhance proactive
+context of geo-replicated cloud security               defense in dynamic network environments. Although not
+Cloud  computing  has  transformed modern  IT  by    tailored to BFT-based systems, this work highlights the
+enabling flexible, scalable, and cost-effective access to   importance of integrating external threat indicators into
+computational resources. However, this transition has  ML workflows, supporting our argument that threat-
+also amplified the attack surface for cyber threats, partic­    intelligence-driven  prediction  strengthens  resilience
+ularly DDoS attacks. These attacks attempt to flood a tar­   when combined with lightweight consensus mechanisms.
+get with overwhelming traffic, depleting critical system    While DDoS primarily targets availability through net­
+resources and causing service outages. As the scale and   work exhaustion rather than direct node compromise,
+complexity of cloud systems grow, especially with multi-   maintaining  consistent and  reliable  detection  across
+tenant and distributed architectures, the susceptibility to    replicas remains critical. For this reason, we adopt light­
+DDoS increases significantly [14].                        weight consensus mechanisms inspired by solutions from
+ DDoS attacks not only affect user accessibility but can   the fault and intrusion tolerant systems domain.
+degrade inter-service communication, disrupt backend    To achieve resilience, many cloud-based distributed
+orchestration, and trigger cascading failures in distrib­   systems, specifically blockchains, databases, and real-
+uted systems. In recent years, attackers have evolved   time services [21], adopt Byzantine Fault Tolerant (BFT)
+their tactics, including low-rate stealthy attacks, botnet-   protocols, such as PBFT (Practical Byzantine Fault Tol­
+driven bursts, and application-layer overloads, which   erance) [22] or GroupBFT [23]. These protocols ensure
+--- Page 5 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                            Page 5 of 22
+
+
+
+system consistency even when a subset of nodes behave    Makkawi and  Yousif  [26] conducted  a  systematic
+maliciously or arbitrarily. In a 3f+1 configuration, BFT   review of ML-based DDoS defenses in cloud environ­
+ensures service availability as long as fewer than f repli­   ments, concluding  that ensemble approaches consis­
+cas are faulty. Crash fault tolerance (e.g., as in Paxos [?]),    tently outperformed single-model classifiers due to their
+are optimized for less potent adversaries that can pres­   robustness to data imbalance and attack variability. These
+ent replicas only from responding, but not alter their   findings are echoed by Mishra et al. [27], who imple­
+messages.                                        mented a comparative framework using KNN, Random
+  While in this work, we do not consider compromise    Forest, and Naive Bayes, with Random Forest achieving
+of monitoring replicas, we find a similar situation where   99.76% accuracy.
+due to the nature that observations are not symmetric by    Beyond these conventional and ensemble approaches,
+all replicas, we have to cope with disagreements in the   recent work has explored a hybrid pipeline in which a
+assessment what individual replicas observe and with   Probability of Fitness–based Billiards-Inspired Optimi­
+false alarms due to how they are connected to the system   zation (PF-BIO) algorithm first selects features through
+they observe.                                               global  search,  Fisher discriminant  analysis, and  fea­
+   It remains so an interesting topic of future work to also   ture–class  correlation, then optimizes fusion weights
+evaluate ML-based DDoS detection and threat intelli­   across those subsets. This achieved a detection accuracy
+gence for replicated systems, such as blockchains or sys­    of 97.05%, highlighting the promise of combining meta­
+tems deploying various forms of BFT protocols, even so    heuristic feature selection with temporal deep learning
+currently available datasets are rare, hampering reprodu­    for precise DDoS identification [28].
+cability and benchmarking, requiring synthetic loads to    To address low-rate and stealthy DDoS attacks, Mani­
+be used, like CICIDS-2017, CIDDS-001, or NSL-KDD for   maran et al. [29] proposed an adaptive framework using
+cloud DDoS contexts [17].                               Decision  Trees,  specifically optimized  for  container-
+  The integration of machine learning, enriched with   based  cloud  architectures.  Their  design  emphasizes
+threat intelligence, and tailored to the operational intri­   real-time response and high interpretability, making  it
+cacies of BFT protocols  offers a promising research    suitable for cloud-native deployments. Likewise, AlSaleh
+direction. Such systems could monitor consensus health,    et al. [30] introduced the Bayesian Convolutional Neural
+replica communication  logs, and network metrics in   Network (BaysCNN) model, enhanced through feature
+feeding this multidimensional data into hybrid ML archi­    fusion, achieving 99.79% accuracy across multiple DDoS
+tectures. Real-time predictions could trigger defensive    classes using the CICDDoS2019 dataset.
+strategies such as rate limiting, replica redistribution, or    Green [31] offered a broad view on integrating ML
+dynamic quorum adjustment before service-level objec­   within cloud security, advocating for hybrid frameworks
+tives are violated.                                            that blend ML-based detection with traditional IDS sys­
+  This novel intersection of intelligent detection and pro­   tems. This multi-layered defense approach aligns well
+tocol-specific resilience represents a critical step forward   with the recommendations by Corrêa et  al. [32], who
+in securing next-generation cloud infrastructures.         used OpenStack-native telemetry in a real-world testbed.
+                                                 They demonstrated that kNN and Random Forest could
+Related work                                           achieve up to 87% accuracy in distinguishing between
+The intersection of machine learning (ML) and threat   SYN_Flood  and  GET_Flood  attacks,  outperforming
+intelligence (TI) in the context of DDoS detection in   Snort in certain cases.
+cloud environments, especially those incorporating Byz­     Incorporating threat  intelligence (TI) into machine
+antine Fault Tolerance (BFT) is an evolving field. Recent   learning-based detection pipelines has emerged as a
+studies provide critical insights into ML-based intrusion   powerful enhancement in the field of network security.
+detection systems (IDS), emphasizing model accuracy,   As highlighted in the literature review by [3], the fusion
+adaptability, and scalability.                                  of TI improves the contextual understanding of network
+ Sumukh and Sandhya [24] evaluated traditional ML   events, thereby increasing the accuracy and responsive­
+algorithms including Random Forests and Decision Trees   ness of DDoS detection systems.
+alongside deep learning (DL) models like Artificial Neu­     Krishna et al. [33] expanded on this by proposing a
+ral Networks (ANN) and Long Short-Term Memory   cloud security framework using CNNs and RNNs, sup­
+(LSTM). Their work highlighted LSTM’s superior adapt­   plemented with ensemble strategies. They noted signifi­
+ability for time-dependent traffic anomalies. Similarly,   cant accuracy improvements through feature engineering
+Subrmanian et al. [25] used the CSE-CIC-IDS2018 data­   driven by threat intelligence feeds.
+set to address the problem of identifying DDoS attacks     Suneetha  Bulla and  S.K.  [17] provided a  dataset-
+within a cloud environment by multiple logistic regres­   focused review, comparing results across popular bench­
+sion analysis employments.                           marks  like NSL-KDD, CIDDS-001, and CICIDS2017.
+--- Page 6 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                            Page 6 of 22
+
+
+
+Their synthesis revealed that data quality and attack   Problem statement and threat model
+diversity greatly influence ML model performance. This   Cloud-native services running on  elastic, auto-scaling
+aligns with Corrêa et  al. [32], who found that native    infrastructures face an increasingly sophisticated threat
+telemetry and macroscopic monitoring  offered more   from DDoS attacks that can evolve in both volume and
+practical signals than raw packet inspection alone.          vector patterns within seconds. In such environments,
+  Meanwhile, Green  [31] and Chauhan  [34] empha­    traditional perimeter-based defenses, whether deployed
+sized the importance of real-time inference and minimal   as  static load balancers or signature-driven intrusion
+latency in deployment, a crucial consideration for sys­   detection systems struggle to maintain visibility across
+tems with BFT protocols where delays could trigger con­   rapidly provisioned and deprovisioned instances. As rep­
+sensus failure.                                                      lica counts fluctuate, so too do east-west traffic volumes,
+  Recent  efforts have further advanced DDoS detec­   often reaching hundreds of thousands of packets per sec­
+tion accuracy. Abiramasundari and Ramaswamy [35]   ond. Any delay in detecting anomalous flows, even on the
+proposed a PCA-enhanced feature selection approach   order of a few seconds, can allow attack traffic to saturate
+(EDAD) combined with supervised classifiers such as   network interfaces or consume critical CPU cycles, caus­
+Random Forest and SVM on CIC-IDS and CICDDoS   ing service degradation or complete downtime before a
+datasets, achieving detection rates close to 99%. Their    reactive threshold is ever reached [39].
+study  reinforces  the  effectiveness  of ensemble-based     Moreover, conventional defense postures remain fun­
+methods for handling complex and high-dimensional   damentally  reactive.  Static  thresholds  configured  in
+DDoS traffic patterns in cloud environments.               rule-based IDS systems  fail to anticipate subtle, low-
+  Despite significant progress, none of the surveyed stud­    rate assaults that evade detection by staying below fixed
+ies  specifically  tailor their approaches for BFT-based    limits, and they generate false alarms during legitimate
+replicated systems or machine  learning combination    traffic surges such as flash crowds. Without a predic­
+with threat intelligence. While Corrêa et al. [32] men­    tive mechanism to forecast impending volumetric spikes
+tion distributed systems and telemetry, they stop short of   based on evolving flow statistics, metrics like packets per
+addressing protocol-layer variables like quorum latency   second, bytes per second, SYN/ACK ratios, and source-
+or replica message entropy. This gap highlights the need   IP entropy—operators are left responding to attacks only
+for integrating BFT state data, such as round durations,    after they have begun. In highly dynamic cloud environ­
+view changes, and replica failure patterns, into ML fea­   ments, this “see-then-respond” approach is too slow to
+ture sets.                                               prevent resource exhaustion and its cascading effects on
+  Recent contributions further emphasize the relevance   dependent services.
+of BFT for securing cloud-native infrastructures. Feng et    Compounding the challenge  is the need to consoli­
+al. [36] introduced a hash-based multi-valued validated   date and process vast quantities of log data in real time.
+asynchronous BFT  protocol  that  reduces  consensus   pfSense gateways, when deployed as traffic inspection
+latency and communication overhead, improving practi­    points, can forward syslog or flow records from mul­
+cality in adversarial environments.                              tiple replicas at line rate, resulting in tens of gigabytes
+ Wu et al. [37] proposed BFTBrain, an adaptive consen­    of logs per hour. Extracting sliding-window features for
+sus framework that employs reinforcement learning to   machine-learning   inference—calculating   per-second
+dynamically switch between protocols under fluctuating   aggregate counters and entropy measures—demands an
+workloads and fault conditions, achieving significant per­    efficient, in-memory pipeline that can keep pace with
+formance gains in cloud deployments.                   incoming streams. Batch-oriented workflows, such as
+  Similarly, Fu et al. [38] presented Hamster, a synchro­   writing CSV snapshots for offline analysis, are unsuitable;
+nous BFT protocol that leverages erasure coding to   feature engineering and classification must occur contin­
+achieve near-linear throughput scalability while tolerat­   uously without dropping packets or overwhelming host
+ing up to 50% malicious replicas.                            resources.
+  Although these works advance the state of the art in      Reliability of detection outcomes is equally critical. In
+consensus,  they  primarily  optimize  protocol  perfor­   a distributed monitoring architecture, a single compro­
+mance and adaptability, without integrating threat intel­   mised or overloaded node can undermine the integrity
+ligence or machine learning into the detection loop.    of the entire detection fabric. Ensuring that all replicas
+Our work addresses this gap by embedding lightweight   reach consensus on whether a DDoS event is unfolding
+BFT-inspired  coordination  within  a  proactive ML-   requires a fault-tolerant coordination layer. Drawing on
+driven defense pipeline for DDoS prediction in cloud    principles from Byzantine Fault Tolerance (BFT), our
+environments.                                      framework must maintain agreement across a cluster of
+                                                     monitoring nodes even when up to f out of 3f + 1 repli­
+                                                          cas behave arbitrarily, whether due to software faults,
+--- Page 7 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                            Page 7 of 22
+
+
+
+network partitions, or malicious compromise. Absent  new traffic samples are appended to the dataset for analy­
+such mechanisms, fragmented or inconsistent alerts will    sis. We emphasize that the proposed system operates in
+lead to ineffective or conflicting mitigation actions.        an online manner with continuous data ingestion and
+ A practical DDoS detection framework should plug   real-time inference. From the pfSense logs we could get
+right into the tools we already use rather than forcing   15 features including source ip, protocol, packet length,
+you to rip and replace your infrastructure. For exam­    etc. Based on the traffic, we get at least 5 pfSense logs
+ple, you could lean on pfSense for gateway monitoring,   per millisecond. Ground-truth labels for pfSense traf­
+Wazuh for SIEM services, OpenSearch for log indexing,    fic were generated automatically by fusing Suricata sig­
+and Grafana for alert dashboards. Ideally, the system   nature alerts with Wazuh correlation rules, requiring
+would tap into pfSense’s syslog feed, run lightweight fea­   independent confirmation from both systems to assign
+ture extraction and ML inference on your Wazuh agents   a malicious  label.  Finally, we enrich every flow with
+in under a second, and then ship neatly formatted alerts    threat-intelligence indicators drawn from MISP feeds:
+into your OpenSearch indices—all without demanding a   source and destination IPs, domains, and network ranges
+heavy, custom rollout. By building on these familiar com­   tagged as malicious are encoded as binary IOC flags and
+ponents, you get a real-time, proactive defense that scales   scaled risk scores. The unified dataset contains more than
+with your cloud environment and helps you spot and stop   2,000,000 rows.
+DDoS attacks before they take hold.                         Table 1 summarizes the data distribution in datasets
+  The ability to predict an impending DDoS attack even   including benign vs. attack class distribution:
+a few seconds or minutes in advance enables the system     For testing purposes, we did replay-based oversampling
+to initiate preventative actions—such as rerouting traffic,    for pfSense attacks to increase the number of malicious
+instantiating additional defense resources, or live-migrat­   samples in the dataset.
+ing target services—before the attack peaks. By ensur­     Because the source datasets contained different feature
+ing that countermeasures are already in place when the   schemas, we performed a harmonization step that maps
+attack volume surges, early warning significantly reduces    all flows to a unified feature space. Only features avail­
+downtime and performance degradation.                    able consistently across all sources were retained, and
+                                                       missing values from dataset-specific fields were imputed
+Methodology                                          or dropped as appropriate. This resulted in a single stan­
+The proposed system is designed to detect and predict   dardized representation that enables joint training and
+DDoS attacks by integrating real-time traffic monitor­   evaluation.
+ing, log analysis, and machine learning–based prediction   We applied temporal partitioning to prevent leakage
+within a cloud-native infrastructure. In order to achieve   between training and evaluation sets. All CIC-IDS2017
+both high accuracy and low latency, our methodology   and CIC-DDoS2019  traffic, along with  early benign
+proceeds in two major phases: (1) training and model   pfSense captures and MISP feeds, formed the training
+selection phase, and (2) deployment and inference phase.    set. All later pfSense traffic and simulated attacks served
+                                                              exclusively as the test set. Flows from the same connec­
+Data collection and model selection                          tions or replayed attack traces appeared in only one set.
+We begin by constructing a comprehensive, unified data­   On this enriched corpus, we evaluate three candidate
+set that combines multiple sources of labeled  traffic.    classifiers: SVM, Random Forest and XGBoost, each con­
+First, we ingest the publicly available CIC-IDS2017 DDoS   figured to ingest the same feature vector of flow statistics
+and CIC-DDoS2019 capture, extracting per-flow statis­   plus IOC enrichments together with the deep learning
+tics such as packets per second (PPS), bytes per second   algorithm and three AI models: OpenAI, DeepSeek and
+(BPS), TCP SYN/ACK ratios, etc. Next, we merge these   Grok, which were exploratory experiments. Hyperpa­
+records with our  proprietary pfSense–derived  traffic   rameter optimization is performed via grid search on the
+logs that were gathered during a certain period of time    validation split, and models are compared according to
+as real-time logs are continuously collected from pfSense,    precision, recall, and F1-score. Given the operational pri­
+                                                                ority of minimizing false alarms in production, we select
+Table 1  Data size in datasets and benign vs. attack class           the model achieving the highest precision as our produc­
+distribution                                                  tion predictor.
+Source                       Full Dataset
+                        Benign              DDoS        System architecture and data pipeline
+CIC-IDS2017                 2,702,716                  128,027       At runtime, our architecture comprises four cooperating
+CIC-DDoS2019              ~56,863                   ~2,137,764       layers:
+pfSense logs                     All collected                    All collected
+Total                     ~2.76 M                 ~2.2 M
+--- Page 8 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                            Page 8 of 22
+
+
+
+Traffic monitoring layer                                   a  lightweight consensus scheme  that  validates high-
+A pfSense instance, deployed on an Amazon EC2 within   confidence alerts before mitigation. Each replica inde­
+a VPC, functions as the network gateway for an Auto   pendently processes incoming flow telemetry and emits
+Scaling Group  of  replica EC2  instances.  All  ingress   a binary prediction verdict. A mitigation action  (e.g.,
+and egress traffic from these replicas is routed through   dynamic firewall rules via pfSense’s API)  is triggered
+pfSense, providing a single point of packet capture and   only if a quorum of replicas agree, ensuring that spuri­
+flow logging. Suricata is enabled on pfSense to augment   ous alerts from an individual node do not result in incon­
+raw flow records with deep-packet alerts.                     sistent or premature responses. Figure 3 illustrates the
+                                                            architecture of our framework.
+Log aggregation and preprocessing layer                   Beyond consensus,  replicas  periodically checkpoint
+pfSense forwards its syslog records in real time over UDP    their state (e.g., sliding window statistics and detection
+to a central monitoring node running Wazuh. An rsyslog   outcomes)  to ensure  uninterrupted  operation under
+listener captures this stream into a local file (/var/log/    failover. By deploying  replicas across separate  avail­
+pfsense.log), and a custom parser ingests each new line    ability zones, the framework preserves monitoring con­
+to extract the same feature set employed during training:    tinuity even when a region is degraded or isolated by a
+PPS, BPS, SYN/ACK ratios, entropy measures, and IOC   volumetric attack. Replica nodes resynchronize upon
+flags. All parsing and feature computation occur in mem­   recovery,  preventing  detection  reset and  improving
+ory in a sliding-window fashion to maintain sub-second   robustness against both infrastructure outages and tar­
+throughput. The logs transferred to the Wazuh server are   geted saturation.
+the logs that pfSense monitor from the replicas.            To validate resilience against adversarial behavior, we
+                                                model Byzantine failure modes within the quorum logic.
+Machine learning prediction layer                           In a standard 3f + 1 configuration with N = 4 replicas
+A continuously running daemon on the Wazuh host   and f = 1 malicious node, the compromised replica exe­
+loads the preselected model and monitors the parsed   cuted two independent strategies: (i) injecting spurious
+log buffer. For each assembled feature vector, it executes    alerts in an attempt to enforce false mitigations, and (ii)
+model.predict and to produce a binary decision (attack   suppressing legitimate alerts to delay response. We evalu­
+vs. benign) and a confidence score. When the confidence   ated consensus failures, false-positive activations, and
+exceeds a predefined threshold (e.g., 0.90), the daemon   mitigation latency under these adversarial scenarios.
+immediately emits a JSON-formatted alert—including    To simulate malicious or  inconsistent  replicas, we
+timestamp, replica identifier, confidence, and key met­   modeled Byzantine behavior analogous to model poi­
+rics—into Wazuh’s active-responses log.                   soning in federated learning systems, where corrupted
+                                                   nodes  intentionally  deviate from consensus  updates.
+Alerting and visualization layer                             This adversarial model aligns with prior work such as Li
+The JSON alerts trigger custom detection rules in Wazuh,    et  al.’s [40] which provides a foundation for simulating
+which  index them  into OpenSearch  under wazuh-   integrity-compromised  participants within  distributed
+alerts-*. Grafana dashboards are then configured to dis­   environments.
+play real-time panels of prediction frequency, confidence   We define our threat model under authenticated asyn­
+                                                                                                                        3heatmaps, per-replica traffic trends, and alert timelines,   chronous communication and assume up to f = ⌊N−1                                                                                                              ⌋
+enabling security operators to visualize and investigate    replicas may behave arbitrarily. A mitigation decision is
+ongoing threats instantly.                                enacted only when a quorum of Q = 2f + 1 matching
+                                                                  alerts is reached; otherwise, the system enters a safe-halt
+Distributed resilience strategy                      mode with default deny policies until quorum is restored.
+To guard against failures or malicious behavior within the   Missing votes exceeding a timeout interval are treated as
+replica cluster, our framework incorporates principles   non-confirmations. This ensures immunity to ties, sup­
+inspired by Byzantine Fault Tolerance (BFT). Instead   pressed alerts, or message withholding.
+of relying on a full Practical Byzantine Fault Tolerance
+(PBFT) protocol—whose communication overhead  is   We additionally simulated scenarios with  f = 2 faulty
+unnecessary for a pure DDoS-threat context—we adopt    replicas in a cluster of N = 7 replicas (Q = 5). As expected
+--- Page 9 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                            Page 9 of 22
+
+
+
+
+
+Fig. 3  Architecture of the proposed framework
+
+Table 2  Consensus outcomes under varying Byzantine failures    Implementation
+N          f tested     Quorum Achieved?       False Mitigation?    Model training
+4       0–1           Yes                 No                Multiple  labeled  datasets were  consolidated,  includ­
+7       2          No (safe-halt)          No                ing the CIC-IDS2017 DDoS CSV, CIC-DDoS2019 CSV
+                                                 and proprietary pfSense logs with simulated attack and
+under the 3f + 1 bound, mitigation was blocked rather   benign  traffic. Raw data columns were  first cleansed:
+than incorrectly triggered, validating that safety is pre­    categorical  fields were label-encoded, timestamp  col­
+served even under multiple Byzantine failures. Table 2  umns dropped, and any NaN or infinite values imputed.
+summarizes system behavior across fault configurations.    Only features available consistently across  all sources
+                                                   were retained  at the time of datasets merging. The
+--- Page 10 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 10 of 22
+
+
+
+                                                              resulting features matched the flow-level schema used
+                                                               for model training. The CIC-IDS2017 dataset had 85
+                                                              flow-level features and the CIC-DDoS2019 dataset had
+                                                  88 features. After harmonization across all datasets (pub­
+                                                                    lic + pfSense), we retained 15 common features.
+                                                To better understand the foundation of our experi­
+                                                      ments, we first examine the composition of the unified
+                                                               dataset. This provides insight into the balance between
+                                                            attack and benign samples, which directly affects model
+                                                             training and evaluation. Figure 4 illustrates the resulting
+                                                             distribution of DDoS versus BENIGN traffic in the con­
+                                                            solidated dataset.
+                                              From the processed dataset, we extracted statistical
+                                                 and protocol-based features such as Flow Packets/sec,
+                                                  Flow Bytes/sec, SYN and FIN Flag Counts, packet length
+                                                                      statistics (mean,  std),  inter-arrival time metrics, and
+                                                         binary threat-intelligence flags from MISP. Feature selec­
+                                                            tion initially employed SelectKBest with ANOVA F-test
+                                                           to efficiently filter statistically relevant predictors. To val­
+                                                              idate that the selected features are not dependent on lin­
+                                                          ear assumptions alone, we compared this ranking against
+                                                         the embedded feature importances learned by a Random
+Fig. 4  Distribution of DDoS and BENIGN traffic samples in the consoli­   Forest classifier trained on the same input vectors as also
+dated dataset                                      shown in Listing 1:
+
+
+
+Listing 1  Feature selection and ranking code
+
+
+
+
+
+  The two rankings were then intersected to quantify sta­   cross-validated grid search over hyperparameter grids
+bility of selection. The top 10 features formed the input    (e.g., C and kernel for SVM; n_estimators and max_depth
+vector for model training as it is shown in Fig. 5.             for  tree models;  learning_rate and  n_estimators  for
+  Three candidate classifiers: Support Vector Machine,   XGBoost). A part of the method implemented to train
+Random Forest, and XGBoost were trained using 5-fold   the classifiers is shown in Listing 2.
+--- Page 11 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 11 of 22
+
+
+
+
+
+Fig. 5  Feature importance ranking
+
+Listing 2  A part of the method used to train the classifiers
+
+
+
+
+
+                  ’ model ’ : RandomForestClassifier () ,
+                  ’ params ’ :  {                          ’ n estimators ’ :  [50 , 100 ,  200] ,
+                           ’ max depth ’ :   [ None ,  10 , 20 ,  30]
+          }
+     } ,
+    ’XGBoost ’ :  {                  ’ model ’ : XGBClassifier () ,
+                  ’ params ’ :  {                          ’ l e a r n i n g  r a t e ’ :   [ 0 . 0 1 ,  0.1 ,  0 . 5 ] ,
+                          ’ n estimators ’ :  [50 , 100 ,  200]
+          }
+     }
+}
+--- Page 12 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 12 of 22
+
+
+
+ To find the best algorithm among the three of them,   reduce false alarms. Listing 3 below shows the process of
+their models were evaluated on an 80/20 train–test split,   finding the best algorithm:
+optimizing for F1-score, and precision was prioritized to
+
+Listing 3  Part of the code to find the best algorithm
+
+
+
+
+
+ As for the deep learning baseline, a fully connected    Virtualized firewall deployment and log capture
+neural network with two hidden layers (64 and 32 units,   In our implementation, pfSense v2.6 was deployed as
+ReLU activation, BatchNormalization, and Dropout 0.3)   a dual-homed virtual appliance within the Monitoring
+was implemented in Keras. The network was trained   Subnet, leveraging one interface for WAN connectivity
+using Adam optimization, early stopping (patience = 10),   and another for LAN connectivity to the Replica Sub­
+and learning rate reduction on plateau. Training con­    net. This placement enables pfSense to serve as the single
+verged  within  50  epochs,  achieving  99.9203%  test   choke point for all east–west and north–south traffic,
+accuracy.                                               ensuring comprehensive visibility and control.
+ From our experiments we got a precision and recall    To enhance detection fidelity, Suricata v6.0 (Emerg­
+score of 1.0 for all the algorithms, so the best algorithm   ing Threats Open ruleset) was installed on the pfSense
+was chosen based on the value of the accuracy.              appliance. Suricata performed deep-packet inspection
+  Although our core contribution focuses on structured-    of mirrored replica traffic, generating EVE-JSON alerts
+flow machine learning models optimized for real-time    for signatures indicative of volumetric or protocol-based
+inference, we additionally conducted exploratory experi­   anomalies.
+ments with large language models (LLMs) to assess their    Both pfSense filter logs and Suricata EVE-JSON out­
+suitability for classifying flow-level network telemetry.   put were directed to the local syslog daemon. In pfSense’s
+These experiments were not used for model selection   GUI, Remote  Syslog  forwarding on UDP 514 was
+or deployment decisions. Full experimental details are   enabled, targeting the Wazuh analytics node. Facilities
+reported in Appendix A.                                 System, Firewall, and local0 were selected for transmis­
+                                                                sion, ensuring that all pertinent logs arrived in real time
+Cloud infrastructure provisioning and orchestration           for downstream SIEM processing. Figures 7 and 8 illus­
+The cloud environment was deployed on AWS using    trate the pfSense rsyslog forwarding configuration and
+standardized templates that provisioned separate moni­   the Suricata logging settings.
+toring and  replica domains. pfSense, Wazuh, Open­
+Search, and Grafana were installed via post-deployment   Centralized log aggregation and security analytics
+scripts executed through AWS Systems Manager  to   Before pfSense starts to monitor the logs, some addi­
+ensure  consistent, hardened  configurations. Figure 6    tional configurations are put in place. What pfSense does
+illustrates the deployed EC2 instances in AWS, including   in this framework, is to forward all the logs needed to
+the pfSense gateway, Wazuh analytics node, and replica   the Wazuh server. The log forwarding was done through
+servers.
+--- Page 13 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 13 of 22
+
+
+
+
+
+Fig. 6  Deployed servers in AWS
+
+
+
+
+
+Fig. 7  pfSense config for rsyslog forwarding
+--- Page 14 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 14 of 22
+
+
+
+
+
+Fig. 8  Suricata logging settings
+
+rsyslog on port 514. In order to be able to do this, on the
+Wazuh server we create the file sudo /etc/rsyslog.d/10-
+pfsense.conf and put the configuration as in Listing 4.
+
+
+Listing 4  Rsyslog configuration in Wazuh node
+
+
+
+
+
+  This allows  all the pfSense logs to be forwarded to    As pfSense’s role is to monitor the traffic of the replicas,
+Wazuh after adding also the configuration at the pfSense   on each of the replicas, there was a configuration applied
+side.                                                         in their user data for all their logs to be forwarded to
+                                                       pfSense as in Listing 5:
+
+
+Listing 5  Logs forwarding from replicas to pfSense
+
+
+
+
+
+  With this configuration all the traffic logs of the replicas   the critical component of our defensive infrastructure
+are monitored by pfSense and then they are forwarded to   against DDoS attacks.
+the Wazuh server to continue the prediction process for    The real-time detection service  is powered by the
+the DDoS attacks.                                         previously trained XGBoost model, selected due to its
+                                                          superior precision and performance metrics demon­
+Real-time detection service                                   strated during rigorous model evaluation phases. This
+Following the establishment of centralized logging and   predictive engine operates by continuously ingesting log
+analytics, the real-time detection mechanism represents   data collected from the pfSense gateway and Suricata
+--- Page 15 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 15 of 22
+
+
+
+deep-packet inspection systems. Logs arriving in real-   balances the trade-off between rapid detection capability
+time from the replicas to pfSense and subsequently for­   and sufficient statistical accuracy to avoid false positives.
+warded to the Wazuh node are parsed and subjected to    To enhance accuracy and responsiveness, the predic­
+the exact preprocessing pipeline utilized during model   tion service integrates a confidence threshold mecha­
+training.  Specifically, incoming  data undergoes  label   nism.  If also the  set of  replicas agrees on a DDoS
+encoding for categorical fields, normalization of numeri­   prediction based on the predefined threshold (in our
+cal features, and immediate  statistical aggregation to    case, 0.9), actionable alerts are triggered. These alerts
+match the feature set the model expects.                    are structured as JSON-formatted messages contain­
+  The prediction pipeline  is implemented as an asyn­   ing critical contextual information, including confidence
+chronous Python-based inference daemon hosted on the    scores, feature values at the moment of detection, and
+Wazuh analytics server. This daemon utilizes an event-   timestamps. Generated alerts are immediately written to
+driven architecture to ensure low-latency processing. Key   Wazuh’s active-responses log, leveraging Wazuh’s power­
+features are extracted from the aggregated logs, including    ful correlation rules and active response capabilities to
+packet and byte throughput rates, SYN and FIN TCP flag   enact automated security countermeasures rapidly. All
+distributions, packet length statistics, and binary indica­   the traffic logs labeled as DDoS attacks or not, are saved
+tors derived from MISP threat intelligence indicators.   to the data being used to increase the accuracy of predic­
+The resulting feature vector is passed to the XGBoost   tion for future logs. The snippet shown in Listing 6 dem­
+model, producing a probability-based prediction regard­   onstrates how the system aggregates feature vectors over
+ing the presence of a potential DDoS attack.               a fixed 60-second sliding window, an established method
+  Operationally, the service implements a configurable    in real-time anomaly detection, then executes XGBoost
+sliding-window mechanism of 60 seconds, aggregating   model (chosen for its accuracy and speed in DDoS detec­
+and recalculating metrics of the model used for predic­   tion tasks), applies a high-confidence threshold of 0.9,
+tion continuously to maintain an accurate representa­   and finally formats structured alerts suitable for Wazuh.
+tion of the real-time network conditions. This approach
+
+Listing 6  Snippet of the prediction process
+
+
+
+
+
+  Alert data from the Wazuh analytics platform is sub­   confidence levels, time series graphs showing alert fre­
+sequently indexed into OpenSearch, providing robust   quencies, and heat maps identifying specific replicas
+search and retrieval capabilities. Grafana dashboards are   experiencing anomalous traffic conditions. Beyond visu­
+dynamically updated based on these indexed alerts, offer­    alization, alerts also feed into notification channels such
+ing operators an intuitive visualization interface for real-   as AWS SNS to notify the users of the system.
+time network status, attack predictions, confidence score       If one region or replica is degraded or taken offline
+distributions, and detailed per-replica analytics. Dash­   completely by a DDoS attack, unaffected replicas seam­
+boards include real-time gauges indicating prediction    lessly maintain detection and response continuity.
+--- Page 16 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 16 of 22
+
+
+
+Table 3  Algorithm testing results for accuracy, precision and       distinguishing benign from DDoS traffic, with the near-
+recall for the dataset used                                      perfect diagonal dominance confirming minimal misclas­
+                     Accuracy         Precision           Recall     sifications and reinforcing the overall reliability of the
+SVM                   0.999956           1.0                  1.0      framework.
+Random Forest          0.999978           1.0                  1.0        In addition to the comparative metrics summarized in
+XGBoost                0.99999             1.0                  1.0       Table 3, we also examined the learning dynamics of the
+Deep Learning          0.99887             1.0                  1.0      deep learning baseline. Figure 10 ilustrates the training
+                                                 and validation accuracy and loss curves across epochs,
+ To address evolving DDoS  tactics, the framework   confirming that the model converged quickly and main­
+continuously collects new pfSense traffic samples along   tained stable validation performance without overfitting.
+with  their consensus-validated  labels. These samples     For the final deployment, XGBoost was selected due
+are appended to the training repository, and a periodic   to its marginal performance advantage and faster infer­
+retraining job refreshes the model parameters using the   ence  speed. The framework  achieved  approximately
+latest data snapshot. This adaptive learning loop enables   99.99% accuracy with sub-50 ms inference latency on
+the system to reflect real network behavior over time and    live pfSense traffic. This high accuracy stems from the
+remain resilient to emerging attack strategies. Detection   enriched feature set—augmented by threat-intelligence
+confidence and feature-distribution  statistics are also   indicators—and the integration of multiple heteroge­
+monitored to support future integration of automated   neous datasets, which together enhance generalization.
+drift detection.                                           In operational terms, the detector successfully identified
+  The implemented code for this framework (model pre­   nearly all DDoS attack instances while maintaining neg­
+processing and training) can be found at this GitHub    ligible false positives on benign traffic, a crucial require­
+URL:        ​h​t​t​p​s​:​/​/​g​i​t​h​u​b​.​c​o​m​/​R​r​e​z​e​a​r​t​a​a​/​D​D​o​S​_​P​r​e​d​i​c​t​i​o​  ment for production environments where excessive alerts
+n​_​w​i​t​h​_​M​L​_​T​h​r​t​I​n​t​/ and the other part (the prediction   can lead to operator fatigue.
+part) is hosted in our EC2 servers.                      To  contextualize  these  results, we compared  our
+                                                       framework’s  performance  with  representative  base­
+Results and discussions                                     lines reported in the literature. Prior works employing
+Our framework demonstrated a high level of effectiveness    similar CIC-based datasets have demonstrated strong
+in real-time DDoS detection, maintaining near-perfect   but slightly lower performance levels. Mishra et al. [27]
+accuracy even under heavy network load. During con­   achieved 99.76% accuracy with a Random Forest classi­
+trolled attack simulations, the system sustained log inges­    fier on cloud-based traffic, AlSaleh et al. [30] reported
+tion rates of over 10,000 events per second without any   99.79% using a Bayesian CNN, and Sumukh and Sand­
+degradation in processing throughput or alerting latency.   hya [24] achieved 99.60% with an LSTM model for time-
+To evaluate the inference latency, we benchmarked the   dependent anomalies. More recent hybrid approaches,
+detection latency under production traffic load. Experi­   such as the EDAD ensemble proposed by Abiramasun­
+ments were executed on an AWS t3.large instance (2   dari and Ramaswamy [35], reached approximately 99%
+vCPUs @ 3.1 GHz, 8 GB RAM) hosting the prediction   accuracy on CIC-DDoS2019.
+daemon. With a sustained log ingestion rate of 10-12k     Table 4 summarizes the comparative results. As shown,
+events/s and batch size of 64, the full inference pipeline   under comparable conditions our framework  slightly
+achieved a mean latency of 34.2 ms and a 95th percentile   exceeds reported results of the top-performing models
+latency of 47.6 ms. These results confirm the system satis­   by the literature by 0.2–0.3%, while achieving real-time
+fies the sub-50 ms real-time detection objective.             inference speeds suitable for operational DDoS mitiga­
+  The trained XGBoost model proved to be extremely   tion in cloud environments.
+accurate:  it achieved 99.999% accuracy on the test set     These comparisons illustrate that our framework not
+(with precision and recall both at 1.0), and in live tests it   only matches but exceeds the accuracy of the best-per­
+continued to flag malicious traffic with virtually zero false   forming methods in the literature review, while providing
+positives.                                                     substantially lower latency and integrated consensus-
+ As summarized in Table 3, all three classical machine   based resilience, a dimension rarely explored in prior
+learning models we evaluated (SVM, Random Forest, and  DDoS mitigation research.
+XGBoost) and the deep learning model yielded excellent   We validated our framework under high-load condi­
+results on the combined dataset, but XGBoost slightly   tions of a busy cloud environment. The ability to reliably
+edged out the others in accuracy.                          process 15,000 log events per second with only minimal
+  Figure 9 ilustrates the confusion matrices of the four   accuracy drop. For this experiment we used our best per­
+evaluated models (SVM, Random  Forest, XGBoost,   formed machine learning model. Table 5 shows accuracy
+and Deep  Learning).  Each  classifier  performed  in
+--- Page 17 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 17 of 22
+
+
+
+
+
+Fig. 9  Confusion matrices of the compared machine learning and deep learning models
+
+
+
+
+
+Fig. 10  Training and validation accuracy (left) and loss (right) curves for the deep learning baseline. The stable convergence and low validation loss
+demonstrate that the model generalized effectively to unseen data, supporting the high accuracy scores reported in Table 3
+--- Page 18 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 18 of 22
+
+
+
+Table 4  Comparison with related work on CIC-based DDoS        mitigation is triggered. This design proved valuable in
+detection                                                preventing false triggers: during testing, we intention­
+Study     Method                 Dataset            Accu­      ally introduced a faulty replica that output bogus alerts                                                         racy
+                                                      (%)       (simulating a compromised or mis-calibrated detector).
+[27]       Random Forest            CIC-IDS2017          99.76    The consensus logic successfully ignored the false alerts
+[30]         Bayesian CNN            CIC-DDoS2019        99.79     because the other replicas did not validate the same
+[24]       LSTM                     CSE-CIC-IDS2018      99.60      threat. Only genuine attacks, observed consistently by
+[35]       EDAD (PCA+RF/SVM)      CIC-DDoS2019        99.00    most monitors, resulted in system-wide  action. This
+Our work   XGBoost                  CIC-IDS2017 / CIC-    99.99    behavior is inspired by Byzantine Fault Tolerance, so as
+                                DDoS2019 /                 long as a majority of replicas are honest and observe the
+                                        pfSense + MISP            same traffic, the system reaches the correct decision. In
+                                    Enrichment                   addition, the replica setup also increases availability: rep­
+                                                                     licas are distributed across regions and synchronize their
+                                                                      state, so if one region is degraded or taken offline by a
+Table 5  Xgboost model performance under varying traffic       DDoS, unaffected replicas seamlessly maintain detection
+conditions                                         and response continuity. We validated this in practice
+Traffic Intensity               Accuracy     Precision     Recall    by simulating a regional outage during an active DDoS
+Low (1,000 events/sec)           0.99998       1.00           1.00       attack simulation; the system continued to operate cor­
+Moderate (5,000 events/sec)      0.99997       1.00           1.00       rectly as the remaining replicas preserved both monitor­
+High (10,000 events/sec)          0.99995      0.9999        1.00      ing and alerting functions.
+Extreme (15,000+ events/sec)     0.99992      0.9998        0.9998     The alerting subsystem, integrated with Wazuh and
+                                                   OpenSearch, consistently triggered actionable security
+remained above 99.9% even at extreme volumes that indi­    alerts within milliseconds of a threat detection event,
+cates strong scalability.                                         effectively mitigating  potential DDoS impacts. Auto­
+  In real deployments, a detector must maintain perfor­   mated firewall rule updates executed via AWS Lambda
+mance under traffic surges. Our pipeline’s use of stream­   functions demonstrated rapid response capabilities, typi­
+ing ingestion and in-memory feature aggregation proved    cally within 120 milliseconds from detection to enforce­
+effective in this regard. By avoiding expensive operations   ment. We got 120 milliseconds by measuring the time
+(like disk I/O or heavy database transactions), we kept   from prediction on the Wazuh  analytics node  until
+the detection loop lightweight. This design principle   enforcement of a filtering rule on pfSense.
+aligns with best practices in modern cloud-native secu­
+rity systems, which emphasize asynchronous, distributed      •  Model inference and alert generation: < 50 ms
+processing of events.                                             •  Wazuh → Lambda trigger: ≈ 30 ms
+ One of the distinguishing features of our framework      •  pfSense rule update + propagation: 60–70 ms
+is the use of a consensus-like approach for alert valida­
+tion across multiple replicas. Each replica server routes   Total reaction time: 120–140 ms. This confirms that the
+traffic through the pfSense gateway and contributes to   system can automatically block malicious traffic before
+the detection process by forwarding summary  statis­   a volumetric attack saturates network resources. Figure
+tics. A quorum-based voting mechanism ensures that   11 ilustrates the alerts triggered in Wazuh after a DDoS
+an impending attack prediction must be corroborated   attack was detected at one of the replicas.
+by a majority of monitoring nodes before automated
+
+
+
+
+
+Fig. 11  Wazuh alerts from the DDoS attacks
+--- Page 19 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 19 of 22
+
+
+
+
+
+Fig. 12  Grafana dashboard from the alerts collected
+
+  Grafana visualization dashboards provided operators   were not included. While such techniques are relevant
+with comprehensive real-time insights, facilitating imme­    for zero-day discovery, they are generally less suited for
+diate threat recognition and proactive security manage­    precise, low-latency operational alerting and remain an
+ment. Operators were able to quickly interpret visual   important direction for future work.
+cues from gauges, heat maps, and time series graphs to
+swiftly confirm and respond to detected threats. Fig­   Conclusion and future work
+ure 12 ilustrates the visualization done in the Grafana   This paper introduced a proactive real-time framework
+dashboards.                                                   for DDoS detection and mitigation in cloud environ­
+  The results of our evaluation underscore a few impor­   ments, combining machine learning, threat intelligence,
+tant themes for cloud security. First, it is indeed possible   and  lightweight consensus mechanisms. By  integrat­
+to achieve both high accuracy and high performance in   ing pfSense for traffic monitoring, Wazuh for analytics,
+DDoS detection using a thoughtfully engineered ML   and XGBoost for prediction, the system achieved near-
+pipeline. The often-cited trade-off between detection   perfect accuracy (≈99.99%), sub-50 ms inference latency,
+efficacy and system overhead can be mitigated by using   and scalability beyond 15,000 events/sec. These results
+efficient algorithms  (like gradient-boosted  trees) and   confirm that carefully engineered ML pipelines, enriched
+streaming data handling, as we demonstrated. Second,   with contextual threat intelligence, can overcome the
+the inclusion of threat intelligence data proved beneficial   high false-positive rates and rigidity of traditional IDS
+not just in theory but also in practice. Third, byzantine   systems.
+fault tolerance concepts, when pragmatically applied,    Beyond detection accuracy, a key contribution lies in
+can elevate the trustworthiness of a security system. In   the system’s resilience. Inspired by Byzantine Fault Tol­
+our case, even if one component malfunctioned or was   erance principles, replicated monitoring nodes reached
+compromised, the system as a whole maintained correct   quorum before enacting mitigation, ensuring consistency
+operation, which is crucial for dependable defenses. We   even in the presence of faulty or compromised compo­
+measured consensus failures and false-positive activa­   nents.  This  consensus-lite  design,  validated through
+tions across 100 adversarial rounds. Even with one Byz­   simulated  outages and  false  alerts,  underscores  the
+antine node, the system maintained correct operation   importance of reliability and trustworthiness in opera­
+and no false enforced rules were observed.                   tional defenses.
+  Exploratory LLM-based testings are omitted from the     Based on the exploratory experiments, the compara­
+main evaluation and summarized separately in Appendix    tive evaluation with generative AI models (OpenAI,
+A, as they do not represent operational baselines for real-   DeepSeek, and Grok) suggests limitations of LLM-based
+time DDoS detection.                                  approaches when applied to high-frequency, structured
+  The evaluation relies on a combination of public bench­   network telemetry. While such models may be useful for
+mark datasets and proprietary pfSense traffic captures.   retrospective analysis and higher-level threat interpreta­
+Although temporal partitioning and replay controls were    tion, they did not consistently meet the determinism and
+applied to reduce data leakage, these datasets may still   low-latency requirements necessary for inline predictive
+introduce bias toward known traffic patterns and attack   enforcement in our setting.
+behaviors, potentially inflating performance compared     Looking ahead, several directions remain open. First,
+to fully unseen real-world deployments. Furthermore,   integrating automated enforcement, e.g., dynamic fire­
+the evaluation focuses exclusively on supervised learning   wall rule orchestration  via pfSense APIs  will enable
+approaches; unsupervised and semi-supervised baselines   end-to-end closed-loop defense. Second, future studies
+--- Page 20 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 20 of 22
+
+
+
+                                                    These experiments are included for completeness and toshould incorporate unsupervised and semi-supervised                                                         explore emerging research directions; they are not part ofbaselines to complement supervised detection, particu­                                                         the core methodology, were not used for model selectionlarly for identifying previously unseen or evolving attack                                                        or deployment decisions, and are not intended as com­patterns. Third, applying this framework to consensus-                                                                 petitive baselines against the structured machine learningdriven systems such as blockchains or replicated ser­                                                  models evaluated in the main body of the paper.vices represents a promising but underexplored research                                                To enable this exploratory assessment, flow-level net­direction, especially in combining protocol-layer telem­                                                work statistics were reformulated into a textual repre­etry with ML-based prediction. Addressing these chal­                                                           sentation compatible with prompt-based inference. Spe­lenges will help advance the state of proactive, resilient                                                                            cifically, each flow record was serialized into a structuredcloud security.                                                prompt string, for example: “Flow ID: XYZ; Packet Count:
+Appendix A: exploratory LLM-based experiments      120; BPS: 45,000”, together with additional attributes such
+                                                           as flow byte rate, TCP flag distribution, and entropy esti­This appendix documents exploratory experiments con­                                                        mates. Listing 7 illustrates an excerpt of the prompt con­ducted with large language models (GPT, DeepSeek, and                                                            struction and inference pipeline used to feed flow-levelGrok) to assess their applicability to structured, numeric                                                                      statistics into the generative AI models.flow-level telemetry in the context of DDoS detection.
+
+
+
+
+Listing 7  Excerpt of the exploratory prompt-based inference process for generative AI models (OpenAI example)
+
+
+
+
+
+  Using this prompt-based formulation, we evaluated   introduced additional complexity but also increased the
+the behavior and operational characteristics of genera­   time needed to formulate valid queries and parse outputs.
+tive models under realistic traffic conditions. The follow­     Moreover, although models like Grok demonstrated
+ing discussion summarizes the key limitations observed    relatively faster inference and were specifically optimized
+when applying this approach in a real-time DDoS detec­    for anomaly detection domains, their latency still could
+tion setting.                                           not consistently compete with the sub-50 ms thresholds
+  While generative models offer substantial interpretabil­   required for real-time packet-level decisioning. Deep­
+ity and contextual reasoning, their use in this real-time   Seek and GPT models, though accurate in their general
+detection framework presented several limitations. Firstly,   assessments, suffered from token-processing delays and
+the input datasets were highly structured and numerical,   inconsistent outputs when parsing highly technical flow
+which required significant preprocessing and prompt   metrics.
+engineering to be compatible with the language-model-     These results confirm that LLMs trained for natural lan­
+driven inference pipeline. This transformation not only   guage processing are not well suited for direct classifica­
+--- Page 21 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 21 of 22
+
+
+
+tion of numeric flow telemetry, which motivates our focus      4.   Alshammari A, Aldribi A (2021) Apply machine learning techniques to detect
+on specialized structured ML classifiers for operational          malicious/​1​0​.​1​1​8​6​/​s​4​0​5​3​7​-​0​2​1​-​0​0​4​7​5​-​1network traffic in cloud computing. J Big Data 8(90). ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​
+deployment. High-frequency, multivariate numerical traf­      5.   Sharma A, Singh UK (2025) Cloud computing security through detection
+fic proved suboptimal for language models. As a result,       & mitigation of zero-day attack using machine learning techniques. Chap.
+while the generative models show potential for retrospec­      6.    Rai25:357–388.HM, Yoo J,​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​0​0​2​/​9​7​8​1​3​9​4​2​7​2​4​6​4​.​c​h​2​5Agarwal S (2024) The improved network intrusion detection
+tive analysis such as high-level summarization and trend         techniques using the feature engineering approach with boosting classifiers.
+interpretation, they lack the determinism and latency         Mathematics 12(24). ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​3​3​9​0​/​m​a​t​h​1​2​2​4​3​9​0​9
+guarantees necessary for inline predictive enforcement in      7.   JosephdetectionO, andAjax preventionR (2025) Comparisonsystems: efficiencyof traditionaland accuracy.vs. ai-basedJ Cybersecurintrusion  Adv
+real-time DDoS mitigation.                                                          8.   Mohale VZ (2025) Evaluating machine learning-based intrusion detection:
+  While our experiments demonstrated that general-        improved accuracy, reduced false positives, and identification of unseen
+purpose LLMs such as GPT, DeepSeek, and Grok strug­           threats.publishedFrontonlineComputin 2025Sci. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​3​3​8​9​/​f​c​o​m​p​.​2​0​2​5​.​1​5​2​0​7​4​1.
+gle with structured network telemetry, related work has      9.   Rahman MR, Mahdavi-Hezaveh R, Williams L (2021) What are the attack­
+explored adapting language models for anomaly detection           ers doing now? automating cyber threat intelligence extraction from
+in communication systems. For instance, FedLLMGuard           textarXiv:2109.06808on pace with​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​4​8​5​5​0​/​a​r​x​i​v​.​2​1​0​9​.​0​6​8​0​8the changing threat landscape: a survey. arXiv preprint
+[41] applies federated LLM architectures to 5 G network     10.  Sousa P, Neves NF, Verissimo P, Sanders WH (2006) Proactive resilience
+anomaly detection, highlighting the feasibility of distrib­            revisited: the delicate balance between resisting intrusions and remaining
+uted, privacy-preserving inference. However, unlike our           available.(SRDS’06),Inpp200671–82.25th​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​S​R​D​S​.​2​0​0​6​.​3​7IEEE Symposium on Reliable Distributed Systems
+flow-level numeric inputs, FedLLMGuard operates on     11.   Silva DS, Graczyk R, Decouchant J, Völp M, Esteves-Verissimo P (2021) Threat
+semi-structured textual logs, emphasizing the comple­         adaptive byzantine fault tolerant state-machine replication. In 2021 40th
+mentary but distinct scope of LLM-based approaches          Internationalh​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​S​R​D​S​5​3​9​1​8​.​2​0​2​1​.​0​0​0​1​7Symposium on Reliable Distributed Systems (SRDS), pp 78–87. ​
+compared to our optimized structured-feature pipeline.        12.  Zhong W, Yang C, Liang W, Cai J, Chen L, Liao J, Xiong N (2023) Byzantine
+                                                                                                    fault-tolerant consensus algorithms: a survey. Electronics 12(18):3801. ​h​t​t​p​s​:​/​/​
+Acknowledgements                                                                                                                                 d​o​i​.​o​r​g​/​1​0​.​3​3​9​0​/​e​l​e​c​t​r​o​n​i​c​s​1​2​1​8​3​8​0​1
+The authors express their sincere appreciation to Interdisciplinary Centre for        13.  Chen S-R et al. (2025) Enhancing machine learning-based ddos detection
+Security, Reliability and Trust (SNT) of University of Luxembourg for supporting         with adaptive hyperparameter tuning for robust generalization. Electronics
+this research.                                                                               14(16):3319. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​3​3​9​0​/​e​l​e​c​t​r​o​n​i​c​s​1​4​1​6​3​3​1​9
+                                                                                           14.  Alrassan I, AlQahtani AM (2023) Detection of ddos attacks on clouds comput­
+Author contributions                                                                ing environments using machine learning techniques. In 2023 International
+R.T.: Conceptualization, methodology design, system implementation, dataset          Conference on Communication and Network Security (ICCNS). ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​
+integration, experiments, and manuscript drafting. G.L.: Review, validation                            g​/​1​0​.​1​1​0​9​/​i​c​c​n​s​5​8​7​9​5​.​2​0​2​3​.​1​0​1​9​3​1​4​1
+of methodology, and critical manuscript revision. M.V.: Fault-tolerance and          15.  Polu S, Bapuji V, Supervisor R (2024) Mitigating ddos attacks in cloud comput­
+consensus model design, validation of resilience strategies, and manuscript             ing using machine learning. Braz J Devel. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​3​4​1​1​7​/​b​j​d​v​1​0​n​
+editing. B.R.: Supervision, project administration, conceptualization,                                    1​-​0​2​2
+methodology design, guidance on research direction, and final approval of         16.  Mohd M, Ab MF, Azmi ZRBM, Firdaus A, Nuhu AH, Hussain SS (2024) Machine
+the manuscript. All authors have reviewed and approved the final version of             learning and deep learning approaches for detecting ddos attacks in cloud.
+the manuscript.                                                                       Future Predictive Analytics. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​5​4​2​1​6​/​f​p​a​.​1​7​0​2​0​7
+                                                                                           17.  Sathvika C, Satwika V, Sruthi Y, Geethika M, Bulla S, Swathi K (2023) Ddos
+Funding                                                                                   attack detection on cloud computing services using algorithms of machine
+This research received no external funding.                                                  learning: survey. In 2023 7th International Conference on Computing Meth­
+                                                                                    odologies and Communication (ICCMC), pp 1094–1100. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​
+Data availability                                                                                                                            0​9​/​I​C​C​M​C​5​6​5​0​7​.​2​0​2​3​.​1​0​0​8​3​5​4​9
+A part of the implemented code and data set used for this research is available     18.  Arunkumar R, Navanitha S, Padmavathi B, Snekaa V (2024) Hybrid svm
+at: ​h​t​t​p​s​:​/​/​g​i​t​h​u​b​.​c​o​m​/​R​r​e​z​e​a​r​t​a​a​/​D​D​o​S​_​P​r​e​d​i​c​t​i​o​n​_​w​i​t​h​_​M​L​_​T​h​r​t​I​n​t​/.               approach for enhanced ddos attack detection using machine learning in
+                                                                                 cloud environment. In 2024 2nd International Conference on Artificial Intel­
+Declarations                                                                        ligence and Machine Learning Applications Theme: Healthcare and Internet                                                                                             of Things (AIMLA), pp 1–4. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​A​I​M​L​A​5​9​6​0​6​.​2​0​2​4​.​1​0​5​3​1​3​
+                                                                                                                 3​0Competing interests
+                                                                                           19.  Reddy SPK, Nagavelli U, Kiran YS, Kondoju CS, Bushmoni S, Yashaswi A (2024)
+The authors declare no competing interests.
+                                                                    Deep learning for zero-day threat detection and mitigation. In 2024 Inter­
+                                                                                           national Conference on IoT Based Control Networks and Intelligent Systems
+Received: 9 September 2025 / Accepted: 16 January 2026                                 (ICICNIS), pp 1362–1368. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​I​C​I​C​N​I​S​6​4​2​4​7​.​2​0​2​4​.​1​0​8​2​3​2​7​
+                                                                            0
+                                                                                           20.  Benjamin M (2025) Real-time threat intelligence feeds and machine learning
+                                                                                                   fusion: proactive security in dynamic network environments
+                                                                                           21.   Freitas T, Soares J, Correia ME, Martins R (2023) Deterministic or probabilistic?
+References                                                                – a survey on byzantine fault tolerant state machine replication. Comput
+1.    Cloudflare DDoS threat report for 2025 Q2. ​h​t​t​p​s​:​/​/​b​l​o​g​.​c​l​o​u​d​f​​l​a​r​e​.​c​o​m​/​d​d​o​          Secur 129:103200. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​0​1​6​/​j​.​c​o​s​e​.​2​0​2​3​.​1​0​3​2​0​0
+          s​-​t​h​r​e​a​t​-​r​e​p​o​r​t​-​f​o​r​-​2​0​2​5​-​q​2​/. Accessed Aug 22 2025                                22.  Castro M, Liskov B (1999) Practical byzantine fault tolerance. In Proceedings
+2.  N V, Sriram VSS (2025) Mitigating DDoS attacks in virtual machine migra­                of the Third Symposium on Operating Systems Design and Implementation.
+      tion: an in-depth security framework utilizing deep learning and advanced             OSDI’99, USENIX Association, USA, 173–186
+     encryption techniques. Int J Innovative Technol Exploring Eng. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​     23.  Liu X, Zhang Z, Li Z, Lu X, Li M, Xu L, Ao M, Zhu L (2025) Group bft: two-round
+          /​1​0​.​3​5​9​4​0​/​i​j​i​t​e​e​.​B​1​0​3​2​.​1​4​0​2​0​1​2​5                                                          bft protocols via replica grouping. IEEE Trans Dependable Secure Comput. ​h​t​t​
+3.   Thaqi R, Krasniqi B, Mazrekaj A, Rexha B (2025) Literature review of machine                       p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​T​D​S​C​.​2​0​2​5​.​3​5​8​3​6​3​3
+     learning and threat intelligence in cloud security. IEEE Access 13. ​h​t​t​p​s​:​/​/​d​o​i​.​o​
+         r​g​/​1​0​.​1​1​0​9​/​A​C​C​E​S​S​.​2​0​2​5​.​3​5​2​9​6​3​6
+--- Page 22 ---
+Thaqi et al. Journal of Cloud Computing       (2026) 15:22                                                           Page 22 of 22
+
+
+
+
+
+24.  Sumukh S, Sandhya S (2024) Ddos detection using ml and deep learning          34.  Chauhan S, Byahatti P, Patel SK (2024) Securing networks: leveraging machine
+     approaches. In CSITSS 2024. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​c​s​i​t​s​s​6​4​0​4​2​.​2​0​2​4​.​1​0​8​1​7​0​          learning for enhanced ddos detection. In 2024 First International Conference
+      1​4                                                               on Software, Systems and Information Technology (SSITCON), pp 1–8. ​h​t​t​p​s​:​/​/​
+25.  Subrmanian K, Thangarasu G, Yanyan Z, Kannan KN (2024) Enhancing detec­                     d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​S​S​I​T​C​O​N​6​2​4​3​7​.​2​0​2​4​.​1​0​7​9​6​3​2​3
+     tion and prediction of ddos attacks through regression modeling. In 2024         35.  Abiramasundari S, Ramaswamy V (2025) Distributed denial-of-service (ddos)
+     IEEE 6th Symposium on Computers & Informatics (ISCI), pp 253–257. ​h​t​t​p​s​:​/​/​           attack detection using supervised machine learning algorithms. Sci Rep
+          d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​I​S​C​I​6​2​7​8​7​.​2​0​2​4​.​1​0​6​6​8​0​3​9                                              15(1):5678. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​0​3​8​/​s​4​1​5​9​8​-​0​2​4​-​8​4​8​7​9​-​y
+26.  Makkawi AM, Yousif A (2021) Machine learning for cloud ddos attack detec­       36.  Feng H, Lu Z, Mai T, Tang Q (2025) Faster hash-based multi-valued validated
+      tion: a systematic review. In 2020 International Conference on Computer,             asynchronous byzantine agreement. In Proceedings of the 55th IEEE/IFIP
+     Control, Electrical, and Electronics Engineering (ICCCEEE), pp 1–9. ​h​t​t​p​s​:​/​/​d​o​i​.​           International Conference on Dependable Systems and Networks (DSN), pp
+         o​r​g​/​1​0​.​1​1​0​9​/​I​C​C​C​E​E​E​4​9​6​9​5​.​2​0​2​1​.​9​4​2​9​6​7​8                                        303–316. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​D​S​N​6​4​0​2​9​.​2​0​2​5​.​0​0​0​4​0
+27.  Mishra A, Gupta BB, Peraković D, Peñalvo FJG, Hsu C-H (2021) Classification         37. Wu C, Qin H, Amiri MJ, Loo BT, Malkhi D, Marcus R (2025) Bftbrain: adaptive
+    based machine learning for detection of ddos attack in cloud computing. In          BFT consensus with reinforcement learning. In Proceedings of the 22nd USE­
+    2021 IEEE International Conference on Consumer Electronics (ICCE), pp 1–4. ​         NIX Symposium on Networked Systems Design and Implementation (NSDI). ​
+          h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​I​C​C​E​5​0​6​8​5​.​2​0​2​1​.​9​4​2​7​6​6​5                                                                          h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​4​8​5​5​0​/​a​r​X​i​v​.​2​4​0​8​.​0​6​4​3​2
+28.   Aliar AAS, Agoramoorthy M, Justindhas Y (2023) An automated detection of       38.  Fu X, Li M, Zeng Q, Li T, Yang S, Guan Y, Liu C (2025) Hamster: a fast syn­
+    ddos attack in cloud using optimized weighted fused features and hybrid            chronous byzantine fault tolerant protocol. IEEE Trans Inf Forensics Secur
+    dbn-gru architecture. Cybern Syst 55(7):1469–1510. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​0​8​0​/​0​         20(12):2664–2676. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​T​I​F​S​.​2​0​2​5​.​3​5​4​4​0​3​4
+         1​9​6​9​7​2​2​.​2​0​2​2​.​2​1​5​7​6​0​3                                                             39.  Songa AV, Karri GR (2024) An integrated sdn framework for early detection of
+29.  Manimaran A, GnanaJeyaraman R, J Carmel Mary Belinda M, M S, Kannan            ddos attacks in cloud computing. J Cloud Comput 13:64. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​
+       E, Sivaram M (2024) An adaptive framework for low-rate ddos detection                            1​8​6​/​s​1​3​6​7​7​-​0​2​4​-​0​0​6​2​5​-​9
+      in cloud environments using decision tree machine learning algorithm. In         40.   Li Y, Zhang H, Xu K (2023) Model poisoning attack against federated learning
+    2024 IEEE International Conference on Blockchain and Distributed Systems            with adaptive aggregation. IEEE Trans Inf Forensics Secur 18:5456–5468. ​h​t​t​p​s​
+     Security (ICBDS), pp 1–5. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​I​C​B​D​S​6​1​8​2​9​.​2​0​2​4​.​1​0​8​3​7​2​4​2                    :​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​0​9​/​T​I​F​S​.​2​0​2​3​.​3​3​4​5​0​1​2
+30.  AlSaleh I, Al-Samawi A, Nissirat L (2024) Novel machine learning approach for      41.  Wang X, Zhao Y, Chen L, Li J (2025) Fedllmguard: a federated large language
+    ddos cloud detection: Bayesian-based cnn and data fusion enhancements.          model for anomaly detection in 5g networks. Comput Networks. ​h​t​t​p​s​:​/​/​d​o​i​.​
+     Sensors. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​3​3​9​0​/​s​2​4​0​5​1​4​1​8                                                                               o​r​g​/​1​0​.​1​0​1​6​/​j​.​c​o​m​n​e​t​.​2​0​2​5​.​1​1​0​0​2​1
+31.  Green SB (2021) Advancements in cloud security: leveraging machine learn­
+     ing          for threat detection. Univers Res Rep. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​3​6​6​7​6​/​u​r​r​.​v​8​.​i​4​.​1​4​   Publisher’s Note      0​0
+32.  Corrêa JHGM, Ciarelli PM, Ribeiro MRN, Silva Villaça R (2021) Ml-based ddos       Springer Nature remains neutral with regard to jurisdictional claims in
+     detection and identification using native cloud telemetry macroscopic          published maps and institutional affiliations.
+     monitoring. J Network Syst Manag. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​0​0​7​/​S​1​0​9​2​2​-​0​2​0​-​0​9​5​7​
+        8​-​1
+33.  Krishna DV, Sneha E, Latha, Yadav B, Aswini J, Harshini K (2024) Securing the
+     cloud: a machine learning approach for threat detection and mitigation. Int J
+    Adv Res Sci Commun Technol (IJARSCT). ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​4​8​1​7​5​/​i​j​a​r​s​c​t​-​1​8​8​
+      1​2

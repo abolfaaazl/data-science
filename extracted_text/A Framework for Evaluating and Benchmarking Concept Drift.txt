@@ -1,0 +1,1341 @@
+Title: A Framework for Evaluating and Benchmarking Concept Drift
+
+--- Page 1 ---
+ A Framework for Evaluating and Benchmarking Concept Drift
+                     Detection Methods
+
+
+          Vitor Cerqueira              Heitor Murilo Gomes            Marco Heyden
+
+
+          University of Coimbra            Victoria University of Wellington            Commerzbank
+
+
+           Coimbra, Portugal                 Wellington, New Zealand                  Frankfurt, Germany
+
+
+             vitorc@dei.uc.pt                 heitor.gomes@vuw.ac.nz           heydenmarco48@gmail.com
+
+
+
+                     Bernhard Pfahringer                Albert Bifet
+
+
+                              University of Waikato                  University of Waikato
+
+
+                           Waikato, New Zealand                Waikato, New Zealand
+
+
+                          bernhard@cs.waikato.ac.nz            albert.bifet@telecom-paris.fr
+
+Abstract                                                               Conference on Knowledge Discovery and Data Mining V.2 (KDD ’26), Au-
+Data stream mining is fundamentally challenged by concept drift,       gust 09–13, 2026, Jeju Island, Republic of Korea. ACM, New York, NY, USA,
+
+                                                                       12 pages. https://doi.org/10.1145/3770855.3819070
+where distributional changes can degrade model performance. De-
+
+
+spite the proliferation of drift detection methods, progress in the
+
+field is hindered by inconsistent evaluation practices: studies rely    1  Introduction
+
+on oversimplified synthetic data generators, adopt incompatible
+                                                            Machine learning models typically rely on the assumption that the
+
+metrics, and lack transparency in hyperparameter selection, mak-
+                                                                   data encountered during inference follows the same distribution
+
+ing fair comparisons difficult. We address this gap with a novel
+                                                                      as the training data. However, when this distribution shifts, a phe-
+
+benchmarking framework comprising three contributions: (1) a drift
+                                                      nomenon known as concept drift, model performance can degrade
+
+simulation method that injects controlled distributional changes
+                                                                               significantly, leading to inaccurate predictions. Therefore, reliably
+
+into real-world datasets via Monte Carlo trials, enabling super-
+                                                                     detecting and adapting to concept drift is crucial for maintaining
+
+vised evaluation while preserving real-world data complexity; (2)
+                                                                    the effectiveness and reliability of machine learning systems.
+
+an evaluation protocol for drift detection with timing-aware crite-
+                                                                    Detecting concept drift has long been recognized as a critical
+
+ria, including the derivation of new metrics (e.g., F1 detection score,
+                                                                     challenge in machine learning, motivating the development of nu-
+
+normalized detection time) that are comparable across streams;
+                                                         merous drift detection algorithms over the years. Notable exam-
+
+and (3) we advocate for a leave-one-dataset-out hyperparameter
+                                                                        ples include sequential analysis methods such as CUSUM and the
+
+optimization protocol for drift detection methods that promotes
+                                                              Page-Hinkley test [26], control chart-based approaches such as
+
+configuration robustness across heterogeneous stream dynamics.
+                                        DDM [15] and EDDM [1], and adaptive windowing methods such
+
+We benchmark 14 widely used drift detection methods on 7 real-
+                                                                    as ADWIN [5]. Yet, despite extensive research on drift detection,
+
+world datasets across 4 drift types (class prior, label swap, feature
+                                                                       there is still a lack of unified evaluation practices and reproducible
+
+permutation, feature filtering), each under both abrupt and grad-
+                                                                         baselines in the field. We identify two key sources of inconsistency:
+
+ual transitions. Our experimental results provide insights into the
+strengths and weaknesses of current drift detection approaches            I1. Methodology: Existing studies are inconsistent w.r.t. evalu-
+
+while establishing baseline performance metrics for future research             ation metrics and protocols, hyperparameter selection strate-
+
+in this area. All code and experiments are publicly available.                     gies, datasets, and drift types.
+                                                                                              I2. Availability of labeled data: Drift points—the times at
+CCS Concepts                                               which concept drifts occurred—are typically unknown in
+
+                                                                            real-world data. Hence, evaluating a detector on real-world
+• Computing methodologies →Online learning settings; Su-
+                                                                         data must happen unsupervised. This has led to an over-
+pervised learning.
+                                                                               reliance on synthetic data for evaluation. In synthetic data,
+Keywords                                                                            drift points are known, and thus allow for a supervised eval-
+                                                                                 uation. However, synthetic data and concept drifts are often
+
+Concept Drift, Data Streams, Benchmarking, Evaluation
+                                                                                      unrealistic. It is thus not clear whether the obtained results
+
+ACM Reference Format:                                                   hold true in the real-world [33, 36]. This, in turn, calls for an
+
+Vitor Cerqueira, Heitor Murilo Gomes, Marco Heyden, Bernhard Pfahringer,            evaluation on real-world data.
+
+and Albert Bifet. 2026. A Framework for Evaluating and Benchmarking
+Concept Drift Detection Methods. In Proceedings of the 32nd ACM SIGKDD      These issues give rise to the research question: How can we reliably
+                                                                       evaluate and compare concept drift detection methods in the absence
+                                                                               of ground truth across multiple data streams? We tackle this question
+
+                                                           and the limitations above with the following contributions:
+This work is licensed under a Creative Commons Attribution 4.0 International License.
+KDD ’26, Jeju Island, Republic of Korea                                                     (1) A drift simulation framework that allows for controlled
+© 2026 Copyright held by the owner/author(s).
+ACM ISBN 979-8-4007-2259-2/2026/08                                             experiments with diverse types of drift in real-world datasets,
+
+https://doi.org/10.1145/3770855.3819070                                             enabling researchers and practitioners to better understand
+
+
+
+
+                                                          8671
+--- Page 2 ---
+KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea                       Vitor Cerqueira, Heitor Murilo Gomes, Marco Heyden, Bernhard Pfahringer, and Albert Bifet
+
+
+
+
+
+      detector behavior in different scenarios. The approach fol-       Concept drifts can be categorized by different types of change
+
+      lows a Monte Carlo simulation approach where at each run       in the distribution. Changes in 𝑝(𝑋), termed virtual drift (e.g. [38]),
+
+      predefined distribution changes are introduced into the data       affect the input distribution but not necessarily the relationship be-
+
+
+      stream at a random point. This enables a supervised evalua-     tween 𝑋and 𝑦; such drifts can be detected without labels. Changes
+
+       tion of drift detection methods while preserving the natural      in 𝑝(𝑦|𝑋), usually referred to as real drift, alter the input-output
+
+       characteristics and inherent challenges of real-world data,      relationship and typically require labeled data to detect. Changes
+
+      addressing I2.                                   may also occur in the class prior 𝑝(𝑦) or in the class-conditional
+    (2) A set of new drift detection evaluation metrics, including      feature distribution 𝑝(𝑋|𝑦). These categories are not mutually ex-
+      F1 detection score, drift recall, and false alarm rate, based on a       clusive; for instance, a shift in 𝑝(𝑋|𝑦) will often also manifest as a
+      versatile definition of correct and incorrect detections.     change in 𝑝(𝑋).
+
+      This enables a standardized and objective comparison of drift          Drifts can also be categorized by how they evolve over time [17].
+
+       detection methods across different datasets and drift types,      In abrupt (or sudden) drifts, the distribution shifts instantaneously
+      addressing I1.                                            from one concept to another. In gradual drifts, two distinct concepts
+    (3) A practical standardized protocol for optimizing de-      coexist during a transition period, with observations increasingly
+      tectors based on leave-one-dataset-out cross-validation: To     drawn from the new concept. In incremental drifts, a single concept
+
+       also address I1, we propose to optimize hyperparameters of      evolves continuously over time without distinct before-and-after
+
+      concept drift detectors on all but one dataset and use the       states. For sudden or abrupt drifts, 𝑑𝑠= 𝑑𝑒and thus 𝑤= 0, while
+
+      held-out dataset for evaluation. We hypothesize that this      gradual and incremental drifts are characterized by 𝑑𝑠< 𝑑𝑒and
+
+      approach encourages the optimization process to find config-   𝑤> 0. While incremental drifts are relevant, our framework focuses
+
+
+       urations that are more robust to distinct structural dynamics.     on abrupt and gradual drifts.
+
+
+      While leave-one-group-out is a standard validation approach,
+
+
+       to our knowledge, it has not previously been applied to drift
+       detection methods.                                     2.2  Detection Methods
+
+  We apply the proposed framework to benchmark a set of state-      Several methods have been proposed to detect concept drift in
+
+of-the-art and widely used drift detection methods in a data stream      data streams. Most of these have been designed to track the perfor-
+
+classification scenario. We use 7 commonly used real-world data     mance (e.g. error rate) of a predictive model and detect whenever it
+
+streams and introduce four different kinds of drift, namely class     worsens significantly. Such methods typically follow an approach
+
+prior drift, class label swap drift, feature permutation drift, and      based on either sequential analysis, control charts, or distribution
+
+feature filtering drift, each simulated with both abrupt and gradual      monitoring. Sequential analysis approaches work by accumulating
+
+transitions.                                                                       statistics over time and comparing them to a threshold. CUSUM or
+
+  Our results reveal that SEED [23], STEPD [25], and ABCD [22]      Page-Hinkley [26] methods are two prominent examples following
+consistently outperform other detectors across distinct drift types,       this approach. Control charts leverage the binomial distribution
+
+establishing new baseline benchmarks for the field. We further      to define confidence intervals for the error rate, with DDM [15]
+
+demonstrate that hyperparameter optimization using our proposed      or HDDM [14] being two well-known methods. Distribution mon-
+
+approach significantly improves detection performance over de-      itoring approaches work by comparing the current distribution
+
+fault configurations. Our implementation1 is built on the CapyMOA      to a reference distribution. ADWIN [5], which detects significant
+
+Python library [19], and all code and experiment details are avail-     changes in a distribution’s mean, is a well-known method following
+
+able for reproducibility.                                                    this approach. We refer to the seminal survey by Gama et al. [17]
+
+                                                                           for a comprehensive review on these approaches.
+
+2  Background                                                      In domains with considerable verification delay (the time it takes
+                                                                       to obtain a label for a given instance), monitoring performance is
+2.1  Data Streams and Concept Drift                       impractical. In effect, other approaches track indicators that can
+
+A data stream is an infinite sequence of observations generated      hint to a possible performance degradation and can be monitored
+
+over time according to some unknown underlying distribution.      unsupervised. Examples of such indicators are the distribution of
+Formally, we consider a data stream S as a sequence of tuples      features (e.g. [11, 22]), the distribution of predictions [27], or an
+{(𝑋1,𝑦1), (𝑋2,𝑦2), . . .}, where each 𝑋𝑡is an input (e.g., a feature      auxiliary compression loss [8]. The assumption underlying these
+vector) and 𝑦𝑡is a label.2 At time 𝑡, the tuple (𝑋𝑡,𝑦𝑡) is drawn from     methods is that drift in the feature space or the distribution of
+a distribution 𝑝𝑡(𝑋,𝑦), referred to as the concept. A concept drift      predictions indicate a potential performance degradation.
+
+has occurred if this distribution changes:
+
+   Definition 2.1 (Concept drift and drift point). We define a concept     2.3  Evaluating Drift Detection Methods
+drift as a tuple (𝑑𝑠,𝑑𝑒) such that 𝑝𝑑𝑠(𝑋,𝑦) ≠𝑝𝑑𝑒(𝑋,𝑦) and 𝑑𝑠≤𝑑𝑒.
+                                                                         Reliably evaluating and comparing concept drift detectors requires
+I.e., 𝑑𝑠is the starting position (point of the instance where drift
+                                                                       solving three interrelated sub-problems: (1) obtaining ground truth
+begins) and 𝑑𝑒is the ending position (point where drift completes).
+                                                                                 drift points in realistic data, (2) measuring performance in a way
+The width of the drift is given by 𝑤= 𝑑𝑒−𝑑𝑠.
+                                                                         that is comparable across datasets, and (3) selecting hyperparame-
+
+1https://github.com/vcerqueira/experiments-drift_evaluation                           ters without overfitting to a single stream. We organize the related
+
+2W.l.o.g., we focus on categorical labels in this work.                        work around these challenges.
+
+
+
+
+                                                           8672
+--- Page 3 ---
+A Framework for Evaluating and Benchmarking Concept Drift Detection Methods                     KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea
+
+
+   Drift point ground truth. Evaluating whether a detector correctly                          Acceptable
+identifies drift points requires knowing when drifts occurred. Two                        Precedence
+paradigms have emerged in response. In proxy evaluation, detectors                                            Drift     Max                         2nd Drift
+                                                                                                                                  onset     delay                             onset
+are assessed indirectly by measuring whether retraining a model
+
+
+upon detection improves predictive performance [8, 11]. While
+
+
+practical, this conflates detector quality with model adaptability
+
+and does not reveal detection accuracy or timing. Supervised evalu-
+ation instead relies on known drift points, typically obtained from                                                                                        Time
+
+synthetic data generators that switch between predefined concepts
+
+
+at fixed times [4, 20, 30]. Because ground truth is available by con-
+                                                                                                                   Alarm     Alarm       Alarm
+struction, one can directly measure detection accuracy, delay, and                           (FP)      (TP)         (FP)
+
+false alarm rates. However, synthetic streams often involve simpli-
+
+
+fied distributions and unrealistic drift dynamics, leaving it unclear
+whether conclusions transfer to real-world settings [33, 36]. No     Figure 1: Drift detection evaluation criteria. The acceptable
+prior work provides a principled way to perform supervised eval-     detection window is defined as the interval [𝑑𝑠−𝛿𝑝𝑟𝑒,𝑑𝑒+𝛿𝑚𝑎𝑥].
+                                               Any detection falling within this window is considered a trueuation on real-world data—a gap our drift simulation framework
+addresses.                                                           positive, while detections outside this window are counted
+                                                               as false positives.
+   Comparability of evaluation metrics. Even when ground truth
+
+is available, existing metrics hinder fair cross-dataset comparison.
+
+
+Bifet [4] proposed three widely used metrics for supervised evalua-
+                                                                hyperparameter protocol (I1). Our work is the first to jointly address
+tion:
+                                                                                          all three challenges within a unified framework.
+    • Mean Time between False Alarms (MTFA): the average time
+
+      span between consecutive false alarms before the true change    3  Drift Detection Evaluation Framework
+       point.
+    • Mean Detection Time (MDT): the average delay between a      This section introduces a systematic framework for evaluating con-
+                                                                      cept drift detection methods, including definitions of detection cor-
+        drift and its detection.
+    • Missed Detection Ratio (MDR): the proportion of drifts that       rectness, a set of evaluation metrics derived from these definitions,
+                                                           and an approach for hyperparameter tuning of detectors.
+     go undetected.
+
+These can be averaged over multiple runs for more robust esti-     3.1  Evaluation Criteria
+mates [7, 12]. However, MTFA and MDT are highly dependent on
+
+                                              We start by establishing clear criteria for what constitutes a correct
+stream length and drift spacing, causing their values to fluctuate
+
+                                                                         detection, which is a key aspect for evaluating detectors in super-
+across datasets and precluding meaningful cross-dataset compari-
+
+                                                                       vised settings. Recall our definition of concept in Definition 2.1: An
+son. Other works [12, 30] have applied similar metrics under dif-
+
+                                                                          ideal drift detector would detect data distribution changes accu-
+ferent terminology, further evidencing the lack of standardization.
+
+                                                                            rately and with zero detection delay. In practice, however, a detector
+To mitigate dataset dependence, Heyden et al. [22] proposed an
+
+                                                                           typically needs to first observe a certain amount of data before ac-
+F1 score for drift detection, defining true positives, false negatives,
+
+                                                                    curate drift detection is possible. In general, the more data a drift
+and false positives based on whether a drift was detected before the
+
+                                                                        detector observes, the more accurate it should be. At the same time,
+next change occurred. While F1 improves cross-dataset compara-
+
+                                                                however, this will lead to a larger detection delay. Optimizing this
+bility, its formulation ignores the temporal aspect: a detector with
+
+                                                                          tradeoff is non-trivial and application-dependent.
+unacceptable delay can still achieve perfect F1. Our timing-aware
+
+                                                            To account for this trade-off, we introduce an evaluation criteria
+metrics address this gap by normalizing for stream characteristics
+
+                                                         where a detection is only considered accurate if it occurs within
+while penalizing detection delay.
+                                                               a reasonable time window around the actual drift point. Let 𝛿𝑚𝑎𝑥
+   Configuration of drift detectors. Beyond metrics, the hyperpa-      denote the maximum acceptable delay parameter, representing the
+
+rameter configuration of drift detectors poses a reproducibility    maximum number of instances after 𝑑𝑒within which a detection
+
+challenge. Most works report specific configurations without clear     must occur before the drift is considered missed. Similarly, let 𝛿𝑝𝑟𝑒
+
+guidelines on how they were obtained, often relying on tacit expert      denote the acceptable precedence parameter, representing the max-
+
+knowledge or tuning on the same dataset used for evaluation [20].    imum number of instances before 𝑑𝑠where an early detection can
+
+This risks overfitting to specific stream dynamics and prevents      be considered valid. This precedence parameter accounts for cases
+
+
+fair comparison across studies. Our leave-one-dataset-out cross-     where detectable changes in the data stream may precede the for-
+
+
+validation protocol addresses this by optimizing hyperparameters     mal drift point. For instance, some external event may cause and
+
+
+on held-out datasets, preventing data leakage and encouraging      precede a change in the data distribution and lead to performance
+
+
+configurations that generalize across diverse streams.                  degradation. While the data distribution change defines the concept
+
+
+   Previous benchmarks [12, 20, 30] each suffer from one or more        drift, the preceding event is a key factor for its detection.
+
+
+of the above sub-problems: they rely on synthetic data for ground      We therefore define the acceptable detection window as an inter-
+
+truth (I2), use dataset-dependent metrics (I1), or lack a principled       val [𝑑𝑠−𝛿𝑝𝑟𝑒,𝑑𝑒+𝛿𝑚𝑎𝑥], illustrated in Figure 1. Any detection falling
+
+
+
+
+                                                          8673
+--- Page 4 ---
+KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea                       Vitor Cerqueira, Heitor Murilo Gomes, Marco Heyden, Bernhard Pfahringer, and Albert Bifet
+
+
+
+
+
+within this window is considered a true positive, while detections             negatives are not covered in this metric to avoid arbitrarily
+
+
+outside this window are counted as false positives.                            large penalties (i.e. values >> 1);
+
+  For gradual drifts (𝑑𝑠< 𝑑𝑒), we anchor the acceptable delay         • Alarm Rate (AR): The total number of alarms triggered per
+at 𝑑𝑒rather than 𝑑𝑠. This choice ensures that the entire gradual             unit of time, calculated as TotalTotalinstancesalarms  ·𝐹. By default, we use 𝐹
+
+transition falls within the acceptable window, and that 𝛿𝑚𝑎𝑥has a             instances as the unit of time. This measures how frequently
+
+consistent interpretation, i.e. maximum delay after drift completion,            the detector signals drifts, regardless of correctness. The
+
+
+regardless of drift width. Note that detections occurring during the              factor 𝐹depends on the velocity of the data stream.
+
+gradual transition (between 𝑑𝑠and 𝑑𝑒) are inherently valid, as they         • False Alarm Rate (FAR): The number of false positive
+
+fall within the acceptable window.                                         alarms per unit of time, calculated as                                                                                                                                   FP         · 𝐹. This is
+                                                                                                                                                           Total instances
+
+   In effect, the criteria are:                                                    particularly important as frequent false alarms can lead to
+
+    • TP (True Positive): A concept drift occurred and was de-           unnecessary model updates and reduced system efficiency
+                                                                and trust.
+       tected within the acceptable detection window [𝑑𝑠−𝛿𝑝𝑟𝑒,𝑑𝑒+
+      𝛿𝑚𝑎𝑥].                                                           Overall, these metrics provide a complementary view on drift de-
+    • FN (False Negative): A concept drift occurred but was       tector performance. For example, NDT quantifies detection latency
+      not detected within the acceptable detection window [𝑑𝑠−      only for successfully detected drift episodes; it does not penalize
+      𝛿𝑝𝑟𝑒,𝑑𝑒+ 𝛿𝑚𝑎𝑥]).                                          missed detections. For this reason, NDT should always be inter-
+    • FP (False Positive): An alarm was triggered outside any      preted alongside Episode Recall, which captures the proportion of
+      acceptable detection window [𝑑𝑠−𝛿𝑝𝑟𝑒,𝑑𝑒+ 𝛿𝑚𝑎𝑥]                 drift episodes that were detected within the acceptable window.
+
+Remark (True Negative). The concept of true negative (TN) is not     3.3  Hyperparameter Optimization
+
+well defined in the context of drift detection, due to the continuity of
+                                                                   Default hyperparameters for drift detectors are often tuned w.r.t.
+
+the data stream and the fact that there are infinitely many possible
+                                                                   the specific datasets used in the original publications. However,
+
+moments where drift does not occur [13].
+                                                                  using the same dataset for optimizing and evaluating the detector
+
+
+                                                             can cause overfitting and lead to overly optimistic performance
+Remark (Precedence Parameter). The value of the precedence pa-
+                                                                    estimates reported in the respective papers. To solve this issue,
+rameter𝛿𝑝𝑟𝑒is situational. For example, when introducing synthetic
+                                                 we propose a leave-one-dataset-out cross-validation approach for
+drift points, the distribution changes can only be detected after the
+                                                                   optimizing the hyperparameters of drift detectors.
+drift onset, so 𝛿𝑝𝑟𝑒should be 0 in such cases.
+                                                                    For each dataset held out for evaluation, the remaining datasets
+
+
+                                                                      serve as the optimization set. A search over the detector’s hyperpa-
+3.2  Evaluation Metrics                                    rameter space is conducted, selecting the configuration that maxi-
+
+
+Building upon the evaluation criteria defined above, we establish      mizes a chosen performance metric (e.g., F1 detection score) aver-
+
+
+several metrics to assess drift detector performance from various      aged across all scenarios in the optimization set. The detector is then
+
+
+perspectives: accuracy, timeliness, and reliability:                      evaluated on the held-out dataset using the selected configuration.
+
+    • Precision: The proportion of detected alarms that were         Leave-one-dataset-out cross-validation ensures that detector pa-
+                                                                  rameters are optimized on data different from the evaluation data,
+       correct (𝑇𝑃/(𝑇𝑃+𝐹𝑃)). This metric indicates how reliable the
+                                                                     leading to more reliable performance estimates while at the same
+       detector’s alarms are. Higher precision means most alarms
+
+                                                                 time getting the most out of detectors performance. The approach
+      correspond to actual drifts rather than false positives.
+    • Recall: The proportion of actual drifts that were correctly      can be coupled with any search strategy, such as random search [3].
+       identified (𝑇𝑃/(𝑇𝑃+𝐹𝑁)). This measure quantifies how well
+      the detector captures actual drift events.                 4  Drift Simulation Framework
+
+    • Episode Recall: The proportion of actual drift episodes    We now introduce our method for injecting systematically control-
+
+       that were correctly identified. By definition, recall counts       lable concept drift into real-world data.
+
+
+       multiple detections within the acceptable detection window
+       as multiple TPs. Episode Recall addresses this limitation by     4.1  Simulating Drifts
+
+      counting multiple alarms within the same detection window     Our approach adopts a semi-synthetic methodology: given a real-
+
+       as a single detection. It provides a more realistic measure of     world data stream, our approach injects synthetic concept drift at
+
+        drift detection coverage.                                          specified points.
+    • F1 Score: The harmonic mean of precision and recall.
+    • Normalized Detection Time (NDT): The average number        4.1.1  Simulation Process. Our drift simulation framework follows
+       of instances between the start of a drift (𝑑𝑠) and its detection,      the prequential learning paradigm [16] and consists of four steps:
+      normalized by the maximum acceptable delay 𝛿𝑚𝑎𝑥. This           (1) Random shuffling: Real-world data streams, denoted S, may
+
+      metric expresses detection delay as a proportion of the ac-            already contain unknown concept drifts, which could con-
+
+
+       ceptable window, enabling comparisons across datasets with           found the results of controlled experiments. To minimize
+
+       different 𝛿𝑚𝑎𝑥values. NDT is computed only over detected               this risk, we randomly shuffle the observations in S, produc-
+       drifts (missed drifts are excluded), so values range from 0            ing a permuted stream S𝜋. This step removes pre-existing
+
+      (immediate detection) to 1 (detection at the deadline). False            temporal dependencies (e.g., seasonality) by design, bringing
+
+
+
+
+                                                          8674
+--- Page 5 ---
+A Framework for Evaluating and Benchmarking Concept Drift Detection Methods                     KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea
+
+
+
+
+
+         it closer to i.i.d., and laying the ground for controlled drift      to the next observation. Zliobaite [38] evaluated this drift type in
+
+
+       injection with known change points.                           the context of change detection with delayed labeling, though in a
+
+    (2) Randomized drift onset: In each prequential evaluation run,     non-randomized setting (e.g. fixing the proportions of the classes
+
+     we select a single drift onset point 𝑑𝑠at random, subject     on specific datasets, predefined drift onset), while we create a more
+
+       to two buffer regions. The first buffer, at the beginning of      general framework with randomized parameters.
+
+      S𝜋, ensures the classifier has sufficient training data and
+                                                                                   4.2.2  Class Label Swap Drift (Algorithm 3). Class label swap drift
+     enough pre-drift samples for evaluating false alarms. The
+                                                                    simulates a change in the classification function by relabeling in-
+      second buffer, at the end of the stream, provides ample post-
+                                                                      stances of a specific class. After the drift onset, any instance origi-
+        drift samples for assessing detection performance. Once 𝑑𝑠is
+                                                                       nally belonging to a selected label 𝑦𝑠𝑒𝑙has its true label changed
+       established, all subsequent instances are transformed using
+                                                                       to a different target label 𝑦𝑠𝑤𝑎𝑝, while its feature vector remains
+      a designated drift function (as detailed in Section 4.2).
+                                                                unchanged. This represents a scenario where the underlying classi-
+    (3) Monte Carlo trials: The above process (shuffling, selecting
+                                                                              fication rule changes, with the same input now corresponding to a
+      a randomized drift point, and applying drift) is repeated 𝑘
+                                                                            different output.
+       times. This repetition allows for robust statistical assess-
+
+     ment of detector performance across multiple runs of the        4.2.3  Feature Permutation Drift (Algorithm 4). Feature permutation
+
+       prequential workflow.                                                   drift introduces a structural change in the feature space by reorder-
+
+    (4) Abrupt vs. gradual drift: For abrupt drifts (𝑤= 0), the drift      ing the input features. After the drift onset, the features within each
+
+      transformation is applied to all instances from the drift onset       instance’s vector 𝑥are rearranged according to a fixed, randomly
+
+
+      onwards. For gradual drifts (𝑤> 0), the transformation is      generated permutation 𝜎. The class label remains unchanged. This
+
+
+      applied probabilistically: the probability that an instance at      simulates scenarios where the relative importance or ordering of
+
+
+      time 𝑡is drawn from the transformed distribution increases      features shifts. Zliobaite [38] also evaluated this drift in a class-
+                                                                   𝑡−𝑑𝑠
+       linearly from 0 at 𝑑𝑠to 1 at 𝑑𝑒, computed as 𝑝(𝑡) = 𝑤.      conditional setting (permutation of features within a specific class),
+
+      After 𝑑𝑒, all instances are transformed.                       with the class and the permutation of features being hand-picked
+
+                                                                           for each dataset.
+4.1.2  Instance transformation and evaluation. Beyond the workflow
+described above, the core mechanism for simulating drift is the       4.2.4  Feature Filtering Drift (Algorithm 5). Feature filtering drift
+
+transformation and evaluation of data instances after the drift onset.      simulates a change in the marginal distribution of a feature by
+
+Figure 2 illustrates this process. Let 𝑀denote a predictive model       conditionally filtering instances. After the drift onset, instances are
+
+(here, a classifier), 𝑔the drift simulation function that applies the      checked against a threshold condition: if the value of a randomly
+selected drift pattern, and 𝐼= (𝑋,𝑦) an instance from S𝜋.               selected numeric feature exceeds a predefined threshold 𝜏, the in-
+   For each incoming instance 𝐼= (𝑋,𝑦), the framework deter-      stance is dropped from the stream; otherwise, it passes through
+mines whether drift should be applied based on the current posi-     unchanged. When an instance is dropped, the prequential workflow
+tion relative to the drift onset 𝑑𝑠. Before 𝑑𝑠, instances pass through      skips it entirely and proceeds to the next observation. This sim-
+unchanged. After 𝑑𝑠, the drift simulation function transforms 𝐼into       ulates scenarios where, due to policy changes, sensor limitations,
+𝐼′ = 𝑔(𝐼) according to the specified drift pattern. The model 𝑀then      or data collection constraints, certain feature values are no longer
+generates a prediction ˆ𝑦for the (possibly transformed) instance.      observed. In this work, we consider𝜏to be the median of the feature
+
+Most of the drift detectors then monitor 𝑀’s prediction error over      values observed before the drift onset.
+
+time. However, other inputs are possible, such as the feature vec-       4.2.5  Discussion. The four drift types described above represent
+tors [22], or an auxiliary compression error [8]. After inference,    common categories of distribution change that can occur in real-
+
+the model 𝑀is trained on the instance 𝐼, or the transformed in-     world data streams. They are not intended to be exhaustive; many
+stance 𝐼′. The complete drift simulation framework is illustrated in      other forms of drift exist, such as noise injection, heteroskedas-
+
+Algorithm 1 in appendix.                                                          ticity, or temporal dependencies [37]. Additionally, incremental
+
+
+                                                                                        drifts, where the distribution shifts continuously over an extended
+4.2  Drift Types                                               period [34], are also relevant but not considered in this work. Our
+
+The previously introduced simulation framework uses a generalized       selection focuses on distinct, interpretable drift patterns that allow
+
+drift function 𝑔. This allows modeling different types of distribution       for controlled experimentation.
+
+changes. We now provide concrete examples of 𝑔, illustrating how        Each drift type involves random parameter choices (e.g., which
+
+to generate the types mentioned in Section 2.1. See Appendix A.2       class to affect, which feature to filter). This variability means that a
+
+for the respective pseudocode.                                          single run may not fully characterize detector performance. The
+
+                                                         Monte Carlo approach described earlier addresses this by repeating
+
+4.2.1  Class Prior Drift (Algorithm 2). Class prior drift simulates      the evaluation across multiple runs with different random configura-
+
+a change in the class distribution by altering the frequency of a       tions, leading to more robust performance estimates. For simplicity,
+
+
+specific target class. After the drift onset, instances belonging to a      each Monte Carlo run contains a single drift, whereas real-world
+
+pre-selected label 𝑦𝑠𝑒𝑙are randomly dropped from the stream with      streams may exhibit multiple ones. These scenarios can be framed
+
+probability 𝑝𝑠𝑘𝑖𝑝, effectively reducing the occurrence of that class.      as different episodes of drift events as illustrated in Figure 1.
+When an instance is dropped, the prequential workflow skips it          Finally, because each drift type transforms instances from 𝐼to 𝐼′
+
+
+entirely (i.e. no training or inference is performed on it), proceeding       (or filters them), all four can be applied in either abrupt or gradual
+
+
+
+
+                                                          8675
+--- Page 6 ---
+KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea                       Vitor Cerqueira, Heitor Murilo Gomes, Marco Heyden, Bernhard Pfahringer, and Albert Bifet
+
+
+
+
+                                                                  M                                                 Change
+                                                                                                                                                                      Detected?
+
+
+
+                                                                                                                                          I
+
+                                                                      No
+                                 New                                                                                                                    Inference                            Compute                                                                                                                       D                                                                                     I            Simulate                                             instance                                                                                        Drift?                                                                                                                                                                        Error
+                                                                                  Yes
+
+                                                                                                                                                                       I'
+
+
+
+       Figure 2: Inference stage of the prequential workflow with simulated drifts (using error tracking as example).
+
+
+
+
+
+mode as described in Section 4. This flexibility allows the framework      Tree due to its computational efficiency. We use default hyperpa-
+
+to simulate a wide range of drift dynamics.                           rameters on Hoeffding Tree classifier across all experiments4.
+
+                                                                  Hyperparameter Optimization. Regarding hyperparameter opti-
+5  Experiments                                                  mization, we conduct the leave-one-dataset-out approach described
+5.1  Experimental Setup                                       in Section 3.3. When evaluating the detectors on each dataset, we
+
+   Datasets. We evaluate our approach on seven widely used real-      use the remaining datasets for optimizing its hyperparameters based
+world datasets from the USP Data Stream Repository [32]: As-     on the F1 detection score. The optimization is conducted using 30
+
+fault [31], Electricity [21], Covertype [6], GasSensorArray [35],      iterations of random search. Each configuration is also evaluted
+
+NOAA [9], Posture [11], and Rialto [24]. Detailed descriptions of      using the Monte Carlo procedure described in Section 3.3. The
+
+each dataset are available in the repository3.                          configuration space for each detector is presented in Table 4 in
+
+  To create controlled evaluation settings, we systematically gen-      appendix.
+
+
+erate semi-synthetic data streams by injecting known concept drift
+points into these datasets using the proposed drift simulation frame-     5.2  Results
+
+
+work. For each dataset and drift type, we perform 50 Monte Carlo     Most of the results presented below are based on F1 score. The
+
+
+trials. In each trial, the drift onset time is randomly sampled be-      scores on the remaining metrics (including execution time), other
+
+
+tween 50% and 80% of the total dataset length. Drift width and       classifiers and synthetic data streams, are available in the Ap-
+
+
+maximum delay parameters are dataset-specific. These were se-     pendix B.2. In all tables, bold (underlined) scores denote the best
+
+
+lected based on dataset length and are summarized in Table 3. The      (second-best) detector in the respective scenario.
+
+precedence parameter is fixed at zero (𝛿𝑝𝑟𝑒= 0) for all datasets
+since synthetic drifts cannot be not anticipated before their onset.       5.2.1  Overall scores. Tables 1 and 2 show the average rank based
+
+                                                         on F1 detection score for each drift detection method across differ-
+  We benchmark a total of 14 change detection methods: ADWIN [5],
+CUSUM [26], DDM [15], EDDM [1], EWMA [29], GMA [28], HDDMA [14],      ent drift scenarios, for abrupt and gradual drifts respectively. The
+HDDMW [14], PH [26], RDDM [2], SEED [23], STEPD [25], ABCD and      average rank of a detector denotes its relative position according
+ABCD(X) [22], and STUDD [8]. Most of these are based on track-      to performance; lower values indicate better performance.
+                                                         The results reveal distinct tiers of detector performance. SEED
+ing the performance of a classifier, namely the instance-wise error
+rate, except for ABCD(X) [22], which monitors the feature space and     and STEPD exhibit consistently competitive F1 scores across all
+STUDD, which monitors an auxiliary compression loss [8]. Most of        drift types and abruptness conditions, ranking among the top three
+                                                                 performers in most scenarios.
+these methods follow a distribution monitoring, control chart, or
+
+                                                                       Several detectors perform well under specific conditions but
+sequential analysis approach. The exception is STUDD, which, being
+                                                                      struggle in others. Among performance-tracking methods, ADWIN
+a meta-detector, can be coupled with any of the other methods. In
+
+                                                                        excels at feature filtering and class prior drifts but underperforms
+this work, STUDD is coupled with ADWIN. We also note that ABCD
+                                                       on feature permutation. ABCD achieves top-tier ranks on feature
+can be applied both to the error rate and the feature space. We
+
+                                                                permutation and class swaps while showing weaker performance
+denote the latter as ABCD(X). We note that our main objective is to
+                                                        on feature filtering. DDM shows moderate results overall, perform-
+establish a standardized evaluation protocol rather than to identify
+                                                                     ing best on class prior under gradual conditions. GMA demonstrates
+the best performing detector. Thus, we focus on well-established
+
+                                                                          particular strength on feature filtering in gradual settings, achiev-
+detection methods whose performance characteristics are already
+                                                                  ing the best average rank for that scenario. HDDMW shows stable
+well understood.
+
+                                                                         middle-tier performance (average ranks around 5 to 7) across most
+  We select the Hoeffding Tree [10] as the classifier in the ex-
+
+                                                                        conditions.
+periments, a well-established algorithm in the streaming machine
+                                                           The unsupervised detectors, ABCD(X) and STUDD, exhibit a char-
+learning literature. While ensembles of Hoeffding Trees (e.g. [18])
+
+                                                                              acteristic pattern: reasonable or strong performance on feature-
+have been shown to be more accurate, we focus on the Hoeffding
+                                                                   space drifts but poor results on label-based changes. ABCD(X) achieves
+
+
+3https://sites.google.com/view/uspdsrepository                                           4https://capymoa.org/api/modules/capymoa.classifier.HoeffdingTree.html
+
+
+
+
+                                                          8676
+--- Page 7 ---
+A Framework for Evaluating and Benchmarking Concept Drift Detection Methods                     KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea
+
+
+Table 1: Average rank of drift detectors across different                                                     ABRUPT    GRADUAL
+datasets for abrupt drifts
+                                                                                                                        1.00
+
+   Detector     Feature    Feat. Per-       Class       Class                    0.75
+
+                 Filtering   mutation        Prior     Swap
+                                                                 F1 0.50
+   ABCD               8.1           3.9           8.0           3.6
+   ABCD(X)         12.7         1.0         13.1         13.1                    0.25
+   ADWIN             4.1           7.6           4.1           7.1
+   CUSUM             5.6         11.9           6.1           9.2                    0.00
+
+                       7.3                                  11.4                                                   6.0                                                                9.9   DDM                                                                  ABCDABCD(X)ADWINCUSUMDDMEWMAGMAHDDMAHDDMWPH RDDMSEEDSTEPDSTUDD                       9.7                                  12.9                                                   9.4         10.9   EWMA
+   GMA                9.0           7.7           8.7           7.3
+   HDDMA             7.4           5.6           6.3           5.4        Figure  3:  Distribution  of F1  detection  scores  across
+   HDDMW             7.1           6.9           5.8           6.0         dataset/drift-type pairs for each detector, comparing abrupt
+   PH               13.1         12.9         11.6         10.1       and gradual drift conditions.
+   RDDM               6.6         10.2           7.9           9.1
+   SEED               4.4           2.7         3.9       1.1
+   STEPD            3.4           3.7           4.3           2.4         As expected, abrupt drifts are generally easier to detect: most
+   STUDD             6.4           6.8           9.9           9.6
+                                                                        detectors exhibit higher median F1 scores and greater upward vari-
+
+                                                              ance for abrupt conditions. SEED and STEPD maintain the high-
+
+                                                                             est medians in both conditions, though with notable performance
+
+near-perfect relative detection of feature permutation drifts (rank      degradation under gradual drifts.
+
+1.0 for abrupt, 3.3 for gradual) but fails on class prior and class swap
+drifts. STUDD ranks second on feature filtering for gradual drifts but       5.2.3  F1 vs FAR. Figure 4 visualizes the trade-off between detec-
+
+is less effective for label-based scenarios. This behavior is expected,      tion accuracy (F1 average rank) and reliability (FAR average rank),
+
+as these methods cannot observe changes that only affect the target      with detection timing (MDT average rank) encoded as dot size.
+
+variable. Finally, PH and EWMA consistently rank among the worst     Lower values indicate better performance on all three axes; an ideal
+
+performers across nearly all scenarios, with average ranks typically      detector would appear in the bottom-left corner with a small dot.
+
+
+exceeding 10.
+
+
+                                                                                                                                                                                 Avg. Rank (MDT)     3       6       9
+Table 2: Average rank of drift detectors across different
+datasets for gradual drifts                                                                                                                                12.5   PH
+
+                                                                                                                EWMA
+
+   Detector     Feature    Feat. Per-       Class       Class                                    ABCD(X)
+                                                                                                                                                                                                       10.0
+                 Filtering   mutation        Prior     Swap
+                                                                                                                                            DDM        RDDM
+   ABCD             11.7           4.1           9.8           5.1                                   (F1)                          CUSUM                             STUDD        GMA
+                                                                                                                                                                               Rank  7.5   ABCD(X)         13.0           3.3         13.0         13.1
+                                                                                                                                                                               Avg.                                             HDDMW
+   ADWIN             6.0         11.2           6.8           7.9                                             ABCD            HDDMA           ADWIN
+   CUSUM             6.3         11.9           7.3           9.7
+   DDM                6.1           9.4         4.7           8.1                                               5.0
+   EWMA             11.7         12.4         10.6         12.0                                                                           STEPD
+                                                                                                                                                                        SEED
+   GMA              3.9           6.6           6.1           4.7
+   HDDMA             9.7           7.9           7.8         10.5                                                                       5             Avg. Rank (FAR)       10
+   HDDMW             5.5           6.3           5.2           5.4
+   PH               10.9         12.4           9.7         11.1
+                                                            Figure 4: Trade-off between F1 average rank (y-axis, lower
+   RDDM               4.7           6.4           6.6           5.3
+                                                                               is better) and FAR average rank (x-axis, lower is better). Dot
+   SEED               5.9         2.7           5.0       1.9
+                                                                      size encodes MDT average rank (smaller is faster detection).
+   STEPD             5.4           2.8           5.2           2.0
+   STUDD             4.2           7.6           7.1           8.1
+
+                                                             SEED achieves the best F1 rank while maintaining a moderate
+                                                            FAR, making it the most balanced choice overall. STEPD follows
+5.2.2  Abrupt vs Gradual. Figure 3 compares abrupt versus gradual       closely with similar characteristics. ABCD offers a compelling alter-
+
+scenarios by showing the F1 score distribution for each detector.      native when minimizing false alarms is a priority; it achieves the
+
+Each boxplot aggregates 4 × 7 = 28 data points (4 drift types × 7       best FAR rank among detectors with competitive F1 scores, though
+datasets).                                                       with slightly lower F1 performance than SEED and STEPD.
+
+
+
+
+                                                          8677
+--- Page 8 ---
+KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea                       Vitor Cerqueira, Heitor Murilo Gomes, Marco Heyden, Bernhard Pfahringer, and Albert Bifet
+
+
+                                                                Default     Optimized                                    to effective tuning. PH and EWMA remain ineffective regardless
+
+                                                ABRUPT                                        of configuration, suggesting fundamental limitations rather
+     1.00                                                                 than suboptimal defaults.
+
+     0.75                                                         These findings offer practical guidance for practitioners: SEED
+     0.50                                                     and STEPD are robust defaults when drift characteristics are un-
+
+                                                           known, while specialized detectors may be preferred when the drift
+     0.25                                                            type or false alarm tolerance is constrained.
+
+     0.00
+F1                                        GRADUAL                                    Limitations and future work. While the experiments provide valu-
+     1.00
+                                                                        able insights, there are some limitations and potential future work.
+     0.75                                                                                First, the experiments are limited to one classifier (Hoeffding tree)
+
+     0.50                                                     and four drift types simulated in 7 real-world datasets. Nonethe-
+                                                                                        less, the proposed drift simulation framework is generic and can be
+     0.25                                                            extended with additional drift definitions, or mixtures of them. An-
+
+     0.00                                                                other limitation is that the prequential workflow is simplified in the
+     ABCDABCD(X)ADWINCUSUMDDMEWMAGMAHDDMAHDDMWPH RDDMSEEDSTEPDSTUDD    senseavailablethatatit eachassumesstepimmediateafter inference.feedback,In practice,with labelsthisbeingis oftenreadilynot
+
+                                                                     the case [8]. Finally, in our drift simulation procedure, we randomly
+
+Figure  5:  Distribution  of F1  scores  across  different       shuffle the original data stream to eliminate any pre-existing drifts
+dataset/drift type pairs for each detection method control-      that might confound the evaluation. This approach preserves the
+ling for hyperparameter optimization approach and drift      real-world feature-level complexity of the data; however, it also
+abruptness.                                                  removes any inherent temporal structure. Preserving temporal de-
+
+                                                                 pendencies in future extensions of the framework would enable a
+
+
+                                                       more comprehensive and realistic assessment of detector perfor-
+
+5.2.4  Detector hyperparameter optimization. Finally, we analyse      mance.
+
+the impact of the hyperparameter optimization described in Sec-
+
+tion 3.3. The results reported so far show the scores of each detector    6  Conclusion
+after applying hyperparameter optimization. Figure 5 shows the
+
+                                                                This work contributes with a unified framework for evaluating
+distribution of F1 scores across different dataset/drift type pairs for
+
+                                                          and comparing change detection methods in data streams. The
+each detection method controlling for hyperparameter optimization
+
+                                                                  novelty of the framework settles on three main contributions: (1)
+approach: optimized and default parameters. The results show that
+
+                                                               a flexible drift simulation framework that allows for controlled
+most approaches improve their median F1 score when optimized,
+
+                                                                experiments with various types of drift, enabling practitioners to
+apart from SEED.
+                                                                        better understand detector behavior under different drift condi-
+
+5.3  Discussion                                                        tions; (2) a systematic evaluation criteria to compare drift detection
+                                                                methods, including new evaluation metrics based on detection pre-
+  Main findings. The experiments reveal distinct patterns in detec-      cision and recall, with the goal of building a common ground for
+
+tor performance. We highlight the following main findings:
+                                                                   the evaluation of drift detection methods; (3) an approach for hy-
+
+   (1) SEED and STEPD exhibit the most consistent performance      perparameter optimization of drift detection methods, based on a
+
+      across all drift types and abruptness conditions, ranking      leave-one-dataset-out scheme.
+
+     among the top three in most scenarios. When minimizing      We applied the proposed framework to benchmark state-of-the-
+
+       false alarms is a priority, ABCD offers a compelling alternative       art and widely used drift detection methods on synthetic and real-
+
+      with the best FAR rank among accurate detectors, though      world datasets. The experiments reveal interesting patterns in the
+
+      with slightly lower F1 than SEED and STEPD.                   performance of the detectors. While there is a noticeable variability
+
+   (2) Gradual drifts are systematically harder to detect than abrupt      in relative performance across different conditions, we highlight
+
+      ones. Most detectors show lower median F1 scores and re-      that SEED, STEPD and ABCD show the best overall performance across
+
+      duced variance under gradual conditions, with the perfor-        all datasets and drift types.
+
+     mance gap particularly pronounced for methods like ABCD
+     and ABCD(X).
+   (3) Unsupervised detectors (ABCD(X) and STUDD) perform better    Acknowledgements
+
+     on feature-space drifts (feature permutation, feature filtering)      This work is funded by national funds through FCT – Foundation for
+
+
+      than on label-based changes (class prior, class swaps), as      Science and Technology, I.P., within the scope of the research unit
+
+
+      expected since they cannot observe target variable shifts.       UID/00326 - Centre for Informatics and Systems of the University of
+
+
+   (4) Hyperparameter optimization yields improvements for most      Coimbra, https://doi.org/10.54499/UID/00326/2025. Heitor Murilo
+
+
+       detectors, with gains more pronounced for abrupt drifts.    Gomes acknowledges the financial support of the Marsden Fund
+
+      Notably, STEPD’s strong performance is largely attributable      under award number VUW2213.
+
+
+
+
+                                                          8678
+--- Page 9 ---
+A Framework for Evaluating and Benchmarking Concept Drift Detection Methods                     KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea
+
+References                                                     Table 3: Dataset summary and drift parameters
+
+
+ [1] Manuel Baena-Garcıa, José del Campo-Ávila, Raul Fidalgo, Albert Bifet, Ricard
+     Gavalda, and Rafael Morales-Bueno. 2006. Early drift detection method. In Fourth                      # Samples  # Features  # Classes  Max Delay   Drift Width
+      international workshop on knowledge discovery from data streams, Vol. 6. 77–86.
+
+ [2] Roberto SM Barros, Danilo RL Cabral, Paulo M Gonçalves Jr, and Silas GTC Santos.           Asfault          8563         62         5         500          500
+     2017. RDDM: Reactive drift detection method. Expert Systems with Applications          Covtype       100000         54         7        2500         2500
+
+     90 (2017), 344–355.                                                                            Electricity      45312          8         2        2500         2500
+
+ [3] James Bergstra and Yoshua Bengio. 2012. Random search for hyper-parameter          GasSensor      13910        128         6        1500         1500
+     optimization. The journal of machine learning research 13, 1 (2012), 281–305.         NOAA         18159          8         2        1500         1500
+
+ [4] Albert Bifet. 2017. Classifier concept drift detection and the illusion of progress.           Posture        100000          3         8        2500         2500
+     In International conference on artificial intelligence and soft computing. Springer,            Rialto          82250         27        10        2500         2500
+     715–725.
+
+
+ [5] Albert Bifet and Ricard Gavalda. 2007. Learning from time-changing data with
+     adaptive windowing. In Proceedings of the 2007 SIAM international conference on
+     data mining. SIAM, 443–448.
+
+ [6] Jock A Blackard and Denis J Dean. 1999. Comparative accuracies of artificial
+
+     neural networks and discriminant analysis in predicting forest cover types from        [25] Kyosuke Nishida and Koichiro Yamauchi. 2007. Detecting concept drift using
+     cartographic variables. Computers and electronics in agriculture 24, 3 (1999),                statistical testing. In International conference on discovery science. Springer, 264–
+     131–151.                                                                                     269.
+ [7] Vitor Cerqueira, Heitor Murilo Gomes, and Albert Bifet. 2020. Unsupervised con-        [26] Ewan S Page. 1954. Continuous inspection schemes. Biometrika 41, 1/2 (1954),
+     cept drift detection using a student–teacher approach. In International conference             100–115.
+     on discovery science. Springer, 190–204.                                                [27] Fábio Pinto, Marco OP Sampaio, and Pedro Bizarro. 2019. Automatic model
+ [8] Vitor Cerqueira, Heitor Murilo Gomes, Albert Bifet, and Luis Torgo. 2023. STUDD:            monitoring for data streams. arXiv preprint arXiv:1908.04240 (2019).
+   A student–teacher method for unsupervised concept drift detection. Machine        [28] Stuart W Roberts. 2000. Control chart tests based on geometric moving averages.
+     Learning 112, 11 (2023), 4351–4378.                                                      Technometrics 42, 1 (2000), 97–101.
+ [9] Gregory Ditzler and Robi Polikar. 2012. Incremental learning of concept drift from        [29] Gordon J Ross, Niall M Adams, Dimitris K Tasoulis, and David J Hand. 2012.
+     streaming imbalanced data. IEEE transactions on knowledge and data engineering             Exponentially weighted moving average charts for detecting concept drift. Pattern
+      25, 10 (2012), 2283–2301.                                                                      recognition letters 33, 2 (2012), 191–198.
+[10] Pedro Domingos and Geoff Hulten. 2000. Mining high-speed data streams. In        [30] Raquel Sebastiao and Joao Gama. 2009. A study on change detection methods. In
+     Proceedings of the sixth ACM SIGKDD international conference on Knowledge              Progress in artificial intelligence, 14th Portuguese conference on artificial intelligence,
+     discovery and data mining. 71–80.                                                       EPIA, Vol. 2009.
+[11] Denis Moreira Dos Reis, Peter Flach, Stan Matwin, and Gustavo Batista. 2016. Fast        [31] Vinicius MA Souza. 2018. Asphalt pavement classification using smartphone
+     unsupervised online drift detection using incremental kolmogorov-smirnov test.            accelerometer and complexity invariant distance. Engineering Applications of
+     In Proceedings of the 22nd ACM SIGKDD international conference on knowledge                Artificial Intelligence 74 (2018), 198–211.
+     discovery and data mining. 1545–1554.                                                 [32] V. M. A. Souza, D. M. Reis, A. G. Maletzke, and G. E. A. P. A. Batista. 2020.
+
+[12] William J Faithfull, Juan J Rodríguez, and Ludmila I Kuncheva. 2019. Combin-            Challenges in Benchmarking Stream Learning Algorithms with Real-world Data.
+     ing univariate approaches for ensemble change detection in multivariate data.           Data Mining and Knowledge Discovery 34 (2020), 1805–1858. doi:10.1007/s10618-
+     Information Fusion 45 (2019), 202–214.                                                 020-00698-5
+
+[13] Tom Fawcett and Foster Provost. 1999. Activity monitoring: Noticing interest-        [33] W Nick Street and YongSeog Kim. 2001. A streaming ensemble algorithm (SEA)
+     ing changes in behavior. In Proceedings of the fifth ACM SIGKDD international              for large-scale classification. In Proceedings of the seventh ACM SIGKDD interna-
+     conference on Knowledge discovery and data mining. 53–62.                                     tional conference on Knowledge discovery and data mining. 377–382.
+[14] Isvani Frias-Blanco, José del Campo-Ávila, Gonzalo Ramos-Jimenez, Rafael        [34] Yibin Sun, Heitor Murilo Gomes, Bernhard Pfahringer, and Albert Bifet. 2025.
+     Morales-Bueno, Agustin Ortiz-Diaz, and Yailé Caballero-Mota. 2014. Online             Evaluation for Regression Analyses on Evolving Data Streams. arXiv preprint
+     and non-parametric drift detection methods based on Hoeffding’s bounds. IEEE              arXiv:2502.07213 (2025).
+     Transactions on Knowledge and Data Engineering 27, 3 (2014), 810–823.                 [35] Alexander Vergara, Shankar Vembu, Tuba Ayhan, Margaret A Ryan, Margie L
+
+[15] Joao Gama, Pedro Medas, Gladys Castillo, and Pedro Rodrigues. 2004. Learning           Homer, and Ramón Huerta. 2012. Chemical gas sensor drift compensation using
+     with drift detection. In Brazilian symposium on artificial intelligence. Springer,               classifier ensembles. Sensors and Actuators B: Chemical 166 (2012), 320–329.
+     286–295.                                                                              [36] Gerhard Widmer and Miroslav Kubat. 1996. Learning in the presence of concept
+[16] Joao Gama, Raquel Sebastiao, and Pedro Pereira Rodrigues. 2013. On evaluating                drift and hidden contexts. Machine learning 23, 1 (1996), 69–101.
+     stream learning algorithms. Machine learning 90, 3 (2013), 317–346.                    [37] Giacomo Ziffer, Federico Giannini, and Emanuele Della Valle. 2024. Tenet: Bench-
+[17] João Gama, Indr˙e Žliobait˙e, Albert Bifet, Mykola Pechenizkiy, and Abdelhamid           marking Data Stream Classifiers in Presence of Temporal Dependence. In 2024
+     Bouchachia. 2014. A survey on concept drift adaptation. ACM computing surveys            IEEE International Conference on Big Data (BigData). IEEE, 1187–1196.
+     (CSUR) 46, 4 (2014), 1–37.                                                              [38] Indre Žliobaite. 2010. Change with delayed labeling: When is it detectable?. In
+[18] Heitor M Gomes, Albert Bifet, Jesse Read, Jean Paul Barddal, Fabrício Enembreck,            2010 IEEE international conference on data mining workshops. IEEE, 843–850.
+     Bernhard Pfharinger, Geoff Holmes, and Talel Abdessalem. 2017.  Adaptive
+    random forests for evolving data stream classification. Machine Learning 106, 9
+
+      (2017), 1469–1495.
+[19] Heitor Murilo Gomes, Anton Lee, Nuwan Gunasekara, Yibin Sun, Guil-   A  Drift Simulation
+
+    herme Weigert Cassales, Justin Liu, Marco Heyden, Vitor Cerqueira, Maroua
+      Bahri, Yun Sing Koh, et al. 2025. CapyMOA: efficient machine learning for data    A.1  Simulation Framework
+     streams in python. arXiv preprint arXiv:2502.07432 (2025).
+[20] Paulo M Gonçalves Jr, Silas GT de Carvalho Santos, Roberto SM Barros, and     Algorithm 1 describes the procedure for simulating drift on real-
+     Davi CL Vieira. 2014. A comparative study on concept drift detectors. Expert      world data streams based on Monte Carlo trials.
+     Systems with Applications 41, 18 (2014), 8144–8156.
+
+[21] Michael Harries, New South Wales, et al. 1999. Splice-2 comparative evaluation:
+      Electricity pricing. (1999).                                A.2  Drift Types
+[22] Marco Heyden, Edouard Fouché, Vadim Arzamasov, Tanja Fenn, Florian Kalinke,
+
+    and Klemens Böhm. 2024.  Adaptive Bernstein change detector for high-     Algorithms 2, 3, 4, and 5 describe the specific drift types applied in
+     dimensional data streams. Data Mining and Knowledge Discovery 38, 3 (2024),      our work using the proposed simulation framework.
+
+     1334–1363.
+
+
+[23] David Tse Jung Huang, Yun Sing Koh, Gillian Dobbie, and Russel Pears. 2014.
+
+
+     Detecting                  volatility                            shift
+                               in data streams. In 2014 IEEE International Conference   B  Experiments                     IEEE,                          863–868.     on Data Mining.
+
+[24] Viktor            Losing,                  Barbara                      Hammer,                               and Heiko                                             Wersing.                                                          2016.                                       KNN                                                                                 classifier
+                                                                      with     B.1  Experimental Setup
+      self adjusting              memory                             for                            heterogeneous                                          concept                                                                    drift.                                                           In 2016                                                            IEEE                                                                      16th inter-
+     national conference on data mining (ICDM). IEEE, 291–300.                     Tables 3 and 4 summarise the key parameters and configuration
+
+
+                                                                 pool considered for the experiments.
+
+
+
+
+                                                          8679
+--- Page 10 ---
+KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea                       Vitor Cerqueira, Heitor Murilo Gomes, Marco Heyden, Bernhard Pfahringer, and Albert Bifet
+
+
+Algorithm 1 Drift Simulation Framework                       Algorithm 3 Class Label Swap Drift Simulation
+
+Require: Data stream S, Drift function 𝑔, Predictive model 𝑀,     Require: Instance 𝐼= (𝑥,𝑦), Selected label 𝑦𝑠𝑒𝑙, Swap label 𝑦𝑠𝑤𝑎𝑝
+   Change detector 𝐷                                         Ensure: Transformed instance 𝐼′
+Require: Number of trials 𝑘, Drift width𝑤, Buffer sizes𝑏𝑠𝑡𝑎𝑟𝑡,𝑏𝑒𝑛𝑑             1: if 𝐼.𝑦= 𝑦𝑠𝑒𝑙then
+Ensure: Detection results for each trial                                                   2:      𝐼′ = (𝐼.𝑥,𝑦𝑠𝑤𝑎𝑝)    ⊲Create instance with swapped label
+   1: for 𝑗= 1 to 𝑘do                  ⊲Monte Carlo trials            3:    return 𝐼′
+   2:   S𝜋←Shuffle(S)           ⊲Random permutation            4: end if
+   3:    𝑑𝑠←RandomInt(𝑏𝑠𝑡𝑎𝑟𝑡, |S𝜋| −𝑏𝑒𝑛𝑑)    ⊲Random drift            5: return 𝐼                    ⊲Instance remains unchanged
+
+    onset
+
+   4:   𝑑𝑒←𝑑𝑠+ 𝑤                        ⊲Drift end position
+   5:    Reset(𝑀, 𝐷)                ⊲Initialize model and detector     Algorithm 4 Feature Permutation Drift Simulation
+   6:    for 𝑖= 1 to |S𝜋| do                                      Require: Instance 𝐼= (𝑥,𝑦), Permutation index vector 𝜎
+   7:      𝐼←S𝜋[𝑖]                  ⊲Get instance (𝑋,𝑦)      Ensure: Transformed instance 𝐼′
+   8:          if 𝑖< 𝑑𝑠then                  ⊲Before drift onset            1: 𝑥′ ←𝑥[𝜎]               ⊲Reorder features according to 𝜎
+   9:               𝐼′ ←𝐼                                                                              2: 𝐼′ = (𝑥′, 𝐼.𝑦)       ⊲Create instance with permuted features
+ 10:        else if 𝑖≥𝑑𝑒then           ⊲After drift completes            3: return 𝐼′
+ 11:               𝐼′ ←𝑔(𝐼)
+ 12:        else                       ⊲Gradual drift region
+ 13:        𝑝←(𝑖−𝑑𝑠)/𝑤                                Algorithm 5 Feature Distribution Drift Simulation
+ 14:               𝐼′ ←𝑔(𝐼) with probability 𝑝, else 𝐼′ ←𝐼
+                                                             Require: Instance 𝐼= (𝑥,𝑦), Feature index 𝑗, Threshold 𝜏
+ 15:      end if                                                            Ensure: Instance 𝐼or Null (if filtered)
+ 16:       ˆ𝑦←𝑀.Predict(𝐼′.𝑋)                   ⊲Inference            1: if 𝐼.𝑥[𝑗] > 𝜏then
+ 17:     𝑒←Error(ˆ𝑦, 𝐼′.𝑦)              ⊲Compute error            2:    return Null                      ⊲Instance is dropped
+ 18:       𝐷.Update(𝑒)                     ⊲Feed detector            3: end if
+ 19:          if 𝐷.Alarm() then                                                                4: return 𝐼                      ⊲Instance is kept unchanged
+ 20:           Record detection at position 𝑖
+
+ 21:      end if
+ 22:       𝑀.Train(𝐼′)                     ⊲Update model
+ 23:    end for                                                   gradual drift scenarios, respectively. Table 11 shows the F1 score
+ 24:     Store results for trial 𝑗                                 on synthetic data streams, and Table 12 reports the F1 score across
+ 25: end for                                                               different classifiers. Below, we provide a detailed analysis of each
+                                                                             set of results.
+
+                                                             Decomposing the F1 scores into precision and recall (Tables ??–
+Algorithm 2 Class Prior Drift Simulation                               10) reveals different profiles across detectors and clarifies how some
+Require: Instance 𝐼= (𝑥,𝑦), Selected label 𝑦𝑠𝑒𝑙, Skip probability     methods achieve similar F1 scores through different behaviors. For
+                                                                 example, GMA exhibits a recall-dominated profile: it achieves near-
+     𝑝𝑠𝑘𝑖𝑝
+Ensure: Instance 𝐼or Null (if skipped)                                 perfect recall (0.97–1.0 across all drift types and abruptness condi-
+                                                                                   tions), meaning it detects almost every drift. However, its precision
+   1: if 𝐼.𝑦= 𝑦𝑠𝑒𝑙then
+                                                                                         is among the lowest (0.05–0.08), indicating that the majority of its
+   2:    Generate random value 𝑟∼Uniform(0, 1)
+                                                                  alarms are false positives. This pattern suggests that this method is
+   3:      if 𝑟< 𝑝𝑠𝑘𝑖𝑝then
+                                                                      overly sensitive, triggering alarms frequently regardless of whether
+   4:       return Null                   ⊲Instance is dropped
+                                                               a genuine drift has occurred. In practice, however, this kind of
+   5:    end if
+                                                                  behavior leads to excessive and unnecessary model retraining, un-
+   6: end if
+                                                             dermining trust in the detection system. Other detectors such as
+   7: return 𝐼                      ⊲Instance is kept unchanged
+                                                           RDDM exhibit a similar profile, achieving high recall but low preci-
+                                                                           sion. SEED, ABCD, and STEPD show a relatively balanced precision
+
+                                                            and recall trade-off across all scenarios. Finally, under gradual drift
+B.2  Results                                                       conditions, overall scores are lower than for abrupt drifts, but the
+
+
+This section presents the complete experimental results obtained       relative performance of detectors is largely preserved.
+
+
+from evaluating the drift detection methods across all datasets and         Figure 6 displays the average execution time (in minutes) for
+
+drift scenarios. Similarly to the main content, in all tables, bold      each drift detection method, aggregated across all datasets. The
+
+values indicate the best performing method for each drift type, while      execution time encompasses the complete detection pipeline. This
+
+
+underlined values denote the second-best performance. Tables 5      metric complements the main results by providing insight into
+
+and ?? report the average F1 detection scores for abrupt and gradual      the computational overhead associated with each detector. The
+drift scenarios, respectively. Tables ?? and 8 present the average      computational cost varies across methods. Most methods show a
+precision scores for abrupt and gradual drift scenarios, respectively.      similar cost, except for ABCD, ABCD(X), and STUDD which are more
+
+Tables 9 and 10 report the average recall scores for abrupt and      expensive.
+
+
+
+
+                                                          8680
+--- Page 11 ---
+A Framework for Evaluating and Benchmarking Concept Drift Detection Methods                     KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea
+
+
+        Table 4: Detector Parameter Search Space                      (e.g., 0.82 for SEED, 0.78 for STEPD and HDDMA), while others tend to
+
+                                                              produce lower scores.
+
+
+ Detector   Parameter         Values
+
+
+
+ ABCD      delta_drift          0.001, 0.002, 0.0001, 0.01, 0.02
+            delta_warn           0.1, 0.01                                   STEPD
+
+             encoding_factor     0.3, 0.5, 0.7
+            model_id          kpca, ae                                   SEED
+             num_splits          20, 50, 100                          DDM
+
+
+ ABCD(X)   delta_drift          0.001, 0.002, 0.0001, 0.01, 0.02                                                 CUSUM
+            delta_warn           0.1, 0.01
+             encoding_factor     0.3, 0.5, 0.7                               PH
+
+            model_id          kpca, ae
+             num_splits          20, 50, 100                         EWMA
+ ADWIN    delta                0.001, 0.002, 0.005, 0.01, 0.0005, 0.0001            HDDMA CUSUM    min_n_instances    30, 50, 100, 300, 500, 1000, 2000                                                     Detector  GMA
+
+              delta                0.001, 0.002, 0.005, 0.0001, 0.01
+           lambda_             50, 100, 150, 300, 500, 1000, 2000                ADWIN
+ DDM      min_n_instances    30, 50, 100, 300, 500, 1000, 2000                RDDM
+
+
+             out_control_level   1.75, 2, 2.5, 3.0, 2.25, 2.75, 3.5, 4                                          HDDMW
+
+                                    50,                                      100,                                          300,                                               500,                                                  1000,                                                        2000,                                                             3000, EWMA    min_n_instances
+                                                                   5000, 10000          STUDD
+           lambda_                                         0.9,                                          0.01,                                              0.001,                                                           0.1,                                                         0.005,                                                               0.002,                                                               0.0001
+ GMA      min_n_instances    30, 50, 100, 300, 500, 1000, 2000                   ABCD
+
+
+           lambda_             0.001, 0.002, 0.01, 0.1, 0.5, 1, 2, 3, 5                                                            ABCD(X)
+             alpha                                      0.99, 0.995,                                                      0.9,                                                           0.8,                                                                0.7, 0.5,
+                                                                         0.1, 0.01                               0        5       10       15       20
+              drift_confidence    0.001,                                           0.002,                                                  0.005,                                                           0.01,                                                        0.0001 HDDMA
+             test_type          Two-sided, One-sided                                         CPU Time (minutes)
+
+
+
+ HDDMW   drift_confidence    0.001, 0.002, 0.005, 0.01, 0.0001
+             test_type          Two-sided, One-sided                       Figure 6: Average execution time of each drift detection
+           lambda_             0.05, 0.001, 0.1, 0.01, 0.0001                 method across all datasets
+
+
+ PH        min_n_instances    30, 50, 100, 300, 500, 1000, 2000
+
+
+              delta                0.001, 0.002, 0.005, 0.01, 0.0001, 0.1
+
+
+           lambda_                                    30,                                        50,                                         100,                                              300, 500,                                                      1000,
+                                                     2000                 Table 5: Average F1 detection score of drift detectors across             alpha                                      0.99,                                          0.999,                                                0.995,                                                              0.9,                                                                  0.8, 0.5
+ RDDM     min_n_instances    30, 50, 100, 300, 500, 1000, 2000                   different datasets for abrupt drifts
+
+
+               drift_level            1.9, 2, 2.1, 2.25, 2.5, 3, 1.5, 1.75
+
+
+ SEED       delta                0.0001, 0.001, 0.01, 0.05, 0.1                         Detector     Feature    Feat. Per-       Class       Class
+
+             epsilon_prime      0.0025, 0.01, 0.005, 0.0075                                            Filtering   mutation        Prior     Swap
+
+             block_size           32, 50, 100, 150, 256
+             alpha                  0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8                      ABCD             0.11         0.51         0.16         0.25
+ STEPD    window_size        30, 50, 100, 300, 500, 1000                       ABCD(X)         0.02        0.98           0.0           0.0
+              alpha_drift          0.001, 0.002, 0.003, 0.005, 0.01, 0.1                  ADWIN            0.24         0.27        0.31         0.16
+ STUDD    min_n_instances   500, 1000, 2000, 5000                          CUSUM            0.19         0.01         0.22           0.1
+                                                              DDM              0.16         0.02         0.19         0.09
+                                                              EWMA             0.09           0.0         0.06         0.03
+   Table 11 reports F1 scores on three synthetic data stream genera-        GMA                0.1         0.13         0.12         0.15
+tors (Agrawal, SEA, STAGGER), each composed of either abrupt or        HDDMA            0.17         0.36           0.2         0.24
+gradual drifts, using only the error-tracking detectors. The overall        HDDMW            0.18         0.25         0.19         0.21
+ranking of detectors on synthetic streams broadly corroborates        PH               0.02           0.0         0.06         0.09
+                                                              RDDM               0.2         0.04         0.15           0.1
+the findings on real-world data: SEED, ABCD, and STEPD achieve the
+highest F1 scores across most synthetic scenarios.                     SEED             0.24         0.61           0.3        0.37
+   Table 12 reports F1 scores for five classifiers—Adaptive Random        STEPD          0.26         0.53         0.28         0.33
+Forest (ARF), Hoeffding Tree, Naive Bayes, Online Bagging, and        STUDD            0.17         0.27           0.1         0.11
+
+
+OzaBoost—on the Electricity dataset using the label swap drift type.
+
+
+This experiment assesses whether the relative performance of detec-
+
+
+tors is sensitive to the underlying learning algorithm. The relative
+
+
+ranking of detectors is largely preserved across classifiers. This sta-
+
+
+bility suggests that the findings from our main experiments, which
+
+
+use the Hoeffding Tree, are not a result of a particular learner’s er-
+
+
+ror dynamics. Absolute F1 scores, however, vary noticeably across
+
+
+classifiers. OzaBoost consistently yields the highest detection scores
+
+
+
+
+                                                          8681
+--- Page 12 ---
+KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea                       Vitor Cerqueira, Heitor Murilo Gomes, Marco Heyden, Bernhard Pfahringer, and Albert Bifet
+
+
+Table 8: Average precision score of drift detectors across dif-     Table 10: Average recall score of drift detectors across differ-
+ferent datasets for gradual drifts                              ent datasets for gradual drifts
+
+
+
+
+
+   Detector     Feature    Feat. Per-       Class       Class            Detector     Feature    Feat. Per-       Class       Class
+
+
+                 Filtering   mutation        Prior     Swap                           Filtering   mutation        Prior     Swap
+
+   ABCD             0.03         0.26         0.08         0.17           ABCD             0.04           0.5         0.08         0.28
+   ABCD(X)           0.0        0.66           0.0           0.0           ABCD(X)           0.0         0.76           0.0           0.0
+   ADWIN            0.07         0.03           0.1         0.05           ADWIN            0.24           0.1         0.34         0.27
+   CUSUM             0.1         0.02         0.13         0.08           CUSUM            0.14         0.02         0.17         0.11
+   DDM              0.07         0.04         0.08         0.06           DDM              0.89         0.69         0.89         0.78
+   EWMA             0.05           0.0         0.05         0.04           EWMA             0.06         0.01         0.06         0.03
+   GMA              0.07         0.07         0.07         0.08           GMA              1.0         1.0         1.0         1.0
+   HDDMA            0.06         0.09         0.13         0.05           HDDMA            0.09         0.17         0.15         0.11
+   HDDMW            0.07         0.08         0.07         0.09           HDDMW            0.65         0.78         0.66         0.81
+   PH               0.06         0.01         0.12         0.05           PH               0.05         0.01         0.09         0.05
+   RDDM             0.07         0.07         0.07         0.08           RDDM             1.0         0.99       1.0         1.0
+   SEED             0.09         0.33         0.13      0.23           SEED             0.19         0.87         0.27         0.59
+   STEPD          0.11         0.33      0.16        0.23           STEPD            0.19         0.84         0.28         0.54
+   STUDD            0.09           0.1         0.09         0.06           STUDD            0.43         0.61         0.37         0.41
+
+
+Table 9: Average recall score of drift detectors across different     Table 11: F1 scores on synthetic data streams (Agrawal, SEA,
+datasets for abrupt drifts                              STAGGER) composed of abrupt or gradual drifts.
+
+
+
+
+   Detector     Feature    Feat. Per-       Class       Class           Mode         ABRUPT              GRADUAL
+
+                 Filtering   mutation        Prior     Swap             Stream  Agrawal  SEA  STAGGER  Agrawal  SEA  STAGGER
+
+                                                                        ABCD          0.57   0.07        0.40       0.60   0.33         0.44
+   ABCD             0.14           0.7         0.17         0.37
+                                                                        ADWIN        0.26   0.04         0.04       0.54   0.54         0.08
+   ABCD(X)         0.01         0.96           0.0           0.0            CUSUM        0.12   0.00         0.04       0.17   0.22         0.03
+   ADWIN             0.4         0.55         0.51         0.47            DDM           0.10   0.00         0.04       0.34   0.36         0.11
+   CUSUM            0.23         0.02         0.26         0.18            EWMA         0.00   0.00         0.00       0.00   0.00         0.00
+   DDM              0.23         0.04         0.29         0.21            GMA           0.18   0.19         0.16       0.40   0.39         0.45
+   EWMA               0.1           0.0         0.08         0.05            HDDMA        0.22   0.05         0.12       0.32   0.26         0.16
+                                                                        HDDMW        0.16   0.09         0.05       0.45   0.39        0.50
+   GMA            0.97         1.0         1.0       1.0
+                                                                        PH            0.06   0.00         0.00       0.14   0.07         0.03
+   HDDMA            0.23         0.66           0.3         0.45            RDDM         0.15   0.08         0.04       0.40   0.43         0.41
+   HDDMW            0.33         0.67         0.45         0.54            SEED        0.58   0.46         0.35      0.61  0.63         0.47
+   PH               0.02           0.0         0.04         0.07            STEPD        0.49  0.49         0.29      0.61   0.61         0.42
+   RDDM             0.33         0.11         0.32         0.29
+   SEED             0.29         0.93         0.36         0.58        Table 12: F1 scores of each detector for different classifiers
+   STEPD            0.36         0.92         0.39         0.58        using the Electricity data stream and the label swapping drift
+   STUDD            0.48         0.75         0.38         0.41         type.
+
+
+
+
+
+                                                                            Learner  ARF  HoeffdingTree  NaiveBayes  OnlineBagging  OzaBoost
+
+                                                                     ABCD      0.51   0.33            0.53          0.35              0.52
+                                                                     ADWIN    0.23   0.19             0.44           0.22              0.68
+                                                                     CUSUM     0.0     0.1               0.37           0.01               0.6
+                                                                     DDM       0.03   0.06             0.25           0.06               0.4
+                                                                     EWMA      0.0     0.0               0.0            0.0                0.0
+                                                                     GMA       0.2    0.18             0.15           0.2               0.17
+                                                                     HDDMA    0.56   0.51             0.41           0.47              0.78
+                                                                     HDDMW    0.62   0.42             0.22           0.46              0.63
+                                                                     PH         0.0    0.02             0.06           0.0               0.78
+                                                                     RDDM      0.06   0.12             0.18           0.08               0.3
+                                                                     SEED      0.51   0.54              0.5            0.53             0.82
+                                                                     STEPD    0.57   0.54             0.46          0.56              0.78
+
+
+
+
+
+                                                           8682

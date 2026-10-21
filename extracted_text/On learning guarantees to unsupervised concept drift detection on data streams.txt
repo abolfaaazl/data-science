@@ -1,0 +1,925 @@
+Title: On learning guarantees to unsupervised concept drift detection on data streams
+
+--- Page 1 ---
+                                                        Expert Systems With Applications 117 (2019) 90–102
+
+
+
+                                             Contents lists available at ScienceDirect
+
+                     Expert Systems With Applications
+
+
+                                            journal homepage: www.elsevier.com/locate/eswa
+
+
+
+On learning guarantees to unsupervised concept drift detection on
+data streams
+
+Rodrigo F. de Mello a ,∗, Yule Vaz a, Carlos H. Grossi b, Albert Bifet c
+
+a University of São Paulo, Institute of Mathematics and Computer Science, Department of Computer Science, Av. Trabalhador São-carlense, São Carlos, SP
+400, Brazil
+b University of São Paulo, Institute of Mathematics and Computer Science, Department of Mathematics, Av. Trabalhador São-carlense, São Carlos, SP 400,
+Brazil
+c LTCI, Télécom ParisTech – Data, Intelligence and Graphs Team, Oﬃce: C201-2, 46 rue Barrault, Paris Cedex 13 75634, France
+
+
+
+
+
+a r t i c l e    i n f o              a b s t r a c t
+
+
+Article history:                                 Motivated by the Statistical Learning Theory (SLT), which provides a theoretical framework to ensure
+Received 21 June 2018                     when supervised learning algorithms generalize input data, this manuscript relies on the Algorithmic Sta-
+Revised 31 August 2018                                 bility framework to prove learning bounds for the unsupervised concept drift detection on data streams.
+Accepted 31 August 2018
+                                           Based on such proof, we also designed the Plover algorithm to detect drifts using different measure func-
+Available online 21 September 2018
+                                                       tions, such as Statistical Moments and the Power Spectrum. In this way, the criterion for issuing data
+Keywords:                                    changes can also be adapted to better address the target task. From synthetic and real-world scenar-
+Data streams                                             ios, we observed that each data stream may require a different measure function to identify concept
+Concept drift                                             drifts, according to the underlying characteristics of the corresponding application domain. In addition,
+Algorithmic stability                     we discussed about the differences of our approach against others from literature, and showed illustrative
+McDiarmid’s inequality                              results conﬁrming the usefulness of our proposal.
+
+                                                                    © 2018 Elsevier Ltd. All rights reserved.
+
+
+
+
+1. Introduction                                                       are from each other, the best is the second measure. Both measure
+                                                   may be individually considered or combined into a single index.
+   The  Statistical Learning Theory  (SLT) provides the  theoreti-    The external indices assume supervision labels are available to pro-
+cal foundation and learning guarantees for supervised machine    ceed with the ﬁnal analysis, what is not completely fair in terms
+learning algorithms ( Vapnik, 1998; 1995 ). SLT considers the Bias-     of unsupervised learning, given it is assumed no label is present
+Variance dilemma to study and analyze algorithm biases in terms    and only the structural data organization in some input space is
+of sample sizes. According to the SLT, one can study the complexity     analyzed. Given such scenario, we conclude unsupervised learning
+of such bias, also referred to as the space of admissible functions     lacks in terms of theoretical foundation to provide learning guaran-
+which classiﬁers are selected from, in order to deﬁne an adequate     tees, therefore, depending on the scenario, results may be obtained
+supervised algorithm to address some classiﬁcation or regression    simply by chance.
+task. This theoretical foundation ensures supervised learning in dif-        Besides such limitation, unsupervised learning has been spe-
+ferent scenarios and application domains ( de Mello & Ponti, 2018;     cially considered to address data-stream concept drift detection,
+Vapnik, 1995 ).                                                      given the complexity involved in supervising observations, spe-
+   To counterpose, the area of unsupervised learning does not     cially when data  is collected at high frequencies  ( Faria, Gama,
+count on a similar theoretical framework to provide learning guar-   & Carvalho, 2013; Hayat & Hashemi, 2010; Masud et  al., 2010;
+antees, consequently results typically rely on internal or external     Sethi & Kantardzic, 2017; Sethi, Kantardzic, & Hu, 2016; Spinosa,
+indices ( Rendón et  al., 2011 ). Internals are directly computed on    de Leon  F. de Carvalho, & Gama, 2007 ). Data streams are open-
+the resulting partition, usually measuring how compact individual    ended sequences  of uni or multidimensional observations  col-
+clusters are, and how far such groups are from one other. The more     lected from some phenomenon, such as the temperature of a
+compact they are, the best is the resulting measure. The far groups    given world region, ﬂood sensing, motor and cognitive develop-
+                                                               ment, etc. ( Agarwal, 1995; Metzger, 1997; Rios, Parrott, Lange, &
+                                                            de Mello, 2015 ). Observations are here assumed to be generated
+  ∗Corresponding author.                                           from some process, such as a stochastic or a deterministic dynam-
+    E-mail addresses: mello@icmc.usp.br (R.F. de Mello), yule.vaz@usp.br (Y. Vaz),      ical system ( Kantz & Schreiber, 2003 ). Those generating processes
+grossi@icmc.usp.br (C.H. Grossi), albert.bifet@telecom-paristech.fr (A. Bifet).
+
+
+https://doi.org/10.1016/j.eswa.2018.08.054
+0957-4174/© 2018 Elsevier Ltd. All rights reserved.
+--- Page 2 ---
+                                                                   R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102                                          91
+
+
+or their parameters may change along time due to some other phe-     to detect drifts in terms of data amplitudes and frequencies. The
+nomena interacting or acting on them, such as a medicine impact-    user may extend our result to consider other measure functions as
+ing someone’s blood pressure, or the movement of air masses af-     well.
+fecting local temperatures. Data behavior changes are here referred       Experiments were performed using six different scenarios, four
+to as concept drifts ( da Costa, Duarte, Vallim, & de Mello, 2017 )     of them based on synthetic data streams and two on real-world
+and they allow to point out decisive moments in which some sys-     data. Synthetic streams are relevant to conﬁrm that our approach
+tem or phenomenon should be studied in order to comprehend      is capable of marking down drifts, as well as to test how different
+anomalous behaviors. For instance, a stream may start containing    measure functions impact such detections. Using real-world data,
+data observations produced by the following sinusoidal function   we conﬁrmed the detection of relevant drifts in Beethoven’s Für
+sin (2 πx ) and, then, change to some other process such as: i) a Nor-     Elise and also in the S&P 500 Index (stock market data).
+mal distribution with a given mean and standard deviation, caus-        This paper is organized as follows: Related work is discussed in
+ing an abrupt data behavior change; or  ii) to another sinusoidal     Section 2; Section 3 provides the theoretical background required
+function sin (2.1 πx ) with a small frequency change (from 2 to 2.1).     to formulate the Algorithmic Stability; The theoretical demonstra-
+Both scenarios are indeed considered throughout our study.            tion of our stable concept drift detection approach is detailed in
+   Besides the current unsupervised algorithms found in literature     Section 4 ; The Plover algorithm is introduced in Section 5; Sec-
+report fair concept-drift-detection results ( Faria et al., 2013; Hayat     tion 6 presents the experimental results using synthetic and real-
+& Hashemi, 2010; Masud et  al., 2010; Sethi & Kantardzic, 2017;    world data; Additional experiments to motivate the reader are pro-
+Sethi et al., 2016; Spinosa et al., 2007 ), they do not provide the-    vided in Section 7 ; A discussion and a comparison to yet other al-
+oretical learning guarantees for concept drift detection. This draw-    gorithms are showed in Section 8 ; Concluding remarks and future
+back has motivated this manuscript, which considers the Algorith-    work are detailed in Section 10; Appendix A contains a detailed
+mic Stability  ( Devroye, Györﬁ, & Lugosi, 1996 ) to quantify rele-    proof of McDiarmid’s Inequality, which is central to our formula-
+vant divergences along the data stream collection, based on the as-     tion; Finally, the references are listed.
+sumption that drifts occur whenever the current learning model 1
+stops satisfying the uniform stability property, as theoretically en-                                                                                 2. Related work
+sured by Concentration Inequalities (more details in Section 3 ). As
+discussed throughout this manuscript, our framework relies on a                                                                   There are several explicit (term here used to refer to super-
+given measure function, which is selected according to the target                                                                      vised learning) concept  drift algorithms found in the literature
+problem. For example,  if one wishes to detect drifts after notic-                                                                        that consider a map  f : X → Y,  where X   is the input space,
+ing changes in mean values of data streams, the ﬁrst statistical                                                   Y   corresponds to  classes, and  f  is a  classiﬁer. Among those
+moment should be used (mean value). Otherwise,  if another cri-                                                                    algorithms are: FLORA  ( Widmer & Kubat, 1996 ), Support Vec-
+terion is required, then the corresponding measure function must                                                                            tor Machines ( Klinkenberg & Joachims, 20 0 0 ), OLIN ( Last, 20 02 ),
+be set to quantify, for instance, other statistical moments, changes                                                       CVFDT ( Hulten, Spencer, & Domingos, 2001 ), UFFT ( Gama, Medas,
+in amplitudes, frequencies, etc. The reader may also claim that                                                 & Rocha, 2004 ), DDM ( Gama, Medas, Castillo, & Rodrigues, 2004 ),
+there are other similar approach to ours, such as the one intro-                                              EDDM ( Baena-García et al., 2006 ), DDM-OCI ( Wang et al., 2013b ),
+duced in Sethi and Kantardzic (2017) which basically relies on ver-                                                 ADWIN Bagging  ( Bifet, Holmes,  Pfahringer,  Kirkby, &  Gavaldà,
+ifying how data distributions change along time. It is relevant to                                                          2009 ), ASHT Bagging  ( Bifet et  al., 2009 ), Random Forest based
+mention such study because many others follow a similar strategy,                                                                           classiﬁer ( Abdulsalam, Skillicorn, & Martin, 2011 ), VHT ( Prasad &
+however, besides its relevance, it does not model nor analyze the                                                                   Agarwal, 2017 ), Fuzzy Passive-aggressive classiﬁcation  ( Wang,  Ji,
+learning behavior as in here. In addition to that, as we employ the                                                 &  Jin, 2013a ), SimC  ( Mena-Torres & Aguilar-Ruiz, 2014 ), Online
+concept of Algorithmic Stability, our proposed framework holds for                                                              Stream classiﬁer with incremental semi-supervised learning ( Loo
+any measure function and not only on speciﬁc learning models and                                                 & Marsono, 2015 ), Distance-based Ensemble online classiﬁer with
+paradigms as also discussed in that later reference.                                                                      kernel clustering  ( Jedrzejowicz & Jedrzejowicz, 2015 ), One-class
+   In this context, we highlight that the main contribution of this                                                                           classiﬁer with incremental learning and forgetting  ( Krawczyk &
+manuscript is a theoretical framework to ensure the results of un-                                           Wo ´zniak, 2015 ), and Classifying recurring concept using fuzzy sim-
+supervised learning algorithms are not simply by chance when de-                                                                                      ilarity function ( Angel, Bartolo, & Ernestina, 2016 ).
+tecting concept drifts on data streams. In addition, we propose a                                                                                    All  explicit  drift  detection  algorithms  rely  on  classiﬁca-
+straight-forward algorithm, named Plover, to detect model changes                                                                           tion/regression, therefore presenting issues/challenges associated
+as new data observations are received, so whenever the input data                                                                         to supervised learning algorithms, specially in the context of con-
+behavior signiﬁcantly changes (i.e. the generating process has been                                                                     cept drift detection:
+modiﬁed) instability is observed, allowing us to point out a con-
+cept drift has happened. The main intent is not to counterpose     • They build up some mapping function  f : X → Y  and, there-
+Plover to other algorithms from the literature, but to illustrate our         fore, require class labels;
+theoretical framework and to share a fully-compatible algorithm      • They face issues when a model is no longer valid for three main
+so other researchers can analyze their own algorithms using our        reasons:
+framework.                                                            • Concept drifts cannot be predicted as they represent an un-
+   Besides that, as Plover illustrates our framework, we consid-        known change over an underlying data probability distribu-
+ered  it to show experimental results to the reader. In order to            tion;
+provide a wide as possible analysis, statistical moments are used         • New labels should be considered along time, which would
+as measure functions by Plover, supporting the detection of drifts           require further supervision. So, many application domains
+in terms of changes in means, variances, skewness and kurtosis.          cannot  take  advantage  of  those  algorithms,  given  that
+In addition, we decided to employ the Power Spectrum analy-          streams may be produced at high frequencies and specialists
+sis ( Yang, Feng, Pan, & Yang, 2009 ) as measure function in attempt          could never supervise them out at the same rate as they are
+                                                                                  collected;
+                                                                       • A next model built up based on new data may produce an
+  1 The learning model is here seen as the result of some unsupervised algorithm,           overﬁtted classiﬁer, therefore generalization would never be
+such as a clustering partition.                                                 ensured according to the Empirical Risk Minimization Prin-
+--- Page 3 ---
+92                                                                R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102
+
+
+       ciple (ERMP) from the Statistical Learning Theory ( Vapnik,
+      1998; 1995 );
+ • Those  algorithms  rely  on  the   Statistical  Learning  The-
+   ory  ( Vapnik, 1998; 1995 ), so they assume input data to be
+   always independent and identically distributed  (i.i.d.). This is
+   not the case in most real-world applications, e.g., the tempera-
+   ture of given world region, the stock market, human heartbeats,
+    etc.;
+ • Since i.i.d. must be ensured, non-stationary data must be dealt
+   with in a different manner (say, embedded into phase spaces,
+   as performed with dynamical systems ( de Carvalho Pagliosa &
+   de Mello, 2017 )), which is not provided by those solutions.
+
+  On the other hand, implicit (term here used to refer to un-
+supervised learning) drift detection counts on methods such as
+OLINDDA  ( Spinosa et  al., 2007 ), MINAS  ( Faria et  al., 2013 ), DE-
+TECTNOD ( Hayat & Hashemi, 2010 ), ECSMiner ( Masud et al., 2010 )
+and GC3 ( Sethi et al., 2016 ), which, by employing clustering algo-       Fig. 1. Illustrating the upper bound ensured by the Markov Inequality, given P(X >
+rithms, assume that a drift is detected whenever new groups are     ϵ) ≤E [ X ]/ϵ  .
+found on new data. Those algorithms rely only on the data dis-
+tribution estimation, disregarding any change in the behavior of
+learning models. In this sense, the algorithm may detect drifts even     lating some divergence measure, one can verify stability for unsu-
+if the learning model is still adequate to represent data. MD3 ( Sethi    pervised learning algorithms. This concept of Algorithmic Stability
+& Kantardzic, 2017 ) tackles this problem by verifying the density     relies on Concentration Inequalities to prove asymptotic bounds as
+of points in uncertainty regions produced by a margin-bounded    brieﬂy introduced below.
+supervised learning model, focusing on its performance and not        In order to introduce Concentration Inequalities, we decided
+explicitly on data distributions. In this sense, whenever this den-     to start with the Markov Inequality, given it is used as a source
+sity overpasses a threshold, the algorithm indicates a possible con-     to proceed with the next formulations. This inequality deﬁnes
+cept drift. In addition, it is worth to mention that ( Harel, Cram-    a bound for the complementary cumulative distribution P ( X > ϵ),
+mer, El-Yaniv, & Mannor, 2014 ) compares empirical risks computed    provided a non-negative random variable X sampled from some
+on ordered data S ord ,  extracted directly from the stream, and on     probability distribution function (PDF) P ( X ) whose expected value
+random permutations of S ord  in order to detect drifts. Sethi and   E [ X ]  is bounded as follows:
+Kantardzic (2017) and Harel et al. (2014) focus on the analysis of            ∞
+supervised predictions to perform drift detection, disregarding un-    P (X > ϵ) =    dp(x ) .
+                                                                                                       ϵ
+supervised learning models and their structural descriptions of in-
+put spaces.                                                      Given X ≥0, we have:
+   In this context, we claim that supervised learning makes little    ∞       ∞ x       ∞ x
+sense in the context of concept drift detection for data streams,        dp(x ) ≤      dp(x ) ≤      dp(x ) ,                                                                                        ϵ               ϵ  ϵ            0  ϵ
+specially when data  is produced at high frequencies. However,
+                                                                                     X                                     ϵ x
+there is still a missing link in between the formalization provided    provided ϵ ≥1 ,  for any X ∈ [ ϵ, ∞ ], and  0 ϵ dp(x ) ≥0  . From that,
+by the Statistical Learning Theory ( Vapnik, 1998; 1995 ) and Con-    the expected value of X is E [ X ] =  0∞ xdp(x ) ,  as consequence we
+centration Inequalities ( Devroye et al., 1996 ). In that sense, we see     obtain:
+the Symmetrization Lemma ( de Mello & Ponti, 2018 ), considered                       [ X ]by SLT, brings important connections with Concentration Inequal-    P (X > ϵ) ≤E                                                  (1)                                                                         ϵ
+ities, mainly with respect to McDiarmid’s Inequality as it consid-
+                                                           which is known as the Markov Inequality.
+ers perturbed data acquired through the same probability distri-
+                                                                As illustrated in Fig. 1 , this inequality has a fractional behavior
+bution of the original data. It is worthwhile mentioning that this
+                                                               with respect to ϵ. It is worthwhile mentioning that for ϵ < E [ X ],
+inequality has made possible the development of Algorithmic Sta-
+                                                                    the Markov Inequality produces a result greater than one, conse-
+bility, which is the main concept we considered to design our ap-
+                                                                         quently, as P ( X > ϵ) ≤1, ϵ < E [ X ]  implies a tautology, which does
+proach and provide learning guarantees for concept drift detection
+                                                                  not provide meaningful information about the distribution. Thus, ϵ
+on data streams.
+                                                          must assume values greater than E [ X ]  in order to produce rele-
+                                                                   vant conclusions.
+3. Concentration inequalities                                              In attempt to extend the Markov Inequality, Chernoff ( Devroye
+                                                                            et al., 1996; von Luxburg & Schölkopf, 2011 ) employed the moment
+   Supervised Machine Learning relies on the Empirical Risk Mini-     generating function to guarantee tighten convergences for P ( X > ϵ).
+mization Principle (ERMP) to ensure learning generalization. ERMP    Provided P (X > ϵ) = P (sX > sϵ = P (e sX > e sϵ)  for s > 0, the Markov
+is the central point of the Statistical Learning Theory (SLT) ( Vapnik,     Inequality was used to deﬁne:
+1998; 1995 ) which provides the theoretical foundation to analyze
+algorithms based on their biases and sample sizes. In this con-    P (X > ϵ) ≤inf e −sϵE e sX ≤e −sϵE e sX  ,                        (2)
+                                                                                          s> 0
+text, SLT can only be considered when data examples are labeled,
+consequently  it  is not suitable to model unsupervised learning.     in which E e sX    is referred to as a moment generating function.
+This lack of foundation for unsupervised learning ﬁnds support on      Fig. 2 helps the reader to understand the motivation for using the
+the concept of Algorithmic Stability ( Bousquet & Elisseeff, 2002 ),   moment generating function, given  it allows to ﬁnd the tightest
+which presents conditions for the probabilistic convergence be-    bound for e −sϵE e sX  from its inﬁmum.
+tween some arbitrary function and its expected value, given that         Fig. 3 illustrates f(X) = e sX  which, according to Jensen’s In-
+its domain is formed by independent random variables. By stipu-     equality,  is convex for any a < ∞ and b < ∞ in the domain e sX .
+--- Page 4 ---
+                                                                   R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102                                        93
+
+                                                w     w 2
+                                              =    −
+                                                                   p + w   (p + w ) 2
+                                                w      w
+                                              =       1 −              .                               (4)
+                                                                   p + w     p + w
+
+                                                                        Thus, by maximizing φ′ ′ ( ξ), we have φ(ξ) ≤maxu 12 φ′′ (ξ) u 2  .
+                                                             As dw                                               = (1 −p) e ξ = w :                                                                                       dξ
+
+                                                                        dφ′′ (ξ )   2 w    2 w
+                                              =   −2      .
+                                                dw   w 2   w 2
+                                                                                                                      dφ′′ (ξ )                             1
+                                                                      Considering   dw  = 0 ,  we have that w = 2  and, therefore,
+                                                                                                                1                   2     2 (b−a ) 2                                                             by using Eq. (4) , maxξ φ′′ (ξ) = 4 , so φ(u ) ≤u8 ≤s   8        . In this
+                                                                         context, it follows from Eq. (3) that ln (E e sX ) ≤φ(u ) ≤s 2 (b−a8  ) 2
+                                                           which implies:
+
+                                                E e sX ≤e s 2 (b−a8  ) 2 .                                               (5)
+Fig. 2. A series of results produced by the moment generating function used in the
+Chernoff inequality. The inﬁmum function is also illustrated to conﬁrm its useful-                                                                           s 2 (b−a ) 2
+                                                                                                                                                8     with respect to s , weness to formulate a tight convergence for P ( X > ϵ), ﬁnally motivating the usage of        Calculating the inﬁmum of e sϵe
+                                                                                         4 ϵ                                                                                    and, therefore:such function as upper bound.                                     ﬁnd s =
+                                                                                         (b−a                                                                                                                           ) 2
+
+                                                                                                                −2 ϵ2
+                                                           P (X > ϵ) ≤e (b−a ) 2 ,
+
+                                                           which gives the Chernoff bound.
+                                                                          This Chernoff bound was extended by Hoeffding ( Devroye et al.,
+                                                            1996 ) in order to calculate the inﬁmum of h (s ) = e −sϵE e sA n    . In
+                                                                such context, Hoeffding considered that X corresponds to a sum of
+                                                               independent random variables A n =   ni =1 Xi  bounded in interval
+                                                                                             [ a i , b i ].
+                                                                             In  this  scenario,  provided  (X1 , X2 , . . . , Xn )    form  a  se-
+                                                             quence  of independent random  variables, the  following holds
+                                                                                                                                                                                                                                                     i    and, thus, Inequality (5) implies h (s ) ≤                                                            h (s ) = e −sϵ   ni =1 E e sX
+                                                                      e −sϵe s 2    (b i −a8 i ) 2 = α(s )  . Finally, calculating infs> 0 α(s ) ,  we have
+                                                                   the Hoeffding Inequality:
+
+                                                                                                                    −2 ϵ2
+                                                                                                                                                                                                                                                                                         i −a i ) 2 .                                         (6)                                                           P (A n > ϵ) ≤e  ni =1 (b
+
+                                                                          This last inequality (Inequation (6) ) requires a sequence of inde-
+Fig. 3. Aﬃne function r ( X ) deﬁned using the Jensen’s inequality over an exponen-
+tial function. This helps to illustrate the convexity occurring in some interval of    pendent random variables, consequently if X n depends on past ob-
+variable X (in this case it is [4,9]), which is used as a necessary step to formulate     servations, then one cannot employ it. 2 The independence require-
+the Chernoff bound.                                           ment led Azuma ( Devroye et al., 1996 ) to adopt Martingales in or-
+                                                                  der to tackle such a dependency problem. Martingales are stochas-
+                                                                                        tic processes in which random variables rely on previous data andDue to the convexity, a line segment or aﬃne function r ( X ) can
+                                     sa      sb                               have a limited and stationary expected value, as shown in Fig. 4 .be traced above f ( X ), from e  to e   , as follows:
+                                                                           Formally, a Martingale process is deﬁned as follows:
+      X −a  sb   b −X  sar(X ) =      e +      e
+       b −a     b −a                                         Deﬁnition 3.1 (Martingale) . Let (X1 , X2 , . . . , Xn )  be a sequence of
+                       sX                                        random variables. A martingale is a stochastic process satisfying:so the domain of e  ≤r ( X ) lies in the interval X = [ a, b] . From that,
+we assume the random variable X is bounded in [ a, b ] as well as   E [ X ] < ∞ , E [ Xn | X1 , X2 , . . . , Xn −1 ] = Xn −1 .                       (7)
+E [ X ] = 0 ,  therefore the expected value of e sX is:
+                                                                        For instance, take a random walk process to represent a sce-
+               −a                            b
+                        e sb +                                   e sa .                        (3)     nario in which a point is moved to the left or right over the integerE e sX ≤E [ r(X ) ] =
+                 b −a     b −a                                          line. Displacements are represented by independent random vari-
+   Let p = b−ab   and u = (b −a ) s,   so that we have E [ r(X) ] =     ables Xn ∈ {−1 , 1 }  with expected value E [ X ] = 0  . Although vari-
+e sa (p + (1 −p) e u ) and given some function φ(u ) = ln (E [ r(X) ] ) :      ables are independent, the point position still depends on the pre-
+                 sa               u                                         vious movements.φ(u ) = ln (e (p + (1 −p) e ))                                                                            Let such random walk process be represented variable Y , whose
+   = sa + ln (p + (1 −p) e u )                                 n th value corresponds to the point position at step n , so that:
+   = (p −1) u + ln (p + (1 −p) e u ) .
+                                                        Yn = Yn −1 + Xn −1 ,
+   Now, it is a good strategy to apply the Second Order Taylor’s
+                                                                     consequently,Expansion over φ, so that φ(0) = 0 ,  φ′ (0) = 0 ,  allowing us to
+obtain:
+           (1 −p) e ξ       ((1 −p) e ξ ) 2                                             2 Here we have a very important requirement to proceed with Concentration In-
+              −φ′′ (ξ ) =
+        p + (1 −p) e ξ                       (p + (1 −p) e ξ ) 2                                      equalities. For a detailed study on such matter, we suggest Devroye et al. (1996) .
+--- Page 5 ---
+94                                                                R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102
+
+                                                              Note that E [V | Z ] = 0  and the problem is therefore analogous to
+                                                                   the Hoeffding Inequality, thus proving Lemma 3.1 . Extending this
+                                                                             result for sums of a martingale of differences and having Z i < Vi <
+                                                                Z i + c i ,  using the Chernoff bound one ﬁnds:
+                                                                                                                                                                                          n −1 +Vi )        (12)                                                           P (S n > ϵ) ≤infs> 0 e −sϵE e s S                                                                                                                                                          n = infs> 0 e −sϵE e s (S
+
+
+                                         = infs> 0 e −sϵE e s S                                                                                                                                           n −1 E e sVn | X1 , X2 , . . . , Xn −1                   (13)
+
+
+
+
+                                                                                                                                                     2                                                                                                                                                                                                               s 2 c
+                                                                                                                                                     n
+                                                                                                                                                     8                                                                                                                                           n −1 e                                                                                                                                −1 (By Lemma 3.1)                 (14)                                                         ≤infs> 0 e −sϵE e s S
+
+
+                                                                                                                                         .                                                                                                                                         .                                                                                                                                         .                                                            (15)
+
+
+                                                                                                                                                                                            s 2  ni =1−1 c i2
+                                                         ≤infs> 0 e −sϵe     8    ,                                       (16)
+
+                                                           which is then considered in conjunction with the Hoeffding In-
+                                                                        equality to ﬁnally obtain:
+
+                                                                                                                  −2 ϵ2
+                                                           P (Un > ϵ) ≤e  ni =1−1 c i2 .                                          (17)
+
+                                                                As a next formulation step, McDiarmid (1989) took advantage
+Fig. 4. At the top, an illustration of a Martingale process using independent random     of such theoretical foundation to study how perturbations on ran-
+variables sampled from a uniform distribution. At the bottom, an example with ran-   dom variables would propagate to any arbitrary function. McDi-
+dom variables whose average value exponentially increases. The latter is out of the
+scope of Martingale processes.                                             armid’s Inequality ensures that, given independent random vari-
+                                                                       ables (X1 , X2 , . . . , Xn ) ,   if perturbations are limited over a function
+                                                                  g , then the divergence between g(X1 , X2 , . . . , Xn ) and its expected
+E [Yn | X1 , X2 , . . . , Xn −1 ] = E [Yn −1 + Xn −1 | X1 , X2 , . . . , Xn −1 ]              value follows Hoeffding’s Inequality. Formally:
+             = E [Yn −1 | X1 , X2 , . . . , Xn −1 ]                                                                                                   If     sup    |g(x 1 , x 2 , . . . , x i , . . . , x n )
+             + E [ Xn −1 | X1 , X2 , . . . , Xn −1 ]                                   x 1 ,x 2 , ... ,x n ,x ′i
+             = Yn −1 + 0                                 −g(x 1 , x 2 , . . . , x ′i , . . . , x n ) ≤c i                             (18)
+proving that such random walk relies on a martingale process.
+   Let (X1 , X2 , . . . , Xn )  be a sequence of random variables pro-
+                                                            then  P ( g(X1 , X2 , . . . , Xn ) −E [ g(X1 , X2 , . . . , Xn ) ] > ϵ)duced by a martingale process. From that we can extend the pre-
+vious formulation to show a martingale of differences Vn = Xn −                    −2 ϵ2                                              ≤e  ni =1 c i2 ,                                              (19)
+Xn −1 , in which E [Vn | X1 , X2 , . . . , Xn −1 ] = 0 ,  is also a martingale pro-
+cess, so that one may take advantage of such step to ensure the    where c i = b i −a i and X i ∈ [ a i , b i ].
+independence requirement as proceed with his/her objectives:              All the formulation detailed in this section provides the theoret-
+                                                                                     ical background we considered to employ the concept of stability
+E [Vn | X1 , . . . , Xn −1 ]     = E [ Xn −Xn −1 | X1 , . . . , Xn −1 ]
+                                                                          in the context of concept drift detection, as discussed next.
+           = E [ Xn | X1 , . . . , Xn −1 ] −E [Xn −1 | X1 , . . . , Xn −1 ]
+                  = Xn −1 −Xn −1 = 0 ,                        4. Employing stability to detect concept drifts
+
+consequently, a martingale  of  differences  is  also a martingale
+                                                                             In this section, the uniform stability, which provides generaliza-
+process. From such step, Azuma (1967) proved that, given V i  is
+                                                n                           tion ( Bousquet & Elisseeff, 2002 ), is deﬁned. Let S be a training set
+bounded by a constant c i , the sum S n =      i =1 Vi  of a martingale                                         m                                                                     containing m instances in form { z 1 , z 2 , . . . , z m } ∈ Z  ,  which mayof differences ensures the Hoeffding Inequality. Thus, consider the
+                                                                     or may not be associated to class labels. Consider they are sam-
+following lemma:
+                                                                   pled from some unknown probability distribution P , and assume
+Lemma 3.1. Let V and Z be random variables whose expected value     perturbations given by permutations as follows:
+E [V | Z ] = 0  with probability one. Assume that, for any function f and             i                               ′
+                                                                 S = z i , . . . , z i −1 , z i , z i +1 , . . . , z m ,                             (20)
+constant c ≥0,
+                                                          where z i′  is independent of S but sampled from the same proba-f(Z) ≤V ≤f(Z) + c.                                           (8)
+                                                                                    bility distribution P ( Z ). Uniform Stability is deﬁned as follows:
+Then
+                                                              Deﬁnition 4.1 (Uniform Stability) . An algorithm A is β-uniformly
+     sV            s 2 c 2 / 8
+E e  | Z ≤e                                                    (9)     stable with respect to some loss function ℓ ( · ) iff
+for every s ≥0 .                                      ∀ S ∈ Z m , ∀ i ∈ 1 , . . . , m, ∥ ℓ (A S , ·) −ℓ (A S i , ·) ∥ ∞ ≤β,          (21)
+   From Jensen’s Inequality (Inequality 3 ), E e sV | Z    is deﬁned as      where A S is a model produced by the application of an algo-
+follows:                                                                rithm A over the training set S . Notice that if Inequality (21) holds,
+E e sV | Z ≤E Vb−a−a e bt | Z + E b−Vb−a e at | Z                        (10)    then the condition of McDiarmid’s Inequality (Inequation (A.7) ) is
+                                                                    respected and, therefore:
+
+                                                                                                                                        −2 ϵ2
+                                                                                                                              mβ2 .                         (22)= E [Vb−a| Z ]−a e bt + b−Eb−a[V | Z ] e at .                                    (11)    P (ℓ (A S , ·) −E [ ℓ (A S , ·) ] > ϵ) ≤e
+--- Page 6 ---
+                                                                   R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102                                        95
+
+
+   Let us apply Uniform Stability to ﬁnd a framework to detect    nature of the data under consideration (measuring the similarities
+changes in data streams.  First, we take McDiarmid’s Inequality    between the actual and past data). However, there is an additional
+from Inequality (22) and assume that:                              requirement to proceed with our formulation which is based on
+       −2 ϵ2                                                           the Law of Large Numbers ( von Luxburg & Schölkopf, 2011 ): input
+δ = e mβ2 ,                                                          data has to be independent and identically distributed (i.i.d.).
+                                                                          This i.d.d. requirement brings several challenges, specially onconsequently,
+                                                  how  to ensure such property  in the context  of data streams
+P (ℓ (A S , ·) −E [ℓ (A S , ·) ] > ϵ) ≤δ.                            (23)     given observations typically depend on each other along time. For-
+                                                                            tunately,  all those questions were already answered in de Car-   Solving for ϵ, we ﬁnd:
+                                                                   valho Pagliosa and de Mello (2017) by reconstructing data-stream
+                      −2 ϵ2
+   δ     = e mβ2                                                  observations into phase spaces ( Kantz & Schreiber, 2003 ), so that
+               −2 ϵ2                                    we can proceed with our theoretical framework.
+log δ     = mβ2
+   ϵ = ± −12 log (δ) mβ2 .                                                  5. The plover: a uniformly-stable concept drift detection
+                                                               algorithm
+It follows from Inequality (19) that:
+
+               m                                             As discussed in the previous section, there are two necessary
+                          2   ,                                       assumptions to carry on while employing the theoretical frame-ϵ = ±  −1  log δ    c i        2                                            i =1                                       work proposed in this article:  i) the function ℓ ( · ) has to be se-
+                                                                        lected independently of the input data; and ii) input data has to
+since β = max (c 1 , . . . , c n ) ,  c i = b i −a i ,  and  | ℓ (A S , ·) −ℓ (A S i , ·) | ∈    be independent and identically distributed (as already addressed
+[ a i , b i ]  .                                                                   in de Carvalho Pagliosa & de Mello, 2017 ). From that, we suggest
+   Similarly to the way Vapnik (1998, 1995) formulated a step of    the use of any invariant measure one intends to assess. For exam-
+the Statistical Learning Theory, we have:                                   ple, ℓ ( · ) could be the average or the standard deviation function.
+                                                               The Plover concept drift detection algorithm is introduced inℓ (A S , ·) −E [ ℓ (A S , ·) ]      > ϵ,
+                                                                 Algorithm 1 . It employs the above-proposed criterion:
+ℓ (A S , ·) −E [ ℓ (A S , ·) ] > ±  −12    ni =1 c i2 log δ  .
+                                                             Algorithm 1 The Plover algorithm.
+Taking the absolute value (as only the divergence is relevant, not
+                                                                   Require: data stream D ; function ℓ (. ) ; window length w l ; proba-its sign), we obtain at:
+                                                                                       bility δ; threshold T ;
+                                           n                                       Initialize queue Q as empty
+                                               2   .                        while there is data do|ℓ (A S , ·) −E [ ℓ (A S , ·) ]| >  −1  log δ    c i                       2                                                                                      i =1                                     Collect a next data observation z i
+                                                                             Store z i in a queue Q{If the queue contains enough data, then
+The above inequality means that divergence happens. However,         process it.}
+we are interested in the complementary case,  i.e., all successful             if length( Q) == w l then
+cases:                                                                                                                              l i = ℓ (P lov er, Q) {Computing the measure function on the
+                                                                             current data window.}
+                                           n                                                                                | max l 1: i −min l 1: i |
+                                               2   ,                                  c i =                i       {Computing the divergence between the|ℓ (A S , ·) −E [ ℓ (A S , ·) ]| ≤  −1  log δ    c i                       2                                                                             current measure and the previous one to ﬁnd c i .}                                                                                     i =1
+                                                                                      di v =  −12  log δ      ij=1 c 2j    {Computing  the  divergencefrom which we ﬁnd:
+
+                                                                              term.}
+                                          n
+                                             2                                                 if di v > T thenE [ ℓ (A S , ·) ] ≤ℓ (A S , ·) +  −1  log δ    c i   ,                 (24)                     2                                       Warn other systems or individuals about the drift detec-
+                                                                                  i =1
+                                                                                   tion
+which is the criterion we propose in this manuscript to assess the         end if
+Uniform Stability of unsupervised learning algorithms in the con-       end if
+text of Data Streams. Such stability can be used to ensure a model     end while
+is enough to represent the stream and, therefore, point out when
+relevant changes occur, either to update modeling or to detect con-
+cept drifts as discussed in the next section.                                                                        n
+                                                                                                                            2   ,   Next section also introduces the Plover unsupervised learning   E [ ℓ (A S , ·) ] ≤ℓ (A S , ·) +  −1  log δ    c i
+algorithm, designed to illustrate how the Uniform Stability  cri-                         2                 i =1
+terion, deﬁned in Inequation (24) , can be held. Here  it  is rele-
+vant to mention that some valid function ℓ ( · ) must be also de-    where A S is some pattern recognition algorithm applied over some
+ﬁned to proceed with the concept drift detection. As discussed     dataset S ; E [ ℓ (A S , ·) ]  is the expected value of some measure ℓ ( · )
+by Vapnik (1998, 1995) , this function must be independent of the    applied over A S ; c i is a constant which bounds the divergence be-
+data we have access to; what could exactly cause inconsistency to    tween ℓ ( A S ,  · ) and ℓ (A S i , ·) ,  as represented on McDiarmid’s In-
+the Empirical Risk Minimization Principle in the context of super-     equality (Inequality (A.7) ); n is the number of measurements col-
+vised learning, since the learning algorithm could converge to a     lected along the input data; δ is the probability we wish to en-
+memory-based classiﬁer ( von Luxburg & Schölkopf, 2011 ). In our     sure that ℓ ( A S ,  · ) is a good estimator for E [ ℓ (A S , ·) ],  as deﬁned in
+scenario, we consider data streams are unlabeled, consequently our     Inequality (23) ; ℓ ( A S ,  · ) is the empirical measure computed on a
+learning task is associated to unsupervised learning and, therefore,    given input data sample; and, ﬁnally, the last term computes pos-
+function ℓ ( · ) can be any one capable of somehow capturing the     sible variations in random variables.
+--- Page 7 ---
+96                                                                R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102
+
+   In order to apply the Plover, meaningful parameters must be    Algorithm 2  Estimating the Plover window length  .
+provided. In fact, they are not diﬃcult to set. For example, the
+                                                                   Require: data stream D ; starting window length w s ; ﬁnal window
+probability δ may be equal to 0.05, meaning we expect ℓ ( A S ,  · )                                                                       length w f ;
+to be a good estimator for E [ ℓ (A S , ·) ]  in 95% of cases, as typically
+                                              3                            return  the association of divergences produced along frequen-addressed in statistical hypothesis tests.   Threshold T may be a
+                                                                               cies and amplitudes as the window length is increased;
+static value or some index relative to the past divergences ( div in
+                                                                                      Initialize matrix Q to contain outputs
+Algorithm 1 ). Now we stay with the two most important parame-
+                                                                         for w from w s to w f do
+ters: the function ℓ ( · ) and the window length w l . In this paper we           Initialize vector V with zeros
+employ the Statistical moments as function ℓ ( · ), allowing to eval-                                                                           for i from 1 to | D | −w do
+uate the following aspects:
+                                                                                   c 1 = P S(D [ i : (i + w )]) {Computes the power spectrum}
+ 1. Mean: it allows to understand  if the average data behavior is             c 2 = P S(D [ i : (i + w + 1)]) {Observe this adds up one extra
+   maintained along the collection;                                         observation to provide the power spectrum comparison}
+ 2. Variance: permits to assess the expectation of the squared de-             di v = dtw (c 1 , c 2 ) {Computes the Dynamic Time Warping
+   viation from the mean. It measures how far a set of random          measure between the magnitudes of both power spectrum
+   variables is spread out from its average value. It also helps to           coeﬃcients to assess frequency and amplitude changes}
+   understand the historical data divergences;                         V [ i ] = di v
+ 3. Skewness: this is a measure of asymmetry of the data probabil-       end for
+    ity distribution about the mean. It can be positive or negative,        Q[ w, ] = [ w, V ]
+   or undeﬁned. This allows to point out data tendencies along     end for
+    collection;
+ 4. Kurtosis: this allows to describe the shape of the data proba-
+    bility distribution. In this situation we are interested in point-
+   ing out infrequent extreme deviations (or outliers) when ob-                                                                     case those series are resultant of magnitudes along frequencies,
+   taining greater values, as opposed to frequent modestly sized                                                                                                              i.e., the absolute value of Fourier complex coeﬃcients over the fre-
+   deviations.                                                             quency axis. After running this algorithm, we can plot matrix Q to
+                                                                     obtain a chart with the window length versus the divergences. As   Other data stream aspects could be assessed using the same al-
+                                                                   long as the divergences signiﬁcantly reduce and have only somegorithm proposed in this paper by simply changing the function
+                                                                    small perturbation, we can estimate an adequate window lengthℓ ( · ). There is still one parameter missing: the window length. Re-
+                                          w l to run the Plover algorithm next. During the experiments wesearchers typically face some issues while setting such parameter,
+                                                                   provide some examples of output for this window estimation al-but we look at it in a different way. For example, if the data stream
+                                                                    gorithm.collected is produced by the heart beats of some patient and mea-
+                                                                             After setting all those parameters, we here explain the process-sured by an electrocardiogram (ECG) whose sampling frequency is
+                                                                      ing results of Plover to illustrate its usage. Using Algorithm 1 , ob-125 Hz, we could take advantage of the Nyquist–Shannon sampling
+                                                                     serve Plover receives data observations as they are produced by atheorem ( Shannon, 1949 ) to set w l . According to such theorem, if
+                                                                    given phenomenon, then it stores such data into a buffer or queuewe have the double number of observations, then we can analyze
+                                                 Q . When the queue has at least w l elements, the processing startsthe signal properly and take fair conclusions. In that situation, win-
+                                                             by computing function ℓ (.) over Q , resulting in some real value  l i .dows should contain at least twice the number of observations, i.e.,
+                                                                     For instance, consider the queue contains observations produced250 elements.
+                                                                    using sin (2 × pix ), given x ∈ R , and that ℓ (.) computes simply the   However, there are situations in which we do not know which
+                                                    mean value of observations in Q , which tends to approach zero foris the underlying sampling frequency of the data collection. In
+                                                                 a fair queue length. In this scenario,  l i would receive the averagethose cases, we should employ a Power Spectrum (PS) to assess the
+                                                                    value for the current queue and, next,  it would ﬁnd the largestFourier complex coeﬃcients and observe magnitude differences,
+                                                           and the smallest values considering all past values of  l i for i ∈ Z +something quite common in the context of signal processing anal-
+                                                                                                                                                . Then, the minimal and the maximal values are used to computeysis ( Yang et  al., 2009 ).  If PS produces similar magnitudes along
+                                                                           c i ,  i.e. the range of data variation since the beginning of our as-frequencies normalized in the range [0,1], then we can reduce the
+                                                                   sessment, which is then applied into our formulation to verify ifnumber of observations being assessed, which is the same as re-
+                                                                   the current data mean value suﬃciently diverges ( div ) from histor-ducing the sampling frequency and, therefore, the window length.
+                                                                                     ical measurements. If divergence div is greater than some thresh-An adequate window length is found when the magnitudes com-
+                                                                     old T , then a drift  is detected.  If the next observations slightlyputed for some data window having p elements is approximately
+                                                              change their mean value, c i will contain some value greater thanthe same as by using 2 p elements. In such situation, we could set
+                                                                    zero that will affect the Algorithmic Stability, so that div > 0. Even-w l = p and proceed with the algorithm running.
+                                                                                    tually, div > T and the drift is issued.   Based on such concept, we designed Algorithm 2 to assess the
+                                                           From this detailed explication, one notice the measure functionwindow length based on the Power Spectrum (PS) analysis. PS
+                                                                        ℓ (.) can be any other, such as the variance, skewness, kurtosis orcomputes the Fourier Transform on a data window to produce a
+                                                        more complex ones. For example, if one wishes to assess the samematrix associating frequencies and amplitudes to the data. In this
+                                                                    data stream but using the Fourier Transform, such a researcheralgorithm, we compute PS for two different data windows, the ﬁrst
+                                                                  could use the Fourier complex coeﬃcients to obtain a matrix withwith length w and a next with w + 1 observations, so we can com-
+                                                                      frequencies and their corresponding magnitudes (or amplitudes).pute how divergent the amplitudes and frequencies are as we in-
+                                                                   Consecutive magnitude-frequency matrices  l i −1  and  l i (observe  l icrease the window length.
+                                                          would be the current matrix in here) should be compared to ob-  We employ the Dynamic Time Warping (DTW) ( Berndt & Clif-
+                                                                           tain some index c i  (in this scenario,  it could compute the Dy-ford, 1994 ), which provides a best matching between time series,
+                                                            namic Time Warping distance simply using the resulting ampli-to compare the PS acquired by two different data windows. In this
+                                                                         tudes, once they are already organized along frequencies) which
+                                                          would be used along the next steps to ensure the concept drift de-
+  3 Any other probability bound may be employed instead.                          tection.
+--- Page 8 ---
+                                                                   R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102                                         97
+
+Require: data stream D ; function ℓ (. ) ; window length w l ; proba-
+   bility δ; threshold T ;
+  Initialize queue Q as empty
+  while there is data do
+     Collect a next data observation z i
+     Store z i in a queue Q{If the queue contains enough data, then
+     process it.}
+      if length( Q) == w l then
+             l i = ℓ (P lov er, Q) {Computing the measure function on the
+       current data window.}
+                      | max l 1: i −min l 1: i |
+        c i =                i       {Computing the divergence between the
+       current measure and the previous one to ﬁnd c i .}
+        di v =  −12  log δ      ij=1 c 2j    {Computing  the  divergence
+
+       term.}
+          if di v > T then
+        Warn other systems or individuals about the drift detec-
+          tion
+      end if
+    end if
+  end while
+
+6. Results
+                                                                                                             Fig. 5. Applying the Plover algorithm on the ﬁrst synthetic dataset.
+
+6.1. Setup
+
+
+   Experiments were  conducted on  synthetic and  real-world
+datasets. The synthetic datasets were designed to explore all the
+statistical moments and the power spectrum taken as measure
+functions. The ﬁrst, second and third experiments receive data
+streams produced according to Normal probability distributions. A
+sinusoidal data stream is the input for the fourth experiment, in
+order to conﬁrm that the power spectrum can analyze variations
+in frequencies along time.
+   Next, two other experiments take real-world data to assess drift
+change. The ﬁrst considers Beethoven’s Für Elise song as input
+and points out when frequency changes occur (due to a harmonic
+change). The last attempts to point out when the S&P 500 Index
+reﬂected the great American crisis in 2008. The next section detail
+all experiments and discuss results.
+
+6.2. Synthetic scenarios
+
+
+   The  ﬁrst  experiment  takes  the  data  stream  illustrated  in
+Fig. 5 (a) as input and it was designed to conﬁrm whether the mean
+measure function would be enough to detect a relevant drift at the
+time index equal to 10,0 0 0. This data stream was generated using
+the Normal probability distribution with mean equal to 0 and stan-              Fig. 6. Applying the Plover algorithm on the second synthetic dataset.
+dard deviation of 0.75 for the ﬁrst 10,0 0 0 observations; the next
+10,0 0 0 were produced with the mean and deviation of 1 and 0.1,
+respectively.                                                                In this situation the overall mean value along time is around
+   Our interest here  is to conﬁrm that the Plover algorithm  is    the same, but the standard deviation changes, thus another mea-
+enough to detect concept drifts, but the measure function has in-     sure function should be capable of detecting the concept  drift.
+deed to be set according to the application domain and goals. We      Fig. 6 shows the data stream, the assessment of the window length
+employed Algorithm 2 to estimate the best sliding window length    (from that we set w l = 400  ), and ﬁnally the Plover results using
+for this dataset. As shown in Fig. 5 (b), w l = 400  provides a good    the mean (c) and the standard deviation measure functions (d).
+enough sampling rate for this stream.                             As observed, the standard deviation function is capable of point-
+    Fig. 5 (c) conﬁrms the mean function is adequate, as expected,     ing out the drift along data collection.
+to indicate when the concept drift has happened. From this initial       The third experiment considers the same dataset as the ﬁrst,
+setting, we proceed with other scenarios and assess the Plover al-    but assesses the Skewness and Kurtosis functions instead. Here we
+gorithm under different measure functions.                           again set w l = 400 . Fig. 7 (a and b) illustrate the drift detection us-
+   The second experiment receives a data stream produced also     ing the Plover algorithm with the Skewness and Kurtosis, respec-
+with the Normal distribution, having the ﬁrst 10,0 0 0 observations      tively. Observe both improve the results of the ﬁrst experiment,
+with mean and standard deviation equal to 0 and 0.75, respec-    given that the mean decentralization produces a greater impact in
+tively. Then, the next 10,0 0 0 observations have the same mean    both measures. In this sense, the ﬁrst samples acquired from the
+value but the deviation is 0.1.                              new data probability distribution could be considered as outliers,
+--- Page 9 ---
+98                                                                R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102
+
+
+
+
+
+        Fig. 7. Applying the Plover algorithm on the third synthetic dataset.
+
+
+
+                                                                                                               Fig. 9. Applying the Plover algorithm on Beethoven’s Für Elise.
+
+
+
+                                                                                      6.3. Real-world scenarios
+
+
+                                                                          This ﬁrst experiment considered the ﬁrst 29 s of the song Für
+                                                                               Elise by Beethoven, which has a relevant frequency change along
+                                                                       time. Figs. 9 (a–d) show the data stream, a spectrogram to make ev-
+                                                                      ident the frequency change, followed by the window length anal-
+                                                                              ysis which allowed to set w l = 200 ,  and, ﬁnally, the drift values
+                                                              produced by the Plover algorithm with the Power Spectrum (PS)
+                                                                      as a measure function.
+                                                                As observed, the Plover was again effective to point out the
+                                                                    change. However, it is worth to mention that the other measure
+                                                                      functions did not provide any relevant result. This makes sense
+                                                                        since this problem requires some function capable of summarizing
+                                                                      frequencies and amplitudes along time.
+                                                               The last experiment was performed using the Standard & Poor’s
+                                                                   500, an American stock market index based on the market capital-
+                                                                           izations of the 500 largest companies listed on NYSE and NASDAQ.
+                                            We took the daily adjusted closing price from November 5th, 2003
+                                                                         to January 1st, 2018 as the input stream.
+        Fig. 8. Applying the Plover algorithm on the fourth synthetic dataset.                Figs. 10 (a–d) start by illustrating the data stream, in which the
+                                                                  index already reﬂects the American crisis from June 6th, 2007 and
+                                                                   the economy changes its movement from February 4th, 2009. Next,
+                                                                   the window length for the Plover algorithm is assessed and from
+as they are not the usual data. Then, as new instances are pre-     that we set w l = 200  . As next charts we provide the drift results
+sented, an asymmetric behavior is propagated on the overall dis-    with the Plover algorithm while using the Standard deviation and
+tribution.                                                           the Power Spectrum as measure functions.
+   The fourth and last synthetic experiment takes a data stream       The other measure functions were omitted due to the fact that
+composed of 20,0 0 0 observations. The ﬁrst half of them follows    they do not provide any drift information. We again conﬁrm that
+function sin 2 πx , while the second sin 5 πx , having x as a linear    our theoretical approach provides the necessary foundation to de-
+variable. Therefore, the sine frequency changes at time 10,0 0 0,     tect concept drift in data streams. However, it is again very im-
+something that is well observed while using the Power Spectrum     portant to emphasize that the measure function to be used must
+(PS) as a measure function for Plover ( Fig. 8 ). Here we set w l = 400     reﬂect the target task requirements.
+.
+  We did not provide the analysis for this dataset using the other
+measure functions, simply because they do not bring any relevant      7. Additional experiments using unknown drifts
+evidence for this task. From that we conclude that every particu-
+lar data stream should take advantage of one measure function to       The main objective of this section is to bring some motivat-
+point out changes along collection. However, the theoretical foun-     ing results in terms of a broader range of experimentation on
+dation provided in this paper is still the same that motivated the    data streams where concept drifts are unknown in advance. In or-
+design of the Plover algorithm.                                      der to proceed, we introduce the selected streams:  i) Historical
+--- Page 10 ---
+                                                                   R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102                                        99
+
+
+
+
+
+              Fig. 10. Applying the Plover algorithm on S&P 500 Index.                                  Fig. 11. Analyzing Bitcoin prices using the Plover algorithm.
+
+
+prices of Bitcoin 4 – we decided to consider the close prices of
+bitcoin since its beginning in attempt to mark down the most rel-
+evant events along time. Besides no supervision is provided, we
+already had a fair idea that changes would occur, specially in re-
+cent prices; ii) Electricity 5 – this stream was collected from the
+Australian New South Wales Electricity Market, knowing prices
+are not static and claimed to be eventually affected by the over-
+all demand and supply. Observations were collected at every ﬁve
+minutes ( Bifet, Holmes, Kirkby, & Pfahringer, 2010 ); and  iii) Data
+of ﬂight leaving the Los Angeles International Airport (LAX) 6 –
+This stream was inspired in the regression dataset from Elena
+Ikonomovska. 7 The purpose of this data is to predict whether a
+given ﬂight will be delayed, given the information of the sched-
+uled departure ( Bifet et al., 2010 ).
+  We decided to employ the Power Spectrum analysis ( Yang et al.,
+2009 ) as measure function in attempt to detect drifts in terms of
+data amplitudes and frequencies, as performed in previous exper-
+iments. The main reason is that  it supports the analysis of fre-
+quencies and amplitudes along time, providing a fair point of view
+about data streams with unknown drifts (motivated by Fourier and
+Wavelets Analyses).
+    Fig. 11 conﬁrms two relevant changes, the ﬁrst is associated                Fig. 12. Analyzing Electricity demands using the Plover algorithm.
+with day 250 and the second with day 1,400. The second was in-
+deed expected, but the ﬁrst might look insigniﬁcant while analyz-
+ing the prices in the top-most chart. That ﬁrst drift happened in
+                                                                                         Fig. 12 brings a different perspective. Besides changes in elec-
+December 2013, what is particularly interesting given many rele-
+                                      8                                          tricity prices, the overall demand did not signiﬁcantly change ac-vant news come from that period.  The second detection happens
+                                                                    cording to the frequency and amplitude analysis. In fact, our drift
+in January 2017, when again news discuss the Bitcoin effect and
+                                        9                               curve (bottom-most chart) points out a relevant stability in the de-compare it against December 2013 .  We claim our detections re-
+                                                   mand along time, what might also be visually observed through
+ﬂect relevant points of interest, which are conﬁrmed by news and
+                                                                   the sinusoidal behavior seen at the top-most chart.
+analysts. However, no proper supervision was provided in here.
+                                                                                         Fig. 13 shows our analysis for ﬂights leaving the LAX airport.
+                                                   A fraction of observation is shown at the top-most chart – once
+                                                                      values are binary, indicating whether the delay has happened (1)  4 Available at https://coinmarketcap.com/currencies/bitcoin/historical-data/?start
+= 20130428&end = 20180831.                                                or not (0), all data would clutter the chart. The same stability ob-
+  5 Available   at   https://sourceforge.net/projects/moa-datastream/ﬁles/Datasets/    served in the Electricity demand is seen in such results, conﬁrming
+Classiﬁcation/elecNormNew.arff.zip/download.                                 the LAX Airport has kept its relative delay occurrences stable along
+  6 Available   at   https://sourceforge.net/projects/moa-datastream/ﬁles/Datasets/     time. Depending on the point of view that may look good or bad.
+Classiﬁcation/airlines.arff.zip/download.
+                                                        Good in the sense it did not worsen, but bad in the sense it did
+  7 More information at https://kt.ijs.si/elena _ ikonomovska/data.html .
+  8 See      https://www.forbes.com/sites/kitconews/2013/12/10/2013- year- of- the-     not improve either.
+bitcoin#73c9f1c3303c .                                                                All those results motivate further studies and improvement in
+  9 See https://www.coindesk.com/bitcoin- not- 2013 .                            the area of concept drift detection and we, as authors, hope they
+--- Page 11 ---
+100                                                               R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102
+
+
+                                                                                 9. Acknowledgements
+
+
+                                                                          This paper is based upon projects sponsored by Coordena Ⱥ o
+                                                            de  Aperfei Ⱥ oamento de  Pessoal de N ȡ vel  Superior –  Coordi-
+                                                                    nation  for the Improvement of Higher Level Personnel (grants
+                                                      PROEX #5881819/D and  #302077/2017-0 ), Funda Ⱥ o Amaz ¯ynia
+                                                                  Paraense de Amparo Pesquisa – Sao Paulo Research Foundation
+                                                                         (grants #2017/16548-6 ), and Conselho Nacional de Desenvolvi-
+                                                         mento Cient ȡ ﬁco e Tecnolgico – The Brazilian National Council for
+                                                                        Scientiﬁc and Technological Development (grant #302077/2017-0 ).
+                                                         Any opinions, ﬁndings, and conclusions or recommendations ex-
+                                                                   pressed in this material are those of the authors and do not nec-
+                                                                              essarily reﬂect the views of CAPES, FAPESP nor CNPq.
+
+
+                                                                           10. Concluding remarks
+
+
+                                                                          This paper  is specially motivated by the lack of theoretical
+                                                                   foundation to ensure unsupervised concept drift detection on data
+                                                                      streams. Statistical Learning Theory (SLT) was also taken as a ba-
+                                                                                     sis to formulate our proposal. In fact, SLT has a strong connection
+                                                                         to the whole theory we employed to ensure Algorithmic Stabil-
+             Fig. 13. Analyzing Airport delays using the Plover algorithm.                  ity. Such a link comes from the association of the Symmetrization
+                                                  Lemma ( von Luxburg & Schölkopf, 2011 ) with the perturbations as-
+                                                      sumed on McDiarmid’s Inequality ( McDiarmid, 1989 ). From that,
+motivate the reader to understand application scenarios and the   we formulated an upper bound to ensure that a model signiﬁcantly
+usefulness of such area of study.                                   changes along time (Inequality (24) ), independently of the measure
+                                                                          function.
+                                              We also formulated the Plover algorithm to unsupervisedly and
+8. Discusion                                                        incrementally detect concept drifts in data streams. Besides that,
+                                                 we designed an algorithm to estimate the window length param-
+   After presenting our approach, one may wonder how to com-     eter for Plover, supporting the selection of the minimal window
+pare it against other concept drift detection algorithms based on     length to compute its following steps. Results conﬁrm that our pro-
+data changes, such as CUSUM  ( Page, 1954 ), PHT  ( Page, 1954 ),     posal is capable of detecting drifts, but an adequate measure func-
+EWMA ( Ross, Adams, Tasoulis, & Hand, 2012 ), SONDE ( Albertini &     tion must be selected, according to the application domain.
+de Mello, 2007 ), GWR ( Marsland, Shapiro, & Nehmzow, 2002 ), and       As next steps, we intend to integrate Plover with MOA, the Mas-
+ADWIN ( Bifet & Gavaldà, 2007 ).                                          sive Online Analysis framework, in order to provide this algorithm
+   The Cumulative Sum (CUSUM) and the Page Hinkley-Test (PHT)     to other researchers. We also intend to build up a taxonomy map-
+are memory-less data tendency estimators. The ﬁrst models a cu-    ping the best as possible measure function to different application
+mulative residue to point out changes along time, while the second    domains and analyze how the amount of past samples could im-
+computes the divergence of those residues in a linear manner.         pact learning.
+   The   Exponential  Weighted  Moving   Average   proposed
+in Ross  et  al. (2012)  is  similar  to both CUSUM and PHT,  in
+                                                           Appendix A. Demonstrating McDiarmid’s inequality
+the sense that it models residues along time in a linear fashion.
+However, it also takes in consideration both average and standard
+                                                                Suppose a function g applied to a sequence of n random vari-
+deviation estimators in order to provide some conﬁdence level to
+                                                                       ables X1: m = (Xi ) i =1 , 2 , ...,m and its conditional expected value:detect drift.
+   The  Self-Organizing  Novelty  Detection (SONDE) and Grow    μ(g, X1: i ) = E [ g(X1 , X2 , . . . , Xm ) | X1: i ]
+When Required (GWR) neural networks were designed to incre-
+mentally build up data clusters to point out new events occurring         =        g(X1 , X2 , . . . , Xm ) P j (X1: m | X1: i ) dX,       (A.1)
+                                                                                  X∈ X(i +1): m
+on input space. SONDE extends GWR by including an Entropy mea-
+sure to also detect changes along time. Both algorithms build up     in which X 1: i is the sub-sequence with the ﬁrst i variables of X 1: m ,
+new centroids as new observations are received. They basically fol-    and X(i +1): m  the remaining m −i  terms. If X 1: m are independent,
+low data tendencies along collection and take advantage of Entropy     then:
+as a measurement for detecting behavior modiﬁcations. They both                m          m
+                                                                                                     j=1 P j (X j )
+lack in terms of formal aspects to ensure learning and, in prin-    P (X1: m | X1: i ) =       i      =     P j (X j ) .                    (A.2)
+ciple, they could also take advantage from our framework to be                         j=1 P j (X j )    j= i +1
+improved in that respect.
+                                                                   Consequently:   The Adaptive Sliding Window algorithm (ADWIN) is probably
+the closest to our formulation in the sense that  it estimates an                                 m
+equation that is very close to McDiarmid’s Inequality (Inequality    μ(g, X1: i ) =        g(X1 , X2 , . . . , Xm )    P j (X j ) dX.        (A.3)
+(19) ), but yet missing the other formulation steps, justiﬁcations,                  X∈ X(i +1): m                     j= i +1
+and the discussion about other measure functions as performed
+                                                                            Let  μ( g,  X 1: i )  be  a  function  deﬁned  over  the  domain
+throughout this work. In fact, ADWIN was one of our main mo-
+                                                     dom (μ(g, X1: i )) = X1: i ,  the integration area for the expected value
+tivations for this study after several discussions about how to en-
+                                                                                          is deﬁned by the random variable X i :
+sure theoretical learning guarantees for unsupervised concept drift
+detection on data streams.                                   μ(μ(g, X1: i ) , X1:(i −1) ) = E E [ g(X1 , X2 , . . . , Xm ) | X1: i ]| X1:(m −1)  .
+--- Page 12 ---
+                                                                   R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102                                          101
+
+
+   In addition:                                                                              Albertini, M. K., & de Mello, R. F. (2007). A self-organizing neural network for de-
+                                             i                                                                      tecting novelties. In Proceedings of the 2007 ACM symposium on applied com-
+                       j=1 P j (X j )                                                        puting SAC ’07 (pp. 462–466). New York, NY, USA: ACM. doi: 10.1145/1244002.
+P (X1: i | X1:(i −1) ) =       i −1    = Pi (Xi ) ,                       (A.4)         1244110 . http://doi.acm.org/10.1145/1244002.1244110
+                       j=1 P j (X j )                                                    Angel, A. M., Bartolo, G.  J., & Ernestina, M. (2016). Predicting recurring concepts on
+                                                                                        data-streams by means of a meta-model and a fuzzy similarity function. Ex-
+thus, similarly to Eq. (A.3) :                                                               pert Systems with Applications, 46 , 87–105. doi: 10.1016/j.eswa.2015.10.022 . http:
+ μ(μ(g, X1: i ) , X1:(i −1) )                                                  Azuma,//www.sciencedirect.com/science/article/pii/S0957417415007174K. (1967). Weighted sums of certain dependent random variables. Tohoku
+                           m                                          Mathematical Journal, 19 (3), 357–367 .
+                                                                                       Baena-García, M. ,  del  Campo-Ávila,   J. ,  Fidalgo,  R. ,  Bifet,  A. ,  Gavaldá,  R. , &
+ =            g(X1 , X2 , . . . , Xm )    P j (X j ) dX Pi (Xi ) dXi                 Morales-Bueno, R. (2006). Early drift detection method. In fourth international
+      Xi   X∈ X(i +1): m                     j= i +1                                      workshop on knowledge discovery from data streams .
+                     m                                                   Berndt, D.  J., & Clifford,  J. (1994). Using dynamic time warping to ﬁnd patterns
+                                                                                                 in time series. In Proceedings of the 3rd international conference on knowledge
+ =      g(X1 , X2 , . . . , Xm )   P j (X j ) dX                                             discovery and data mining series AAAIWS’94 (pp. 359–370). AAAI Press . http:
+     X∈ Xi : m                      j= i                                                        //dl.acm.org/citation.cfm?id=30 0 0850.30 0 0887
+                                                                                                            Bifet,  A., &  Gavaldà,  R.  (2007).  Learning from  time-changing  data  with adap-
+ = μ(g, X1:(i −1) )                                            (A.5)            tive  windowing   (pp.  4 43–4 48)).  SIAM .  http://epubs.siam.org/doi/605abs/
+                                                                                         10.1137/1.9781611972771.42 .   arXiv:   http://epubs.siam.org/doi/pdf/10.1137/1.
+   Therefore, considering μ( g | X 1: n ) as a new random variable Y n ,         9781611972771.42
+by Eq. (A.5) we have E [Yn | X1 , X2 , . . . , Xn −1 ] = Yn −1   and, conse-       Bifet, A., Holmes, G., Kirkby, R., & Pfahringer, B. (2010). MOA: Massive online anal-
+quently, this forms a martingale process. In addition, it produces            ysis. Journal of Machine Learning Research, 11 , 1601–1604 . http://portal.acm.org/
+a martingale of differences given by Vi = μ(g| X1: n ) −μ(g| X1:(n −1) )       Bifet,citation.cfm?id=1859903A., Holmes, G., Pfahringer, B., Kirkby, R., & Gavaldà, R. (2009). New ensemble
+ in such a way that E [Vn | X1 , X2 , . . . , Xn −1 ] = 0  . Proving that V n is        methods for evolving data streams. In Proceedings of the 15th ACM SIGKDD in-
+bounded, we can rely on Azuma’s Inequality to obtain the proba-          ternational conference on knowledge discovery and data mining KDD ’09 (pp. 139–
+bilistic convergence to the sum U i of consecutive V i ’s such as de-      Bousquet,148). NewO., &York,Elisseeff,NY, USA:A. (2002).ACM. doi:Stability10.1145/1557019.1557041and generalization. .Journal of Machine
+ﬁned in Eq. (17) .                                                                       Learning Research, 2 , 499–526. doi: 10.1162/153244302760200704 .
+   The concept of this proof relies on upper and lower bounds     de Carvalho Pagliosa,  L., & de Mello, R.  F. (2017). Applying a kernel function on
+U i  and  L i ,  respectively,  for  V i .  For  instance,  let  b  repre-         time-dependent data to provide supervised-learning guarantees. Expert Systems                                                                                        with Applications, 71 , 216–229. doi: 10.1016/j.eswa.2016.11.028 .
+sent a new  variable, the martingale of differences V i  is given     da Costa, F. G., Duarte, F. S. L. G., Vallim, R. M. M., & de Mello, R. F. (2017). Multidi-
+by E [ g| X1: i −1 , b] −E [ g| X1: i −1 ]   having  L i ≤B i ≤U i .  So, by deﬁn-         mensional surrogate stability to detect data stream concept drift. Expert Systems
+ing Ui = sup u E [ g| X1: i −1 , u ] −E [ g| X1: i −1 ] and L i = infl E [ g| X1: i −1 , l ] −         with Applications, 87 , 15–29. doi: 10.1016/j.eswa.2017.06.005 .
+                                                                                    Devroye, L. , Györﬁ, L. , & Lugosi, G. (1996). A probabilistic theory of pattern recognition .
+E [ g| X1: i −1 ], we have:                                                                Springer .
+                                                                                                       Faria, E. R., Gama,  J.  a., & Carvalho, A. C. P. L.  F. (2013). Novelty detection algo-
+ Ui −L i ≤sup E g| X1:(i −1) , u −sup E g| X1:(i −1) , l                            rithm for data streams multi-class problems. In Proceedings of the 28th annual
+                   u,l                                u,l                                  ACM symposium on applied computing SAC ’13 (pp. 795–800). New York, NY, USA:
+                                                                          ACM. doi: 10.1145/2480362.2480515 .
+ ≤sup          g(X1:(n −1) , u, X(i +1): n ) −g(X1:(i −1) , l, X(i +1): n )        Gama,  J., Medas,  P., Castillo, G., & Rodrigues, P. (2004). Learning with drift detec-
+        u,l    X∈ X(i +1): n                                                                                tion. In A. L. C. Bazzan, & S. Labidi (Eds.), Advances in artiﬁcial intelligence –
+                                                                                          SBIA 2004: 17th Brazilian symposium on artiﬁcial intelligence, Sao Luis, Maranhao,
+    n                                                                                                          Brazil, september 29-ocotber 1, 2004. proceedings (pp. 286–295). Berlin, Heidel-
+      P j (X j ) dX                                                                        berg: Springer Berlin Heidelberg. doi: 10.1007/978- 3- 540- 28645- 5 _ 29 .
+                                                                         Gama, J. a., Medas, P., & Rocha, R. (2004). Forest trees for on-line data. In Proceedings
+   j= i +1
+                                                                                                          of the 2004 ACM symposium on applied computing SAC ’04 (pp. 632–636). New
+  (por desigualdade de Jensen)                                                      York, NY, USA: ACM. doi: 10.1145/967900.968033 .
+                                                                                             Harel, M., Crammer, K., El-Yaniv, R., & Mannor, S. (2014). Concept drift detection
+ ≤        sup g(X1:(n −1) , u, X(i +1): n ) −g(X1:(i −1) , l, X(i +1): n )              through resampling. In Proceedings of the 31st international conference on in-
+     X∈ X(i +1): n  u,l                                                                               ternational conference on machine learning - volume 32 ICML’14 . JMLR.org . http:
+                                                                                         //dl.acm.org/citation.cfm?id=3044805.3045005
+    n
+                                                                                       Hayat, M. Z., & Hashemi, M. R. (2010). A dct based approach for detecting novelty
+     P j (X j ) dX.                                              (A.6)        and concept drift in data streams. In 2010 international conference of soft com-
+  j= i +1                                                                                     puting and pattern recognition (pp. 373–378). doi: 10.1109/SOCPAR.2010.5686734 .
+                                                                                        Hulten, G., Spencer, L., & Domingos, P. (2001). Mining time-changing data streams.
+   Notice that McDiarmid’s Inequality assumes:                                  In Proceedings of the seventh ACM SIGKDD international conference on knowl-
+                                                                                       edge discovery and data mining KDD ’01 (pp. 97–106). New York, NY, USA: ACM.
+  sup    g(x 1 , x 2 , . . . , x i , . . . , x n ) −g(x 1 , x 2 , . . . , x ′i , . . . , x n )                    doi: 10.1145/502512.502529 .
+x 1 ,x 2 , ... ,x n ,x ′i                                                                              Jedrzejowicz, J., & Jedrzejowicz, P. (2015). Distance-based ensemble online classiﬁer
+                                                                                   with kernel clustering. In R. Neves-Silva, L. C. Jain, & R.  J. Howlett (Eds.), In-
+ ≤c i ,                                                       (A.7)            telligent decision technologies: Proceedings of the 7th KES international conference
+                                                                               on intelligent decision technologies (KES-IDT 2015) (pp. 279–289). Cham: Springer
+and, thus:                                                                                   International Publishing. doi: 10.1007/978- 3- 319- 19857- 6 _ 25 .
+                        n                                                            Kantz, H., & Schreiber, T. (2003). Nonlinear time series analysis (2nd). Cambridge Uni-
+Ui −L i ≤         c i    P j (X j ) dX = c i .                      (A.8)          versity Press. doi: 10.1017/CBO9780511755798 .                                                                                       Klinkenberg,                                                                                                                  R. , &                                                                                                          Joachims,                                                                                                                                                          T. (20                                                                                                      0                                                                                                                                                        0).                                                                                                                             Detecting concept                                                                                                                                                                              drift with                                                                                                                                                   support                                                                                                                                                                    vec-
+          X∈ X(i +1): n   j= i +1                                                                                                   tor machines.                                                                                                               In                                                                                                               Proceedings                                                                                                                                           of                                                                                                                                the                                                                                                                                 seventeenth                                                                                                                                                       international                                                                                                                                                            conference                                                                                                                                             on                                                                                                                                     ma-
+                                                                                              chine learning ICML ’00 (pp. 4 87–4 94). San Francisco, CA, USA: Morgan Kauf-
+    Finally,  if perturbations propagated over a function g , due to                                                                  mann Publishers Inc. .
+changes in random variables (x 1 , x 2 , . . . , x i , . . . , x n ) ,  diverge in a     Krawczyk, B., & Wo ´zniak, M. (2015). One-class classiﬁers with incremental learning
+bounded form, then, according to Azuma’s Inequality, the applica-        and forgetting for data streams with concept drift. Soft Computing, 19 (12), 3387–
+tion of g over independent random variables probabilistically con-         3400. doi: 10.1007/s00500- 014- 1492- 5 .
+                                                                                                      Last, M. (2002). Online classiﬁcation of nonstationary data streams. Intell. Data Anal.,
+verges to its expected value as demonstrated.                               6 (2), 129–147 . http://dl.acm.org/citation.cfm?id=1293986.1293988
+                                                                                          Loo, H. R., & Marsono, M. N. (2015). Online data stream classiﬁcation with incre-
+References                                                                     mental semi-supervised learning. In Proceedings of the second ACM IKDD con-
+                                                                                                  ference on data sciences CoDS ’15 (pp. 132–133). New York, NY, USA: ACM.
+Abdulsalam, H., Skillicorn, D. B., & Martin, P. (2011). Classiﬁcation using streaming          doi: 10.1145/2732587.2732614 .
+   random forests. IEEE Transactions on Knowledge and Data Engineering, 23 (1), 22–     von Luxburg, U. , & Schölkopf, B. (2011). Statistical learning theory: Models, concepts,
+    36. doi: 10.1109/TKDE.2010.36 .                                                   and results ((vol.10, pp. 651–706)). Amsterdam, Netherlands: Elsevier North Hol-
+Agarwal,  R. (1995). Dynamical systems and  applications. World  Scientiﬁc  series         land .
+    in applicable analysis . World Scientiﬁc . https://books.google.com.br/books?id=
+   iXAUnUX-Sg8C
+--- Page 13 ---
+102                                                               R.F. de Mello et al. / Expert Systems With Applications 117 (2019) 90–102
+
+
+Marsland,  S.,  Shapiro,   J., & Nehmzow,  U.  (2002). A  self-organising network      Rios, R. A., Parrott, L., Lange, H., & de Mello, R. F. (2015). Estimating determinism
+    that  grows  when  required.  Neural  Networks,  15 (8),  1041–1058.  doi: 10.          rates to detect patterns in geospatial datasets. Remote Sensing of Environment,
+    1016/S0893-6080(02)0 0 078-3 . http://www.sciencedirect.com/science/article/pii/         156 , 11–20. doi: 10.1016/j.rse.2014.09.019 . http://www.sciencedirect.com/science/
+   S08936080 020 0 0783                                                                            article/pii/S0 0344257140 03642
+Masud, M. M., Chen, Q., Gao, J., Khan, L., Han, J., & Thuraisingham, B. (2010). Classi-      Ross, G. J., Adams, N. M., Tasoulis, D. K., & Hand, D. J. (2012). Exponentially weighted
+    ﬁcation and novel class detection of data streams in a dynamic feature space. In        moving average charts for detecting concept drift. Pattern Recognition Letters,
+    Proceedings of the 2010 european conference on machine learning and knowledge        33 (2), 191–198. doi: 10.1016/j.patrec.2011.08.019 . http://www.sciencedirect.com/
+    discovery in databases: Part  ii ECML PKDD’10 (pp. 337–352). Berlin, Heidelberg:          science/article/pii/S0167865511002704
+    Springer-Verlag . http://dl.acm.org/citation.cfm?id=1888305.1888328                    Sethi, T. S. , & Kantardzic, M. (2017). On the reliable detection of concept drift from
+McDiarmid, C. (1989). On the method of bounded differences. In  J. Siemons (Ed.),         streaming unlabeled data. Expert Syst. Appl., 82 , 77–99 .
+    Surveys in combinatorics, 1989: Invited papers at the twelfth british combinatorial      Sethi, T. S. , Kantardzic, M. M. , & Hu, H. (2016). A grid density based framework for
+    conference London Mathematical Society Lecture Note Series (pp. 148–188). Cam-           classifying streaming data in the presence of concept drift.  J. Intell. Inf. Syst.,
+    bridge University Press. doi: 10.1017/CBO9781107359949.008 .                         46 (1), 179–211 .
+de Mello, R., & Ponti, M. (2018). Machine learning: A practical approach on the sta-     Shannon, C. E. (1949). Communication in the presence of noise. Proceedings of the
+     tistical learning theory . Springer International Publishing . https://books.google.fr/           IRE, 37 (1), 10–21. doi: 10.1109/JRPROC.1949.232969 .
+   books?id=N3ectwEACAAJ                                                            Spinosa, E. J., de Leon F. de Carvalho, A. P., & Gama, J. a. (2007). Olindda: A cluster-
+Mena-Torres, D., & Aguilar-Ruiz,  J. S. (2014). A similarity-based approach for data         based approach for detecting novelty and concept drift in data streams. In Pro-
+    stream classiﬁcation. Expert Syst. Appl., 41 (9), 4224–4234. doi: 10.1016/j.eswa.          ceedings of the 2007 acm symposium on applied computing SAC ’07 (pp. 448–452).
+    2013.12.041 .                                                    New York, NY, USA: ACM. doi: 10.1145/1244002.1244107 .
+Metzger, M. A. (1997). Applications of nonlinear dynamical systems theory in de-      Vapnik, V. (1998). Statistical learning theory . Wiley .
+    velopmental psychology: Motor and cognitive development. Nonlinear Dynamics,      Vapnik, V. N. (1995). The nature of statistical learning theory . New York, NY, USA:
+    Psychology, and Life Sciences, 1 (1), 55–68. doi: 10.1023/A:1022323926870 .                 Springer-Verlag New York, Inc. .
+Page, E.  S. (1954). Continuous inspection schemes. Biometrika, 41 (1/2), 100–115 .     Wang, L. ,  Ji, H. , & Jin, Y. (2013a). Fuzzy passive-aggressive classiﬁcation: A robust
+    http://www.jstor.org/stable/2333009                                            and eﬃcient algorithm for online classiﬁcation problems. Information Sciencies,
+Prasad, B. R., & Agarwal, S. (2017). Critical parameter analysis of vertical hoeffding        220 , 46–63 .
+    tree for optimized performance using samoa. International Journal of Machine     Wang, S., Minku, L. L., Ghezzi, D., Caltabiano, D., Tino,  P., & Yao, X. (2013b). Con-
+    Learning and Cybernetics, 8 (4), 1389–1402. doi: 10.1007/s13042- 016- 0513- 3 .              cept drift detection for online class imbalance learning. In The 2013 interna-
+Rendón, E., Abundez,  I. M., Gutierrez, C., Zagal, S. D., Arizmendi, A., Quiroz, E. M.,           tional joint conference on neural networks (ijcnn) (pp. 1–10). doi: 10.1109/IJCNN.
+   & Arzate, H. E. (2011). A comparison of internal and external cluster valida-         2013.6706768 .
+    tion indexes. In Proceedings of the 2011 american conference on applied mathe-     Widmer, G., & Kubat, M. (1996). Learning in the presence of concept drift and hid-
+    matics and the 5th wseas international conference on computer engineering and        den contexts. Machine Learning, 23 (1), 69–101. doi: 10.10 07/BF0 011690 0 .
+    applications American-Math’11/CEA’11 (pp. 158–163). Stevens Point, Wisconsin,      Yang, Y.-B., Feng,  L.-L., Pan,  J., & Yang, X.-H. (2009). An optimal method for the
+   USA: World Scientiﬁc and Engineering Academy and Society (WSEAS) . http:        power spectrum measurement. Research in Astronomy and Astrophysics, 9 (2),
+    //dl.acm.org/citation.cfm?id=1959666.1959695                                    227 . http://stacks.iop.org/1674-4527/9/i=2/a=012

@@ -1,0 +1,873 @@
+Title: A method to benchmark high-dimensional process drift detection
+
+--- Page 1 ---
+Journal of Intelligent Manufacturing (2026) 37:1179–1195
+https://doi.org/10.1007/s10845-025-02590-9
+
+
+
+
+A method to benchmark high-dimensional process drift detection
+
+
+Edgar Wolf1   · Tobias Windisch1
+
+
+
+Received: 9 August 2024 / Accepted: 3 March 2025 / Published online: 21 April 2025
+© The Author(s) 2025
+
+
+
+
+Abstract
+Process curves are multivariate ﬁnite time series data coming from manufacturing processes. This paper studies machine
+learning that detect drifts in process curve datasets. A theoretic framework to synthetically generate process curves in a
+controlled way is introduced in order to benchmark machine learning algorithms for process drift detection. An evaluation
+score, called the temporal area under the curve, is introduced, which allows to quantify how well machine learning models
+unveil curves belonging to drift segments. Finally, a benchmark study comparing popular machine learning approaches on
+synthetic data generated with the introduced framework is presented that shows that existing algorithms often struggle with
+datasets containing multiple drift segments.
+
+Keywords Machine learning · Drift detection · Process curves · Data synthetization · Manufacturing data · Data modelling ·
+Model evaluation
+
+
+Introduction                                           Althoughprocesscurvesaremultivariatetime-series,process
+                                                                           drift detection should not be confused with drift detection
+Manufacturing lines typically consist of processes arranged    in time series (Lukats et al., 2024) or drifts in proﬁle data
+sequentially, each using techniques like casting, forming,    (Paynabar & Jin, 2021) (see also Fig.1). Typically, statisti-
+or joining to shape components to their ﬁnal speciﬁcations.    cal drift detection methods from time series analysis are not
+Advanced sensor technology enables precise monitoring of     direct applicable, not alone because process curves are high-
+key performance indicators, like force, pressure, or tem-    dimensional objects, but also because of high autocorrelation
+perature, over time. IoT-enabled systems now commonly   among their sample axis. As a consequence, deep learn-
+store the data obtained, called process curves, facilitating    ing techniques, most prominently dimensionality reduction
+analysis across both single components and entire produc-    methods like autoencoders (Hyvarinen et al., 2019; Khe-
+tion sequences (Zhong et  al., 2017). Issues like anoma-   makhem et al., 2020; Kim et al., 2023; Kingma & Welling,
+lous batches, tool wear, or miscalibrations can degrade    2014; Rumelhart et al., 1986), have become increasingly
+performance, often subtly, by causing gradual shifts in pro-    popular (Meiners et al., 2021) as they allow to ﬁrst learn
+cess curves. Thus, detecting process drifts is key to keep    a low-dimensional representation of the high-dimensional
+unplanned downtimes and scrap parts at bay. In high-volume    input and then analyse the learned latent variables with clas-
+production, this is particularly challenging due to the rapid     sic statistical tools, like sliding Kolmogorov-Smirnov tests
+data generation and complexity of multi-variable curves    (Raab et al., 2020), Hellinger-distance based techniques (Dit-
+and hence these settings have been an ideal application for     zler & Polikar, 2011), or by facilitating the Maximum Mean
+machine learning methods (Al Assadi et al., 2022; Hesser    Discrepancy (Gretton et al., 2012).
+et  al., 2019; Lee et  al., 2021; Mayr et  al., 2019; Mein-      For many machine learning applications relevant for man-
+ers et  al., 2021; Yadav et  al., 2020; Yong et  al., 2020).    ufacturing, established ways and datasets to benchmark the
+                                                        performance of algorithms exist, like for causal discovery
+B Edgar Wolf                                                    in quality data (Göbler et al., 2024), anomaly detection in
+    edgar.wolf@hs-kempten.de
+                                                      images from optical inspections (Bergmann et al., 2021), or
+    Tobias Windisch                                           reinforcement learning in continuous control tasks (Duan et
+    tobias.windisch@hs-kempten.de
+                                                                                    al., 2016). However, for process drift detection, such a frame-
+1   University of Applied Sciences Kempten, Kempten, Germany      work is yet missing to the best of our knowledge. This may be
+
+                                  123
+--- Page 2 ---
+1180                                                                                     Journal of Intelligent Manufacturing (2026) 37:1179–1195
+
+
+                                                    • We introduce an evaluation metric called temporal area
+                                                          under the curve (TAUC) in Sect.The temporal area under
+                                                                   the curve, which aims to take the temporal context of a
+                                                                   detection into account.
+                                                    • We conduct a short benchmark study in Sect.Experi-
+                                                         ments as a proof of concept for the effectiveness of
+                                                                   both, our TAUC metric and our proposed data generation
+                                                      method to measure the predictive power of drift detectors.
+
+
+                                                 Our work is based on preliminary results of the ﬁrst author
+                                                            (Wolf, 2024). In this work, we provide additionally insights
+                                                                  into the introduced metric, introduce a variant called soft
+                                          TAUC and compare it in depth with existing metrics. More-
+                                                                 over, we substantially generalize the data synthetization
+                                                           framework,forinstancebyallowinghigher-orderderivatives,
+                                                     and we generate more sophisticated datasets for the bench-
+Fig. 1  Overview of different kinds of time series data from manufac-
+turing processes and drifts within                            mark study. We also release the code that helps to generate
+                                                            process curves to benchmark drift detectors, which is freely
+due to the following two reasons: The lack of both, publicly    available under https://github.com/edgarWolf/driftbench. Its
+available datasets and a suitable evaluation metric. Beside a    optimization back-end is implemented in Jax (Bradbury et
+few publicly released datasets (Agogino et al., 2007; Mauthe      al., 2018) allowing a fast GPU-based generation of process
+et al., 2024; Tnani et al., 2022), most of the existing work    curves.
+does not release any data to the public, making it impossi-
+ble to test other detectors on the same dataset. Often, this
+is due to privacy issues and fear of leaking information to    Statistical framework to model process drifts
+competitors. In addition, as datasets for process drifts are
+inherently non identically and identically distributed (iid),    In this section, we formalize what we consider as process
+any sort of test and train splits introduced signiﬁcant biases    curves and drifts within. Generally speaking, process curve
+making evaluation of algorithms hard if only one variant of    datasets are datasets consisting of ﬁnitely many multivariate
+a dataset is available. Finally, process drift detection is by    time series each having ﬁnitely many steps.
+deﬁnition an unsupervised learning task, but to benchmark    We formally model a process curve as a ﬁnite time-series
+detectors, a ground truth is required, labeling precisely when    (Y(x))x∈I with Y(x) ∈Rc, I ⊂R a ﬁnite set, and where
+a drift starts and when it ends. This seamlessly leads to the   Y  : R →Rc represent physical properties of the process to
+second challenge, namely the missing evaluation metric. As    be measured and x an independent variable, often the time. In
+in any machine learning task, the metric depends on the pre-    staking processes, for instance, Y is the measured force and
+cise application and a trustworthy ground truth. A commonly    x the walked path of the press (compare also Göbler et al.,
+used metric used in research and practice to measure the sta-    2024, Fig. 9). Another example are pneumatic test stations,
+tistical performance of a binary classiﬁer, often independent    where Y might be a pressure measured over time x. In bolt
+of the application, is the area under the ROC curve (Hanley &    fastening processes, Y represents the torque measured over
+McNeil, 1982)—short AUC. However, the usage of the AUC    the angle x (Meiners et al., 2021). We call the number of
+is typically only applicable in settings where data is assumed    variables c ∈N in the curve the dimension of the process
+to be iid, unlike in drift detection. In our work, we want to    curve and write [T ] for the set {1, . . . , T } and often refer to
+exactly address these issues by introducing a benchmarking      it as temporal axis.
+framework for researchers, allowing them to reliably validate      Whenever a manufacturing process ﬁnishes its work on
+their process drift detection algorithms. At a high level, our    a component, a process curve is yielded. Thus, when the
+main contributions are:                                same process is executed on multiple times sequentially, a
+                                                          long sequence C1, C2, . . . , Ct, . . . , CT with T ∈N of pro-
+ • We present a simple, yet ﬂexible and effective theoretic    cess curves is obtained where each Ct arises under slightly
+   framework to generate synthetic process curve datasets    different physical conditions Y1, . . . , YT , i.e., Ct = (Yt(x +
+    including drifts with a validated ground truth (Sects.Sta-    ϵx)+ϵy)x∈It , where ϵx and ϵy represents measurement noise
+     tistical framework to model process drifts and Data    or inaccuracies. In theory, also the sets It can vary for each
+    generation) which also allows feeding of curves from      t ∈[T ], for instance due to different offsets. Wearout or tool
+    real processes.                                           degradation affects the process curves gradually and to model
+
+123
+--- Page 3 ---
+Journal of Intelligent Manufacturing (2026) 37:1179–1195                                                                        1181
+
+their deformation along the execution axis, we assume that    Deﬁnition 2.1 (Support points) Let  f  : Rk × R →R be
+there exists functions  f  : Rk × R →Rc and w : [T ] →Rk    an i-times differentiable function, i ∈N, and ∂ix f be the
+such that for all t ∈[T ] and x ∈It:                               i-th derivative of  f according to the second argument. Let
+                                                           x, y ∈Rn, then (x, y) is a support point of i-th order for f at
+ f (w(t), x) = Yt(x)                                     (2.1)  w ∈Rk if ∂ix f (w, x j) = y j for all j ∈[n] where x j, y j ∈R
+                                                          denote the j-th coordinates of x and y respectively.
+where the function  f  is a proxy for the physics underneath
+the process. The vector w(t) ∈Rk represents environmental      Support points can be considered as points surpassed by
+                                                               the graph of  f (w, ·)  : R →R (see visualization on theproperties of the t-th execution, and some of its coordinates
+                                                                             left in Fig.3). Typically, such support points are physicallycorrespond to component properties, some to properties of
+                                                          motivated and if latent properties of the process change, cer-the machine. Without restricting generality and to keep nota-
+tion simple, we will assume for the remainder that c = 1, as     tain support points change their position in curve space. For
+                                                                 instance, in a staking process, the position x(t) and valuethe multivariate case is a straight-forward application of our
+                                                                y(t) of the maximal force, i.e., where the ﬁrst derivative isapproach by modeling each variable in Y individually (see
+                                                                 zero, starts shifting (see Fig.2). That is, we can describealso Remark 3.1).
+                                                                       this behavior by modelling the support points (x(t), y(t))  Assuming only component variance and no tool degrada-
+                                                     and (x(t), 0) of ﬁrst and second order respectively,  i.e.tion, we could assume that w(t) is sampled in each process
+execution from a ﬁxed but unknown distribution on Rk, like       f (w(t), x(t)) = y(t) and ∂1x f (w(t), x(t)) = 0. We formal-
+w(t) ∼Nμ,σ with ﬁxed μ ∈Rk and σ ∈Rk×k for all    ize in Sect.Data generation how we can use this to generate
+                                                            process curves and drifts synthetically.t ∈[T ]. As mentioned, tool degradation, in contrast, affects
+the process from execution to execution, i.e., the parameters
+of the distribution shift over time leading to a deformation of
+the observed process curve. Such process drifts should not   Data generation
+be confused with concept drifts, where the goal is typically
+to analyse the declining performance of a trained machine    Let  f  : Rk × R →R be as in Sect.Statistical framework
+learning model when new data starts to differ from the train    to model process drifts a proxy for the physical relations
+data (Nunes & Guedes, 2024). Moreover, detecting drifts in    for given manufacturing process. In this section, we build
+process curves is different to detecting drift in proﬁle data    our synthetization framwork upon the setup introduced in
+(Paynabar & Jin, 2021), where one typically is interested in     Sect.Statistical framework to model process drifts. Here,
+drifts among the curves yielded by a single execution, not in   we neither focus on how w(t) behaves in latent space, nor
+drifts over multiple executions. A similar application is the   on how  f  is formulated exactly. Instead of modeling the
+identiﬁcation of drifts within proﬁle data, where typically    evolution of w(t) with a dynamic system, our idea is to
+one process execution yields a sequence of process curves   model the behavior of support points over process execu-
+of ﬁxed size, like in spectroscopy when one curve is some    tions in curve space and to seek for parameters w(t) using
+intensity over time which is measured for different wave-    non-linear optimization satisfying the support point condi-
+lengths (Yue et al., 2018). One way to model process drifts    tions from Deﬁnition 2.1. For the remainder of this section,
+is to model the evolution of the latent parameters w(t), like   we explain how w(t) can be computed given the support
+using a dynamical system. For instance, in control theory    points. Thus, assume we have for each process execution
+(Brogan, 1991), w(t) is considered as latent state of a sys-      t ∈[T ] support points (x1(t), y1(t)), . . . (xl(t), yl(t)) with
+tem which evolves over the executions t and one observes a    with xi(t), yi(t) ∈Rni , that is,
+multivariate output Y(t) ∈R|It| with Y(t) = Yt(It). Intro-
+                                                                     ∂ix f (w(t), xij(t)) = yij(t)  ∀j ∈[ni].                  (3.1)ducing a control vector u(t) ∈Rp, w(t) can be considered
+as state variable w(t) of the system that evolves over time
+and is inﬂuenced by a control vector u(t) ∈Rp such that     An overview of our notation used is shown in Fig. 4.
+∂tw(t) = h(w(t), u(t), t) and Y(t) =   f (w(t)) holds for    Instead of modelling w(t)  explicitly, we compute w(t)
+                                                                  implicitly such that (3.1) is satisﬁed. For instance, if  f  isall t ∈N. Here, however, one has to precisely model how
+                                                       l+2-times differentiable in its second argument and if ∂2w∂ix fthe state w changes over executions and how it is affected
+                                                                       exists, we can solve (3.1) individually for all t ∈[T ] usingby interventions u and has to solve challenging non-linear
+                                                           second-order quasi-Newton methods (Fletcher, 1987, Chap-differential equations. However, as we will argue, the degra-
+                                                                         ter 3) for the objective functiondation of the curve can be described directly in curve space
+in many scenarios. Thus, we directly model the transforma-
+                                                                                                                                                                                         l    ni
+tion of the process curves in curve space by letting certain                                                                   2
+                                                                w(t) = arg minw∈Rk        Di ·  ∂ix f (w, xij(t)) −yij(t)
+support points of the curve move in a controlled way:                                i=1 j=1
+
+                                  123
+--- Page 4 ---
+1182                                                                                     Journal of Intelligent Manufacturing (2026) 37:1179–1195
+
+
+
+
+
+Fig. 2  Samples from a process curve (left) as well as a sequence of curve samples (right)
+
+
+
+
+
+Fig. 3  Visualization of the data synthetization given a function        f (w1, ·), . . . , f (w100, ·) where gaussian noise was added on one coor-
+ f (w, x) =     i=05  wi  ·  xi.  Left  ﬁgure shows   f (w, ·)  solved     dinate in y1(t) (corresponding coordinate x1(t) is marked with a dashed
+for  concrete  xi, yi  (red  points).  Right  ﬁgure  shows  sequence     line)
+
+
+
+
+                                                    Algorithm 1 Generation of process curves
+                                                                  Input:  f  : Rk × R →R, xi(1), yi(1), . . . xi(T ), yi(T) ∈Rni , i ∈[l],
+                                                                    x ∈R,  x ∈R>0, m ∈N                                                                      .
+                                                             Output: Process curves C1, . . . , CT                                                     .
+                                                                              1: for t ∈[T ] do
+                                                                              2:   Compute  solution  w(t)  for  (3.2)  using  support  points
+                                                                              (x1(t), y1(t)), . . . , (xl(t), xl(t))
+Fig. 4  Short overview of our notation                                       3:      It ←{x + j ·  x + ϵx :  j ∈[m]}
+                                                                              4:   Ct ←f (w(t), It) + ϵy
+                                                                              5: end for
+                                                                              6: return C1, . . . , CT
+                                                         (3.2)
+
+
+where D1, . . . , Dl are constants to account for the different
+value ranges of the functions ∂ix f . Thus, by solving (3.2)         It is left to show how to generate the support points as input
+for each t ∈[T ], we obtain a sequence w(1), . . . , w(T ) ∈    for Algorithm 1. One way is to use support points of a real
+Rk and consequently, we get a sequence of functions    process curve dataset, and using Algorithm 1 to create a semi-
+ f (w(1), ·), . . . , f (w(t), ·). Now, these functions can be    synthetic copy of it. In a fully synthetic setting, the support
+evaluated on arbitrary sets  It ⊂R whose points not nec-    points at execution t ∈[T ], the support points (xi(t), yi(t))
+essarily need to be equidistant. Setting Ct =  f (w(t), It) +    can be sampled from a distribution on Rni  respectively,
+ϵy ∈R|It|, we ﬁnally obtain a sequence of process curves   whose statistical properties change over the temporal axis.
+C1, . . . , CT . A compact overview of the data generation    For instance, yi(t) ∼Nμi(t),σ with μi  : [T ] →Rni encod-
+method is shown in Algorithm 1.                             ing the drift behavior over the temporal axis for the support
+
+123
+--- Page 5 ---
+Journal of Intelligent Manufacturing (2026) 37:1179–1195                                                                        1183
+
+
+points. In Appendix B, we showcase in depth an application    what we understand as a process drift and which assumptions
+of Algorithm 1 where  f is a polynomial.                we require. Let C1, . . . , CT be a sequence of process curves
+                                                     and let D ⊂[T ] be the set of curve indices belonging to
+Remark 3.1 (Multivariate data) Our  theoretic framework                                                                            drifts. Our ﬁrst assumption is that drifts, different from point
+extends naturally to multivariate time series data, where each                                                            anomalies, appear sequentially and can be uniquely decom-
+dimension d ∈[c] (or signal) has its own function fd. If they                                                       posed into disjoint segments:
+do not share their latent information wd(t), then Algorithm 1
+can be executed for each dimension individually. If they share                                                         Deﬁnition 4.1 (Drift segments) Let D ⊂[T ]. Then a series
+some latent information, then (3.2) can be extended by sum-
+                                                             of subsets D1, . . . , Dk ⊂D is a partition of drift segments if
+ming all support point conditions for all f1, . . . , fc.                                                                there exists 1 ≤l1 < h1 < l2 < h2 < . . . , < lk < hk ≤T
+Remark 3.2 (Proﬁle data) Our theoretic framework is also    such that for all i, we have Di = [li, hi] and D = ∪ki=1Di.
+capable to generate proﬁle data with drifts holding both,
+drifts within a proﬁle and drifts over executions. This can be     The drift segments can be considered as a partition of the
+obtained, for instance, by describing how the support points    smallest consecutive drifts which cannot decomposed any
+should behave in each proﬁle and for subsequent proﬁles.       further into smaller segments. Now, assume we also have the
+                                                            output s ∈RT of a detector where each coordinate st quan-
+Remark 3.3 (Choosing   f ) The function   f  is a free and    tiﬁes how likely the curve Ct of the t-t-h process execution
+important parameter of Algorithm 1 and impacts its per-    belongs to a drift, that is, the higher st the more likely the
+formance. Which function class to select depends on the    detector classiﬁes t ∈D (see also Fig.5). By choosing a
+number and order of the support points. In our examples    threshold τ ∈R, we can construct a set
+(see also Sect.Data generation with polynomials), a poly-
+nomial whose degree arises from the number of support    ˆD(s, τ) := {t ∈[T ] : st ≥τ}
+points to ﬁt sufﬁces. In principle,  f can be chosen from any
+parametrized function class, like B-splines, Gaussian pro-
+                                                    which serves as a possible candidate for D. Clearly, if τ1 ≥cesses (Rasmussen, 2004), neural networks (Hornik et al.,
+                                                                                                                   Its also straight-forward to1989), or Kolmogorov-Arnold networks (Liu et al., 2025).     τ2, then ˆD(s, τ1) ⊆ ˆD(s, τ2).
+                                                            see that for every τ, the set ˆD(s, τ) decomposes uniquelyFor overparametrized function classes, regualization-terms
+                                                                                            as deﬁned in Deﬁnition 4.1for w ∈Rk can be added to the objective in Eq. (3.2). Algo-    into drift segments ˆD1, . . . , ˆDl
+                                                     and that the length and number of these atomic segmentsrithm 1 can also be used to generate synthetic copies of a real
+                                                       depends on τ. Now, to quantify the predictive power of thedatasets of curves C1, . . . , CT . Here, all values given in Ct
+                                                                detector yielding s, one needs to quantify how close ˆD(s, ·) iscan be considered as support points of 0-th order for the t-th
+                                                                  to D when τ varies. There are many established set-theoreticexecution and a good function class for  f can be found via
+                                                      measurements that are widely used in practice to quantifymodel selection by minimizing ﬁtting errors in Eq. (3.2). In
+                                                               the distance between two ﬁnite and binary sets A and B, likecase only a few real curve samples exist, a degradation pat-
+                                                                                 |A∩B|
+                                                               the Jaccard index                                                                                  |A∪B|, the Hamming distance |A\B| +tern to be interpolated between selected support points may
+                                                                                                  |A∩B|
+have to be learned ﬁrst along the temporal axis.              |B\A|, or the Overlap coefﬁcient             just to name a                                                                                                                      min(|A|,|B|)
+                                                              few. Most metrics, however, have as a build-in assumption
+                                                                    that the elements of the set are iid and hence the temporal
+The temporal area under the curve                 context is largely ignored making them unsuitable for process
+                                                          driftdetection.Moreover,formostdetectorswehavetoselect
+Different usecases require different performance metrics to    a discrimination threshold τ, making evaluation cumbersome
+evaluate algorithms. In classiﬁcation, for instance, some-    as it requires to tune the threshold on a separate held-out
+times avoiding false positives is, sometimes avoiding false     dataset. Moreover, in most practical scenarios, D is only a
+negatives. However, when it comes to general benchmarking    small subset and thus the evaluation metric has to consider
+classiﬁers somewhat independently of their precise applica-    highly imbalanced scenarios as well.
+tion in the sense to see how well their response correlates       Clearly, detectors are required where all true drift seg-
+to the actual class label, the AUC (Hanley & McNeil, 1982)   mentsDi areoverlappedbypredicteddriftsegments.Forthis,
+is frequently used. However, the vanilla AUC takes samples     let Li := { j ∈[l] : Di ∩ˆD j̸ = ∅}. Clearly, Li ∩Li+1̸ = ∅
+independently of their temporal context, that is, independent      if Di and Di+1 both intersect with a predicted drift segment.
+of samples from the previous and next process execution.   Now, the set Ti := ∪j∈Li ˆD j which is the union of all predic-
+Thus, we construct in this section a more suitable metric to     tive segments intersecting with Di serves as a candidate for
+measure the predictive power of machine learning models for    Di. To measure how well Di is covered - or overlapped - by
+process drift detection. In order to do so, we ﬁrst formalize     Ti we deﬁne the soft overlap score inspired by the Overlap
+
+                                  123
+--- Page 6 ---
+1184                                                                                     Journal of Intelligent Manufacturing (2026) 37:1179–1195
+
+
+
+
+
+Fig. 5  Applying a process drift detector on each process curves yields a score s which needs to be compared to the ground truth D for each
+threshold τ
+
+Fig. 6  Temporal arrangements
+of true and predicted drift
+segments as input for
+Algorithm 2
+
+
+
+
+
+coefﬁcient as follows:                                           positive rate
+
+                                                                                                                  | ˆD(s, τ) ∩D|
+                                       |Ti|                  FPR(D, s, τ) :=
+sOLS(Di, s, τ) :=                                                            |D|
+                 max(Ti ∪Di) −min(Ti ∪Di) + 1
+                                                         (4.1)    into account. To also take false negatives into account, the
+                                                        enumerator in (4.1) could be changed as follows, yielding
+                                                          our ﬁnal deﬁnition of the overlap score:
+Obviously, an sOLS of 1 is the best possible and this is
+reached if and only if Ti = Di. It is easy to see that for                                         |Ti ∩Di|                                                 OLS(Di, s, τ) :=ﬁxed Di, the enlargement of Ti beyond the boundaries of                   max(Ti ∪Di) −min(Ti ∪Di) + 1.
+Di improves the overlap score, as |Ti| increases and one of                                                              (4.2)
+either max(Ti ∪Di) or −min(Ti ∪Di) increases as well.
+A special case is if Di  is completely covered by Ti, i.e.    Algorithm 2 illustrates in detail how the Overlap score
+Di ⊆Ti, then it follows that Ti is an interval as well and   OLS(D, s, τ) can be computed algorithmically.
+thus sOLS(Di, s, τ) = 1. When Ti enlarges, then the num-     Our score considers both, the OLS and the FPR, which
+ber of false positives, i.e. the time points t contained in some    mutually inﬂuence each other. In the computation of the
+ˆDi and in the complement D := [T ] \ D of the ground truth   AUC, any threshold τ from [mint(st), maxt(st)] yields a
+D, enlarges as well. Thus, the predictive power of a detec-    pair of false positive rate FPR(D, s, τ) and true positive rate
+tor is shown in the overlap score as well as the created false   TPR(D, s, τ) which can be drawn as a curve in the space
+
+123
+--- Page 7 ---
+Journal of Intelligent Manufacturing (2026) 37:1179–1195                                                                        1185
+
+Algorithm 2 Overlap score OLS(D, s, τ)                      dataset C1, . . . , CT and do not have access to the ground
+Input: D ⊂[T ], s ∈RT , τ ∈R                                                           .     truth D, which is the set of curves belonging to a drift (see
+Output: Overlap score                                                                         .    Sect.Datasets). Afterwards, each model predicts for each
+1: D1, . . . , Dk ←ﬁnd drift segments of D                         curve Ct from this dataset a score st ∈R, and afterwards, the
+2: ˆD1, . . . , ˆDl ←ﬁnd drift segments of ˆD(s, τ)                                             TAUC, sTAUC, and AUC are computed for s = (s1, . . . , sT ).3: o ←0 ∈Rk
+4: for i ∈[k] do                                      To account for robustness, we generate each dataset of a pre-
+5:    Li ←{ j ∈[l] : ˆD j ∩Di̸ = ∅}   ▷All predicted drift segments   deﬁned speciﬁcation ﬁve times for a different random seed
+   overlapping with Di                                          each, leading to slightly different datasets of roughly same
+6:    Ti ←∪j∈Li ˆD j   ▷Union of all segments intersecting with Di
+                             |Ti ∩Di |                                      complexity. All models are trained unsupervised, i.e. without
+7:    oi ← max(Ti ∪Di )−min(Ti ∪Di )+1            ▷fraction of overlap    any information of the true drift segments.
+8: end for
+9: return k1   i=1k   oi
+
+                                                  Algorithms
+
+where FPR is on the x-axis and TPR on the y-axis. Simi-
+                                                 The algorithms used can be decomposed into multiple steps
+larly, we deﬁne the temporal area under the curve, or just
+                                                                (see also Fig.8), but not all algorithms use all steps. First,
+TAUC, as the area under the FPR-OLS curve while the dis-
+                                                                there are may some features extracted from each curve. After-crimination threshold τ varies. We refer to the soft TAUC,
+                                                          wards, a sliding window collects and may aggregate these
+or just sTAUC, to the area under the FPR-sOLS curve (see
+                                                        such that a score is computed.
+Fig.7).
+  Note that the integral of the curve can be computed using
+two different methods, the step rule and the trapezoidal rule                                                          Feature extraction
+and depending on which method is used, the value of the
+score may differ. We showcase this behavior in detail for                                                             In this step, we use autoencoders (Rumelhart et al., 1986)
+trivial detectors in Appendix D. In Appendix C, we investi-                                                                  to compute a k-dimensional representation et ∈Rk for each
+gate in several synthetic cases in depth the differences and
+                                                           high-dimensional process curve Ct with k small. The inden-
+similarities between sTAUC, TAUC, and AUC.                                                                  tion behind is to estimate an inverse of the unknown function
+                                                                                             f and to recover information about the support points used.
+Example 4.2 Consider the situation shown in Fig.6. There,
+                                                        Moreover, we also apply deterministic aggregations over the
+we have two true drift segments D1 and D2, and three seg-
+                                                            x-information of each curve Ct.ments ˆD1, ˆD2 and ˆD3 as drift segments of some detector
+output ˆD(s, τ). Clearly, L1 = {1, 2} where L2 = {3} as only
+D3 overlaps with D2. To unveil D1, the detector needs to   Windowing and aggregation
+separate drift segments, leading to false negatives and posi-
+tives and thus a relatively small OLS. On the other hand, as                                                             In this step, the algorithms may aggregate the data from
+ˆD3 ⊂D2, we have T2 = ˆD3.                                                               the previous step using a ﬁxed window of size m that is
+                                                             applied in a rolling fashion along the process iterations.
+                                              One aggregation we use is to ﬁrst compute for each coor-
+Experiments                                              dinate  j ∈[k] of et ∈Rk with t ≥m the rolling mean
+                                                                          at, j = m1   i=t−m+1t          ei, j. These values can then further
+Next, we benchmark existing algorithms on data gener-                                                      be statistically aggregated, like by taking the maximum
+ated with our framework driftbench and reporting the                                                                        at := max{at, j :  j ∈[k]}.
+TAUC. All datasets and algorithms used are available in
+the repository of driftbench. The goal of the bench-
+mark is to provide a proof of concept for our score and    Score computing
+data generation method, not to be very comprehensive on the
+model side. Thus, based on our literature research in Sect.    Goal of this step is to compute a threshold which corre-
+Introduction we have hand-selected a small set of typically     lates with the ground truth, that is, the larger the higher the
+used model patterns drift detectors used in practice consists     possibility of a drift. Here, we may also aggregate previous
+of (see Sect.Algorithms).                                       features in a rolling fashion. The simplest aggregation we use
+  The basic evaluation loop follows a typical situation from     is to compute the euclidean distance of subsequent elements
+manufacturing,whereprocessengineershavetoidentifytime      st = ∥at −at−1∥2 which is just the absolute difference if at
+periods within a larger curve datasets where the process has    and at−1 are scalars. If at is a scalar, we also can compute
+drifted. Thus, all models consume as input a process curve    the rolling standard deviation, again over a window of size
+
+                                  123
+--- Page 8 ---
+1186                                                                                     Journal of Intelligent Manufacturing (2026) 37:1179–1195
+
+
+
+
+
+Fig. 7 The TPR, sOLS, and OLS when the FPR varies for the synthetic prediction on the left
+
+
+
+
+                                                          about the underlying distribution, and works on multidimen-
+                                                                sional data. We use this method in the same way using two
+                                                  windows as described in the KS-test. We also evaluate algo-
+                                                            rithms that derive their score based on a similarity search
+                                                            within {a1, . . . , at}. Here, we use clustering algorithms, like
+                                                               the popular k-means algorithm, and use the euclidean dis-
+Fig. 8 A high-level overview of the elementary tasks of the detectors    tance to the computed cluster center of at as st. Another way
+used                                                                        is to ﬁt a probability density function on st, like a mixture of
+                                                        Gaussian distributions, and to set st as the log likelihood of
+                                                                        at within this model.m, like this:
+
+
+                                    t                                      t          2          Algorithm overview
+        1                 1
+st =                 a j −                ai       .
+    m −1           m
+             j=t−m+1          i=t−m+1                Here is a short summary of the algorithms used in our bench-
+                                                  mark study:
+  Another approach follows a probabilistic path by testing if
+a set of subsequent datapoints {at−m+1, . . . , at} come from
+the same distribution as a given reference set. In our study,    • RollingMeanDifference(mr):  First, the rolling
+we use a windowed version (Raab et al., 2020) of the popular      mean over a window of size mr  is computed over all
+Kolmogorov-Smirnov test (Simard & L’Ecuyer, 2011), often        values for the respective curves in the window. After-
+called KSWIN, which makes no assumption of the underly-       wards, the maximum value for each curve is taken and
+ing data distribution. However, this can only be applied when        the absolute difference between two consecutive maxi-
+at is a scalar. More particularly, we deﬁne two window sizes,     mum values is computed.
+mr for the reference data and mo for the observation. The    • RollingMeanStandardDeviation(mr):First,the
+windows are offset by constant δ > 0. We then invoke the        rolling mean over a window of size mr is computed over
+KS-testandreceivea p-value pt,whichissmallifthedatasets          all values for the respective curves in the window. We
+come from different distributions. Thus, one way to derive a        also choose the maximum value of these computed val-
+ﬁnal score is to compute st = log(1 +  pt1 ). Another proba-       ues per curve. Then, we compute the standard deviation
+bilistic method we use in our study based on a multivariate       using the same window for this one-dimensional input.
+statistical test is the Maximum Mean Discrepancy (MMD)    • SlidingKSWIN(mr, mo, δ): We compute the mean
+(Gretton et al., 2012). This method uses feature mappings       value for each curve and apply a sliding KS-test on this
+based on kernels, and calculates the distance between the       aggregated data. We use two windows of size mr and mo
+means in these mappings. MMD also makes no assumption       where the windows are offset by δ.
+
+
+
+123
+--- Page 9 ---
+Journal of Intelligent Manufacturing (2026) 37:1179–1195                                                                        1187
+
+
+
+
+
+Fig. 9 The datasets used in our benchmark study. The true drift segments are marked in green. Lower ﬁgures show selected curves, whose color
+encodes the process iteration t ∈[T ] - blue marks smaller t values, red larger ones. Recall that dataset-k has k many drift segments (Color
+ﬁgure online)
+
+
+
+
+
+Fig. 10 Benchmark results on dataset-1, dataset-2, and dataset-3
+
+
+ • Cluster(nc): A cluster algorithm performed on the raw
+   curves using nc clusters where score is distance to the
+    closest cluster center.                               Datasets
+ • AE(k)-mean-KS(mr, mo, δ): First, an autoencoder is
+    applied extracting computing k many latent dimensions.   We benchmark the algorithms listed in 5.1 on three dif-
+   Afterwards, the mean across all k latent dimensions is    ferent datasets (see Fig.9) created with our framework
+   computed. Finally, a sliding KS-test is applied with two   driftbench, all designed to comprise different inherent
+   windows of sizes mr and mo, where the windows are    challenges.
+    offset by δ.                                        The datasets dataset-2 and dataset-3 have been
+ • AE(k)-MMD(mr, mo, δ): First, an autoencoder is applied    inspired by the force signals of staking processes (see
+    extracting computing k many latent dimensions. After-    also Göbler et al.,2024, A.1) where we used  f (w, x) =
+   wards, a k-dimensional sliding MMD-test is applied with       i=07  wi ·xi as function to generate them. The dataset-2
+   two windows of sizes mr and mo, where the windows are    consists of T = 10.000 curves, each called on |I| = 100
+    offset by δ.                                                 equidistant values between [0, 4], i.e., x = 0 and  x = 0.04.
+
+                                  123
+--- Page 10 ---
+1188                                                                                     Journal of Intelligent Manufacturing (2026) 37:1179–1195
+
+
+
+
+
+Fig. 11  Correlation between TAUC and AUC for different number of true drift segments k
+
+
+On the other hand, dataset-3 consists of T = 30.000      Although some cluster-based systems archive good AUC
+curves each having |I| = 400 values between [0, 4]. Both    scores on dataset dataset-3, none of the benchmarked
+datasets have drifts that concern a movement of the global    algorithms is capable to compute a score that can be used
+maximum together with drifts where only information of    to recover the true drift segments, resulting in small TAUC
+ﬁrst order changes over time. In the generation process of    scoresforallalgorithms(seealsoFig.14).Therespectivepre-
+dataset-1, we used  f (w, x) = w0 · x · sin(π · x −w1) +    dictions over the temporal dimension of the best detectors are
+w2 · x and generated T = 10.000 many curves, each having   shown in Appendix A in more detail, where it also becomes
+|I| = 100 datapoints. It only holds a single drift, where the    visible that detectors with higher TAUC better recover the
+global minimum at drifts consistently over a small period of    true drift segments.
+time along the x-axis. In all datasets, the relative number of
+curves belonging to a drift is very small: roughly 1 percent
+in dataset-1, 2 percent in dataset-2, and 0.1 percent   Conclusion
+in dataset-3. Particularly, dataset-k has k many drift
+segments. To generate a drift segment [t0, t1] for a given    This work shows how algorithms designed to detect process
+support point where the value should change linearly from     drifts can be benchmarked in robust and reliable way. We
+a to b (see also Sect.Data generation with polynomials), we    have introduced a scalable and controllable data generation
+sampled from normal distributions Nμ(t),σ with ﬁxed σ and   method that creates process curves datasets with drifts and a
+mean                                                      veriﬁed ground truth. In our approach, process curve datasets
+    ⎧                                               can be solely generated by modelling the behavior of support
+        ⎪⎨a,                  if t < t0                              points over the temporal axis and using non-linear optimiza-
+μ(t) =  b ·                t−t0 + a,   if t0 ≤t ≤t1 .                          tion. We then introduce and study the novel TAUC score                t1−t0        ⎪⎩                                            which is particularly designed to evaluate the performance         b,                  if t1 < t
+                                                              of drift detectors on their temporal consistency over sequen-
+                                                                                tial process executions. We proved the effectiveness of our
+Results
+                                                        approach in a small benchmark study. Our results reveal that
+                                                                 existing algorithms often struggle with datasets containing
+The result of our benchmark study is shown in Fig.10.
+                                                             multiple drift segments, underscoring the need for further
+Generally, there is a discrepancy in detectors of the high-
+                                                                research.
+est AUC and the highest TAUC. More concrete, the larger
+the number of true  drift segments in a dataset  is, the
+larger the discrepancy (see also Fig.11). For instance, the
+                                          AppendixA:Predictionsofdetectorsofbench-
+RandomGuessDetector reached the highest AUC score
+                                     mark study
+on dataset-1, where  it ranges on  all three datasets
+among the last ranks in the TAUC score. On all datasets,
+                                                            Figures 12, 13, and 14 show the prediction s ∈RT of the
+autoencoder-based systems reach among the best detectors
+                                                                detectors reaching highest TAUC and AUC scores on the
+for both, TAUC and AUC. Those using a multivariate test
+                                                                individual datasets are shown respectively.
+in their latent space reach better scores than these using an
+aggregation of multiple uni-variate tests.
+
+
+
+
+123
+--- Page 11 ---
+Journal of Intelligent Manufacturing (2026) 37:1179–1195                                                                        1189
+
+
+
+
+
+Fig. 12  Best detectors on dataset-1
+
+
+
+
+
+Fig. 13  Best detectors on dataset-2
+
+
+
+
+
+Fig. 14  Best detectors on dataset-3
+
+
+
+
+
+                                  123
+--- Page 12 ---
+1190                                                                                     Journal of Intelligent Manufacturing (2026) 37:1179–1195
+
+
+
+
+
+Fig. 15  Visualization of some process curves in the example dataset.     curvature at the corresponding x-value, encoded by the condition for
+The red dots indicate support points with ﬁrst order information given.     the second derivative. From t = 1000 to t = 1300, the x-value of the
+The green line visualizes the slope at the green dot, encoded by the   maximum moves from 2 to 3 (Color ﬁgure online)
+condition for the ﬁrst derivative. The purple dashed line indicates the
+
+
+
+
+
+Fig. 16  Visualization of the drift applied on x01 in this example, with     cutions t = 1000 until t = 1300 linearly from 2 to 3, the others remain
+respective curves. The left ﬁgure shows how the x0i values change over    unchanged. The middle ﬁgure shows the respective curves, color-coded
+time. Only x01 changes, as by our drift deﬁnition from the process exe-     to the dots in the left ﬁgure
+
+
+
+
+
+Fig. 17  Prediction of a detector that lags behind the ground truth (left) and its curves underneath the TAUC and AUC (right)
+
+
+Appendix B: Data generation with polynomi-                  5
+als                                                                                        f (w, x) =    wi · xi
+                                                                        i=0
+In this section, we demonstrate the data generation method
+introduced in Sect.Data generation along an example involv-    with w ∈R6. We simulate 2000 process executions and
+ing a polynomial  f  : R6 × R →R of degree ﬁve, i.e.          thus sample 2000 process curves. The shape of each curve
+                                                                             is deﬁned by its support points. We are only interested in its
+
+123
+--- Page 13 ---
+Journal of Intelligent Manufacturing (2026) 37:1179–1195                                                                        1191
+
+
+
+
+
+Fig. 18  Prediction of a detector that shows high scores at the boundary of the true drift segment only (left) and its curves underneath the TAUC
+and AUC (right)
+
+
+
+                                                        Then, we let the data drift at some particular features. We
+                                                            simulate a scenario, where the peak at x01 and x10 moves from
+                                                               the x-position 2 to 3 during the process executions t = 1000
+                                                                      until t = 1300. Thus, we let x01 and x10 drift from 2 to 3,
+                                                                  resulting in a change of position of the peak. We let the cor-
+                                                          responding y-values y01 = 7 and y10 = 0 unchanged. Now,
+                                            we can solve each of the 2000 optimization problems, which
+                                                                     results in 2000 sets of coefﬁcients for each process curve,
+                                                        such that the conditions are satisﬁed. By evaluating  f with
+                                                               the retrieved coefﬁcients in our region of interest [0, 4], we
+Fig. 19  Situation with single predicted segment (red dashed) and single    get 2000 synthesized process curves with a drift present at
+true segment (green area) (Color ﬁgure online)                      our deﬁned drift segment from t = 1000 until t = 1300
+                                                                (Fig.16).
+
+curvature in I = [0, 4]. First, we want to add a condition onto
+the start and end of the interval, namely that  f (w, 0) = 4
+                                       Appendix C: TAUC vs AUCand  f (w, 4) = 5. Moreover, we would like to have a global
+maximum at x = 2, which means the ﬁrst order derivative
+                                                             In this section we explore in depth the similarities and dif-
+                                                              ferences of the TAUC introduced in Sect.The temporal area
+                4
+∂1x f (w, 2) =       i · wi · 2i−1                              under the curve and the established AUC. This is done along
+                                                                synthetic predictions.
+             i=1
+
+                                             Lagged predictionshould be zero and its second order derivate
+
+                3                                     The ﬁrst example we look at is a typical scenario that appears
+∂2x f (w, 2) =       i · (i −1) · wi · 2i−2                                  if window-based approaches are used, namely that the pre-
+             i=1                                               diction lags a bit behind of the true window, but still the
+                                                                detector overlaps a signiﬁcant proportion of the drift seg-
+should be smaller than zero. Here, we want it to be −1.   ment (see Fig.17). Other than the TPR, the sOLS rewards
+Finally, we want to the curve to be concave at around x = −1.    these predictors and thus the sTAUC shows a larger value
+All in all, these conditions result into the following equations,    than the AUC.
+some of them are visualized in Fig.15:
+                                            Change point detection
+∂0x f (w, 2) = 7    ∂1x f (w, 2) = 0    ∂2x f (w, 2) = −1
+                                                       Another typical scenario is that a detector shows signiﬁcantly
+∂0x f (w, 0) = 4    ∂0x f (w, 4) = 5    ∂2x f (w, 1) = −1         large values at the start and end of the true drift segment, but
+
+                                  123
+--- Page 14 ---
+1192                                                                                     Journal of Intelligent Manufacturing (2026) 37:1179–1195
+
+
+
+
+
+Fig. 20  Behavior of sTAUC, TAUC, and AUC when length and position of predicted segment varies
+
+
+
+
+
+Fig. 21  Visualization of a concrete curve used to calculate the TAUC with its TAUC-score. Left ﬁgure shows the constructed curve when using the
+step rule, while the right ﬁgure shows the curve when calculating the TAUC using the trapezoidal integration rule
+
+
+
+
+
+Fig. 22  Visualization of the behaviour of the constructed curve for the     right ﬁgure shows that the area under the line decreases with increasing
+TAUC on increasing number of segments k. The left ﬁgure shows that     k, resulting in a lower TAUC value in case of the trapezoidal integration
+the TAUC for the computation with the step rule always remains 0. The     rule
+
+
+
+
+sag in between (see Fig.18). This could appear when using    segment, although showing lower scores while the curves
+methods based on detecting change points. In principal, the     drift. Such predictions also score higher values in the sTAUC
+detector correctly identiﬁes the temporal context of the drift    than the AUC.
+
+
+123
+--- Page 15 ---
+Journal of Intelligent Manufacturing (2026) 37:1179–1195                                                                        1193
+
+
+Varying length and position of predicted segments
+
+
+A situation where the sTAUC coincides with the AUC mostly
+is in when only one true and predicted drift segment exist (see
+Fig.19). In cases where the center of the predicted segment
+coincides with the center of the true segment, the AUC and
+sTAUCmatchalmostexactlywhenthelengthofthepredicted
+segment is varied (see left graphic in Fig.20). If the predicted
+segment has ﬁxed length that equals the length of the true
+segment and the position of its center is varied from 50 to
+350, AUC and sTAUC coincide mostly, but the sTAUC shows
+a faster rise when the predicted segment overlaps with the
+true segment due to the effects explained in Sect.Lagged
+prediction.
+                                                                                  Fig. 23  Visualization of the TAUC with the trapezoidal integration
+                                                                                    rule, when increasing k, alongside an approximation 2k1 . The TAUC
+                                                                           gets closer to 0 with increasing k
+Appendix D: TAUC for trivial detector
+
+
+To get a better understanding of the TAUC, we showcase    not have an area under it. Hence, the TAUC for this trivial
+the behavior on trivial detectors based on the structure of    detection is 0 in both cases.
+the ground truth. Suppose two pair of points (FPRi, OLSi)       In order to investigate how the TAUC behaves with an
+and (FPRi+1, OLSi+1) of the constructed curve. Then the    increasing number of segments k in y, we simulate such
+two methods for computing the TAUC are the following (see    inputs with a trivial detection and compute the resulting val-
+also Fig. 21):                                              ues for the TAUC. We choose an input length of n = 1000.
+                                           When using the step rule, the TAUC is always 0 as expected,
+ • Trapezoidal rule:                                         since the only step always retains its area under the curve
+    Construct the curve by linearly interpolating OLSi and    of 0. But when looking at the obtained TAUC values when
+   OLSi+1 in between FPRi and FPRi+1 and then calculate    using the trapezoidal integration rule, we can clearly see the
+    the area under the curve by using the trapezoidal integra-   TAUC decreasing when k increases.
+    tion rule.                                                 This decreasing behaviour can be approximated by 2k1 ,
+ • Step rule:                                                since the TAUC for a trivial detection with k segments in
+    Construct the curve by ﬁlling the values in between FPRi    case of the trapezoidal rule can be computed with 2kP and
+   and FPRi+1 with a constant value of OLSi and then cal-   0 < P ≤1. Thus, the limit of the TAUC computed with the
+    culate the area under the curve by using the step rule.       trapezoidal integration rule with increasing k follows as (see
+                                                                also Fig. 23):
+For example, take the trivial detector that always predicts
+a drift, called AlwaysGuesser. Then we receive the two       P
+                  P                                      lim   = 0
+points (0, 0) and (1, k ) as the only two points of the curve,   k→∞ 2k
+where P denotes the portion of drifts in y and k denotes the
+number of drift segments in y (see Fig. 22). In case of the
+                                                            Acknowledgements This work is supported by the Hightech Agenda
+step function, the computed score will always be 0, since the
+                                                                         Bavaria. The authors are grateful to Matthias Burkhardt, Fabian Hueber,
+constructed curve only contains one step from [0, 1) with a    Kai Müller, and Ulrich Göhner for helpful discussions. We also thank
+OLS-value of 0, and only reaches a OLS-value of Pk when     the anonymous referees for helpful comments and suggestions.
+reaching a FPR of 1 on the x-axis. Hence,the area under this
+                                                               Funding Open Access funding enabled and organized by Projekt
+constructed curve is always 0. When using the trapezoidal
+                                                    DEAL.
+rule, we linearly interpolate the two obtained trivial points
+of the curve, thus constructing a line from (0, 0) to (1, KP ).    Data availability The generated data and implemented algorithms are
+The TAUC is then given by the area under this line, which is    implemented in a python package driftbench which is freely avail-
+        P                                                             able under https://github.com/edgarWolf/driftbench.
+equal to     . Now suppose a detector which never indicates a          2k
+drift, called NeverGuesser. Then we receive (0, 0) as our
+                                                      Declarations
+only point, which does not construct a curve and thus does
+
+                                                                    Conﬂict of interest The authors provide no conﬂict of interest associ-
+                                                                        ated with the content of this article.
+
+                                  123
+--- Page 16 ---
+1194                                                                                     Journal of Intelligent Manufacturing (2026) 37:1179–1195
+
+
+Open Access This article  is licensed under a Creative Commons     Hornik, K., Stinchcombe, M., & White, H. (1989). Multilayer feed-
+Attribution 4.0 International License, which permits use, sharing, adap-         forward networks are universal approximators. Neural Networks,
+tation, distribution and reproduction in any medium or format, as           2(5), 359–366. https://doi.org/10.1016/0893-6080(89)90020-8
+long as you give appropriate credit to the original author(s) and the     Hyvarinen, A., Sasaki, H., & Turner, R. (2019). Nonlinear ICA using
+source, provide a link to the Creative Commons licence, and indi-          auxiliary variables and generalized contrastive learning. In K.
+cate if changes were made. The images or other third party material         Chaudhuri & M. Sugiyama (Eds.), Proceedings of the twenty-
+in this article are included in the article’s Creative Commons licence,         second international conference on artiﬁcial intelligence and
+unless indicated otherwise in a credit line to the material. If material            statistics. Proceedings of machine learning research, PMLR, 16–
+is not included in the article’s Creative Commons licence and your        18 Apr 2019 (Vol. 89, pp. 859–868). https://proceedings.mlr.press/
+intended use is not permitted by statutory regulation or exceeds the         v89/hyvarinen19a.html
+permitteduse,youwillneedtoobtainpermissiondirectlyfromthecopy-    Khemakhem, I., Kingma, D., Monti, R., & Hyvarinen, A. (2020). Varia-
+right holder. To view a copy of this licence, visit http://creativecomm           tional autoencoders and nonlinear ICA: A unifying framework. In
+ons.org/licenses/by/4.0/.                                                  Proceedings of the twenty third international conference on arti-
+                                                                                ﬁcial intelligence and statistics, PMLR (pp. 2207–2217). https://
+                                                                        proceedings.mlr.press/v108/khemakhem20a.html
+                                                           Kim, Y., Lee, H., & Kim, C. O. (2023). A variational autoencoder for
+                                                                        a semiconductor fault detection model robust to process drift due
+                                                                                   to incomplete maintenance. Journal of Intelligent Manufacturing,
+References                                                               34(2), 529–540. https://doi.org/10.1007/s10845-021-01810-2
+                                                             Kingma, D. P., & Welling, M. (2014). Auto-encoding variational bayes.
+Agogino, A., & Goebel, K. (2007). Milling data set, BEST Lab,          In 2nd international conference on learning representations, ICLR
+   UC Berkeley, NASA Prognostics Data Repository, NASA Ames         2014, Banff, AB, Canada, April 14–16, conference track proceed-
+    Research Center. https://data.nasa.gov/Raw-Data/Milling-Wear/           ings. https://doi.org/10.48550/arXiv.1312.6114
+     vjv9-9f3x/about_data                                            Lee, J., Lee, Y. C., & Kim, J. T. (2021). Migration from the traditional
+Al Assadi, A., Holtz, D., Nägele, F., Nitsche, C., Kraus, W., & Huber,          to the smart factory in the die-casting industry: Novel process data
+    M. F. (2022). Machine learning based screw drive state detection          acquisition and fault detection based on artiﬁcial neural network.
+     for unfastening screw connections. Journal of Manufacturing Sys-         Journal of Materials Processing Technology, 290, 116972. https://
+     tems, 65, 19–32. https://doi.org/10.1016/j.jmsy.2022.07.013              doi.org/10.1016/j.jmatprotec.2020.116972
+Bergmann, P., Batzner, K., Fauser, M., Sattlegger, D., & Steger, C.     Liu, Z., Wang, Y., Vaidya, S., Ruehle, F., Halverson, J., Soljacic, M.,
+     (2021). The MVTec anomaly detection dataset: A comprehensive        Hou, T. Y., & Tegmark, M. (2025). KAN: Kolmogorov–Arnold
+     real-world dataset for unsupervised anomaly detection. Interna-         networks. In The thirteenth international conference on learning
+     tional Journal of Computer Vision, 129(4), 1038–1059. https://          representations
+    doi.org/10.1007/s11263-020-01400-4                              Lukats, D., Zielinski, O., Hahn, A., & Stahl, F. (2024). A benchmark and
+Bradbury, J., Frostig, R., Hawkins, P., Johnson, M. J., Leary, C., Maclau-         survey of fully unsupervised concept drift detectors on real-world
+      rin, D., Necula, G., Paszke, A., VanderPlas, J., Wanderman-Milne,          data streams. International Journal of Data Science and Analytics.
+      S., & Zhang, Q. (2018). JAX: Composable transformations of         https://doi.org/10.1007/s41060-024-00620-y
+    Python+NumPy programs. http://github.com/jax-ml/jax            Mauthe, F., Braun, C., Raible, J., Zeiler, P., & Huber, M. F. (2024).
+Brogan, W. (1991). Modern control theory. Prentice-Hall Inc.               Overview of publicly available degradation data sets for tasks
+Ditzler, G., & Polikar, R. (2011). Hellinger distance based drift detec-         within prognostics and health management. https://doi.org/10.
+     tion for nonstationary environments. In 2011 IEEE symposium         48550/arXiv.2403.13694
+    on computational intelligence in dynamic and uncertain envi-    Mayr, A., Kißkalt, D., Meiners, M., Lutz, B., Schäfer, F., Seidel, R., Sel-
+    ronments (CIDUE) (pp. 41–48). https://doi.org/10.1109/CIDUE.          maier, A., Fuchs, J., Metzner, M., Blank, A., & Franke, J. (2019).
+    2011.5948491                                                 Machine learning in production—potentials, challenges and exem-
+Duan, Y., Chen, X., Houthooft, R., Schulman, J., & Abbeel, P. (2016).          plary applications. In Procedia CIRP 2019. 7th CIRP Global Web
+    Benchmarking deep reinforcement learning for continuous con-        Conference—Towards shifted production value stream patterns
+      trol. In M. F. Balcan & K. Q. Weinberger (Eds.), Proceedings of the         through inference of data, models, and technology (CIRPe 2019)
+    33rd international conference on machine learning. Proceedings          (Vol. 86, pp. 49–54). https://doi.org/10.1016/j.procir.2020.01.035
+     of Machine Learning Research (PMLR), 20–22 Jun 2016 (Vol. 48,     Meiners, M., Kuhn, M., & Franke, J. (2021). Manufacturing process
+     pp. 1329–1338). https://proceedings.mlr.press/v48/duan16.html          curve monitoring with deep learning. Manufacturing Letters, 30,
+Fletcher, R. (1987). Practical methods of optimization (2nd ed.). Wiley.         15–18. https://doi.org/10.1016/j.mfglet.2021.09.006
+Göbler, K., Windisch, T., Pychynski, T., Drton, M., Sonntag, S., & Roth,     Meiners, M., Mayr, A., & Franke, J. (2021). Process curve analysis with
+    M. (2024). causal Assembly: Generating realistic production data        machine learning on the example of screw fastening and press-in
+     for benchmarking causal discovery. In F. Locatello & V. Didelez          processes. Procedia CIRP, 97, 166–171. https://doi.org/10.1016/
+     (Eds.), 3rd conference on causal learning and reasoning. Proceed-          j.procir.2020.05.220
+     ings of machine learning research (Vol. 236, pp. 609–642). https://    Nunes, Y., & Guedes, L. A. (2024). Concept drift detection based on
+     proceedings.mlr.press/v236/gobler24a.html                                  typicality and eccentricity. IEEE Access, 12, 13795–13808. https://
+Gretton, A., Borgwardt, K. M., Rasch, M. J., Schölkopf, B., & Smola,         doi.org/10.1109/ACCESS.2024.3355959
+    A. (2012). A kernel two-sample test. Journal of Machine Learning     Paynabar, K., & Jin, J. J. (2011). Characterization of non-linear proﬁles
+     Research, 13(25), 723–773.                                                 variations using mixed-effect models and wavelets. IIE Trans-
+Hanley, J. A., & McNeil, B. J. (1982). The meaning and use of the area          actions, 43(4), 275–290. https://doi.org/10.1080/0740817X.2010.
+    under a receiver operating characteristic (ROC) curve. Radiology,        521807
+     143(1), 29–36. https://doi.org/10.1148/radiology.143.1.7063747     Raab, C., Heusinger, M., & Schleif, F.-M. (2020). Reactive soft proto-
+Hesser,D.F.,&Markert,B.(2019).Toolwearmonitoringofaretroﬁtted         type computing for concept drift streams. Neurocomputing, 416,
+   CNC milling machine using artiﬁcial neural networks. Manufac-         340–351. https://doi.org/10.1016/j.neucom.2019.11.111
+     turing Letters, 19, 1–4. https://doi.org/10.1016/j.mfglet.2018.11.    Rasmussen, C. E. (2004). Gaussian processes in machine learning (pp.
+    001                                                                 63–71). Berlin: Springer.
+
+123
+--- Page 17 ---
+Journal of Intelligent Manufacturing (2026) 37:1179–1195                                                                        1195
+
+
+Rumelhart, D. E., Hinton, G. E., & Williams, R. J. (1986). Learning    Yong, B. X., Fathy, Y., Brintrup, A. (2020). Bayesian autoencoders
+     internal representations by error propagation. In Parallel dis-          for  drift detection in industrial environments. In 2020 IEEE
+     tributed processing, volume 1: Explorations in the microstructure          international workshop on metrology for industry 4.0 and IoT
+     of cognition: Foundations. MIT Press                                      (pp.  627–631).  https://doi.org/10.1109/MetroInd4.0IoT48571.
+Simard,  R., &  L’Ecuyer,  P.  (2011). Computing  the  two-sided        2020.9138306
+    Kolmogorov-Smirnov distribution. Journal of Statistical Software,    Yue, X., Yan, H., Park, J. G., Liang, Z., & Shi, J. (2018). A wavelet-based
+     39(11), 1–18. https://doi.org/10.18637/jss.v039.i11                      penalized mixed-effects decomposition for multichannel proﬁle
+Tnani, M.-A., Feil, & M., Diepold, K. (2022). Smart data collection          detection of in-line Raman spectroscopy. IEEE Transactions on
+    system for brownﬁeld CNC milling machines: A new bench-         Automation Science and Engineering, 15(3), 1258–1271. https://
+    mark dataset for data-driven machine monitoring. In Procedia         doi.org/10.1109/TASE.2017.2772218
+    CIRP 2022. Leading manufacturing systems transformation—    Zhong, R. Y., Xu, X., Klotz, E., & Newman, S. T. (2017). Intelligent
+    Proceedings of the 55th CIRP conference on manufacturing         manufacturing in the context of industry 4.0: A review. Engineer-
+     systems 2022 (Vol. 107, pp. 131–136). https://doi.org/10.1016/j.           ing, 3(5), 616–630. https://doi.org/10.1016/J.ENG.2017.05.015
+     procir.2022.04.022
+Wolf, E. (2024). Anomalieerkennung in hoch-dimensionalen Sensor-
+                                                                           Publisher’s Note Springer Nature remains neutral with regard to juris-
+     daten, Master’s thesis. University of Applied Sciences, Kempten.
+                                                                             dictional claims in published maps and institutional afﬁliations.
+     https://doi.org/10.60785/opus-2338
+Yadav, P., Singh, V. K., Joffre, T., Rigo, O., Arvieu, C., Le Guen, E.,
+   & Lacoste, E. (2020). Inline drift detection using monitoring sys-
+    tems and machine learning in selective laser melting. Advanced
+    Engineering Materials, 22(12), 2000660. https://doi.org/10.1002/
+    adem.202000660
+
+
+
+
+
+                                  123

@@ -1,0 +1,742 @@
+Title: SDDObench A Benchmark for Streaming Data-Driven
+
+--- Page 1 ---
+    SDDObench: A Benchmark for Streaming Data-Driven
+              Optimization with Concept Drift
+
+                 Yuan-Ting Zhong, Xin-Can Wang, Yu-Hong Sun, Yue-Jiao Gong*
+                                     South China University of Technology
+                                            Guangzhou, China
+                                 *Corresponding-Author:gongyuejiao@gmail.com
+
+ABSTRACT                                                       of data for optimization [5, 7–9]. Such problems are known as
+In recent years, the data-driven optimization area has seen a shift      data-driven optimization (DDO) [20].
+in the research focus from static batched data environment to dy-       The advancement of Internet technology has led to an increas-
+namic streaming data environment. However, this field is hindered      ing number of applications that continuously produce data over
+by the lack of a comprehensive and standardized test suite. To fill       time, commonly known as data streams [1]. In most cases, the data
+this gap, we introduce SDDObench, the first benchmark tailored for       distribution of a data stream is non-stationary due to changes in
+evaluating and comparing the streaming data-driven evolutionary      the environment. This leads to the occurrence of what is commonly
+algorithms (SDDEAs). SDDObench comprises two sets of objective       referred to as concept drift [1, 22]. In light of DDO, the concept drift
+functions combined with five different types of concept drifts, which     means that the statistical properties of the objective values change
+offer the benefit of being inclusive in generating data streams that      over time in unforeseen ways. This requires specialized techniques
+mimic various real-world situations, while also facilitating straight-      to handle, which can lead to the development of a new research
+forward description and analysis. As a proof-of-concept study, four       direction called streaming data-driven optimization (SDDO).
+well-known algorithms are selected to tackle the problems gener-       Given the dynamic nature of the objective evaluation, SDDO
+ated by SDDObench. The experiment results and analysis reveal       exhibits similarity to the field of dynamic optimization (DyO) [24,
+ongoing challenges in attaining good performance for streaming       25]. It represents the intersection of DDO and DyO. However, in
+data-driven optimization. Our SDDObench is open-source and ac-      contrast to the previous two, the challenges presented by data-
+cessible at: https://github.com/LabGong/SDDObench.                  driven fashion with concept drift nature in SDDO are considerably
+                                                        more demanding:
+CCS CONCEPTS
+                                                                             1) It not only needs to find the optimum in the current environment,
+• Theory of computation →Evolutionary algorithms; • Infor-                                                                      but also tracks it continuously as the environment changes while
+mation systems →Data streams; • Computing methodologies                                                                        the previous one becomes less effective. Moreover, the SDDO em-
+→Machine learning.                                                                         phasizes that acquiring fresh data can be either passive or require
+                                                                    a significant amount of time. Passive acquisition means that the
+KEYWORDS                                                      algorithm is unable to actively sample new solution-fitness pairs
+data streams, data-driven evolutionary algorithms, benchmarks            at specified positions. On the other hand, time-consuming ac-
+                                                                               quisition refers to the inefficient and time-consuming process of
+ACM Reference Format:
+                                                                   attempting to solve a problem in a new environment withoutYuan-Ting Zhong, Xin-Can Wang, Yu-Hong Sun, Yue-Jiao Gong*. 2024.
+SDDObench: A Benchmark for Streaming Data-Driven Optimization with         reusing previous information.
+Concept Drift. In Genetic and Evolutionary Computation Conference (GECCO       2) Various types of concept drifts occur naturally, which can be
+’24), July 14–18, 2024, Melbourne, VIC, Australia. ACM, New York, NY, USA,          classified as sudden, gradual, or recurring based on the speed and
+9 pages. https://doi.org/10.1145/3638529.3654063                                 intensity of the changes [1]. The detection of concept drifts poses
+                                                                     a significant challenge for SDDO due to the inherent constraints
+1  INTRODUCTION                                             associated with employing approximate surrogate models as
+                                                                            substitutes for actual environments. As a result, if the concept
+There are many real-world optimization problems that are complex
+                                                                                     drifts are not detected effectively, the algorithm’s effectiveness
+and require a significant cost to evaluate the objective function.
+                                                                                             is reduced when faced with new environments.
+Moreover, a considerable portion of problems work with an objec-
+                                                                             3) As the optimization progress continues, more and more data is
+tive function that is agnostic, depending only on a limited amount
+                                                                      accumulated. It is important to study how to effectively manage
+                                                               and utilize both old and new data. On one hand, using too much
+Permission to make digital or hard copies of all or part of this work for personal or
+classroom use is granted without fee provided that copies are not made or distributed         old data can hinder the accuracy and efficiency of learning surro-
+for profit or commercial advantage and that copies bear this notice and the full citation         gate models for the current environment. On the other hand, not
+on the first page. Copyrights for components of this work owned by others than the         using enough old data can worsen the problem of data sparsity
+author(s) must be honored. Abstracting with credit is permitted. To copy otherwise, or
+republish, to post on servers or to redistribute to lists, requires prior specific permission          in SDDO.
+and/or a fee. Request permissions from permissions@acm.org.
+GECCO ’24, July 14–18, 2024, Melbourne, VIC, Australia                             Evolutionary Algorithms (EAs) have demonstrated their effec-
+© 2024 Copyright held by the owner/author(s). Publication rights licensed to ACM.
+ACM ISBN 979-8-4007-0494-9/24/07...$15.00                                     tiveness in DDO by leveraging data to construct surrogate(s) that
+https://doi.org/10.1145/3638529.3654063                                      subsequently assist the algorithms in optimization, alleviating the
+
+
+
+
+
+                                                        59
+--- Page 2 ---
+GECCO ’24, July 14–18, 2024, Melbourne, VIC, Australia                                                Yuan-Ting Zhong, Xin-Can Wang, Yu-Hong Sun, Yue-Jiao Gong*
+
+
+need for real objective functions evaluations (FEs) [10]. This cat-
+egory of algorithms is referred to as Data-Driven EAs (DDEAs).
+While numerous DDEAs have emerged, their focus primarily lies
+within static DDO. So far, only a few attempts have been made to
+address the SDDO with dynamic environments or concept drifts [14,                                 Incremenatl
+17, 23]. In this study, we refer to them as streaming data-driven EAs
+(SDDEAs). Nevertheless, these SDDEAs have been evaluated using                                                 (a) DDEAs
+different benchmarks. This absence of standardization in selecting
+SDDO benchmark problems hinders a cohesive comparison and
+                                                                                               Time
+analysis of algorithms in the area.
+   For a comprehensive and accurate evaluation of SDDEAs, it is
+                                                                                                                                                                                 Incremenatl
+crucial to have a suitable and standardized SDDO benchmark. These
+benchmark problems should possess specific qualities: they should
+be easily describable and analyzable, with adjustable parameters                                                                 IncremenatlIncremenatl
+to accommodate various scenarios. The benchmark should strike a
+balance between simplicity for mathematical analysis and complex-
+ity to resemble real-world situations. In response to these needs,                                                                 Incremenatl
+we introduce our SDDObench, a benchmark for SDDO, facilitating
+researchers to assess SDDEAs conveniently. Specifically, the major                                              (b) SDDEAs
+contributions of this paper are summarized as follows:
+                                                               Figure 1: The framework of generic DDEAs and SDDEAs    • We introduce SDDObench, a test suite that consists of two
+       sets of objective functions in combination with five different
+      types of concept drifts: no drift, sudden drift, recurrent sudden
+        drift, recurrent incremental drift, and recurrent incremental                                                                         that only off-the-shelf data of the related tasks/applications can be
+        drift with noise. By doing so, we are able to generate data                                                              used during the optimization procedure. While active acquisition
+      streams for experimentation. SDDObench is capable of sim-                                                       empowers EOP to send decision vectors (𝒙) to actively query ob-
+       ulating various intricate real-world scenarios, making it a                                                                             jective value (𝑦). Typically, only a small fixed number or a certain
+      comprehensive tool. The known global optima also make it                                                                  percentage of decision vectors are sent, constrained by the cost of
+      convenient for researchers to analyze their algorithms.                                                                         FEs. These new sampled data points, referred to as incremental data
+    • Besides introducing a standardized testbed for SDDEAs, our                                                            added to the dataset, contribute valuable landscape information
+      approach to formulating the problem instances is highly cus-                                                           and aid in constructing more accurate surrogates [27].
+       tomizable. Users have the ability to define parameters that                                                          The conceptual framework of SDDEAs is visually presented in
+      govern the fitness landscape, the intensity of the drift, and                                                                   Figure 1b. SDDEAs can be regarded as an expanded version of
+      other factors. These parameters give researchers the abil-                                                DDEAs specifically designed for dynamic environments. In the
+        ity to have flexible control of the experimentation, enabling                                                                      current environment, much like DDEAs, SDDEAs also follow three
+     them to conduct thorough exploration and comparative anal-                                                             primary stages in the optimization procedure. However, it is nec-
+       ysis of their algorithms.                                                                   essary to regularly update the surrogates and other components
+    • As an initial investigation, we evaluated four DDEA/SDDEA                                                                        in order to adjust to the evolving optimization environments. Un-
+      algorithms by the SDDObench developed. The outcomes                                                                  der the nature of data stream with concept drift, SDDEAs face
+       of the benchmarking tests not only demonstrate that our                                                       more challenging issues than DDEAs during optimization. First,
+     SDDObench provides a good discrimination capability, but                                                                    the dataset gradually expands over time due to the continuous ar-
+       also reveal ongoing challenges in achieving state-of-the-art                                                                              rival of new data. SDDEAs must exercise selectivity in utilizing
+      performance with existing DDEA/SDDEA algorithms. The                                                                           data. Second, it is crucial to avoid optimizing the current environ-
+        field of SDDO presents a complex and intriguing area that                                                         ment from scratch in a cold start scenario. To address this, existing
+      warrants further investigation.                                                   SDDEAs employ transfer learning strategy, leveraging information
+                                                                about the landscape from old environments to aid in optimization
+2 BACKGROUND AND RELATED WORK              in the current environment [23]. Third, detecting changes in the
+2.1  From DDEAs to SDDEAs                            environment is crucial for SDDEAs, given that the distribution of
+                                                                           collected data undergoes shifts over time. This dynamic necessitates
+The generic framework for DDEAs is depicted in Figure 1a. As in-
+                                                                   the timely update of surrogates with new data. It is noteworthy
+troduced in [21], DDEAs process commences with data collection,
+                                                                       that existing algorithms often overlook this aspect, defaulting to
+followed by the construction of surrogates using these collected
+                                                               environments that change as new data arrives [14, 17, 23].
+data. These surrogates play a significant role in assisting the evo-
+lutionary optimization process (EOP) to effectively locate optimal
+solutions. There are two fundamental approaches to acquire data     2.2  Related Benchmarks
+in DDEAs, namely passive and active. In passive acquisition, data      In the existing literature, to evaluate DDEAs, five benchmark prob-
+are available but remain beyond the control of EOP. This implies      lems are widely used for their different characteristics, ranging from
+
+
+
+
+
+                                                        60
+--- Page 3 ---
+SDDObench: A Benchmark for Streaming Data-Driven Optimization with Concept Drift                   GECCO ’24, July 14–18, 2024, Melbourne, VIC, Australia
+
+
+unimodal to multimodal, convex to nonconvex and the smooth land-                                                                      −10                                                                     70
+scape to high oscillatory landscape [15]. Further, SDDEAs undergo                                                           −10     −20                                                        7080      60
+                                                                                                                                                                                    −20                                                                                                                                                                                                                                                                           60                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            values    50                                                                                                                                                                                                                                                                           50                                                                                                                                                                                    −30evaluation           primarily                    using                      moving                              peak                                     based                                       benchmarks                                                 and
+                                                                                                                                                                                                                                                                           40                                                                                                                                                                                                           −30                                                                                                                                                                                    −40
+                                                                                                                                                                                                                                                                           30                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             Fitness                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Fitness                                                                                                                                                                                                                                                                                                        40                                                                                                                                                                                    −50                                                                                                                                                                                                                                                                           20other     dynamic             benchmarks                               [14,                                   17,                                       23,                                           28].                                     However,                                          on the                                                  one                                                          −60
+                                                                                                                                                                                                           −40                                                        10
+                                                                                                                                                                                                                                                                                                        30hand,      these          benchmarks                 may                           not                                     fully                             embody                                             the                                             unique                                                        charac-
+
+                                                                                                                                                                                                   2            −50                                                                                                                                                                                                                                                                      2             20teristics                                                                                                                                                                                     4                                                                  4       and difficulties                       associated                              with                             SDDO.                               On the                                                   other
+                                                                                                                                                                                                0x1                                                                                                                                                                                                                                                                    0x1                                                       hand,                    −4  −2                                                                                                                                                                                                   −4  −2
+
+                                                                                                                                                                                                                                                                                                        10the algorithms             have been                         assessed                                using                                            different                                                      sets                                                       of bench-                                                                                                                                                                                                           −60                                                                                                                                                                                                                                                      x00    2    4       −4 −2                                                                                                                                                                                x00    2    4      −4 −2
+marks. Hence, in order to accurately assess the effectiveness of
+                                                                                                                    (a) MPF: 𝑚= 8                         (b) DCF: Rastrigin
+SDDEAs and emphasize their differences from DDEAs, it is crucial
+to develop a comprehensive and standardized test suite.
+                                                                  Figure 2: Initial landscapes of objective function
+  The dynamic changing optimization environment of SDDO re-
+sembles that of the traditional DyO. Hence, we also consider DyO
+benchmarks as part of our related work. Over the past three decades,    3 SDDOBENCH
+various benchmarks have been developed for DyO. Initially, there
+                                                                     In this section, first the general formulation of problems in SD-
+was a trend of introducing oscillating variations into classical static
+                                                    DObench is presented, then the designated set of problems in-
+problems. For instance, benchmarks like the dynamic traveling
+                                                                      stances with specific parameter settings are given, followed by the
+salesman problem [4], dynamic knapsack problem [3] incorporated
+                                                              performance measures.
+changes by oscillating between predefined values over time. Later,
+attention shifted towards generating landscapes with a controllable     3.1  Problem Definition
+number of moving peaks, due to their ease of implementation and
+                                                                      In our study, a SDDO problem is defined as:high controllability. Benchmark models such as moving peak bench-
+mark (MPB) [2] and DF1 [18] design the baseline peak function with                 𝐹= 𝑓(𝑔(𝜙,𝛿(𝑡)))                         (1)
+conical peaks, in which the height, weight and the position of the
+                                                                   Here, 𝐹represents the optimization problem, structured as a com-
+peaks are randomly changed over time. Similar to them, Gaussian
+                                                                       posite function comprising three integral components: 𝑓acts as
+peaks benchmark (GPB) [6] generates gaussian peaks via gauss-
+                                                                     the primary objective function, representing the fundamental static
+ian process. Generalized moving peaks benchmark (GMPB) [26]
+                                                                       structure of the problem; 𝛿(𝑡) is the drift function simulating the
+introduced rotation to the baseline peak function, capable of gen-
+                                                                  concept drift over time 𝑡; and the transformation function 𝑔serves
+erating problem instances whose components have a variety of
+                                                                       as the connection between 𝑓and 𝛿(𝑡), with 𝜙denoting the relative
+properties, ranging from unimodal to multimodal, symmetric to
+                                                                            variable(s) to be changed. Through 𝑔, the static objective function
+highly asymmetric, separable to partially separable problems with
+                                                             can be transferred to a function with dynamic characteristics. In-
+ill-conditioned and so on. However, these benchmarks primarily fo-
+                                                                      tegrating the above, Eq. 1 is applied to produce data streams for
+cused on elaborating the baseline peak function and less on dynamic
+                                                    SDDO. Further elaboration on each of these three components is
+changes themselves. Notably, the generalized dynamic benchmark
+                                                                 provided subsequently.
+generator (GDBG) [11] focuses on the dynamic changes by offer-
+ing six change types, encompassing small to large step changes,
+                                                         3.2  Objective Function
+random and chaotic changes, and recurrent alterations.
+                                                         The objective function, which serves as the fundamental framework  However, these existing benchmarks possess certain limitations
+                                                                       of the optimization problem, should possess both controllabilityto be applied in the context of SDDO. First, these benchmarks
+                                                           and complexity. To fulfil this purpose, SDDObench accommodatesoverlook the inherent data variation, specifically the concept drift
+                                                         two distinct sets of functions for the objective formulation.that significantly impacts on the distribution of data, while SDDO
+primarily focuses on the data. Second, existing benchmarks are       3.2.1  Multi-Peak Function (𝑓𝑀𝑃𝐹): The multi-peak function has
+somewhat lacking comprehensiveness, often focusing on specific      the capability to generate a landscape containing multiple peaks,
+aspects such as the landscape or the nature of change. For dynamic      each defined by the correlation variables associated with them. This
+changes, these benchmarks tend to consider the change between       functionality allows precise control over the number of peaks, their
+consecutive time points while neglecting the long-term connection      respective heights, widths and positions.
+(which is however important in real-world applications). Third, the          Specifically, we adopt a peak information structure akin to the
+benchmarking process is typically tailored only for conventional     one utilized in MPB [2], but we replace the 𝑚𝑎𝑥(·) operator by
+DyO algorithms, neglecting the consideration for traditional DDO      𝑚𝑖𝑛(·) according to the past convention of objective minimization
+approaches. As a result, there would be no correlation between the      in the area of DDO. It is worth mentioning that it might be more
+testing conducted in DDO environments and SDDO environments,      suitable to use the term ’valley’ instead of ’peak’, but we have
+which is not recommended. In light of these observations, there is      decided not to do so in order to ensure consistency in naming the
+a clear need for the development of a new benchmark specifically      function as per the related literature. The 𝑓𝑀𝑃𝐹is defined as follows:
+tailored to address the complexity of evaluation for SDDO.
+                                                                                                                         ℎ𝑖
+                                                                        𝑓𝑀𝑃𝐹(𝑥) =   min                                    (2)
+                                                                                                                     𝑖∈{1,...,𝑚} 1 + 𝑤𝑖∥𝑥−𝑐𝑖∥2
+
+                                                       where𝑚is the number of peaks, and ℎ𝑖, 𝑤𝑖and 𝑐𝑖signify the height,
+                                                              width and position respectively, of the 𝑖-th peak in the landscape.
+
+
+
+
+
+                                                        61
+--- Page 4 ---
+GECCO ’24, July 14–18, 2024, Melbourne, VIC, Australia                                                Yuan-Ting Zhong, Xin-Can Wang, Yu-Hong Sun, Yue-Jiao Gong*
+
+
+
+         1.0                                          1.0                                          1.0
+         0.5                                          0.5                                          0.5                       functions encompass a wider range by considering temporal cor-
+         δ(t)  0.0                                                                     δ(t)  0.0                                                                     δ(t)  0.0                         relations across discrete time points, including changes not only
+       −0.5                                   −0.5                                   −0.5                     between the current and previous time points but also across vari-
+       −1.0 0   10  20  30  40  50  60      −1.0 0   10  20  30  40  50  60      −1.0 0   10  20  30  40  50  60        ous past time points. It is in line with the real-world optimization
+                                        t                                                            t                                                            t               problem, such as the traffic flow analysis problem, in which the
+          (a) No Drift            (b) Sudden Drift        (c) Re-Sudden Drift
+                                                                     data streams tend to recur over a relatively longer timeframe (such
+                                1.0                                          1.0                                 as a day, a week, etc.) [13, 19]. This approach embraces a diverse
+                                0.5                                          0.5                                 array of concept drift contexts, providing a nuanced and detailed
+                                                  δ(t)  0.0                                                                     δ(t)  0.0                                  representation of dynamic changes within the benchmark.
+                          −0.5                                   −0.5                             The formulation of the drift function 𝛿(𝑡)  : [0,𝑇] →[−1, 1]
+
+                          −1.0                                                                  −1.0
+                              0   10  20  30                                               40  50  60                                                                    0   10  20  30                                                                                    40  50  60                 with five distinct types of changes are described as follows, where 𝑡
+                                                                      t                                                                                                                                   t
+                                                                       represents the discrete time point taking values from 0 to the maxi-
+                   (d) Re-Incremental   (e) Re-Incremental
+                        Drift          Drift with Noise              mum change time 𝑇, and 𝑟𝑎𝑛𝑑(𝑎,𝑏) generates a random number
+                                                                  within the range of [𝑎,𝑏].
+        Figure 3: The five different drift functions               (𝐷1) No Drift:
+                                                                                                    𝛿(𝑡) = 0                              (3)
+
+                                                                    (𝐷2) Sudden Drift:
+3.2.2  DDEA Common Function (𝑓𝐷𝐶𝐹): To align with the estab-                     (  𝑟𝑎𝑛𝑑(−1, 1), if t ∈𝛬
+lished norms in the field of DDO, we have incorporated five fre-                      𝛿(𝑡) =                                               (4)
+                                                                                  𝛿(𝑡−1), otherwise
+quently employed problems for evaluating DDEAs, which we re-
+fer to as the DDEA common function (𝑓𝐷𝐶𝐹). Further informa-           Here, 𝛬=  𝑡1,𝑡2, · · · ,𝑡|Λ|  with each 𝑡𝑖∈𝑟𝑎𝑛𝑑(1,𝑇) denotes
+tion can be found in the supplementary document. These selected           a set of randomly selected time points to undergo sudden drift.
+benchmarks encompass a wide spectrum of characteristics, varying      (𝐷3) Recurrent Sudden Drift:
+between smooth and high oscillatory, unimodal and multimodal,                    (
+                                                                                                   −0.5,  if 𝑡mod 𝑃< 0.5𝑃
+convex and non-convex. These characteristics pose considerable                    𝛿(𝑡) =                                                 (5)
+challenges for optimization within the realm of DDEAs when fit-                                     0.5, otherwise
+ness evaluation is extremely limited or even unavailable during the            In this case, 𝑃denotes the recurrent period.
+optimization process of the algorithms.                               (𝐷4) Recurrent Incremental Drift:
+  To provide a more comprehensive understanding of the land-                                                                                                2𝜋𝑡   𝜋
+scapes of these two groups of objective functions, we illustrate two                            𝛿(𝑡) = 𝑐𝑜𝑠(   +   )                       (6)
+                                                                                        𝑃    2
+of them in Figure 2 (detailed landscape information can be found
+                                                                    (𝐷5) Recurrent Incremental Drift with Noise:in the supplementary document).
+                                                                                             2𝜋𝑡   𝜋
+                                                                                 𝛿(𝑡) = (1 −𝜖) · 𝑐𝑜𝑠(   +   ) + 𝜖· 𝑟𝑎𝑛𝑑(−1, 1)         (7)
+3.3  Drift Function                                                               𝑃    2
+                                                           Where 𝜖accounts for a small magnitude of random noise, and
+Within SDDObench, the introduction of a drift function aims to sim-
+                                                               𝑃is the same as Eq. 5.
+ulate concept drift within dynamic environmental changes. Aligned
+                                                          To enable a more visual illustration, all drift functions are de-with the concept type of the data stream [16, 29], an ideal set of
+                                                                       picted in Figure 3. Below are more details of them.drift functions should embody the following key characteristics:
+                                                               • Static-Like Drift: 𝐷1 represents a stable environment with
+    • Static-Like Drift: One drift function should represent a sce-
+                                                                            zero drift value, indicating a consistent and unchanging data
+      nario of no concept drift, mirroring a static environment
+                                                                                    distribution.
+     where the data distribution remains constant.
+                                                               • Gradual and Abrupt Drift: 𝐷2 to 𝐷5 depict drift with different
+    • Gradual and Abrupt Drift: Including drift functions that de-
+                                                                          types and magnitudes of change. Both 𝐷2 and 𝐷3 introduce
+       pict gradual and abrupt changes is essential as they represent
+                                                                         abrupt changes,with 𝐷2 exhibiting random and drastic drift
+      the spectrum from subtle to drastic environmental changes.
+                                                                               values, potentially preventing recurrence of previous en-
+    • Predominantly Recurrent Drift: The majority of the drift
+                                                                    vironments and causing sudden degradation in surrogate
+      type should be recurrent. Recurrent drifts simulate environ-
+                                                                              accuracy. 𝐷3 involves sharp, substantial changes with signif-
+      ments where there is a connection to previous distributions.
+                                                                                  icant variation in drift values. In contrast, 𝐷4 and 𝐷5 exhibit
+       In dynamic environments, information transfer between en-
+                                                                          incremental changes between close time points. They require
+      vironments is crucial. If the data distribution totally shifts
+                                                                         techniques for the detection of gradual changes.
+       to a new, disconnected environment with no connection to
+                                                               • Predominantly Recurrent Drift: 𝐷3, 𝐷4 and 𝐷5 represent drift
+      previous states, a simple restart policy might outperform
+                                                                   with recurrence. 𝐷3 and 𝐷4 are cyclic, with environments
+      other strategies due to the absence of information transfer.
+                                                                        reappearing predictably after significant periods. While 𝐷5
+  Our proposed functions provide a broad perspective to cover                is an acyclic variant of 𝐷4, incorporating a small magnitude
+the above characteristics. While existing dynamic benchmarks fo-             of random noise, leading to subtle variations in the previous
+cus primarily on changes between consecutive time points, our           environment and requiring precise handling.
+
+
+
+
+
+                                                        62
+--- Page 5 ---
+SDDObench: A Benchmark for Streaming Data-Driven Optimization with Concept Drift                   GECCO ’24, July 14–18, 2024, Melbourne, VIC, Australia
+
+
+
+     5                                       5                                       5
+     4                                       4                                       4
+     3                                       3                                       3                  3.5  Parameter Setting and Benchmark Instances
+     2                                       2                                       2
+     1                                             1                                                                                     1
+  X1     0                                    X1                                             0                                    X1                                                                                     0                       In SDDObench, we offer eight benchmark instances, the details are
+   −1                                −1                                −1
+   −2                                −2                                −2                     presented in Table 1. The first three instances, denotes as F1-F3,
+   −3                                −3                                −3
+   −4                                −4                                −4                         illustrate varying aspects on changing the peaks in MPF. Specif-
+   −5−5 −4 −3 −2 −1  0  1  2  3  4  5    −5−5 −4 −3 −2 −1  0  1  2  3  4  5    −5−5 −4 −3 −2 −1  0  1  2  3  4  5
+                        X0                                           X0                                           X0                ically, F1 represents a general MPF with fixed number of peaks,
+         (a) No Drift               (b) Sudden Drift           (c) Re-Sudden Drift      but their heights, widths and positions vary over time. F2 exhibits
+                      5                                       5                                       similarities to F1, however, it differs in that only a specific portion
+                      4                                       4
+                                                              3                      3                                                              2                              𝑟𝑐of the peaks undergoes variation. This selective alteration of                      2
+                                                              1                      1
+                                                              0                              peak features, determined by a change rate parameter 𝑟𝑐, presents                   X1                      0                                    X1
+                  −1                                −1
+                  −2                                −2                                   greater difficulties in detecting changes as only certain parts of
+                  −3                                −3
+                                                    −4                  −4                                                    −5                                 the environment experience modifications. In F3, the number of                  −5
+                     −5 −4 −3 −2 −1                                       0  1  2  3  4  5       −5 −4 −3 −2 −1 0                                                                                 1  2  3  4  5                peaks undergoes changes as time progresses. This situation poses                                            X0                                                                                        X0
+                  (d) Re-Incremental     (e) Re-Incremental                   an additional difficulty for the search of SDDEAs, as the newly
+                       Drift           Drift with Noise                    emerged peaks require immediate identification efforts over time.
+                                                                    Instances F4 to F8 maintain identical objective functions to the
+Figure 4: The movement of the global optimum through a    DDO evaluation literature, but introduce new characteristics via
+2-dimensional subspace over 200 changes of F1: the black      our shift and transformation functions for streaming data. Solving
+point is the global optimum in the initial environment.           these instances are very difficult due to the limited budget for FEs
+                                                                         in the context of SDDO, particularly when taking into account the
+                                                                 concept drift concerns.
+   Moreover, to facilitate a comprehensive comparison of these drift                                                                                    Finally, it is important to note that, while we have implemented a
+types, we provide an example in F1, illustrating the movement of                                                                      standardized testbed, the configuration of problem instances can be
+the global optimum over time in a two-dimensional space in Figure                                                                       modified. SDDObench users have the option to redefine parameters
+4. It is observed that the movement of the global optimum align                                                                        in order to customize their experiments, allowing for comprehen-
+with the pattern of concept drift, with a larger step size for the                                                                          sive exploration and comparative analysis of their algorithms.
+sudden drifts, and a smaller step size for the incremental drifts. It
+can be noticed that the movement returns to the previous location     3.6  Performance Measures
+as the recurrent period is repeated.
+                                                             Within SDDObench, we assess the performance of SDDEAs using
+3.4  Transformation Function                        two widely-used and effective performance measures [12, 14, 25].
+                                                       They illustrate the convergence behavior of SDDEAs in terms of
+The transformation function acts as a crucial bridge between the
+                                                                              error: the smaller the values, the better the algorithm performance.
+static objective function (subsection 3.2) and the drift function
+(subsection 3.3). It facilitates the evolution of the static objective       1) Online Error (𝐸online): It considers the error at the current envi-
+function over time by variably adjusting the relative variables and        ronment.
+drift values in a linear or non-linear manner. This design is able                          1 𝐼∑︁ h                         i                                                                                       𝐸(𝑡)                                                                =                                                                                                              𝑓(𝑥∗(𝑖,𝑡)) −𝑓(𝑥★(𝑡))            (12)to well harmonize benchmarks with those in static environments.                                                                                                      online                                                                                                                                            𝐼
+The formulation of the transformation function is as follows:                                       𝑖=1
+                                                              where 𝐼is the iterative frequency between environments, 𝑥∗(𝑖,𝑡)                 𝑔(𝜙,𝛿(𝑡)) = (𝜙+ 𝜆𝛿(𝑡)) · R(𝑡)                  (8)
+                                                                                             is the best found solution after 𝑖-th iteration at the current 𝑡-th
+Here, 𝜙represents the relative variables undergoing change, while         environment, and 𝑥★(𝑡) is the global optimal solution at the 𝑡-th
+𝜆denotes the scale factor, defined as                                   environment.
+                                                                             2) Offline Error (𝐸offline): It computes the average error between            𝜆= I𝜙· (𝜙𝑚𝑎𝑥−𝜙𝑚𝑖𝑛)                      (9)
+                                                                      the best-found solution and the global optimal solution across
+where 𝜙max and 𝜙min signify the maximum and minimum values           iterations. For active SDDEAs, the 𝐸offline is calculated over FEs,
+of 𝜙respectively, and I𝜙represents the parameter of changing         while for passive SDDEAs, it is computed over iterative genera-
+intensity for 𝜙. The rotation matrix R(𝑡) is defined as [11]:                 tions using the formula [23]:
+                  R(𝑡) = (R1,2, R3,4, · · · , R𝑛−1,𝑛)               (10)                      1 ∑︁𝑇  𝐼∑︁ h                                i
+                                                                                                   𝐸offline = 𝑇𝐼          𝑓(𝑥∗((𝑡−1)𝐼+𝑖)) −𝑓(𝑥★(𝑡))      (13)
+where 𝑑is the dimension of 𝜙. If 𝑑is odd, then 𝑛= 𝑑−1, otherwise                            𝑡=1 𝑖=1
+𝑛= 𝑑. Specifically, when 𝑑= 1, R = 1. When 𝑑> 1, R𝑙,𝑙+1 is defined        where𝑇is the total number of environments (same as maximum
+as                                                             change time), 𝑥∗((𝑡−1)𝐼+𝑖) is the best found solution at the 𝑖-th
+                            𝑐𝑜𝑠𝜃(𝑡)                                     −𝑠𝑖𝑛𝜃(𝑡)                                                                  (11)          iterative evaluation in the 𝑡-th environment, 𝑥★(𝑡) and 𝐼are                     R𝑙,𝑙+1 =                             𝑠𝑖𝑛𝜃(𝑡)                                      𝑐𝑜𝑠𝜃(𝑡)
+                                                           same as the Eq. 12.
+where 𝜃(𝑡) = 4 · 𝑎𝑟𝑐𝑠𝑖𝑛(𝛿(𝑡)2).
+  To summarize, the transformation process involves shifting the    4  EXPERIMENTAL STUDIES
+variables by 𝜆𝛿(𝑡), followed by post-multiplication with the rotation      In this section, we conduct a preliminary study by testing and
+matrix R(𝑡) which is also determined by 𝛿(𝑡).                      comparing representative SDDEAs on the SDDObench.
+
+
+
+
+
+                                                        63
+--- Page 6 ---
+GECCO ’24, July 14–18, 2024, Melbourne, VIC, Australia                                                Yuan-Ting Zhong, Xin-Can Wang, Yu-Hong Sun, Yue-Jiao Gong*
+
+
+                                         Table 1: The benchmark instances
+
+
+   Ins.   Objective Function      Transformation Function            Variables Range (𝜙)   Optimum     Parameters Setting
+                                𝑥(𝑡) = 𝑥(𝑡0)                      ℎ∈[−70, −30]
+                                for 𝑝𝑒𝑎𝑘𝑖,                     𝑤∈[1, 12]
+   F1   𝑓𝑀𝑃𝐹                 ℎ(𝑡)𝑖  = 𝑔(ℎ(𝑡0)𝑖   ,𝛿(𝑡))                𝑐∈[−5, 5]𝑑         𝑚           intensities: Iℎ= 0.3,
+                            𝑤(𝑡)                                                                                                   ℎ𝑗     I𝑤= 0.1, I𝑐= 0.4,                                                     𝑖  = 𝑔(𝑤(𝑡0)𝑖   ,𝛿(𝑡))               𝑥∈[−5, 5]𝑑           min𝑗
+                                  𝑐(𝑡)                                                    𝑖  = 𝑔(𝑐(𝑡0)𝑖   ,𝛿(𝑡))                     𝑚(𝑡0) = 8                     I𝑥= 0.4, I𝑚= 0.5
+                                                                                                                                     offset: 𝜖= 0.3                          randomly select [𝑟𝑐· 𝑚] peaks,
+                                                                                            sudden number: |𝛬| = 5                                           if 𝑝𝑒𝑎𝑘𝑖is selected, as F1,
+   F2   𝑓𝑀𝑃𝐹                                                        as F1                             change rate: 𝑟𝑐= 0.5                              otherwise,
+                                                                                                          recurrent period: 𝑃= 20                                ℎ(𝑡)                                 ,𝑤(𝑡)                                             ,𝑐(𝑡)                                              ℎ(𝑡−1)                                                  ,𝑤(𝑡−1)                                                                ,𝑐(𝑡−1)
+                                                     𝑖                                                              𝑖                                                                     𝑖  =                                                                                 𝑖                                                                                             𝑖                                                                                                         𝑖
+                              as F1, and                              as F1, and
+   F3   𝑓𝑀𝑃𝐹
+                           𝑚(𝑡) = 𝑔(𝑚(𝑡0),𝛿(𝑡))              𝑚∈[3, 40]
+   F4   𝑓𝐷𝐶𝐹: Sphere        𝑥(𝑡) = 𝑔(𝑥(𝑡0),𝛿(𝑡))                 𝑥∈[−5.12, 5.12]𝑑
+   F5   𝑓𝐷𝐶𝐹: Rosenbrock   as F4                             𝑥∈[−2.048, 2.048]𝑑
+   F6   𝑓𝐷𝐶𝐹: Ackley       as F4                             𝑥∈[−32.768, 32.768]𝑑      0
+   F7   𝑓𝐷𝐶𝐹: Griewank     as F4                           𝑥∈[−600, 600]𝑑
+   F8   𝑓𝐷𝐶𝐹: Rastrigin     as F4                             𝑥∈[−5.12, 5.12]𝑑
+
+
+4.1  Experiment Design                                             4.1.2  Experiment Settings. To uphold the validity and fairness of
+4.1.1  Benchmark Test Algorithms. To investigate the effect of SD-     our experiments, we have established the following experiment
+DObench, four algorithms have been chosen for the study: TT-       settings:
+DDEA [9], DSE-MFS [23], SAEF-1GP [17], and DETO [14]. A sum-         • The total number of environments 𝑇in every independent
+mary of the details for each algorithm is provided in Table 2. Among           run is set to 60.
+                                                               • The algorithms iterate 𝐼= 30 generations in each environ-
+           Table 2: The benchmark algorithms                       ment.
+                                                               • Upon each environment, a data set of size 5𝑑is generated
+                                                                       using Latin hypercube sampling (LHS) [4]. In the case of
+                    designed with
+                                     data acquisition                         active SDDEAs, an extra 30 active FEs (in each environment)
+                     concept drift                                                                            are permitted 1.
+      TT-DDEA      ×             passive                                                               • Other parameters remain consistent with those outlined in
+       DSE-MFS     ✓             passive                                                                          the original literature to ensure optimal performance.
+       SAEF-1GP     ✓              active
+                                                                Following 20 independent runs, we present the average and stan-
+       DETO      ✓              active
+                                                                  dard deviation of the performance metrics for comparison. The code
+                                                              used for comparison is implemented as per the original authors’
+these benchmark algorithms, TT-DDEA utilizes a tri-training ap-       specifications.
+proach to update surrogate models. In each generation, it selects
+three candidate solutions with highly reliable predictions, which     4.2  Performance Investigate of Test Algorithms
+serve as true samples to fine-tune the models. This methodology is        4.2.1  Comparison Among Different Concept Drifts: In this part, the
+tailored for static DDO. DSE-MFS employs ensemble learning by     performance discrepancy analysis across various drift scenarios
+assigning weights to historical environment data, constructing sur-        is presented. The convergent trajectories of DETO are depicted in
+rogates, and subsequently combining them to support a multi-task      Figure 5 for visual illustration. As expected, the absence of any drift
+EA in optimizing current environment problem. As for SAEF, we      (𝐷1) shows the best performance. Then, from Figure 5a, it can be
+choose its 1S_GP variant for its outstanding performance, referred      found that when sudden drift (𝐷2 and 𝐷3) occurred, the landscape
+to as SAEF-1GP, which incorporates memory mechanism and en-      of the search space changed drastically, transforming far from the
+vironment change detection strategy. This approach constructs a      old pattern, resulting in the performance degradation for the algo-
+Gaussian model for each new environment, integrating a memory-      rithm. In general, in contrast to in recurrent drift scenarios (𝐷3),
+based strategy that stores the excellent solutions, then alongside      the algorithms showcase worse performance in non-recurrent drift
+particle swarm optimization to effectively track evolving optima.      scenario (𝐷2). Further, as can clearly seen in Figure 5b, under re-
+DETO leverages clustering techniques and a warm start mechanism      current drift scenarios (𝐷3, 𝐷4 and 𝐷5), the landscape of the search
+utilizing historical data to rebuild a multi-output Gaussian process,
+                                                                                         1Generally, it is not fair to compare active and passive SDDEAs, as the active ones
+which has the input of time-associated data. Subsequently, it assists        are anticipated to achieve better performance. Nevertheless, for the sake of space
+the EAs for effectively searching in the new environment.                    efficiency, we have condensed the results in this paper.
+
+
+
+
+
+                                                        64
+--- Page 7 ---
+SDDObench: A Benchmark for Streaming Data-Driven Optimization with Concept Drift                   GECCO ’24, July 14–18, 2024, Melbourne, VIC, Australia
+
+
+
+
+
+                                                                                                                                                                     D1
+      100
+                                                                                                                                                                     D2
+                                                                                                                                                                     D3
+
+      Eonline
+
+
+
+     10−1
+
+
+
+                0             120            240            360            480            600            720            840            960           1080
+                                                                                     Generations
+
+                                                                          (a) Comparison between sudden drifts
+
+
+
+                                                                                                                                                                     D1
+      100                                                                                                                                                             D3
+                                                                                                                                                                     D4
+                                                                                                                                                                     D5
+      Eonline
+
+
+
+     10−1
+
+
+                0             120            240            360            480            600            720            840            960           1080
+                                                                                     Generations
+
+                                                                      (b) Comparison among recurrent drifts
+
+  Figure 5: The 𝐸online convergent trajectories of DETO on the first 40 environments (two recurrent periods) of instance F7.
+
+
+
+
+                                   TT-DDEA        DSE-MFS        SAEF-1GP       DETO
+    70                                                              space consistently display recurring change patterns. However, in
+    60
+    50                                                                      acyclic drift scenarios (𝐷5), the changes become no longer regular
+    40                                                             D1      by adding a small magnitude of randomness. In this case, employ-
+    30                                                               ing memory and warm start strategies yields less effective results
+    20
+    10                                                       compared to those in the ideal recurrent drift (𝐷4).
+    70
+    60                                                     The above can show the rationality, comprehensiveness, and
+    50                                                              complexity of our five concept drifts, which have diverse properties
+    40                                                             D2      and bring different problem characteristics to the SDDObench.
+    30
+
+    20
+    10                                                                              4.2.2  Comparison Among Different Algorithms: The performance
+    70
+    60                                                                         disparities among algorithms across different instances are evident
+    50                                                                   in the results shown in the following. For the two passive algo-
+    40
+                                                                  D3        rithms, as shown in Table 3, DSE-MFS outperforms TT-DDEA on   Eonline    30
+    20                                                                     F1-F3, but exhibits lower performance on F4-F8. Notably, TT-DDEA
+    10                                                                    lacks strategies for dynamic environments but demonstrates more
+    70
+    60                                                                          effective search capabilities. The static objective functions for F1-F3
+    50
+    40                                                       and F4-F8 come from the MPF and DCF problem sets, respectively.
+    30                                                             D4           It is worth noting that DCF displays greater search complexity than
+    20
+    10                                            MPF due to its intricate characteristics. It appears that DSE-MFS
+    70                                                           has limitations in addressing such complex problems. For the ac-
+    60                                                                          tive algorithms, the different performance of DETO and SAEF-1GP
+    50
+    40                                                                                  is also evident. In general, DETO demonstrates notably superior
+    30                                                             D5       performance than SAEF-1GP.
+    20                                                               Furthermore, designing a strategy to discern and manage the
+    10
+                                                               environment changes remains a significant hurdle in improving the
+         0    120   240   360   480   600   720   840   960   1080
+                                       Generations                      SDDO performance. Seen in Figure 6, all four algorithms are subject
+                                                                         to dramatic fluctuations in results due to concept drift from the data
+Figure 6: The 𝐸online convergent trajectories on the first 40      streams, even under the concept drift scenarios of small change in
+environments (two recurrent periods) of instance F1            magnitude (𝐷4 and 𝐷5). This implies that the algorithms currently
+                                                                       in use still lack an efficient method for detecting changes in the
+                                                               environment and utilizing information from previous environments
+
+
+
+
+
+                                                        65
+--- Page 8 ---
+GECCO ’24, July 14–18, 2024, Melbourne, VIC, Australia                                                Yuan-Ting Zhong, Xin-Can Wang, Yu-Hong Sun, Yue-Jiao Gong*
+
+
+Table 3: Comparison of the 𝐸offline among test algorithms: mean(standard deviation) results, with the superior algorithm
+highlighted in bold, using Wilcoxon rank-sum test (significance level 𝛼= 0.05)
+
+
+
+                                                                                Instances
+        Drift   Algorithm
+                             F1           F2           F3            F4           F5          F6            F7            F8
+           TT-DDEA    66.5(0.175)    66.2(0.518)    66.4(0.605)   0.593(0.0298)   20.7(2.71)   7.96(0.649)   0.889(0.0811)    41.7(5.04)
+            DSE-MFS   51.4(0.359)   52.2(0.602)   50.9(0.595)     4.61(0.462)      110(35.6)     17.4(3.34)      11.1(0.927)      59.8(1.84)
+      𝐷1   SAEF-1GP    51.3(0.282)    50.5(0.284)    48.1(0.288)      10.2(0.52)      320(41.7)     17.8(0.145)      36.1(1.67)      55.4(0.957)
+           DETO     26.1(0.802)   27.3(0.841)   25.1(0.421)    2.61(0.221)     270(8.01)    8.64(0.259)   0.308(0.0174)   42.4(0.632)
+           TT-DDEA   65.2(0.0991)    65.7(0.361)    64.6(0.221)      9.87(0.736)     294(32.6)   13.6(0.138)   0.911(0.0169)    62.9(1.42)
+            DSE-MFS   47.4(0.477)   48.5(0.636)   49.9(0.403)      15(7.17)        484(13)       19.7(1.3)        39.7(2.07)       65.1(1.93)
+      𝐷2   SAEF-1GP    51.8(0.289)    51.9(0.425)     48.4(0.32)      11.7(0.655)      365(22.8)     18.1(0.194)      41.4(2.37)       57.5(1.04)
+           DETO      29(0.789)     30.9(1.06)    27.9(0.533)    3.62(0.142)    279(37.3)    9.5(0.468)   0.333(0.0168)   44.3(0.816)
+           TT-DDEA    64.2(0.125)    65.3(0.667)    62.5(0.189)     13(0.411)     337(21.5)   18.5(0.137)   0.998(0.0102)   65.9(0.828)
+            DSE-MFS    51.2(1.54)    52.1(0.457)    49.1(1.22)      21.4(8.49)      755(19.5)     20.1(0.817)       59(17.6)        69.2(1.94)
+      𝐷3   SAEF-1GP    53.3(0.218)    53.5(0.285)    48.6(0.354)      11.4(0.599)      337(2.79)     17.9(0.192)      40.2(2.01)        57(1.18)
+           DETO     28.9(0.787)    28.8(1.2)     25(0.966)     4.75(0.474)     340(5.14)    9.51(0.553)   0.315(0.0305)    45.5(4.13)
+           TT-DDEA     61.5(1.36)     63.5(0.891)    61.9(0.287)     15.4(4.05)     559(14.7)     16.8(1.2)     0.985(0.024)    65.5(3.07)
+            DSE-MFS   52.4(0.782)   53.3(0.695)   50.9(0.526)      22.5(4.01)      872(11.4)     18.2(0.272)      74.9(11.2)       79.2(3.28)
+      𝐷4   SAEF-1GP    51.4(0.288)    50.7(0.227)    48.3(0.155)      13.8(0.61)      374(37.3)     18.5(0.161)      48.7(2.11)        59.2(1.3)
+           DETO     25.9(0.519)   28.9(0.886)   24.4(0.868)    4.42(0.137)    271(2.52)   11.3(0.061)   0.379(0.0214)    44.3(3.63)
+           TT-DDEA     62.3(1.95)     64.6(0.266)    62.4(0.297)       13.5(3.1)      352(80)      17(0.441)    0.986(0.0172)    62.4(3.42)
+            DSE-MFS   53.3(0.131)   53.7(0.297)   50.7(0.748)      15.3(1.61)      554(12.8)     17.1(0.386)      51.6(5.21)       70.8(1.32)
+      𝐷5   SAEF-1GP    51.6(0.222)    50.9(0.177)    48.8(0.126)      12.8(0.777)      401(39)     18.5(0.129)      45.1(2.76)       57.7(1.08)
+           DETO     28.7(0.717)    29.9(1.79)    26.4(0.385)    3.37(0.315)    272(2.15)   10.1(0.127)   0.332(0.0201)    44.7(0.36)
+
+
+
+to handle the complexity and variability of concept drift. The area         • Data management strategy: In SDDO, data arrive continu-
+of SDDO and SDDEAs deserves further exploration.                            ously, with the existence of distribution drift. Hence, how to
+                                                                                   effectively manage and utilize old and new data becomes a
+                                                                                  crucial issue that influences both the efficacy and efficiency
+5 SUMMARY                                                           of SDDEAs.
+                                                               • Change detection strategy: The experiments suggest that
+This paper introduces SDDObench, a comprehensive benchmark de-                                                                      a change detection strategy is necessary under certain sce-
+signed specifically for SDDO, which can serve as a unified test suite                                                                                   narios. Most existing SDDEAs assume that the environment
+for evaluating SDDEAs. Within the framework of SDDObench, two                                                                      has changed with the arrival of new data. However, this as-
+sets of baseline objective functions and five types of drift functions                                                                    sumption may not hold true in many real-world applications.
+are connected through the transformation function. The objective                                                                                 Effectively detecting different types of concept drifts poses
+functions offer a comprehensive representation, incorporating the                                                                      a significant challenge to current studies.
+benchmark functions previously used in both DyO and DDO. When                                                               • Warm start strategy: Simply reusing surrogates and/or solu-
+considering the streaming data environment, where concept drift                                                                                tions from the previous environment may not be beneficial
+is a crucial consideration, five distinct drift functions have been                                                                                for optimization in the current environment, especially in
+introduced, namely no drift, sudden drift, recurrent sudden drift, re-                                                                              cases where the data distribution exhibits long-term connec-
+current incremental drift and recurrent incremental drift with noise.                                                                                         tion, and the cases where the drifts are recurrent but feature
+These drift functions are designed to comprehensively simulate                                                                      randomness. It is highly desired to develop effective memory
+different realistic scenarios. Additionally, instead of solely relying                                                                mechanisms and warm start strategy to handle the issue.
+on randomly shifting parameters, rotation changes are also incor-
+porated into the transformation function. The rotation provides
+more complex properties, including asymmetry and nonseparabil-     As an important area of practical value, SDDO is still in its infancy,
+ity, to the variation of problem landscapes. The combination of      underscoring the need for further exploration.
+these three main components results in the creation of eight bench-
+mark instances. These instances are carefully designed to balance
+the controllability and complexity for SDDO.             ACKNOWLEDGMENTS
+  To evaluate SDDObench, experiments were conducted using      This work was supported in part by the National Natural Sci-
+four algorithms across the eight benchmark instances. The exper-     ence Foundation of China under Grant 62276100, in part by the
+imental results validate the rationality, comprehensiveness, and     Guangdong Natural Science Funds for Distinguished Young Schol-
+good descriminability of SDDObench. However, they also reveal      ars under Grant 2022B1515020049, in part by the Guangdong Re-
+that existing algorithms still face challenges in effectively solving      gional Joint Funds for Basic and Applied Research under Grant
+these benchmark instances:                                         2021B1515120078, and in part by the TCL Young Scholars Program.
+
+
+
+
+
+                                                        66
+--- Page 9 ---
+SDDObench: A Benchmark for Streaming Data-Driven Optimization with Concept Drift                   GECCO ’24, July 14–18, 2024, Melbourne, VIC, Australia
+
+
+REFERENCES                                                               decades—Part A. IEEE Transactions on Evolutionary Computation 25, 4 (2021),
+ [1] Supriya Agrahari and Anil Kumar Singh. 2022. Concept drift detection in data             609–629.
+     stream mining: A literature review. Journal of King Saud University-Computer        [25] Danial Yazdani, Ran Cheng, Donya Yazdani, Jürgen Branke, Yaochu Jin, and Xin
+    and Information Sciences 34, 10 (2022), 9523–9540.                                          Yao. 2021. A survey of evolutionary continuous dynamic optimization over two
+ [2]  J. Branke. 1999.  Memory enhanced evolutionary algorithms for changing            decades—Part B. IEEE Transactions on Evolutionary Computation 25, 4 (2021),
+     optimization problems. In Proceedings of the 1999 Congress on Evolutionary             630–650.
+     Computation-CEC99 (Cat. No. 99TH8406), Vol. 3. 1875–1882 Vol. 3.    https:        [26] Danial Yazdani, Mohammad Nabi Omidvar, Ran Cheng, Jürgen Branke,
+     //doi.org/10.1109/CEC.1999.785502                                              Trung Thanh Nguyen, and Xin Yao. 2020. Benchmarking continuous dynamic
+ [3] Dipankar Dasgupta and Douglas R McGregor. 1992. Nonstationary Function              optimization: Survey and generalized test suite. IEEE transactions on cybernetics
+     Optimization using the Structured Genetic Algorithm.. In PPSN, Vol. 2. 145–154.               52, 5 (2020), 3380–3393.
+ [4] David E Goldberg and Robert E Smith. 1987. Nonstationary function optimization        [27] Yuan Yuan and Wolfgang Banzhaf. 2021. Expensive multiobjective evolutionary
+     using genetic algorithms with dominance and diploidy. In Genetic algorithms and             optimization assisted by dominance prediction. IEEE Transactions on Evolutionary
+      their applications: proceedings of the second International Conference on Genetic Al-            Computation 26, 1 (2021), 159–173.
+     gorithms: July 28-31, 1987 at the Massachusetts Institute of Technology, Cambridge,        [28] Huan Zhang, Jinliang Ding, Liang Feng, Kay Chen Tan, and Ke Li. 2023. Solving
+    MA.                                                                                Expensive Optimization Problems in Dynamic Environments with Meta-learning.
+ [5] Yue-Jiao Gong, Jian-Xiong Guo, Da-Lue Lin, Yuan-Lin Zuo, Jun-Chao Liang,             arXiv:2310.12538 [cs.NE]
+     Lin-Jun Luo, Xian-Xin Shao, Chao Zhou, and Meng-Ting Li. 2022. Automated        [29] Alaettin Zubaroğlu and Volkan Atalay. 2021. Data stream clustering: a review.
+    team assembly in mobile games: a data-driven evolutionary approach using a                Artificial Intelligence Review 54, 2 (2021), 1201–1236.
+     deep learning surrogate. IEEE Transactions on Games 15, 1 (2022), 67–80.
+ [6] John J Grefenstette. 1999.  Evolvability in dynamic fitness landscapes: A ge-
+     netic algorithm approach. In Proceedings of the 1999 Congress on Evolutionary
+     Computation-CEC99 (Cat. No. 99TH8406), Vol. 3. IEEE, 2031–2038.
+ [7] Dan Guo, Tianyou Chai, Jinliang Ding, and Yaochu Jin. 2016. Small data driven
+     evolutionary multi-objective optimization of fused magnesium furnaces. In 2016
+     IEEE symposium series on computational intelligence (SSCI). IEEE, 1–8.
+ [8] Hao-Gan Huang and Yue-Jiao Gong. 2022. Contrastive learning: An alternative
+     surrogate for offline data-driven evolutionary computation. IEEE Transactions on
+     Evolutionary Computation 27, 2 (2022), 370–384.
+ [9] Pengfei Huang, Handing Wang, and Yaochu Jin. 2021. Offline data-driven evolu-
+     tionary optimization based on tri-training. Swarm and evolutionary computation
+     60 (2021), 100800.
+[10] Yaochu Jin, Handing Wang, Tinkle Chugh, Dan Guo, and Kaisa Miettinen. 2018.
+     Data-driven evolutionary optimization: An overview and case studies. IEEE
+     Transactions on Evolutionary Computation 23, 3 (2018), 442–458.
+[11] Changhe Li and Shengxiang Yang. 2008. A generalized approach to construct
+    benchmark problems for dynamic optimization. In Simulated Evolution and Learn-
+      ing: 7th International Conference, SEAL 2008, Melbourne, Australia, December 7-10,
+      2008. Proceedings 7. Springer, 391–400.
+[12] Changhe Li and Shengxiang Yang. 2012. A general framework of multipopulation
+     methods with clustering in undetectable dynamic environments. IEEE transactions
+     on evolutionary computation 16, 4 (2012), 556–577.
+[13] Jiezhang Li, Wanyi Zhou, Zebin Chen, and Yue-Jiao Gong. 2021. Geo-attention
+    network for traffic condition prediction and travel time estimation. In Proceed-
+     ings of the 29th International Conference on Advances in Geographic Information
+     Systems. 654–657.
+[14] Ke Li, Renzhi Chen, and Xin Yao. 2023. A data-driven evolutionary transfer
+     optimization for expensive problems in dynamic environments. IEEE Transactions
+     on Evolutionary Computation (2023).
+[15] Jane-Jing Liang, Ponnuthurai Nagaratnam Suganthan, and Kalyanmoy Deb. 2005.
+     Novel composition test functions for numerical global optimization. In Proceed-
+     ings 2005 IEEE Swarm Intelligence Symposium, 2005. SIS 2005. IEEE, 68–75.
+[16]  Jie Lu, Anjin Liu, Fan Dong, Feng Gu, Joao Gama, and Guangquan Zhang. 2018.
+     Learning under concept drift: A review. IEEE transactions on knowledge and data
+     engineering 31, 12 (2018), 2346–2363.
+[17] Wenjian Luo, Ruikang Yi, Bin Yang, and Peilan Xu. 2018. Surrogate-assisted
+     evolutionary framework for data-driven dynamic optimization. IEEE Transactions
+     on Emerging Topics in Computational Intelligence 3, 2 (2018), 137–150.
+[18] Ronald W Morrison and Kenneth Alan De Jong. 1999. A test problem generator for
+     non-stationary environments. In Proceedings of the 1999 Congress on Evolutionary
+     Computation-CEC99 (Cat. No. 99TH8406), Vol. 3. IEEE, 2047–2053.
+[19] Hao Peng, Hongfei Wang, Bowen Du, Md Zakirul Alam Bhuiyan, Hongyuan
+    Ma, Jianwei Liu, Lihong Wang, Zeyu Yang, Linfeng Du, Senzhang Wang, et al.
+     2020. Spatial temporal incidence dynamic graph neural networks for traffic flow
+      forecasting. Information Sciences 521 (2020), 277–290.
+[20] Chaoli Sun, Handing Wang, and Yaochu Jin. 2021. Data-Driven Evolutionary
+     Optimization: Integrating Evolutionary Computation, Machine Learning and Data
+      Science. Springer.
+[21] Handing Wang, Yaochu Jin, Chaoli Sun, and John Doherty. 2018. Offline data-
+     driven evolutionary optimization using selective surrogate ensembles. IEEE
+     Transactions on Evolutionary Computation 23, 2 (2018), 203–216.
+[22] Gerhard Widmer and Miroslav Kubat. 1996. Learning in the presence of concept
+      drift and hidden contexts. Machine learning 23 (1996), 69–101.
+[23] Cuie Yang, Jinliang Ding, Yaochu Jin, and Tianyou Chai. 2023. A data stream
+     ensemble assisted multifactorial evolutionary algorithm for offline data-driven
+    dynamic optimization. Evolutionary Computation (2023), 1–25.
+[24] Danial Yazdani, Ran Cheng, Donya Yazdani, Jürgen Branke, Yaochu Jin, and Xin
+     Yao. 2021. A survey of evolutionary continuous dynamic optimization over two
+
+
+
+
+
+                                                        67

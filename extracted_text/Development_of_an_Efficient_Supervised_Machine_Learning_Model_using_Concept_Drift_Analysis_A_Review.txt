@@ -1,0 +1,358 @@
+Title: Development_of_an_Efficient_Supervised_Machine_Learning_Model_using_Concept_Drift_Analysis_A_Review
+
+--- Page 1 ---
+    Development of an Efficient Supervised Machine
+     Learning Model using Concept Drift Analysis: A
+                     Review
+
+
+
+                           Abhay A. Dande                                                 Dr. Mahendra A. Pund
+                 Computer Science and Engineering Department                  Computer Science and Engineering Department
+                     PRMIT&R, Badnera, 444701                             PRMIT&R, Badnera,444701
+                            Amravati (M.H.), India                                        Amravati (M.H.), India
+                          dandeabhay@gmail.com                                   pundmukesh@gmail.com10.1109/IDICAIEI61867.2024.10842736
+DOI:|         Abstract— The need  of  efficiently working  supervised                            II. LITERATURE REVIEW
+
+                                                                    Authors J. Lu et.al [1] explains the review of about 130IEEE     machinedomain  learningof  widespreadmodels researchis of greatinimportancethe  top andInformationit is the
+        Technology sector industry. Presently machine learning models    good quality scientific publications in the area of the concept
+         are becoming very complex, and it is necessary to maintain the     drift analysis. It has the up-to-date analysis of the algorithms,©2024
+          efficiency of the models in the increased complexity for better    techniques  to  handle  the  concept  drift and  suggests  a
+        performance. Efficiency of the complex supervised machine    framework type approach for concept drift analysis. The paper
+         learning models plays a significant role in the improved user    has a well-defined list of artificial datasets and benchmark
+         experience,  cost  and  resource  optimization,  real  time     datasets that can be used to analyse the performance efficiency
+          applications, model interpretability, explainability and its reuse    of the machine learning models in dealing with the concept
+           ability. Organizations are able to utilize the full capability of the      drift. It also mentions the details for the concept drift related
+         supervised learning models and can have the expected outcome    core concepts.
+          in the allied sector with efficient supervised machine leaning
+         models. Machine learning is the part of the almost any industry       Authors N. Hatamikhah et.al [2].  This research paper979-8-3315-2871-3/24/$31.00     and has its effect on many aspects of human life. To design the    deals with the concept drift analysis using the concept of deep
+|      expected workable and efficient machine learning model  is    neural network. The research approach mentioned in this
+          really challenging. It mainly includes the importance steps such    paper  is  based on ensemble  algorithm and  “streaming
+         as to select the proper data sets, accurate feature analysis,    ensemble algorithm” (SEA) algorithm. It has the focus on the(IDICAIEI)       selecting the proper machine learning model type, architecture,    parameter of observed change in the error that occurs in
+        hyper parameters finally designing efficient model. Concept     classification with respect to the newly arrived data. It has
+          drift is the major challenge in this design process and that needs    given more importance to the functioning of the deep learningIndustry       to be analyzed with systematic approach. This review paper                                                                         algorithm.
+and      aims to discuss Concept drift analysis with respect to supervised
+        machine learning models.                                       Authors Pingfan Wang et.al [3] proposed a model centered
+                                                              framework for the precise detection of the concept drift using
+          Keywords— Concept Drift, Precision, Sensitivity, Specificity,    the concepts of deep learning and transfer learning. It focusesEducation
+       F1 Score, Accuracy, Mean Squared Error                     more on the change in the model itself instead of change in the
+                                                            model output. The transfer learning approach used in this
+                                         I.  INTRODUCTION                                                                   paper speed the concept drift analysis process and reduces theHealthcare,        Machine Learning  is one of the subfields of artificial     incorrect identification of the concept drift. It uses the standard
+in       intelligence  that  deals  with  the  design  of  algorithms,     artificial databases and also real-world application databases
+        methodologies and models that incorporate the ability to     to demonstrate the usefulness of the proposed approach.
+        computers and machines, to learn from the data, understand
+                                                                    Authors Firas Bayram et.al [4] disclose the sound review
+        and make predictions from the obtained knowledge withoutIntelligence                                                                     of the various concept drift detection methods invented in
+        any need of the explicit programming. In recent years machine
+                                                                          recent  years. These methods  mostly make  use  of  the
+         learning has witnessed considerable growth and proliferation
+                                                                      degradation in the predictive ability of the model as a major
+        with the advancement in computing ability, availability of theArtificial                                                                         indicator for change in data distribution and related concept
+on      large standard datasets and innovative research contributions                                                                                       drift detection and its further analysis. It has also mentioned
+       by the experts in this area. The concept of the machine
+                                                                          the importance of the hyper parameter tuning for the efficient
+         learning  is under study from many decades but due  to
+                                                              machine learning model design.
+        advancement in the machine learning algorithms and moreConference      specialized domains in the machine learning such as deep       Authors Hanqing Hu et.al [5] focused on concept drift
+         learning, natural language processing and large language    detection using ensemble framework approach. It uses the
+        models it has been the most popular technology in almost all    combination of multiple set of classifiers for concept drift
+         the industry sectors. The ability of the machine learning     detection.  The  conclusion  results  obtained  from  theseInternational        models to analyse the vast amount of data and to get the    algorithms  are  effectively  summarized  using  a  novel
+         valuable conclusions has made  it an important  tool  for    mechanism  called  voting by  type. The  experimentation
+         researchers and business.                                   mentioned in the research paper is carried out on artificialDMIHER                                                                            datasets and three real world data sets.
+2nd
+                                                                    Authors Samuel Ackerman et.al [6] deals with the concept
+2024                                                                                    drift detection in the supervised machine learning model using
+
+
+
+
+       XXX-X-XXXX-XXXX-X/XX/$XX.00 ©20XX IEEE
+
+         Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:02 UTC from IEEE Xplore. Restrictions apply.
+--- Page 2 ---
+ concept of weak data slices. The method proposed in this         III. IDENTIFIED CORE OBJECTIVES FOR CONCEPT DRAFT
+ paper makes the use of feature space rule which is referred as                        ANALYSIS
+ data slice in case of concept drift detection. This approach is
+                                                                 Analysis of the concept drift  is a major challenge in
+ able to detect the performance degradation in the model for
+                                                              designing  efficient  supervised machine  learning models.
+ concept drift using novel approach that works even without
+                                                        Concept  drift plays  vital role  in the degradation of the
+ the actual feature labels.
+                                                                   predictive ability of the model and lowers its performance.
+    Authors P. Siirtola et.al [7] deals with the importance of   The research domain area Development of an  Efficient
+ features in the datasets to analyse the concept drift. It takes    Supervised Machine Learning Model with an Emphasis on
+ into consideration the entire number of features and their    Concept Drift Analysis for Labelled Data deals with the
+ correlation.  It also takes into account the total number of    following major aspects.
+ records for each type feature and their quantitative analysis.
+                                                               A. Designing an efficient supervised machine learning model
+ The observed shift in the correlation of the features denotes
+ the presence of the concept drift. The data distribution is then    The term efficiency of the supervised machine learning
+ processed to analyse and handle the concept drift.              model mainly deals with the accurate predictive ability of the
+                                                           model. This predictive  ability of the model should not
+    Authors E. Roffe et.al [8] suggests a novel approach to
+                                                            degrade even in case of the newly unseen datasets and even
+ detect the concept drift in machine learning models using
+                                                                      in data distribution change. The efficiency of the model
+ polynomial relations. The change in the data distribution is
+                                                             should not get reduced in case of increased complexity of the
+ detected  with  the  consideration  of polynomial  relations
+                                                      model and  its related hyper parameters.  It should work
+ between the various features of the dataset. R square value
+                                                                        sufficiently well for large scale application of wide domain
+ indicates the strength of the polynomial relations between the
+                                                                     [10, 11].
+ features of the data set. The high values of the R square
+ indicates that these are the important traits of the dataset that     B. The challenge of concept drift analysis
+ are supposed to remain constant  if there is no significant
+                                                               This research proposal deals with the challenge of analysing
+ change in the data distribution. Fast Switch Naive Bayes to
+                                                                   the concept  drift in the machine learning models. This
+ Avoid Redundant Update for Concept Drift Learning by A.
+                                                                     consists of the detection, analysis and adaption of the model
+     Liu, G. Zhang et.al [9] deals with analysis of the false     to handle this concept drift. Concept drifts deal with the
+ indications of the concept drift using Naive Bayes method. It     change  in  the  statistical  properties  of  data  and  data
+ explains the concept that the performance parameter of the      distribution. Many different approaches such as ensemble
+ supervised machine learning model  is highly sensitive to     learning, polynomial relations and data slices approach are
+ nature and amount of training data. These research papers     proposed until now to handle the concept drift [12].
+ provide valuable insights for the precise analysis of concept
+                                                           C. Improving model adaptability
+ drift and to study its impact on the efficiency of the supervised
+ machine learning models. The following table 1 shows the    The   efficient  machine  learning  model  should  have
+ efficient concept draft analysis methods.                           adaptability for the occurrence of the concept drift, change in
+                                                                   the data distributions and change in the statistical properties
+    TABLE I.      EFFICIENT CONCEPT DRAFT ANALYSIS METHODS         of the data. The reviewed research proposals possibly address
+       Author          Analysis parameter          Limitations           effective handling of the concept drift and model adaption to
+                  Method      Advantages                        maintain the efficiency and predictive ability of the model
+        J. Lu et al.    Framework   Comprehensive   High                  [13].
+      (2020)        -based         analysis, well-     complexity,
+                    approach,     defined core       extensive           D. Analysing model performance and explainability
+                  benchmark    concepts          computational
+                      datasets                          resources             This paper need to analyse the performance of the model in
+                                                       required                relation  to  the  concept  drift. The  important  efficiency
+     N.          Deep        Improved         Requires large         parameters and the evaluation metrics needs to be properly
+     Hatamikha    neural          classification       training              checked. Along with the accurate predictive ability of the
+     h et al.        network,      accuracy           datasets             model, the contribution of every feature in this prediction
+      (2021)       ensemble
+                                                           needs to be analysed so that the behaviour of the model can                    algorithm
+      Pingfan      Model-       Reduces          Dependent on          also be understood and trusted by its user [14]. Overall, the
+    Wang et al.    centered       incorrect drift      pre-trained            research problems and reviews focus around developing an
+      (2022)        framework,    detection,        models                 efficient supervised machine learning model that will have
+                       transfer       speeds up                             the ability to detect, analyse and adapt to the concept drift
+                     learning       analysis                            while maintaining the accuracy.
+       Firas         Performanc   Focus on
+                                                   Limited to
+     Bayram et     e-aware        predictive                                                           specific use-          This paper considers the research objectives aligned with the
+        al. (2023)       drift          performance                                                      cases only          domain of development of  efficient supervised machine
+                      detectors      degradation
+                                                                  learning models with focus on concept drift analysis. This     Hanqing      Ensemble     Effective         High
+    Hu et al.      framework,   summarization    Complexity in        paper summarizes these review objectives as follows.
+      (2023)        voting by      of results         implementing
+                                                               E. Analyse the existing models                     type                          ensemble
+                                               methods             Analyse the working of existing supervised machine learning
+                                                        models including the models that shows the performance
+                                                               degradation over time. Investigate the positive and negative
+                                                                  aspects of  these models along with  their  strength and
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:02 UTC from IEEE Xplore. Restrictions apply.
+--- Page 3 ---
+  weakness. See  the impact of  the new  datasets on  the    concept drift. Later on, model can be adapted accordingly to
+  predictive ability of these models [15].                        handle this deviation with the update in the model architecture
+                                                        and model parameters. The information obtained from the
+  F. Identify the concept drift detection mechanisms
+                                                                    feature relevance can be used to guide the process of feature
+  Study  and  understand  various  concept  drift  detection     selection on which feature to prioritize or which feature to
+  techniques for supervised machine learning models. Analyse     deprioritize in the concept drift processing of the model [23,
+  the concept  drift parameters,  its impact and  corrective     24].
+  measure to reduce the effect of this concept drift. Find the
+                                                      The above-mentioned feature relevance approach gives
+  best possible mechanism that will considerably reduce the
+                                                    more importance to feature and their statistical parameters.
+  impact of the concept drift [16].
+                                                            This paper exploring here is the combination of the deep
+  G. Develop the efficient supervised models                      learning  algorithms  and  statistical  concepts  for  feature
+                                                                    correlation matrix and observed concept drift. The use of deep
+  Design and develop efficient supervised machine learning                                                                  learning approach has the focus on the model design itself in
+  model based on the identified efficiency parameters.  The                                                             occurrence of the concept drift rather than the output of the
+  mechanism implemented to reduce the effect of the concept                                                          model. It reduces the complexity of the computation to a
+  drift must contribute to the increased efficiency and adaptable                                                                considerable extent and reduce the number of the wrongly
+  performance for the predictive ability of the model [17].                                                                      identified concept drift and is comparatively takes very less
+  H. Design an experimental prototype model:                   time [2, 25].
+  The designed efficient supervised machine learning model      The mentioned proposed approach  for  concept  drift
+  can be tested for any real-world use cases applications based     identification and adaption for efficient machine learning
+  on the appropriate available datasets.                      model design can be applied and explained in general as
+                                                    shown in the figure below.
+                IV. DISCUSSED APPROACH
+
+    This paper  considers  various  applicable, and  dataset
+ related statistical properties of the data such as mean, median,
+ mode,  frequency,  standard  deviation,  variance,  range,
+ skewness, kurtosis, outliers, correlation, and dimensionality of
+ the data to detect the concept drift in the dataset with respect
+ to the features in the dataset [18].
+
+    The data distribution of the data needs to be analysed to
+ study the concept drift. The various types of data distribution
+ tests that can be applied depends up the nature of the dataset.
+ Some of the standard data distributions that can be used are
+ Gaussian   Distribution,  Nominal   Distribution,  Poisson
+ Distribution, Exponential Distribution, Binomial Distribution,
+ Multimodal Distribution. If required these distributions can be
+ used  along  with  some  good  statistical  tests  such  as
+ Kolmogorov-Smirnov (KS) Test and Chi-Square Test [19,                      Fig 1: Concept Drift Analysis Process
+ 20].
+                                                      The proposed model centric transfer learning coupled with
+      Initially this paper propose here the method based on the     statistical analysis and deep learning algorithms  is quite
+ feature relevance approach for initial concept drift analysis. It    superior in many respects. This approach speeds up the
+ deals with the identified set of features that are having largest    concept drift detection to a considerable extent reducing the
+ relevance and contribution for the predictive ability of the    complexity and computation cost. It is able to filter out the
+ model. To find out the feature correlation this paper proposed    wrongly identified concept  drift with great precision and
+ to use Pearson’s correlation, Heatmaps can be efficiently used    accuracy.  It allows the model to adapt according to the
+ to find out the most correlated and most important features in    occurred concept drift. This adaption is reflected from the
+ the model’s predictive ability. When there is a change in the    changes in a model structure such as feature weight change in
+  statistical properties of the data, change in the data distribution    deep neural network with back propagation and change in the
+ leading to concept drift, this relevance between the features    decision boundary[26, 27].
+ and the relevance between the predictive ability of the model
+ will change in a notable manner indicating inefficiency in the   V. PROPOSED PARAMETERS TO ANALYZE THE EFFICIENCY OF
+ model thereby degrading  its predictive performance. This               MACHINE LEARNING MODELS
+ change in the relevance because of the occurred concept drift
+                                                              A. Accuracy
+  is crucial to monitor with the newly arrived data. In this case
+ of the concept drift the feature relevance metric has to keep    Accuracy of the machine learning model is the primary metric
+ updated using incremental learning approach [1, 21, 22].        and it is the measure of the total number of correct predictions
+                                                                  instances by the model out of all the available instance for a
+    Once  the  baseline  for  feature  relevance  has  been                                                                      particular dataset. It is appropriate measure for the balanced
+ established it can be used as a reference point for the detection                                                                    datasets but for the unbalanced datasets it does not work well.
+ of the concept drift. The obtained current relevance every time
+ with newly arrived data will be compared the baseline by the    B. Precision
+ implemented concept drift detection method. The significant
+ deviation from the baseline denotes the occurrence of the
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:02 UTC from IEEE Xplore. Restrictions apply.
+--- Page 4 ---
+ This parameter measures  the accuracy of the  positively    making them more suitable for scaling ability. The users are
+ predicted instance made by the model. It is defined as the ratio    able to get deep insight into model’s behaviour and provides
+ of the identified positively predicted instance to the total    confidence in the model’s decision-making ability. Instead of
+ number of positive instances present.                          unnecessary training the model on regular basis the models
+                                                                  get retrained on the occurrence of concept drift only. This C. Recall or Sensitivity
+                                                          approach helps to reduce the complexity, computational cost
+ Recall measures the ability of the model to correctly identify    and saves time.
+  all positive instances present.  It is also called as the true
+ positive rate.
+                                                                      REFERENCES
+ D. Specificity
+                                                                                     [1]   J. Lu, A. Lu, F. Dong, G. Gu, J. Gama, and G. Zhang, "Learning under
+ This parameter measures the ability of the model to correctly         Concept Drift: A Review," arXiv:2004.05785v1 [cs.LG], Apr. 13,
+ identify all negative instances present. It is also called as true          2020.
+ negative rate                                                                   [2]  N. Hatamikhah, M. Barai, M. R. Kangavari, and M. A. Keyvanrad,
+                                                                            "Concept Drift Detection via Improved Deep Belief Network," in 2018
+ E. F1-Score                                                    IEEE Xplore, pp. 978-1-5386-4916-9/18, 2018.
+
+                                                                                     [3]   P. Wang, N. Jin, D. Davies, and W. L. Woo, "Model Centric Transfer
+ The F1-score is the harmonic mean of precision and recall. It                                                                              Learning for Concept Drift Detection," Knowledge-Based Systems, vol.
+  is used to balance precision and recall. It is the useful metrics          275, p. 110705, 2023.
+ for efficiency if the dataset is imbalanced.                              [4]   F. Bayram, B. S. Ahmed, and A. Kassler, "From concept drift to model
+                                                                                     degradation: An overview on performance-aware  drift detectors,"
+ F. ROC Curve and AUC                                                                         Knowledge-Based Systems, vol. 245, p. 108632, Jun. 7, 2022.
+ Receiver Operating Characteristic (ROC) and Area Under the      [5]  H. Hu, M. Kantardzic, and L. Lyu, "Detecting Different Types of
+ ROC Curve (AUC). It is the graph of the parameters true         Concept Drifts With Ensemble Framework," in 2018 17th IEEE
+                                                                                       International Conference on Machine Learning and Applications,
+ positive rate and true negative  rate  at various identified          2018, pp. 978-1-5386-6805-4/18.
+ threshold values. It is used to quantify the overall performance                                                                                     [6]   S. Ackerman, P. Dube, E. Farchi, O. Raz, and M. Zalmanovici,
+ of the model. High value of the AUC indicates good quality         "Machine Learning Model Drift Detection Via Weak Data Slices,"
+ of discrimination between classes.                                       arXiv:2108.05319v1 [cs.LG], Aug. 11, 2021.
+                                                                                     [7]   P. Siirtola and J. Roning, "Feature Relevance Analysis to Explain
+ G. Mean Square Error (MSE)                                                                           Concept Drift - A Case Study in Human Activity Recognition," in
+  It is the performance metric used in case of the regression          Proceedings of the 2022 ACM International Joint Conference on
+                                                                                 Pervasive and Ubiquitous Computing and the 2022 ACM International
+ models. It is the measurement of the average of the squared         Symposium on Wearable Computers, Sep. 2022, pp. 386-391.
+ difference between the values predicted by the model and the                                                                                     [8]  E. Roffe, S. Ackerman, O. Raz, and E. Farchi, "Detecting model drift
+ actual values of the target variable.                                        using polynomial relations," arXiv:2110.12506v2 [cs.LG], Dec. 22,
+                                                                               2021.
+ H. Root Mean Square Error (RMSE)
+                                                                                     [9]  A. Liu, G. Zhang, K. Wang, and J. Lu, "Fast Switch Naive Bayes to
+ RSME is obtained from the MSE. It is the square root of the         Avoid Redundant Update for Concept Drift Learning," in IEEE Xplore,
+                                                                               2020, pp. 978-1-7281-6926-2/20.
+ MSE. It is generally used when the error metric needs to in the
+ same units as the target variable.                                        [10] A. Tsymbal, M. Pechenizkiy, P. Cunningham, and S. Puuronen,
+                                                                      "Dynamic  integration  of  classifiers  for  handling  concept  drift,"
+  I.  Absolute Error (AE)                                                     Information Fusion, vol. 9, no. 1, pp. 56-68, 2008.
+                                                                                [11]  J. Gama, A. Bifet, M. Pechenizkiy, and A. Bouchachia, "A survey on
+  It is also called as Mean Absolute Error (MAE). It is not much          concept drift adaptation," ACM Computing Surveys (CSUR), vol. 46,
+ sensitive to outliers in comparison with MSE and RMSE. It is           no. 4, pp. 1-37, 2014.
+ the measurement of the absolute differences between the     [12] G. Widmer and M. Kubat, "Learning in the presence of concept drift
+ values predicted by the model and the actual values of the         and hidden contexts," Machine Learning, vol. 23, no. 1, pp. 69-101,
+                                                                               1996.
+ target variable.
+                                                                                [13]  J. Lee, "Detection of Concept Drift for Learning from Stream Data," in
+ J.  Confusion Matrix                                             IEEE 14th International Conference on High Performance Computing
+                                                                       and Communications, IEEE Computer Society, 2012.
+  It is a metric used for the determination of the performance of     [14] S. Yu, Z. Abraham, and H. Wang, "Concept Drift Detection and
+ the classification model for a given dataset.  It gives the          Adaptation with Hierarchical Hypothesis Testing," Journal of the
+ information about the nature of the predictions made by the          Franklin Institute, vol. 356, no. 5, pp. 3187-3215, Mar. 2019.
+ model. It has the entries classified as True Positive, True     [15] B. Kurlej and M. Wozniak, "Active learning approach to concept drift
+ Negative, False Positive, and False Negative.                            problem," in Oxford University Press, Oct. 2011.
+                                                                                [16] B. Krawczyk, "Reacting to Different Types of Concept Drift with
+                    VI. CONCLUSION                                  Adaptive and Incremental One-Class Classifiers," in IEEE Computer
+                                                                                      Society Publication, 2015.
+ With the successful analysis of the concept drift, the model                                                                                [17] D. Shang and G. Zhang, "Fast Concept Drift Detection Using Singular
+ can be auto adjusted to maintain its desired performance that          Vector Decomposition," in IEEE 12th International Conference on
+ ensures   its  possible  expected  efficiency  and  desired            Intelligent Systems and Knowledge Engineering (ISKE), 2017.
+ predictive ability for the real worlds use cases. Early alarm     [18] B. Zhang and Y. Chen, "Research on detection and  integration
+ system guides the time-to-time interventions lowering the            classification based on concept drift of data stream," SpringerOpen
+                                                                                    Journal, May 2019.
+ effect on performance of the model and preventing potential
+                                                                                [19] G. Fenza and C. Stanzione, "Concept-drift detection index based on
+ damage due to wrong interpretations. With the continuous          fuzzy formal concept analysis for fake news classifiers," Technological
+ monitoring  of  the  data  the  machine  learning  models          Forecasting & Social Change, vol. 194, p. 122640, May 2023.
+ incorporate themselves with the auto update ability and the
+ generalization  capabilities  of  the models  gets enhanced
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:02 UTC from IEEE Xplore. Restrictions apply.
+--- Page 5 ---
+  [20] B. Zhang and L. Xue, "Model Updating Mechanism of Concept Drift
+       Detection in Data Stream Based on Classifier Pool," SpringerOpen
+       Journal, May 2016.
+
+  [21] D. Janzing and L. Minorics, "Feature relevance quantification in
+       explainable AI: A causal problem," arXiv:1910.13413v2 [stat.ML],
+      Nov. 27, 2019.
+
+  [22] L. Pfannschmidt and J. Jakob, "Feature Relevance Determination for
+       Ordinal Regression in the Context of Feature Redundancies and
+       Privileged Information," arXiv:1912.04832v1 [cs.LG], Dec. 10, 2019.
+
+  [23] A. Liu and J. Lu, "Concept Drift Detection: Dealing with Missing
+      Values via Fuzzy Distance Estimations," arXiv:2008.03662v1 [cs.LG],
+      Aug. 9, 2020.
+
+  [24] C. Halstead and Y. S. Koh, "Analyzing and repairing concept drift
+       adaptation in data stream classification," SpringerOpen Journal, May
+      2021.
+
+  [25]  J. Liu and J. Lu, "Concept Drift Detection via Equal Intensity k-means
+      Space Partitioning," arXiv:2004.11587v1 [cs.LG], Apr. 24, 2020.
+
+  [26] S. Sun and K. Tang, "Concept  Drift Adaptation by Exploiting
+       Historical Knowledge," arXiv:1702.03500v1 [cs.LG], Feb. 12, 2017.
+
+  [27] D. Zambon and C. Alippi, "Concept Drift and Anomaly Detection in
+      Graph Streams," arXiv:1706.06941v3 [cs.LG], Feb. 9, 2018.
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:02 UTC from IEEE Xplore. Restrictions apply.

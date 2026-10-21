@@ -1,0 +1,350 @@
+Title: A_review_on_real_time_data_stream_classification_and_adapting_to_various_concept_drift_scenarios
+
+--- Page 1 ---
+                      A Review on
+
+  Real Time Data Stream Classification and Adapting To Various Concept
+                                Drift Scenarios
+
+
+
+
+
+               Ms. Priyanka B.Dongre                                      Dr. Latesh G. Malik
+         Computer Science and Engineering, GHRCE                    Computer Science and Engineering, GHRCE
+             G.H.Raisoni College of Engineering                             G.H.Raisoni College of Engineering
+                       Nagpur, India                                                Nagpur, India
+            e-mail-priyankadongre90@gmail.com                                 e-mail-latesh.malik@raisoni.net
+
+
+   Abstract—Data streams are viewed as a sequence of relational    environments,  incoming  data  form  a  data  stream  are
+   tuples  (e.g., sensor readings,call records, web page  visits) that    characterized by huge number of instances and they arrive
+   continuously  arrive  at  time-varying  and  possibly  unbound     rapidly, which often requires real-time and quick response.
+   streams.These data streams are potentially huge in size and thus it                                                      Compared  to  static environments,  the processing of  data
+    is  impossible  to  process many  data  mining  techniques and
+                                                                 streams implies a variety of new requirements for learning
+   approaches. Classi¿cation techniques fail to successfully process
+                                                                     algorithms, such as constraints on memory usage, restricted   data streams because of two factors: their overwhelming volume
+   and their distinctive feature known as concept drift. Concept drift is     learning, and one scan of incoming instances and testing time.
+   a term used to describe changes in the learned structure that occur      Concept drift occurs when the concept about which data are
+   over time. The occurance of concept drift leads to a drastic drop in    being collected shifts from time to time after a minimum
+   classi¿cation accuracy. The recognition of concept drift in data     stability  period. Such changes  are  reÀected  in incoming
+   streams  has  led  to  sliding-window  approaches  also  diơerent    instances and decreases the accuracy of classi¿ers learned
+   approaches  to mining data streams with concept  drift include    from past training tuples(input data examples). Examples of
+   instance selection methods,  drift detection, ensemble classi¿ers,                                                                           real life concept drifts include monitoring systems, ¿nancial
+   option trees and using Hoeơding boundaries to estimate classi¿er
+                                                                    fraud detection spam categorization weather predictions and
+   performance. This paper describes the various types of concept
+                                                              customer preferences.    drifts  that  affect  the  data  examples  and  discusses  various
+   approaches inorder to handle concept drift scenarios.The aim of      Changes of target concepts are categorized into sudden,
+    this paper is to review and compare single classi¿er and ensemble    incremental, gradual, recurring, blip or noise drifts. Figure 1.
+   approaches to data stream mining respectively.                  Shows the six basic types of drifts. The ¿rst plot (Sudden)
+                                                         shows abrupt changes that instantly and irreversibly change
+   Index Terms  : Data stream mining;  concept  drift; ensemble    the data examples of respective class. The next two plots
+    classifier; dynamic environment.                                   (Incremental and Gradual) illustrate changes that take place
+                                                                slowly over time. Incremental drift occurs when data example
+                                                                slowly change their values over time, and gradual drift occurs
+                           I.     INTRODUCTION                                                    when  the  change  in  data  example  involves  the  class
+                                                                          distribution of various data.
+    Most of the previous and current research in data stream
+   mining  is  carried  out  in  static  environments,  wherein  a
+   complete dataset is presented to the learning algorithm. These
+   data were usually electronically stored and,  if needed, was
+   easily accessed by the  learning algorithms  several  times.
+   However, the target concepts which should be learned were
+   always ¿xed. Over these years, many solutions to the static
+   classi¿cation have been developed and several quite accurate
+   classi¿ers are now available in large scale. However, in some
+   of the newest and latest applications, learning algorithms work
+   in dynamic environments, where a huge amount of data are
+   continuously generated.Traf¿c management Sensor networks,
+   monitoring, web  log  analysis  or  telecommunication  are
+   examples   of   such   applications.   In   these  dynamic     Fig. 1. Different types of Concept Drifts
+
+
+
+
+
+  978-1-4799-2572-8/14/$31.00 c⃝2014 IEEE             533
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:53 UTC from IEEE Xplore. Restrictions apply.
+--- Page 2 ---
+   Some researchers do not differentiate these two types of    algorithm. Cohen and Strauss analyzed the use of diơerent
+  drift and use the terms incremental gradual and as synonyms.    decay functions for calculating data stream aggregates.
+ The left-bottom plot (Recurring) represents changes in data
+  example that are only temporary and are reverted after some
+                                                                  B.    FISH [2]
+  time. Some researchers refer such changes as local drift. Local
+  drift happens when several data are expected to switch over      Zliobaite proposed a family of algorithms which is known as
+  time and reappear at irregular time intervals.This drift is not    FISH(FISH1,FISH2,FISH3),   that  uses  time  and  space
+  certainly periodic in nature. The ¿fth plot (Blip) represents a     similarities between data examples as a way of dynamically
+  “rare event”, which can be considered as an outlier in a static    creating a window. To explain the approach, let us consider an
+  distribution. The  last plot in Figure  1. represents random     illustrative example, which we present in Figure 2. A binary
+  changes  in  data  examples, which  should be  ¿ltered  out     classification problem is represented by black and white dots
+  efficiently. A good classi¿er must learn incrementally and    as shown below.
+  adapt to such changes.
+    In  recent  years,  several approaches  that  try  to handle
+  various concept drift scenarios have been proposed effictively,
+  including mainly  sliding window approaches  [1],adaptive
+  sliding window techniques [2], new online algorithms, special
+  detection techniques,Drift detection methods [4], Hoeffding
+  trees  [6], Ensemble  drift  detection methods and adaptive
+  ensembles  [8].  Ensembles  are  popular  approaches  for
+                                                                       Fig. 2. Rotating hyperplane example (left) initial source S1,
+  improving   classi¿cation   accuracy   in    static   learning                                                                        (center) source S2 after 45   rotation, (right) source S3 after
+  environment, however, they must be generalized for changing
+                                                        90   rotation. Black and white dots represent the two classes.
+  environments. Such a generalization can either modify the
+  structure of the ensemble (weaker components are replaced by
+                                                            The data generating sources change along with time,
+  base classi¿ers trained on the most recent data examples),                                                                  gradually rotating the optimal classi¿cation hyperplane. For a
+  updating the aggregation technique (e.g., updating weights in
+                                                               given ¿xed space area, shown with a big round circle, the
+  the voting formula).
+                                                                      correct class changes as the optimal boundary rotates. The
+                                                           examples shows that similarity in an evolving environment
+                       II.     RELATED WORK                                                           depends on both time and space respectively.
+                                                                      Structure:
+   A.   WINDOWING TECHNIQUE
+                                                                    For each new example xi in the data stream, FISH3
+   Windows provide a way  that  limit the amount of data    evaluates the different time/space proportions and window
+  examples introduced to the learner, thus eliminating those data    sizes.FISH3  allows  to  dynamically   establish  the  size of
+  examples that come from an old concept.                          the   training window  and also provide    the  proportion
+  Structure:                                                between time and space weights.  The algorithm’s previous
+        The basic windowing algorithm is straightforward in    version  FISH2  takes  the  time/space  proportion  as    a
+  nature. Each data example updates the window and later the    parameter, while the   first   algorithm from   the   family,
+  classi¿er  is updated by that window  itself. In the way  it    FISH1,  uses a  fixed window  of the  nearest  instances and
+  models the forgetting process. In the simplest approach sliding     this is the major difference between the two algorithms.
+ windows are of ¿xed size and include only the most recent
+  examples from the data stream under consideration. With each    Disadvantage:
+ new data point the oldest data example that does not ¿t in the     FISH3 is an algorithm that always need to iterate through
+ window is thrown away.                               many window sizes and time/space proportions  each time
+                                                              performing  leave-one-out  cross validation. This is a costly
+  Disadvantage:                                                  process and may be unfeasible  for rapid   data   streams
+  When fixed size window is used, the user is caught in a     scenarios.
+  tradeoơ. In case of small window size the classi¿er will react
+  quickly to changes, but may loose on accuracy in periods of
+  stability and on the other hand, choosing a large size window     C.   ADWIN [3]
+  will result in increasing accuracy in periods of stability, but     Bifet proposed an adapting sliding window algorithm called
+  will fail to adapt to rapidly changing concept drifts. That is   ADWIN suitable for data streams with sudden drift scenarios.
+ why dynamic ways of modelling the forgetting process have   The algorithm  keeps a sliding window W with the most
+  been proposed which  is known as Weighted Windows. A    recently read  data examples. The main idea of ADWIN  is
+  simple way of making the forgetting process more dynamic is    as follows: whenever two “large enough” subwindows of W
+  providing the window with a decay function that assigns a     exhibit “distinct enough” averages, one can conclude that the
+  weight to each data example. Older examples receive smaller    corresponding  expected  values are not similar, and thus the
+  weights and are treated as less important by the base classi¿er    older portion of the window is dropped.
+
+
+
+
+
+ 534                       2014 IEEE International Advance Computing Conference (IACC)
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:53 UTC from IEEE Xplore. Restrictions apply.
+--- Page 3 ---
+  Structure:                                                       B.   EDDM [4]
+ The ideal part of the algorithm lies in the definition of cut    Baena-Garcia et al. proposed a modification of Drift Detection
+  and the  test  it  is used  for.  The authors stated, the different    Method called EDDM. The authors use the same warning-
+  statistical tests can  be used  for this  purpose,  but  propose    alarm mechanism that was proposed by Gama,  but  instead
+  one specific implementation only.                                of using the  classifier’s error rate,  the  distance  error  rate
+                                                      was proposed.
+  Disvantage:
+ The verification of all subwindows  is very costly process due    Disvantage:
+  to the number of possible  split  points. ADWIN works only  EDDM works better than DDM for slow gradual  drift, but  is
+  for 1-dimensional  data only,  e.g., the running  error. For n-    more sensitive to noise issues.  Another drawback of this
+  dimensional raw data, a separate window must be maintained  EDDM is that it considers the threshold values and searches
+  for each dimension which results in handling more than one     for concept  drift  when a minimum   of 30 errors  have
+  window. This modified model, although costly, reflects the    occurred.  This is necessary  to approximate the  Binomial
+  fact  that  the importance  of each  feature may change  at     distribution by a Normal  distribution, but  can take a large
+  different pace.                                           amount of examples to happen over.
+
+            III.    SURVEY ON DRIFT DETECTOR
+                                                               C.    HOEFFDING TREES [5]
+
+                                                              Decision trees were the first learners  to be adapted to data  After windowing techniques, another  group of algorithms
+                                                              stream  mining by using the Hoeffding trees bound.  The  allowing to adapt almost  any learner   to evolving data
+                                                             Hoeffding bound states  : with the probability 1 íį, the true  streams  are drift detectors.  Their  task  is to detect concept
+                                                    mean of a random variable of range R will not differ from the  drift  and alarm  the base learner  that its model should be
+                                                                 estimated mean after n independent observations by more  rebuilt or updated.
+                                                                      than:
+                                              E = ¥ R2ln (1/į) / 2n                                  (4)
+   A.     DDM [4]
+                                                          Using this  bound,  Domingos  and  Hulten proposed  a
+ Gama proposed the Drift Detection Method that implies, in     classifier called Very Fast Decision Tree.Their performance
+  each iteration an online classifier predicts the decision class of    has been compared with  traditional decision  trees, Naive
+  an example.  That prediction can be either true or false, thus    Bayes, kNN, and ensemble methods respectively. They proved
+  for a set of example the error is a random  variable.  That is     to be much  faster   and  less memory consuming   while
+ why the number of  classification  errors with a Binomial    handling extremely large datasets.
+  distribution calculated as given by Equation
+
+                    si = ¥ pi(1-pi)/i                    (1)                  IV.     SURVEY ON ENSEMBLE STRATEGIES FOR
+                                                   CHANGING ENVIRONMENTS
+  These values are used to calculate and   a warning level
+  condition  presented  in  Equation  2.  and  an  alarm  level    Ensemble  Classifier  are  a  common  way  of  boosting
+  condition presented in Equation 3. Each time a warning level     classification accuracy. Due to their modularity, they provide
+  is reached, the data examples are remembered in a separate    a natural way of adapting to change by modifying ensemble
+  window.                                             members  also  ensemble    classifiers mine  evolving  data
+               pi + si  pmin + Į · smin            (2)                 streams.
+               pi + si  pmin + ȕ · smin            (3)              Ensemble algorithms are sets of single classifiers components
+                                                       whose  decisions  are  aggregated by a  voting  rule.   The
+ The values Į and ȕ in the above conditions decide about    combined decision of many single classifiers is more accurate
+  the confidence levels at which the warning and alarm signals    than  that given by a single component.  Studies show that to
+  are triggered only then. The authors proposed Į = 2 and ȕ =    obtain  this  accuracy  boosting,   it is necessary  to diversify
+  3, giving approximately  95% confidence of warning  and    ensemble members from one other.
+ 99% confidence of concept drift.
+
+  Disvantage:                                                     A.    STREAMING ENSEMBLE ALGORITHM (SEA) [6]
+ DDM works best on data streams with sudden concept drift     Street  and  Kim proposed  an ensemble  method  called
+  as gradually   changing   concept  drifts can pass without    Streaming  Ensemble  Algorithm  (SEA) that changes   its
+  triggering  the alarm  level. When no changes  are  detected,     structure to react  to changes.  They  propose  a heuristic
+ DDM works  like a lossless learner constantly enlarging the    replacement strategy of the “weakest”  expert based on two
+ window  size  that  can  lead  to  the memory  limit  being     factors:  accuracy and diversity. SEA performed almost  as
+  exceeded.                                                      well as a pruned  tree on static  data  sets and much  better
+
+
+
+
+
+                        2014 IEEE International Advance Computing Conference (IACC)                       535
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:53 UTC from IEEE Xplore. Restrictions apply.
+--- Page 4 ---
+  on  data   sets   with   concept  drift.It showed  that SEA     to be predicted. Compared  to  existing ensemble methods
+  performed  best when no more than  25 components  were    the  Accuracy   Diversified  Ensemble   provides   a new
+  used, base  classifiers were unpruned, and simple majority    learning   strategy.  ADE   differs from AWE   in weight
+  voting was used to combine member decisions.                      definition,  the  use of online base classifiers,bagging and
+                                                                updating components with incoming examples.
+
+    B.   ACCURACY WEIGHTED ENSEMBLE(AWE) [7]
+    In Accuracy Weighted  Ensemble (AWE),  they  train  a      E.   ACCURACY UPDATED ENSEMBLE (AUE) [9]
+  new  classifier C0 on  each incoming data chunk and  use     The Accuracy Updated Ensemble maintains a weighted pool
+  that chunk  to evaluate  all the  existing ensemble members    of component classi¿ers and predicts the class of incoming
+  to select the best component classifiers.                       examples by aggregating the predictions of components using
+                                                               a weighted voting rule. After each data chunk of examples,a
+                                                  new  classi¿er  is  created, which  substitutes  the  weakest
+                                                              performing ensemble member.
+                                                       The performance of each component classi¿er is evaluated
+                                                        by estimating its expected prediction error on the examples
+                                                         from the most recent data chunk. After substituting the poorest
+                                                              performing component, the remaining ensemble members are
+                                                                 updated,  i.e., incrementally  trained, and  their weights are
+                                                                   adjusted according to their accuracy. It uses Hoeffding Trees
+                                                                   as component classi¿ers, but the presented algorithm can be
+  Fig. 3. Data Distribution
+                                                                considered as a general method, and in principle, one could
+                                                               use other online learning algorithms as base learners.
+  The AWE  algorithm works  well on  data streams   with
+  reoccurring  concepts  as well as different types of drift. As
+                                                                        V.     CONCLUSION
+  with SEA it is crucial to properly define the data chunk size
+  as it determines the ensembles  flexibility. AWE will improve
+   its performance  gradually over time and is best suited  for             In this paper the problem of mining time evolving
+  large data streams.                                              data streams are discussed.  It defined the main characteristics
+                                                                   of data streams and discussed  different types of changes  that
+                                                               occur  in streaming data. During the discussion it focused on
+   C.    HOEFFDING OPTION TREES AND ASHT
+                                                         non-random class definition changes  called concept drift. It
+   BAGGING [8]
+                                                                     also  reviewed  existing    single  classifier  and  ensemble
+    Recently,  two  interesting ensemble methods  which use    approaches to mining data  streams  with concept drift. The
+  Hoeffding   trees were been   proposed.  that allows each    analysis  led to the development of a new algorithm called
+  training example to update a set of option nodes rather than    Accuracy   Diversified Ensemble,  which  is based on our
+  just a single leaf. Hoeffding Option Trees (HOT) provide a     critique   of  the  earlier  developed Accuracy   Weighted
+  compact structure that works like a set of weighted classifiers,    Ensemble.
+  and  just  like regular Hoeffding Trees, they are  built in an                  It found that bagging provided  time and memory
+  incremental fashion.When compared with Hoeffding Option    overhead  without improving  accuracy.Findings  concerning
+  Trees, ASHT Bagging proves to be more accurate on most    the  windowed classifier.The mining of data  streams  with
+  data sets, but  is extremely time and memory expensive.       concept  drift is growing into  a new branch  of knowledge
+                                                                    discovery, with  its own unique research problems. The need
+                                                                        for online processing with time and memory constraints forces   D.   ACCURACY DIVERSIFIED ENSEMBLE [9]
+                                                                    researchers  to  focus on  resource  usage  while  designing
+  Accuracy  Weighted  Ensemble  is based on  its weighting                                                                   accurate classifiers.
+  mechanism,   whereas   Accuracy   Diversified Ensemble                                                         As  future work, the plan to carry out additional
+  (ADE), which not only selects but  also updates components                                                               experiments to analyze the relationship between data chunk
+  according  to the current distribution. AWE was designed to                                                                        size and  the  performance  of bagging in the  Accuracy
+  use traditional batch classifiers as base learners.  Because of                                                                    Diversified Ensemble can be done.    Further- more, since
+   this,  they  have to create  ensemble members  from single                                                             bagging did  not prove  to provide  additional accuracy  to
+  chunks and  later only adjust component weights according                                                           ensemble method, the plan   to explore different ways of
+  to the current distribution. This makes the data chunk size a                                                                     diversifying ensemble members like the use of heterogeneous
+  crucial parameter for AWE’s performance. Another drawback                                                               base learners or boosting.  Finally,  in future  experiments
+  of AWE is its weight function.  Because the algorithm   is                                                           comparing a larger number of algorithms to take a broader
+  designed to perform well on cost-sensitive  data,  the mean                                                               look at  the performance  of the most recent stream  mining
+  square error threshold cuts-off “risky”  classifiers. In rapidly                                                                 techniques can be carried out.
+  changing  environments  (like  the  Electricity  dataset)  this
+  threshold can“mute” all ensemble members causing no class
+
+
+
+
+
+ 536                       2014 IEEE International Advance Computing Conference (IACC)
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:53 UTC from IEEE Xplore. Restrictions apply.
+--- Page 5 ---
+            ACKNOWLEDGMENT                          [14] Nishida, K. and Yamauchi, K. (2009). Learning,
+                                                                       detecting, understanding, and predicting concept changes.
+
+ The author would  like  to thank “Dariusz Brzezinski”  for
+  making available all the latest technique applied to mining
+  data stream with concept drift and experimental evaluation
+  and comparison of different approaches towards drift detection
+  and classification.
+
+
+                REFERENCES
+
+
+  [1]  SACHDEV,  M.S. ; SASKATCHEWAN  UNIV.,  SASKATOON,
+  SASK.,    CANADA        ; SIGHU,      T.S. ; GHOTRA,      D.S.,
+  “IMPLEMENTATION  OF  AN  ADAPTIVE  DATA  WINDOW
+  TECHNIQUE IN A DISTANCE RELAY” 8TH IEEE INT. CONF. DATA
+  MINING, DEC. 2008, PP. 929–934.
+  [2] L. L. MINKU, A. P. WHITE, AND X. YAO,“THE IMPACT OF
+
+  DIVERSITY ON ONLINE ENSEMBLE LEARNING IN THE PRESENCE
+ OF CONCEPT DRIFT,” IEEE TRANS. KNOWL. DATA ENG., VOL. 22,
+  NO. 5, PP. 730–742, MAY 2010.”
+   [3] Chu F, Wang Y Z, and Zaniolo C. An adaptive learning
+  approach  for  noisy  data  streams[C]//Proc  of  4th IEEE
+  International Conference on Data Mining, Brighton: IEEE
+  Computer Science, 2004: 351-354
+  [4] L. L. Minku and X. Yao  , “DDD: A new ensemble
+  approach for dealing with concept drift,” IEEE Trans. Knowl.
+  Data Eng., vol. 24, no. 4, pp. 619–633, Apr. 2012.
+  [5] Zhang P, Zhu X Q, and Shi Y. Categorizing and mining
+  concept  drifting  data  streams[C]//Proc  of  the 14th ACM
+ SIGKDD International
+  Conference on Knowledge Discovery and Data Mining, Las
+  Vegas, Nevada, USA: ACM Press, 2008: 812-820.
+  [6] W. N.  Street and Y. Kim  , “A streaming ensemble
+  algorithm (SEA) for large-scale classi¿cation” , IEEE Trans.
+  Knowl. Data Eng., vol. 29, no. 3, pp. 619–633, Apr. 2010.
+  [7] R. Elwell and R. Polikar, “Incremental learning of concept
+  drift  in nonstationary environments,” IEEE Trans. Neural
+  Netw., vol. 22, no. 10, pp. 1517–1531, Oct. 2011.
+  [8] A. Bifet, G. Holmes, B. Pfahringer, R. Kirkby, and R.
+  Gavaldà, “New ensemble methods for evolving data streams,”
+  in Proc. 15th ACM SIGKDD Int. Conf. Knowl. Discovery Data
+  Mining, Jul. 2009, pp. 139–148.
+  [9] Dariusz Brzezinski and Jerzy Stefanowski,“Reacting to
+  Different Types Of Concept Drifts- An Accuracy Updates
+  Algorithm,” IEEE  Trans.  Neural  networks and  learning
+  system.,2013.,vol. 23.
+  [10] I. Zliobaite, “Combining time and space similarity for
+  small size learning under concept drift,” in Proc. 18th ISMIS
+  Int. Symp., 2009, pp. 412–421.
+  [11]  Kolter,  J Z and Maloof M A. Dynamic  weighted
+  majority:  an  ensemble  method  for  drifting  concepts[J].
+  Machine Learning Research, 2007, 8:2755-2790
+  [12] Zliobaite, I. and Kuncheva, L. (2009). Determining the
+  training window  for small sample  size  classi_cation with
+  concept drift. In Data Mining Workshops, 2009. ICDMW'09.
+ IEEE International Conference on, pages 447-452. IEEE.
+
+
+
+
+
+                        2014 IEEE International Advance Computing Conference (IACC)                       537
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:53 UTC from IEEE Xplore. Restrictions apply.

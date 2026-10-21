@@ -1,0 +1,960 @@
+Title: Unsupervised_Concept_Drift_Detection_From_Deep_Learning_Representations_in_Real-Time
+
+--- Page 1 ---
+6232                                                 IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING, VOL. 37, NO. 10, OCTOBER 2025
+
+ Unsupervised Concept Drift Detection From Deep
+      Learning Representations in Real-Time
+
+       Salvatore Greco    , Bartolomeo Vacchetti, Daniele Apiletti    , and Tania Cerquitelli    , Member, IEEE
+
+
+
+
+  Abstract—Concept drift is the phenomenon in which the un-
+derlying data distributions and statistical properties of a target
+domain change over time, leading to a degradation in model per-
+formance. Consequently, production models require continuous
+drift detection monitoring. Most drift detection methods to date
+are supervised, relying on ground-truth labels. However, they are    Fig. 1.  Examples of drift patterns.
+inapplicable in many real-world scenarios, as true labels are often
+unavailable. Although recent efforts have proposed unsupervised
+                                                 As we will formally deﬁne in Section II, changes in datadrift detectors, many lack the accuracy required for reliable de-
+tection or are too computationally intensive for real-time use in   distribution—known as concept drift [1]—can compromise the
+high-dimensional, large-scale production environments. Moreover,   reliability of deep learning models in real-world applications [2].
+they often fail to characterize or explain drift effectively. To address  To mitigate this, continuous monitoring of production models is
+these limitations, we propose DRIFTLENS, an unsupervised frame-                                                                    crucial [3]. Effective monitoring should not only provide early
+work for real-time concept drift detection and characterization.
+                                                         warnings when drift occurs but also characterize and explainDesigned for deep learning classiﬁers handling unstructured data,
+DRIFTLENS leverages distribution distances in deep learning rep-   drift to assist humans in implementing adaptive measures to
+resentations to enable efﬁcient and accurate detection. Addition-   maintain model performance on evolving data.
+ally, it characterizes drift by analyzing and explaining its impact    As we will discuss in Section III, a large body of research
+on each label. Our evaluation across classiﬁers and data-types                                                           has focused on concept drift detection through supervised meth-
+demonstrates that DRIFTLENS (i) outperforms previous methods in
+                                                                ods, which rely on error rates or performance-based measuresdetecting drift in 15/17 use cases; (ii) runs at least 5 times faster; (iii)
+producesdriftcurvesthataligncloselywithactualdrift(correlation  computed from ground-truth labels [1]. However, they exhibit
+≥0.85); (iv) effectively identiﬁes representative drift samples as   limited applicability in many real-world applications where true
+explanations.                                                       labels are unavailable for newly processed data.
+  Index Terms—Concept drift, data drift, drift detection, drift   A parallel research effort has been devoted to unsupervised
+explanation, deep learning, NLP, computer vision, audio.          concept drift detection [4], [5], [6], [7]. Most methods compare
+                                                                 the data stream with reference data using distribution distances,
+                                                             divergence measures, or statistical hypothesis tests. However,
+                               I. INTRODUCTION                        they are computationally intensive and ineffective for real-time
+   HE basic assumption in deep learning is that training   concept drift detection in deep learning models processing
+     data mimics the real world. Yet, deep learning models are   large-scale, high-dimensional, unstructured, and unlabeled dataTtypically trained and evaluated on static datasets. However, the   streams [8]. In addition, they typically fail to characterize and
+world is dynamic, and what the model learned during training   explain drift, which is crucial to facilitate drift adaptation.
+may no longer be valid. The underlying data distribution and     In tackling this, the contribution of this paper is twofold:
+statistical properties of the target domain may change over time,      (1) We propose DRIFTLENS (Section IV), a novel unsuper-
+leading to a degradation of the model’s performance (or decay).   vised drift detection framework designed to detect whether and
+                                                  when drift occurs by exploiting distribution distances of deep
+                                                                learning representations from unstructured data, modeled as
+  Received 29 July 2024; revised 4 April 2025; accepted 18 July 2025. Date   Gaussian distributions. In addition, DRIFTLENS performs drift
+of publication 29 July 2025; date of current version 15 September 2025. This
+work was supported in part by the Italian National Recovery and Resilience   characterization by determining and explaining the drift impact
+Plan (NRRP) of NextGenerationEU, partnership on “Telecommunications of  on each label. Thanks to its low complexity, it enables real-time
+the Future” through - program “RESTART” under Grant PE00000001 and in   drift detection, regardless of data dimensionality or volume.
+part by the “National Centre for HPC, Big Data and Quantum Computing,” under
+Grant CN000013 (approved under the M42C Call for Proposals - Investment 1.4      (2) We conduct a comprehensive evaluation on several deep
+- Notice “National Centers” - D.D. No. 3138 of 16.12.2021, admitted for funding   learningclassiﬁersfortext,image,andaudio(SectionV),andwe
+by MUR Decree No. 1031 of 17.06.2022). Recommended for acceptance by R.   attempt to answer the following four research questions (RQs):
+Akbarinia. (Corresponding author: Salvatore Greco.)
+  The authors are with the Department of Control and Computer Engineering,    (RQ1) To what extent can it detect drift of varying severity
+Politecnico di Torino, Turin 10129, Italy (e-mail: salvatore_greco@polito.it).    without relying on true labels?
+  Code: https://github.com/grecosalvatore/drift-lens                    (RQ2) How can it be applied broadly and effectively across
+  This  article  has  supplementary  downloadable  material  available  at
+https://doi.org/10.1109/TKDE.2025.3593123, provided by the authors.         various data types, models, and classiﬁcation tasks?
+   Digital Object Identiﬁer 10.1109/TKDE.2025.3593123                 (RQ3) How efﬁcient is it at detecting drift in near real-time?
+
+
+          © 2025 The Authors. This work is licensed under a Creative Commons Attribution 4.0 License. For more information, see
+                                                         https://creativecommons.org/licenses/by/4.0/
+--- Page 2 ---
+GRECO et al.: UNSUPERVISED CONCEPT DRIFT DETECTION FROM DEEP LEARNING REPRESENTATIONS IN REAL-TIME                                  6233
+
+
+
+  (RQ4) To what extent can it accurately model, characterize,   drift is a tweet topic classiﬁer during the outbreak of the COVID-
+and explain the presence of drift over time?                  19 pandemic. At that point, the model was suddenly exposed
+  We found that DRIFTLENS  (i) outperforms previous drift   to numerous text samples containing a new topic. Recognizing
+detectors in 15/17 use cases; (ii) is extremely fast, enabling   this scenario is crucial for initiating the retraining process and
+real-timedriftdetectionindependentofdatavolumes(≤0.2sec-   restoring the classiﬁer’s performance.
+onds, at least 5 times faster than other detectors); (iii) produces     Periodic/Recurrent Pattern: Drift occurs repeatedly after the
+drift curves highly correlated with drift severity; (iv) effectively   ﬁrst observed event, with a seasonality unknown during training.
+identiﬁes representative drift samples as explanations.           For example, in an election year, the language and topics of
+                                                               discussion on social media can change signiﬁcantly, affecting
+                                                                 the sentiment and context in which certain words or phrases                       II. PROBLEM FORMULATION
+                                                                 are used. After the election, discussions return to normal, but
+A. Concept Drift Deﬁnition                                   during another major event, such as another election, they may
+  Concept drift can be deﬁned as the phenomenon in which the   changeagain.Anotherexampleofrecurringdistributionchanges
+underlying data distributions and statistical properties of a target    is sporting events like the Olympics.
+data domain change over time. Drift can signiﬁcantly affect the     Incremental Pattern: The transition between concepts occurs
+performance of deep learning models deployed in real-world   gradually over time. For example, in image or object classiﬁca-
+applications. Various terms have been proposed to refer to   tion for autonomous vehicles, the model may encounter new
+“concept drift” [9], such as data drift, dataset shift, covariate   vehicle types, such as scooters (i.e., Personal Light Electric
+shift, prior probability shift, and concept shift. Although each   Vehicles),thatwerenotpartoftheoriginaltrainingdata.Initially,
+deﬁnition emphasizes a particular facet of drift, most works,   thesenewvehiclesmayappearrarelyandsporadically. However,
+similar to ours, broadly refer to all subcategories under the term   they gradually become more commonplace, eventually becom-
+“concept drift”. Formally, concept drift is deﬁned as a change   ing a permanent feature of the streetscape.
+in the joint distribution between a time period [0, t] and a time
+window t+w. Drift occurs in t+w if:                         C. Application Scenario
+
+                                          We design DRIFTLENS so that it can be effectively exploited
+                  P[0,t](X, y)̸ = Pt+w(X, y)                (1)
+                                                                    in a variety of application scenarios characterized by:
+Where X and y are the feature vectors and the target variable of     1) Unavailability of ground truth labels for new incoming
+each data instance (xi, yi), and Pt(X, y) is the joint probability.   data: Many applications involve classifying large-scale data
+The time window t + w can be deﬁned as a period or instant   productions (e.g., social media content) through deep learning
+based on how the data stream is processed. The joint probability   models. Usually, actual labels for newly processed samples are
+can be further decomposed as:                                    unavailable. Consequently, both drift detection and adaptation
+                                                      must be performed in an unsupervised manner.
+       Pt(X, y) = Pt(y/X)Pt(X) = Pt(X/y)Pt(y)      (2)     2) High data complexity and dimensionality: Most appli-
+                                                                 cations use unstructured data like texts, images, and audio,
+Where, Pt(X/y) is the class-conditional probability, Pt(y/X)  which are characterized by high dimensionality and sparsity,
+is the target labels posterior probability, Pt(X) is the input data   complexity, and the lack of a ﬁxed structure, such as columns.
+prior probability, and Pt(y) is target labels prior probability. In   These factors can undermine the effectiveness and increase the
+classiﬁcation tasks, concept drift can occur as a change in any   complexity of drift detection and characterization techniques.
+of these terms: (1) P(X): A drift in the input data. The marginal     In such a target scenario, our desiderata for the drift detection
+probability of the input features X changes (also known as  method are the following: (1) Fast detection. Drift should be
+data drift, covariance drift, or virtual drift). (2) P(y/X): The   detected as soon as possible and not only when it occurs with
+relationships or conditional probabilities of target labels given   high severity; (2) Real-time detection. Drift detection should
+input features change, but the input features do not necessarily   have low complexity to be performed in real-time; (3) Drift
+change (usually referred to as concept or real drift). (3) P(y): A   characterization. Information on drift patterns, the labels most
+change in the output data—labels and their probabilities change   affected by changes, and an explanation should be provided.
+(usually referred to as label drift).                         DRIFTLENS addresses all these desiderata.
+  This work focuses on detecting drift in scenarios where no
+ground truth labels are available for new data. Therefore, drift                                                                                                               III. RELATED WORKS
+must be detected in an unsupervised manner. Due to the lack of
+                                                           There has been a signiﬁcant effort in the ﬁeld of concept driftactual labels, the only possible drift that can be considered is the
+change in the prior probability of the features P(X) [4].          detection [1], [6], [9], [10], [11], [12]. Drift detectors can be
+                                                                classiﬁed into two macro-categories based on the true labels
+                                                                       availability assumption: (1) supervised and (2) unsupervised.
+B. Drift Patterns
+                                                                  1) Supervised Concept Drift Methods: Most of the previous
+  Concept drift can occur in several patterns (Fig. 1):              drift detection techniques are supervised [13], [14], [15], [16],
+  Sudden/Abrupt Pattern: Drift can occur suddenly if the distri-   [17], [18], [19], [20], [21], [22], [23], [24], [25], [26]. These
+bution of new samples changes rapidly. An example of sudden  methods typically rely on error rate-based measures or ensemble
+--- Page 3 ---
+6234                                                 IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING, VOL. 37, NO. 10, OCTOBER 2025
+
+
+
+models to assess degradation in the error rate over time (e.g.,
+decrease in accuracy) [27]. However, they assume that the true
+labels are available with the new data or within a short period of
+time. In practice, the labels for new data are usually unavailable,
+and labeling them is very costly and time-consuming, limiting
+their applicability in real-world scenarios.
+  2)UnsupervisedConceptDriftMethods:Incontrast,unsuper-
+vised techniques do not require true labels [4], [6], [7], [8]. Our
+method falls into this category. As outlined by [4], unsupervised
+techniques can be further divided into: (2.i) statistical-based,
+(2.ii) loss-based, and (2.iii) virtual classiﬁer-based.
+  2.i)Statistical-basedMethods:Mostoftheunsupervisedtech-
+niques [28], [29], [30], [31], [32], [33], [34], [35], [36], [37] rely
+on statistical hypothesis tests, two-sample tests, or divergence    Fig. 2.  DRIFTLENS Framework. In the ofﬂine phase, it estimates the reference
+metrics between distributions to detect drift, such as Maximum    distributionsanddistancethresholdsfromhistorical(training)data.Distributions
+Mean Discrepancy [28], Kolmogorov-Smirnov [38], Least-    are modeled as multivariate normal and are computed: (i) for the entire batch
+                                                                                   (per-batch), and (ii) conditioned on the predicted label (per-label). In the online
+Squares Density Difference [30], or Cramér–von Mises [39].    phase, it analyzes data streams in ﬁxed windows, comparing new and reference
+These techniques have two main advantages. First, they can be    distributions, and using thresholds to identify drift, visualized in a drift monitor.
+applied similarly independently of the data type. Second, they do
+not require external models or resources. Their main limitation
+                                                                      Drift Adaptation and Incremental Learning: Some works are
+is that they are usually computationally intensive and ineffective
+                                                                    related to incremental learning for drift detection and adapta-
+in detecting drift affecting deep learning models applied to large-
+                                                                    tion [59]. However, in unsupervised settings, the adaptation to
+scale, high-dimensional, and unstructured data stream. This can
+                                                                             drift is challenging due to the lack of annotated samples [4].
+affect their runtime and drift prediction performance [8].
+                                                                    Drift adaptation is out of the scope of this paper. Instead, we
+   2.ii) Loss-based Methods: These techniques exploit model
+                                                             focus only on the drift detection problem (monitoring).
+loss functions to evaluate the similarity of new data points with
+                                                              This paper presents DRIFTLENS, an unsupervised statistical-
+previous ones, such as [40], [41], [42], [43]. Usually, they rely
+                                                          based drift detection technique.  It signiﬁcantly extends the
+on autoencoders or are used in conjunction with supervised drift
+                                                              preliminary idea in [60] in two key aspects: (1) Methodol-
+detectors. They are based on the assumption of a correlation
+                                                            ogy: It enhances the original approach by complementing the
+between the increase in model losses and concept drift [44].
+                                                                 per-label with a per-batch analysis, improving its general ap-
+However, they have two main limitations. First, they require an
+                                                                        plicability across tasks. Additionally, it redeﬁnes the threshold
+external resource or model to perform drift detection. Second,
+                                                               estimation and provides drift explanations to better characterize
+being usually based on autoencoders, they are mainly suitable
+                                                                               drift; (2) Evaluation: It demonstrates its general applicability
+for computer vision models. Therefore, they are not agnostic to
+                                                       and effectiveness through a comprehensive evaluation across
+the data domain, and their usage on other data types requires
+                                                               data types, models, and baseline detectors. DRIFTLENS is also
+speciﬁc implementations and design choices.
+                                                                   available in a tool with a user-friendly graphical interface [61].
+   2.iii) Virtual Classiﬁer-based Methods: Similarly, these tech-
+                                                      DRIFTLENS differs from previous work in three key aspects.
+niques [45], [46], [47] use classiﬁers to detect drift. The general
+                                                                    (1) Like other statistical-based methods, it is completely unsu-
+idea is to divide data into two sets, before and after a certain
+                                                                 pervised. Thus, it does not require any external model to detect
+moment in time. If the classiﬁer achieves an accuracy higher than
+                                                                             drift and is data type agnostic, unlike supervised, loss-based, and
+random in classifying samples into the two classes, it implies
+                                                                       virtual classiﬁer methods. (2) It exploits statistical distances that
+divergent data properties between the two class distributions,
+                                                                      better scale with data dimensionality than other statistical-based
+suggesting the presence of drift. The main limitation is the
+                                                          methods, thereby enabling efﬁcient real-time drift detection in
+need to train and maintain another model to detect drift, whose
+                                                                   large data volumes. (3) It characterizes drift by assessing its im-
+implementation is domain- and task-speciﬁc.
+                                                               pact on each label and providing prototype-based explanations
+   Drift Explanation: Some techniques attempt  to provide
+                                                                    to improve human understanding of drift.
+human-readable explanations for drift rather than only detecting
+when  it occurs [5], [48], [49], [50], [51]. For instance, [48]
+                                                                                            IV. DRIFTLENS
+proposes a framework that trains a proxy model to classify or
+segment drifted samples [52], [53] and then leverages Explain-    DRIFTLENS is an unsupervised drift detection technique based
+able AI (XAI) [54], [55] to interpret drift through the proxy  on distribution distances within embeddings—internal dense
+model. Other techniques provide feature-wise representations   representations generated by deep learning models. Designed
+to interpret drift [56], [57], [58]. However, they usually struggle   speciﬁcally for unstructured data, it captures subtle patterns and
+with high-dimensional or non-semantic features, like unstruc-   relationships in embeddings to identify data drifts over time. It
+tured data. Despite its importance, research on drift explanations   operates in an unsupervised way as it does not require true labels
+remains limited, especially for unstructured data where inputs   in the data stream. However, it is tailored to detect concept drift
+lack clear semantics and are high-dimensional [48].            on supervised models, such as classiﬁers.
+--- Page 4 ---
+GRECO et al.: UNSUPERVISED CONCEPT DRIFT DETECTION FROM DEEP LEARNING REPRESENTATIONS IN REAL-TIME                                  6235
+
+
+
+                                                             follow multivariate normal distributions, making Gaussianity a
+                                                   more plausible approximation given the simpler relationships in
+                                                     embedding space [62]. This approach is data type-independent,
+                                                             ensuring broad applicability in diverse domains.
+                                                                Formally, during data modeling, a batch of data X (historical
+                                                               data or a data stream window) is fed into the deep learning
+                                                     model to extract the embedding matrix E = φ(X) ∈Rm×d and
+                                                                predicted labels ˆy ∈Rm, where m is the number of samples
+                                                                    in the set and d is the dimensionality of the embedding layer.
+                                                     Embeddings are also grouped by predicted label, resulting in
+                                                                |L| matrices El ∈Rml×d, ∀l ∈L, where ml is the number of
+                                                         samples predicted with label l.
+Fig. 3.  DRIFTLENS Data Modeling. Given a deep learning model and a set
+of data X, it estimates the multivariate normal embedding distributions. It ﬁrst     In deep learning classiﬁers, the embedding space dimension-
+extracts data embeddings and predicted labels from the model and reduces the   ality d is usually large. To estimate the multivariate normal
+embedding dimensionality. It then estimates (i) the per-batch distribution by
+                                                                       distributions, we need to compute the mean vector μ and thecomputing the mean vector µ and covariance matrix Σ over all embeddings, and
+(ii) label-speciﬁc distributions by grouping embeddings by label (e.g., l0 and l1),   covariance matrix Σ of the embedding vectors. However, the
+reducing the dimensionality, and computing the per-label µl and Σl, ∀l ∈L.    covariancematrixrequiresatleastdlinearlyindependentvectors
+                                                                    to be full rank. Otherwise, it may contain complex numbers
+                                                                      that could affect the distribution distance computation (see
+  DRIFTLENS consists of an ofﬂine and an online phase (Fig. 2).   Section IV-B). This issue is more pronounced when estimating
+In the ofﬂine phase, it estimates the reference distributions and   the multivariate normal distribution for each label, as we need
+threshold values from the historical dataset (e.g., training data).  d linearly independent vectors predicted with each label. This
+These distributions, called baseline, represent the distribution    is usually not an issue when modeling the baseline, which is
+of features (embeddings) of the concepts learned by the model  computed over a usually large historical dataset. In contrast, in
+during training, thus representing the absence of drift. In the   the online phase, estimating the per-batch distribution requires
+online phase,  it processes the new data stream in ﬁxed-size  d while the per-label distributions d × |L| linearly independent
+windows. First, the distributions of the new data windows are   vectors in each data stream window. Therefore, the ﬁxed size
+estimated. Second, the distribution distances are computed with   used to divide the data stream into windows must be very large.
+respect to the reference distributions. If the distance exceeds the  To solve this, DRIFTLENS performs an embedding dimensional-
+threshold, a drift is predicted.                                          ity reduction applying a principal component analysis (PCA).
+  We ﬁrst detail the data modeling (Section IV-A) and the          E′ = PCA(E);  E′l = PCA(El), ∀l ∈L       (3)
+distribution distance (Section IV-B), performed similarly in both
+phases. We then describe the ofﬂine (Section IV-C) and online     This leads to the reduced embedding matrices E′ ∈Rm×d′
+(Section IV-D) phases. Finally, we discuss drift explanations and   and E′l ∈Rml×d′l, ∀l ∈L. d′ and d′l are user-deﬁned parameters
+adaptation (Section IV-E).                                          that determine the number of principal components for the
+                                                               per-batch and per-label reductions, with 0 < d′, d′l ≤d. For the
+                                                                  per-batch, d′ can be set to a value up to d′ = min(mw, d),
+A. Data Modeling: Embedding Distributions Estimation
+                                                      where mw is the window size used in the online phase and d
+  Consider a deep learning classiﬁer designed to distinguish    is the embedding dimensionality. Instead, d′l also depends on
+between a set of class labels L. The classiﬁer typically con-   the number of labels. A reasonable value for a balanced data
+sists of an encoder φ(X) that transforms sparse, complex, and   stream is close to d′l = min(mw/|L|, d).
+high-dimensionalrawinputdataintoadense,lower-dimensional      Finally, the reduced embedding matrices E′ and E′l are used to
+latent representation (embedding) through a series of nonlinear   estimate the per-batch and the |L| per-label multivariate normal
+transformations parameterized by the learned weights W. The   distributions (4) and (5).
+embedding representation is then processed by one or more fully
+connected layers to predict the ﬁnal class label.                        P(φ(x); W) ∼N(μ, Σ)                         (4)
+  To simplify data distribution modeling, DRIFTLENS exploits          P(φ(x) | ˆy = l; W) ∼N(μl, Σl), ∀l ∈L        (5)
+the internal representations (embeddings) generated by the deep
+learning model instead of raw inputs. This reduces noise and    Where μ ∈Rd′ and Σ ∈Rd′×d′ are the mean vector and
+complexity, especially for unstructured data types like images,   the covariance matrix of the per-batch multivariate normal
+text, and audio, which are often complex, noisy, and non-   distribution, and each μl ∈Rd′l and Σl ∈Rd′l×d′l represents the
+Gaussian. In contrast, embeddings are lower-dimensional and   per-label multivariate normal distribution of each label l ∈L,
+capture more structured information.                              separately. The multivariate normal distributions are straightfor-
+  As shown in Fig. 3, DRIFTLENS estimates two types of em-  ward and fast to estimate because they can be fully character-
+bedding distributions: (1) the overall distribution of the entire   ized by the mean vector and the covariance matrix. The main
+data (per-batch), and (2) |L| separate distributions, one for   advantage of estimating the distributions as multivariate normal
+each predicted class (per-label). It assumes that embeddings    is that they can be represented with dimensionality d′ and d′l,
+--- Page 5 ---
+6236                                                 IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING, VOL. 37, NO. 10, OCTOBER 2025
+
+
+regardless of the number of samples in the reference and new  and estimate the predicted labels ˆyb. Then, the per-batch PCA
+windows. This allows the method to scale well even with large    is ﬁtted over the entire set of vectors, and |L| different PCAs
+amounts of data, enabling drift detection in real-time regardless   are ﬁtted, grouping the embedding vectors according to the
+of the data volumes.                                            predicted labels. The embedding vectors are then reduced both
+                                                                    for the per-batch and per-label, to obtain the reduced embedding
+                                                              matrices E′b ∈Rmb×d′, and E′b,l ∈Rmb,l×d′l, ∀l ∈L. These ma-B. Distributions Distance Computation: Frechét Distance
+                                                                         trices are used to estimate the baseline per-batch and per-label
+  DRIFTLENS uses the Frechét distance [63] to calculate the                                                                  multivariate normal distributions. The per-batch distribution
+distance between two multivariate normal distributions. The                                                                               is fully characterized by the baseline per-batch mean vector
+Frechét distance, also known as the Wasserstein-2 distance [64],                                                       μb ∈Rd′ and the covariance matrix Σb ∈Rd′×d′, which are
+has been widely used in deep learning to measure the distances                                                             obtained by calculating the mean and covariance over the entire
+between the distributions of models’ features but in very dif-                                                                       set of reduced embedding vectors in the baseline dataset. The
+ferent scenarios [65]. DRIFTLENS uses the Frechét distance to                                                                 per-label distributions are obtained by computing the |L| mean
+measure the distances between the embedding distributions of                                                                vectors μb,l ∈Rd′l and the covariance matrices Σb,l ∈Rd′l×d′l
+a baseline (historical) and the new windows in the data stream,                                                     on the reduced embedding vectors, grouped by predicted labels.
+and we call it Frechét Drift Distance (FDD).                                                      Note that regardless of the dimensionality of the reference set
+  Given a multivariate reference normal distribution b (e.g.,                                                                   (baseline) mb, the estimated reference distributions are charac-
+the baseline computed in the ofﬂine phase) characterized by a                                                                    terized by vectors of size d′ and d′l. Thus, drift detection in new
+mean vector μb and a covariance matrix Σb, and the multivariate                                                    windows is not inﬂuenced by mb.
+normal distribution of a new data window w, characterized by                                                             Threshold Estimation: It estimates the maximum possible
+μw and Σw, the FDD is calculated as:                                                                distance (FDD) a window without drift can reach. It takes in
+                                                                input a threshold dataset Xth, the window size mw (equal to
+ FDD(b, w) = ||μb −μw||22 + Tr Σb + Σw −2  ΣbΣw      the one used in the online phase), the baseline, and a parameter
+                                                          nth deﬁning the number of windows randomly sampled from                                                              (6)
+FDD ∈[0, ∞]. The higher the FDD, the greater the distance   the threshold dataset. nth should be large to better estimate
+                                                                 the maximum distance considered without drift. In our ex-and the more likely the drift. It captures changes in the mean
+                                                            periments (Section V-A), we set nth =10,000, and show that(center) and diagonal elements of the covariance (spread) be-
+                                                                                    its variations have a small impact (see Appendix C, availabletween two distributions. The former results from the L2 norm
+of the difference between the mean vectors ||μb −μw||22. The   online).
+                                                                   Speciﬁcally, DRIFTLENS  randomly samples, with replace-latter is computed by Tr(Σb + Σw −2√ΣbΣw), which is a
+                                                        ment,nth windowsfromthethresholddatasetXth,eachcontain-generalization of the squared difference between the standard
+                                                              ing mw inputs. For each window, it performs the data modelingdeviations in a one-dimensional space. As a result, FDD can
+                                                       and computes the per-batch and per-label distribution distancesdetect subtle drifts that affect both the center and spread of
+                                                      from the baseline distributions (6). Therefore, nth distributiondistributions. Although DRIFTLENS uses the FDD as default
+                                                                 distances for the entire batch and each label are computed.metric, it allows ﬂexibility in its choice [66], [67], [68], [69].
+                                                                      Finally, the distribution distances are sorted in descending order.  DRIFTLENS computes a single per-batch distance by comput-
+ing the FDD score between the baseline (μb, Σb) and the new  The ﬁrst element contains the maximum distance that a window
+window (μw, Σw) per-batch distributions, and |L| per-label dis-   of data considered without drift can achieve. Distances that
+tances by computing the distance of the distributions (μb,l, Σb,l)   exceed this value are potential warnings of drift. However, there
+and (μw,l, Σw,l) for each label l ∈L separately.                  are potentially outlier distances due to the large number of
+                                                       randomly sampled windows. Therefore, DRIFTLENS provides
+                                                           a parameter to deﬁne the threshold sensitivity Tα ∈[0, 1]. This
+C. Ofﬂine Phase: Baseline and Threshold Estimation                                                           parameter removes the Tα% left tail of the sorted distances (in
+  In the ofﬂine phase (steps 1⃝–2⃝in Fig. 2), DRIFTLENS esti-   descending order) to remove outliers. The ﬁnal thresholds T
+mates: 1⃝the probability distribution of a reference (historical)  and Tl, ∀l ∈L, are set to the maximum distance after removing
+dataset representing the concepts learned by the model during   the Tα% of the largest distances. The higher the value of Tα,
+training (baseline), and 2⃝distance thresholds to distinguish   the lower the threshold values and the higher the sensitiv-
+between normal and drift-indicative distances, which will be   ity to possible drift and false alarm. In our experiments (see
+used during the online phase. This phase is executed once to   Section V-A), we use Tα = 0.01 (removing 1%) as the default
+instantiate DRIFTLENS, after the monitored model has been   threshold sensitivity.
+trained, evaluated, and is ready for deployment.                  Choice of the Reference Dataset: The reference dataset must
+  Baseline Estimation: It estimates the reference distributions   consist of historical data representing what the model learned
+(distributions in the absence of drift) by performing the data   during training. Since we operate after training, we assume
+modeling (Section IV-A) of the baseline (historical) dataset.      the availability of historical data used for training and testing,
+  Formally, given a baseline dataset Xb, containing mb samples,   typically split into train/val/test or train/test sets. Training data
+the entire baseline dataset Xb  is fed into the deep learning   can be used as the baseline to represent the concepts learned
+model to extract the embedding vectors Eb = φ(Xb) ∈Rmb×d   by the model, modeling the absence of drift. For the threshold
+--- Page 6 ---
+GRECO et al.: UNSUPERVISED CONCEPT DRIFT DETECTION FROM DEEP LEARNING REPRESENTATIONS IN REAL-TIME                                  6237
+
+
+
+estimation—maximum distribution distance without compro-
+mising model performance—a reasonable choice is the data used
+for evaluation (e.g., test or validation sets, or their combination).
+Alternatively, windows from the data stream can be used. Due
+to the absence of true labels, human experts must ensure that
+these windows represent distributions without drift.
+
+
+D. Online Phase: Drift Detection Over Time
+
+  The online phase (steps 3⃝–5⃝in Fig. 2) continuously detects
+drift in the monitored model when deployed and applied to a
+data stream. DRIFTLENS splits the data stream into ﬁxed-size
+windows, whose size is deﬁned by the parameter mw, and
+applies the same process to each window.                               Fig. 4.   Drift monitor example.
+   Drift Detection in a Window: Given a new data window Xw
+containing mw samples, 3⃝the data modeling is processed
+by (i) extracting the embedding Ew = φ(Xw) ∈Rmw×d and
+                                                               explain classiﬁer predictions, whereas drift explainability aimspredicted labels ˆyw ∈Rmw,  (ii) performing the embedding
+dimensionality reduction to obtain E′w ∈Rmw×d′ and E′w,l ∈   to explain the underlying causes of drift [48]. Since DRIFTLENS
+                                                               operates on classiﬁers for high-dimensional, high-volume un-
+Rmw,l×d′l, ∀l ∈L, and (iii) estimating the per-batch and per-
+                                                                  structured data streams, without true labels, the explanation
+label multivariate normal distributions. The PCA models ﬁtted
+                                                     method must meet these requirements. (1) Post-hoc: It should
+during the ofﬂine phase are reused in this step. The per-batch
+                                                           apply to models already trained, without modifying the training
+multivariate normal distribution is obtained by computing the
+                                                                 process. (2) Model-agnostic: It should work with any model,
+mean vector μw ∈Rd′ and the covariance matrix Σw ∈Rd′×d′
+                                                              regardlessofitsarchitecture.(3)Unsupervised:Itshouldnotrely
+over the entire set of reduced embeddings in the window. For
+                                                           ontruelabelsorpredeﬁnedconcepts.(4)Datatype-independent:
+the per-label, the reduced embedding vectors are grouped by
+                                                                                      It should work uniformly across data types.
+predicted labels, and the mean and covariance are computed
+                                                     To meet these requirements, DRIFTLENS produces example-
+separately on each subset, resulting in |L| multivariate normal
+                                                          based explanations [55], which are intuitive to humans [70],
+distributions characterized by μw,l ∈Rd′l and Σw,l ∈Rd′l×d′l.
+                                                                     [71], including to understand drift [48]. Drift explanations are
+Next, 4⃝the per-batch and the per-label FDD distances be-
+                                                             generated on request for one or more drifted windows rather
+tween the window and baseline distributions are computed using
+                                                             than continuously. Drift explanations identify representative ex-
+(6). If these distances exceed the thresholds, drift is predicted 5⃝.
+                                                            amples(prototypes)ofinputsprocessedbythemodeltoillustrate
+The per-batch distance detects if the entire window is affected
+                                                                 the “concepts” associated with each label and a batch of data.
+by drift, while the per-label distance characterizes drift and
+                                                               In the absence of drift, we expect these prototypes to closely
+identiﬁes the labels most affected.
+                                                           resemble those in the historical data. In contrast, when drift is
+   Drift Monitoring Over Time: Once DRIFTLENS processes a
+                                                                   present, the drifting samples introduce new concepts speciﬁc to
+new window, the FDD distribution distances are added to the
+                                                           a label or the entire batch.
+drift monitor, which shows them separately for the per-batch and
+                                                         Given one or multiple concatenated windows, DRIFTLENS
+per-label. A warning symbol is added to the plot when distances
+                                                                    ﬁrst exploits a clustering algorithm to group samples by em-
+exceed the corresponding threshold. The drift monitor provides
+                                                         bedding representations, considering the entire batch and each
+valuable insights to understand (i) when, whether drift occurs,
+                                                                    label separately. The objective of clustering is to group samples
+and its severity, (ii) which labels are the most affected by drift,
+                                                                    to isolate drifted samples into one or more pure clusters. To
+and (iii) the drift pattern over time.
+                                                                         this end, it executes the K-Means algorithm multiple times, for
+   Fig. 4 shows a drift monitor example. The top chart shows  k ∈[2, Kmax] on the embedding matrices E and El, ∀l ∈L,
+the per-batch, whereas the bottom chart shows the per-label
+                                                      where Kmax is a user-deﬁned parameter. The optimal clustering
+distribution distances over time. The x-axis reports timestamps
+                                                             partition—the best k—is determined by maximizing the Silhou-
+and window identiﬁers. The y-axis shows the FDD distances.
+                                                                         ette metric, and may differ between the per-batch and each label.
+When a drift is detected, the area under the curve is ﬁlled,
+                                                          For a given label or batch, the K-Means produces k clusters,
+and a warning is displayed on the x-tick. This monitor reveals
+                                                          each representing a distinct concept relevant to classiﬁcation.
+that drift ﬁrst occurs after 50 windows with high severity and
+                                                   The samples nearest to the centroids of these clusters serve as
+reoccurs periodically. The label World is most affected, followed
+                                                                  representative examples (prototypes), effectively summarizing
+by Business, while Sports is minimally affected.
+                                                                 the primary characteristics of the group. To improve prototype
+                                                                         interpretability, a user-deﬁned parameter, top-n, is introduced,
+E. Drift Explanation, Characterization, and Adaptation
+                                                          specifyingthenclosestsamplestoeachcentroidbasedontheeu-
+   Drift Explanation: DRIFTLENS produces drift explanations to   clidean distance of the embeddings. This enhances interpretabil-
+enhance human understanding of drift. Although the objective   ity by allowing users to observe multiple representative samples
+is related to XAI [54], [55], it differs in focus. XAI aims to   per cluster. Examining a single example may not be sufﬁcient to
+--- Page 7 ---
+6238                                                 IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING, VOL. 37, NO. 10, OCTOBER 2025
+
+
+
+understand the common features, whereas visualizing multiple   explanations (Section V-E). Parameter sensitivity is analyzed
+similar instances provides more comprehensive insight into the   in Appendix C, available online, and a distribution distance
+shared characteristics within each cluster. Prototypes provide   ablation study is conducted in Appendix D, available online.
+valuable insight to interpret the causes of drift (see Section V-E).
+   Drift Characterization and Adaptation: In unsupervised
+                                                             A. Experimental Settings
+data streams, the absence of annotated samples makes auto-
+matic drift adaptation challenging [4]. As a result, as with    The 17 experimental use cases are summarized in Table I.
+most unsupervised detectors, DRIFTLENS does not automati-    Deep learning Classiﬁers: We experiment with BERT [80],
+cally adapt the model when drift is detected. Instead, human-   DistilBERT [81], and RoBERTa [82] deep learning models
+in-the-loop  is required for adaptation, necessitating the an-   for NLP classiﬁcation, VGG16 [83] and Vision Transformer
+notation of new data, or a subset, by domain experts (or   (ViT) [84] for computer vision, and Wav2Vec [85] for audio.
+an  oracle). However,  drift characterization enables experts     Datasets: We train NLP models for topic detection using Ag
+to gain deeper insight into drift and take informed adaptive  News [72] and 20 Newsgroups [73], and for occupation classiﬁ-
+measures.                                                       cation with Bias in Bios [74] datasets. In computer vision, we use
+  1) The per-label drift analysis helps users focus on the labels  MNIST [75], Intel Image [76], STL-10 [77], and FairFace [78]
+most affected by drift, simplifying both the understanding and   for image classiﬁcation. In the audio domain, we use Common
+annotation process. By narrowing the scope of analysis, it re-   Voice [79] for speaker gender classiﬁcation.
+duces complexity and enables users to direct their efforts where    Embedding Extraction: For BERT, DistilBERT, RoBERTa,
+they are most needed. This enhances the interpretability of drift  and ViT models, we extract the embedding of the [CLS] token
+patterns and reduces the annotation workload, making it easier  from the last hidden layer (dimensionality d=768). For VGG16,
+to adapt models to evolving data distributions.              we extract and ﬂatten the last convolutional layer, resulting in
+  2) The prototype-based drift explanations help users better  d=512, d=8,192, and d=4,608 for use cases 5.2, 6.2, and
+understand the nature of drift and how it affects each label and   7.2, respectively. For Wav2Vec, we extract and average all the
+the entire batch. These prototype examples can reveal whether  embeddings of the last hidden layer (d = 768).
+a new class label should be introduced due to the emergence    Data  Split: Each dataset has been  split  into four non-
+of concepts that differ signiﬁcantly from those in the training   overlapping subsets, as described in the last column of Table I.
+data. Alternatively, they may suggest that the meaning of an  Two subsets are used to ﬁne-tune and evaluate the classiﬁers
+existing label is evolving over time, indicating the need for   (train and test splits). These two subsets represent historical data
+further training to maintain accuracy.                               that can be used by drift detectors as reference data. The third
+  3) The drift monitor over time can reveal whether the drift   subset is reserved for generating windows in the data stream,
+is stabilizing, progressively increasing, or recurring. (i) If drift   simulating new, unseen data with a similar distribution to the
+occurs suddenly and remains constant,  it indicates that the   training set (without drift). The fourth subset is designated for
+deployed model is outdated, with new distributions consistently   simulating drift. Together, these last two subsets form the data
+replacing the previous ones. Therefore, the model should be   streamfordriftdetectionexperiments.Importantly,thehistorical
+updated or replaced by ﬁne-tuning it on the new distributions  and data stream subsets are disjoint.
+or retraining it from scratch, incorporating historical and new      Drift Simulation: We simulate different drift sources, as de-
+data. (ii) If drift occurs with a periodic pattern, two strategies   scribed in Table I. In use cases 1-3 and 5-7, drift is simulated by
+are possible. The model can be retrained to perform well across   introducing a new unknown class label, obtained by removing
+both distributions (similar to sudden drift), or an additional   samples from a label during training and by presenting them in
+model can be trained and deployed alongside the original. When   thedatastream.Forinstance,inusecase1,all31,900samplesfor
+drift occurs, the outdated model can be swapped out for the   the class Science/Tech are used to simulate drift. The remaining
+one best suited to the new distribution. Once data return to   samples from classes World, Business, and Sport are divided into
+their normal state, the system can switch back to the original   59,480 and 5,700 to ﬁne-tune and evaluate the model (historical
+model. (iii) If drift increases incrementally, the model can be   data), while 30,520 to simulate data stream samples without
+gradually ﬁne-tuned to the new distributions, or retraining can    drift. In use case 3, the same dataset is used as in use case 2,
+be postponed until drift stabilizes.                               but drift is more subtle, as only a subset of a class is used to
+  Once the model is adapted (or retrained) to the new incoming   simulate the drift by exploiting the hierarchical categorization
+distributions, DRIFTLENS can be updated by simply re-executing   oflabels.Inusecase8,wesimulatedatadriftbyalteringtheinput
+the ofﬂine phase to reset the baseline and threshold.               features through image blurring. Gaussian blur is applied with a
+                                                                 radius of 2 to a circular patch covering D% (drift percentage) of
+                                                                      pixels. In use cases 4, 9, and 10, drift is simulated with biased
+                      V. EVALUATION
+                                                                   classiﬁers trained on underrepresented protected features. Drift
+  We assess DRIFTLENS’ effectiveness in detecting drift across   occurs by presenting samples from subgroups with the same
+text, image, and audio classiﬁers (introduced in Section V-A)   labels but different features, exposing the classiﬁer’s bias. In use
+by evaluating drift detection performance (Section V-B) and   case 4, we build upon previous research showing that occupation
+execution time (Section V-C). We also examine its ability to   classiﬁers can exhibit gender bias [86], [87], and we trained a
+characterize drift trends over time (Section V-D) and provide   classiﬁer on training bios where all nurses were female while
+--- Page 8 ---
+GRECO et al.: UNSUPERVISED CONCEPT DRIFT DETECTION FROM DEEP LEARNING REPRESENTATIONS IN REAL-TIME                                  6239
+
+
+
+                                                 TABLE I
+                                           OVERVIEW OF THE EXPERIMENTAL USE CASES
+
+
+
+
+
+individuals in other occupations were male. In the data stream,     Baseline Detectors: We compare DRIFTLENS with  four
+drift is introduced by mixing non-drift with drifted samples,   unsupervised statistical-based detectors from previous work:
+where nurses are male and individuals in other occupations are  Maximum Mean Discrepancy (MMD) [28], [37], Kolmogorov-
+female. In use cases 9 and 10, drift is simulated as racial bias  Smirnov (KS) [29], [37], Least-Squares Density Difference
+by presenting images from different races or audio with English  (LSDD) [30], and Cramér-von Mises (CVM) [39]. We use the
+accents other than those used during training.                  implementation provided by the Alibi Detect library [88]. We
+  Windows Generation: When generating windows of the data   keep the default parameters conﬁguration, and we use embed-
+stream, we use samples—either with or without drift—that the   ding vectors as input. The p-value to discriminate drifted and
+model has never encountered during training or testing, whose   non-drifted distributions is set to 0.05 as the default. However,
+dimensionalities are speciﬁed in the last column of Table I (DATA   as we will discuss in Section V-C, the running time of some
+STREAM). Windows are sampled with replacement due to dimen-   detectors is signiﬁcantly inﬂuenced by the reference set dimen-
+sionality constraints (samples may belong to more windows).   sionality mb. Given our focus on real-time drift detection, and
+When generating a window without drift, we randomly select   to ensure a fair comparison, we constrain the reference window
+a balanced sample by class labels from the new data without   dimensionality. Speciﬁcally, we limit the execution time for
+drift. These samples are previously unseen by the model but   each detector to predict drift in a window to a maximum of 30
+share the same distribution as the training data. When generating   seconds, estimated using mw = 1,000 and d = 1,000.1 To this
+windows containing D% of drift, we randomly select D% of the   end, we set the maximum reference window size mb ≈14,000
+window size (mw) from the drifted samples, while the remaining   for MMD and mb ≈8,500 for LSDD. In contrast, we used the
+(100 −D)% are balanced samples from the new unseen data   full training set for KS and CVM due to their faster execution
+without drift. Use case 8 is the only exception where a D% of   time. When the training set size exceeds these constraints, the
+pixels over all images are blurred.                               reference set is created by randomly sampling a balanced sub-
+  DriftLens Conﬁguration: In the ofﬂine phase, the entire his-   set equal to the maximum size. The only exception is the 20
+torical training and test sets are used for baseline and threshold  Newsgroups dataset, where we used mb ≈1,700 for use case 2
+estimation, respectively, with sizes shown in the last column of  and mb ≈2,050 for use case 3 across all detectors to ensure a
+Table I (HISTORICAL). The number of principal components for   balanced reference set.
+per-batch and per-label embedding are d′ = 150 and d′l = 75,
+except for use case 10, where d′ = d′l = 25 ensures full-rank
+matrices. The number of windows for threshold estimation is
+nth = 10,000, with sensitivity Tα = 0.01.                            1Executed on an Apple M1 MacBook Pro 13 2020 with 16GB of RAM.
+--- Page 9 ---
+6240                                                 IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING, VOL. 37, NO. 10, OCTOBER 2025
+
+
+
+B. Drift Detection Performance Evaluation                       online). Overall, DRIFTLENS is the best detector on 8 out of 8
+                                                             experimental use cases with larger datasets and window sizes.
+  This evaluation assesses the effectiveness and general appli-
+                                                            For smaller data volume (Table II(b)), DRIFTLENS is still the
+cability of DRIFTLENS in detecting drifted windows of varying
+                                                      most effective overall, except for use case 8, in which MDD and
+severity across models, data types, and tasks (RQ1 and RQ2 in
+                                        LSDD achieve slightly better HDD. Interestingly, all detectors
+Section I). We approach drift detection as a binary classiﬁcation
+                                                                  detect drift simulated with blur (use case 8). However, KS
+task—predict whether a window contains drift.
+                                                       and CVM exhibit a large number of false positives, especially
+  Evaluation Metrics: We measure the accuracy in predict-
+                                                                    for larger window sizes. Notably, DRIFTLENS (HDD ≥0.81)
+ing  drift (AD%) with  different degrees of  severity D% ∈
+                                                       and LSDD (HDD ≥0.17) are the only detectors consistently
+{0%, 5%, 10%, 15%, 20%}. Windows without drift (D% =0%)
+                                                              achieving reliable performance across all use cases and window
+are used to measure type I errors (false alarm)—no drift, but has
+                                                                        sizes. In contrast, the other detectors exhibit some use cases with
+been detected. If a window contains any percentage of drifted
+                                                                  unreliable performance (HDD = 0).
+examples, the ground truth is set to 1; otherwise, it is set to 0. For
+                                                                  In these use cases with smaller datasets and window sizes,
+each D%, the accuracy is computed as the mean over 5 indepen-
+                                                    DRIFTLENSachievesanaverageHDD scoreof0.92,outperform-
+dent runs of the accuracy computed on 100 windows with a ﬁxed
+                                                              ing MMD (0.69), KS (0.42), LSDD (0.66), and CVM (0.40).
+size of mw.2 For instance, A20% is computed by averaging ﬁve
+                                                               Therefore, it signiﬁcantly outperforms the best detector by 0.23
+accuracies, each computed over 100 windows containing mw
+                                                                    in HDD. Results are consistent across deep learning classiﬁerssamples of which 20% are drifted. However, since the predic-
+                                                               (Table Vb in Appendix A, available online). Overall, DRIFTLENS
+tions of drifted and non-drifted windows are closely related, a
+                                                                               is the best detector on 7 out of 9 experimental use cases with
+technique that always predicts drift is unreliable. Therefore, we
+                                                               smaller datasets and window sizes.
+compute the Harmonic Drift Detection (HDD), as the harmonic
+                                                   Summary of ﬁndings: DRIFTLENS is highly effective in de-
+mean between the accuracy for non-drifted windows (A0%)
+                                                                    tecting drift (RQ1 in Section I), outperforming other detectors
+and the average accuracy across windows with different drift
+                                                                    in 15/17 use cases. It is the only reliable method across all useseverities (¯Adrift):
+                                                                   cases, making it the most effective and widely applicable across
+                            2                          models, data types, and data volumes (RQ2 in Section I).
+            HDD =   1       1                    (7)                  +
+                        A0%                                                              Adrift¯
+
+Where:                                                   C. Drift Detection Complexity Evaluation
+              A5% + A10% + A15% + A20%                This evaluation assesses the efﬁciency of DRIFTLENS in per-                 ¯Adrift =                                          (8)
+                            4                          forming near real-time drift detection (RQ3 in Section I).
+                                                              Evaluation Metrics: We measure the mean running time in
+  Results: Table II reports: (i) the mean accuracy broken down
+                                                          seconds required to predict drift, given the embeddings ex-
+by drift percentage (D%), and (ii) the HDD score, for each use
+                                                     tracted.ExperimentsareexecutedonanAppleM1MacBookPro
+case, drift detector, and window size (mw). Results within the
+                                                     13 2020 with 16 GB of RAM. Due to the high dimensionalities
+same use case but with a different classiﬁer (marked with ∗in
+                                                                        tested, we use synthetically generated embeddings.
+Table I) are reported in Appendix A, available online. Table II(a)
+                                                                    Results: Fig. 5 shows the running time in seconds on a
+uses larger data windows than Table II(b) as datasets contain
+                                                               logarithmic scale of each detector by varying (a) the reference
+more samples.
+                                                  window size mb, (b) the data stream window size mw, and (c) the
+  For larger data volumes (Table II(a)), DRIFTLENS achieves
+                                                     embedding dimensionality d. One dimension at a time is varied
+better drift prediction performance on all use cases indepen-
+                                                           while keeping the other ﬁxed at: mw =1,000, d=1,000, and
+dently of the data type and window size, except for use cases 9
+                                           mb =5,000. DRIFTLENS outperforms all detectors in terms of
+with mw =500 and 4 with mw =2000. For use cases 1.1 and 4,
+                                                                 efﬁciency, running at least 5 times faster. As the dimensionalities
+it is particularly effective in detecting drift, with HDD ≥0.93.
+                                                                   increase, its execution time increases negligibly, unlike other
+DRIFTLENS is the only detector that consistently achieves reli-
+                                                              techniques that are signiﬁcantly affected by the window sizes
+able results across all use cases (HDD ≥0.38) and that performs
+                                                       and embedding dimensionality.
+reliably in the audio domain (use case 10). Notably, it is capable
+                                                                     Fig. 6 shows DRIFTLENS’ running time when dealing with
+of detecting drift and outperforming other detectors, even when
+                                                                   large data volumes. The reference window is increased up to
+drift manifests as classiﬁer bias (use cases 4, 9, 10).
+                                                        500,000 samples, and the data stream window to 10, 000. The
+  In these use cases with larger datasets and window sizes,
+                                                                other detectors do not work with these dimensionalities on the
+DRIFTLENSachievesanaverageHDD scoreof0.82,outperform-
+                                                             experimental hardware. When varying the reference window
+ing MMD (0.57), KS (0.56), LSDD (0.57), and CVM (0.55).
+                                                      sizemb,thedatastreamwindowsizeiskeptﬁxedtomw =5,000.
+Therefore, it signiﬁcantly outperforms the best detector by an
+                                            When varying the data stream window size mw, the reference
+average margin of 0.25 in HDD. Results are consistent across
+                                                  window size is ﬁxed to mb =500,000. Fig. 6(a) conﬁrms that
+deep learning classiﬁers (Table Va in Appendix A, available
+                                                                                    its running time is almost independent of the reference window
+                                                                         size, as in the online phase, only the pre-computed reference
+  2At each run the threshold of DRIFTLENS is re-estimated and the reference set   distributionsareused(μb,μb,l andΣb,Σb,l withdimensionalities
+of the other detectors is re-sampled (if exceeds the maximum size).               d′, d′l). Fig. 6(b) shows that its running time increases almost
+--- Page 10 ---
+GRECO et al.: UNSUPERVISED CONCEPT DRIFT DETECTION FROM DEEP LEARNING REPRESENTATIONS IN REAL-TIME                                  6241
+
+
+
+                                                TABLE II
+                                              DRIFT DETECTION PERFORMANCE EVALUATION
+
+
+
+
+
+negligibly with data stream window size, enabling real-time   evaluates the monotonic relationship between two variables—
+detection in high-throughput data streams. Notably, the running   they tend to move in the same direction—and is suitable for non-
+time is always ≤0.2 s.                                             linear patterns (e.g., sudden or periodic changes). It ranges from
+  Summary of ﬁndings: DRIFTLENS is the fastest detector, en-  −1 (perfect negative) to +1 (perfect positive), with 0 indicating
+abling real-time drift detection regardless of data volumes in the  no monotonic relationship. The injected drift curve is composed
+reference set or data stream (answering RQ3 in Section I).        of 0 in windows without drift, and the percentage of drift (D%)
+                                                                    in windows containing some drift. We also qualitatively evaluate
+                                                        examples of drift curves.D. Drift Curves Evaluation
+                                                                  Quantitative Results: Table III reports the mean (± std) Spear-
+  This evaluation assesses the ability of DRIFTLENS to represent                                              man correlation, computed across all use cases and averaged
+and characterize the drift curve over time (RQ4 in Section I).                                                             over 5 runs. Data streams are generated by randomly sampling
+  Evaluation Metrics: We use the Spearman coefﬁcient [89]                                                     100 windows, each with mw =1,000 samples. In the sudden
+to measure the correlation between the per-batch (FDD) dis-                                                                      pattern, drift occurs after 50 windows and remains constant
+tances over time and the curve of injected drift. This coefﬁcient
+--- Page 11 ---
+6242                                                 IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING, VOL. 37, NO. 10, OCTOBER 2025
+
+
+
+
+
+Fig. 5.  Running time evaluation. Mean (± std) of running time (log scale) for predicting drift with each detector, while varying one dimension at a time:
+(a) reference window size mb, (b) data stream window size mw, and (c) embedding dimensionality d. The other parameters are ﬁxed at mb = 5,000, mw = 1,000,
+and d = 1,000. Mean and std are computed over ﬁve runs.
+
+
+                                                                 per-label curves help characterize drift (answering RQ4 in
+                                                              Section I).
+
+
+                                                             E. Drift Explanation Evaluation
+
+                                                              This evaluation assesses the effectiveness of DRIFTLENS in
+                                                               generating per-label drift explanations (RQ4 in Section I).
+Fig. 6.  DRIFTLENS mean running time in seconds as the reference mb (a) and     Evaluation Metrics: The per-label drift explanations aim to
+data stream mw (b) window sizes change.                                 identify prototype samples that caused drift in a label. To extract
+                                                                     drifted prototypes from clusters’ centroids, clustering must sep-
+                      TABLE III                               arate non-drifted samples into distinct groups while forming one
+                     DRIFT CURVE EVALUATION
+                                                               or more predominantly drifted clusters. Therefore, we measure
+                                                                 the purity of clustering, which quantiﬁes the extent to which
+                                                          each cluster contains samples from a single class. In our context,
+                                                                 instead of the class label, we use two categories: (1) drifted and
+                                                                    (2) non-drifted samples. Given a set Xl = XDl ∪XNl  of ml
+                                                         samples predicted with the label l, where XDl  are the drifted
+                                                                                                                   l  the non-drifted samples, the K-Means divides Xl intowith a percentage of D% =40%. In the incremental pattern,  and XN
+drift occurs after 50 windows with D% =20% and increases  k clusters. Purity is computed as:
+by ΔD% =1% after each window. In the periodic pattern, 20                        k
+windows without drift and 20 windows containing D% =40%          Purity = 1    max |Ci ∩XDl  |, |Ci ∩XNl  |      (9)
+of drift reoccur periodically. Table III reveals that the per-batch              ml i=1
+(FDD) distances are highly correlated with the generated drift
+patterns. The correlation exceeds 0.85 for all drift patterns,  Where Ci is the set of samples in cluster i, the terms |Ci ∩XDl  |
+demonstrating the ability of DRIFTLENS to correctly characterize   and |Ci ∩XNl  | represent the number of drifted and non-drifted
+and model the drift trend over time.                          samples in cluster i, and max(|Ci ∩XDl  |, |Ci ∩XNl  |) selects
+  Qualitative Results: Fig. 7 shows the generated monitors for   the majority category (drift or no-drift) in each cluster. High
+the (a) sudden, (b) incremental, and (c) periodic patterns in use   purity suggests that clustering successfully isolates drifted sam-
+case 6.1. The per-batch and per-label drift curves are coherent   ples into one or more clusters, ensuring that prototypes extracted
+with the generated patterns. The labels Glacier (green) and  from cluster centroids provide meaningful drifted examples. We
+Mountain (orange) are the most affected by drift, likely due to   also qualitatively discuss examples of drift explanations.
+the newly injected class (Sea) being classiﬁed under these labels.     Quantitative Results: Table IV reports the clustering purity
+In contrast, Building (blue) and Street (purple) show moderate   for the per-label drift explanations. We focus on the label most
+impact, and Forest (red) is nearly unaffected. The drift curves   affected by drift—where drifted samples are more likely to
+provide valuable insights to characterize drift by showing the   be classiﬁed. Speciﬁcally, we analyze use cases (label) 1.1
+most impacted labels, and the drift pattern. Additional examples   (World), 2.1 (Science), 4 (Nurse), 6.1 (Glacier), and 7.1 (Ship),
+are reported in Appendix B, available online.                  based on ﬁndings in Appendix B, available online. For each
+  Summary of ﬁndings: DRIFTLENS generates  drift curves   drift severity D% ∈{10%, 15%, 20%} and window size mw ∈
+over time  that  closely  align with  drift  severity, and  the   {1000, 2000, 4000}, purity is calculated and averaged over 100
+--- Page 12 ---
+GRECO et al.: UNSUPERVISED CONCEPT DRIFT DETECTION FROM DEEP LEARNING REPRESENTATIONS IN REAL-TIME                                  6243
+
+
+
+
+
+Fig. 7.   Drift patterns qualitative evaluation for use case 6.1 (ViT - Intel Image). Drift is simulated with a new class (Sea).
+
+
+                      TABLE IV                              the drifted window is characterized by two clusters: glacier
+                  DRIFT EXPLANATION EVALUATION
+                                                             during winter and summer (bottom-left) and general sea images,
+                                                      which are responsible for drift (bottom-right). Similarly, in
+                                                                   Fig. 9, historical prototypes for the class Building are charac-
+                                                                    terized by two clusters of images: buildings only (top-left) and
+                                                             over streets (top-right). When drift occurs, the drifted window is
+                                                                characterized by two clusters: general buildings (bottom-left)
+                                                       and buildings over the sea, which are responsible for drift
+                                                                  (bottom-right). These prototypes can help humans understand
+                                                                 the drift nature, facilitating the adaptation. Additional qualitative
+                                                        examples are discussed in Appendix B, available online.
+                                                   Summary  of  ﬁndings:  DRIFTLENS  provides  explana-
+                                                                    tions  useful  to  characterize   drift  (answering RQ4  in
+                                                              Section I).
+
+
+                                                                                 VI. CONCLUSION
+
+                                                              This paper presents DRIFTLENS, an unsupervised drift detec-
+Fig. 8.   Drift explanation for class Glacier in use case 6.1.
+                                                                    tion and characterization framework to continuously monitor
+                                                                             drift in deep learning classiﬁers for unstructured, unlabeled data
+                                                                streams. Our evaluation shows that (i) it is more effective and
+                                                                 efﬁcient in detecting drift than state-of-the-art techniques, (ii) it
+                                                           has a short execution time, enabling real-time detection, and (iii)
+                                                                                               it effectively represents the drift trend over time while character-
+                                                                  izing and explaining drifting labels. We release DRIFTLENS as
+                                                        an open-source framework broadly applicable across classiﬁers
+                                                       and data types. Its per-batch analysis is versatile and can extend
+                                                      beyond classiﬁcation, while the per-label analysis is speciﬁc for
+Fig. 9.   Drift explanation for class Building in use case 6.1.                 classiﬁcation or can be adapted to other label-based tasks, such
+                                                               as clustering and object detection.
+                                                                   Limitations: DRIFTLENS uses the Frechét distance and it can
+windows. In use cases 2.1 and 7.1, there are not enough sam-   inherit some of its limitations. (1) Noise and selection bias with
+ples for mw =4000. K-Means is executed multiple times for   small datasets. FDD can be affected by noise and selection
+k ∈[2, 10] with the best k selected based on the Silhouette.   bias in distance calculation with small datasets. However, we
+Table IV shows good clustering performance in all use cases and   empirically show that DRIFTLENS performs well even with
+drift levels, with purity ranging from 0.73 to 0.92. These results   smaller reference data and window sizes. (2) Limited number of
+highlight that clustering effectively isolates normal and drifted    statistics. The FDD relies on a limited set of statistics—mean
+samples, which is crucial to identifying drifted prototypes.      and covariance—for distance calculation, covering only the ﬁrst
+  Qualitative Results: Figs. 8 and 9 show the per-label drift  two moments of the distribution and not considering higher
+explanations for use case 6.1, for the classes Glacier (highly  moments like skewness and kurtosis. (3) Distance interpretabil-
+affected) and Building (moderately affected), generated with    ity. The FDD distances are in the [0, ∞] range, but would be
+mw =2000 and 20% of drift. The closest 4 samples to the cen-  more interpretable in the [0,1] range. This can be addressed by
+troids are extracted as prototypes. In Fig. 8, historical prototypes   expressing the distance relative to the threshold. (4) DRIFTLENS
+for Glacier are represented by two clusters: winter glaciers   assumes embeddings follow Gaussian distributions, simplifying
+(top-left) and summer glaciers (top-right). When drift occurs,   mathematical modeling but potentially overlooking nuances in
+--- Page 13 ---
+6244                                                 IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING, VOL. 37, NO. 10, OCTOBER 2025
+
+
+
+the actual distributions. However, our experiments show that this    [18]  S. Xu and J. Wang, “Dynamic extreme learning machine for data stream
+assumption does not affect drift detection performance while          classiﬁcation,” Neurocomputing, vol. 238, pp. 433–449, 2017.
+                                                                               [19] A. Bifet and R. Gavalda, “Learning from time-changing data with adap-
+signiﬁcantly enhancing efﬁciency. (5) We experimented with          tive windowing,” in Proc. 2007 SIAM Int. Conf. Data Mining, 2007,
+drift in windows with nearly balanced labels, but this assumption         pp. 443–448.
+may not always hold.                                                      [20]  S. Arora, R. Rani, and N. Saxena, “SETL: A transfer learning based
+                                                                        dynamic ensemble classiﬁer for concept drift detection in streaming data,”
+  In future work, we plan to: (i) integrate drift explanations         Cluster Comput., vol. 27, pp. 3417–3432, 2023. [Online]. Available:
+with data type-speciﬁc XAI techniques based on embedding rep-         https://doi.org/10.1007/s10586-023-04149-w
+resentations or concepts [90], [91], [92], (ii) address automatic    [21]  P. Vorburger and A. Bernstein, “Entropy-based concept shift detection,”
+                                                                                           in Proc. 6th Int. Conf. Data Mining, 2006, pp. 1113–1118.
+drift adaptation in unsupervised or supervised with limited label,    [22]  P. Grulich, R. Saitenmacher, J. Traub, S. Breß, T. Rabl, and V. Markl,
+(iii) test drift detectors in scenarios with unbalanced data, and         “Scalable detection of concept drifts on data streams with parallel adaptive
+(iv) extend the approach to tasks other than classiﬁcation.              windowing,” in Proc. 21st Int. Conf. Extending Database Technol., 2018,
+                                                                                     pp. 477–480.
+                                                                               [23] N. Sun, K. Tang, Z. Zhu, and X. Yao, “Concept drift adaptation by
+                     REFERENCES                                      exploiting historical knowledge,” IEEE Trans. Neural Netw. Learn. Syst.,
+                                                                                              vol. 29, no. 10, pp. 4822–4832, Oct. 2018.
+ [1]  J. Lu, A. Liu, F. Dong, F. Gu, J. Gama, and G. Zhang, “Learning under    [24] M. Z. A. Mayaki and M. Riveill, “Autoregressive based drift detection
+     concept drift: A review,” IEEE Trans. Knowl. Data Eng., vol. 31, no. 12,        method,” in Proc. IEEE Int. Joint Conf. Neural Netw., 2022, pp. 1–8.
+     pp. 2346–2363, Dec. 2019.                                                [25] A. Haque, L. Khan, and M. Baron, “SAND: Semi-supervised adaptive
+ [2] X. Wang, H. Wang, and D. Yang, “Measure and improve robustness in         novel class detection and classiﬁcation over data stream,” in Proc. Thirtieth
+    NLP models: A survey,” in Proc. 2022 Conf. North Amer. Chapter Assoc.       AAAI Conf. Artif. Intell., 2016, pp. 1652–1658.
+     Comput. Linguistics: Hum. Lang. Technol., 2022, pp. 4569–4586.           [26]  F. Pinagé, E. M. dos Santos, and J. A. Gama, “A drift detection method
+ [3]  S. Shankar and A. G. Parameswaran, “Towards observability for produc-        based on dynamic classiﬁer selection,” Data Min. Knowl. Discov., vol. 34,
+      tion machine learning pipelines,” Proc. VLDB Endow, vol. 15, no. 13,         no. 1, pp. 50–74, Jan. 2020. [Online]. Available: https://doi.org/10.1007/
+     pp. 4015–4022, Sep. 2022. [Online]. Available: https://doi.org/10.14778/        s10618-019-00656-w
+     3565838.3565853                                                        [27] A. Liu, J. Lu, Y. Song, J. Xuan, and G. Zhang, “Concept drift detection
+ [4]  F. Hinder, V. Vaquet, and B. Hammer, “One or two things we know         delay index,” IEEE Trans. Knowl. Data Eng., vol. 35, no. 5, pp. 4585–4597,
+     about concept drift—A survey on monitoring in evolving environments.      May 2023.
+      part a: Detecting concept drift,” Front. Artif. Intell., vol. 7, 2024, Art.    [28] A. Gretton, K. M. Borgwardt, M. J. Rasch, B. Schölkopf, and A. Smola,
+     no. 1330257. [Online]. Available: https://www.frontiersin.org/journals/       “A kernel two-sample test,” J. Mach. Learn. Res., vol. 13, pp. 723–773,
+      artiﬁcial-intelligence/articles/10.3389/frai.2024.1330257                       2012. [Online]. Available: http://jmlr.org/papers/v13/gretton12a.html
+ [5]  F. Hinder, V. Vaquet, and B. Hammer, “One or two things we know about    [29] D. M. dos Reis, P. Flach, S. Matwin, and G. Batista, “Fast unsupervised
+     concept drift—A survey on monitoring in evolving environments. part         online drift detection using incremental kolmogorov-smirnov test,” in
+      b: Locating and explaining concept drift,” Front. Artif. Intell., vol. 7,         Proc. 22nd ACM SIGKDD Int. Conf. Knowl. Discov. Data Mining, 2016,
+     2024, Art. no. 1330258. [Online]. Available: https://www.frontiersin.org/         pp. 1545–1554.
+      journals/artiﬁcial-intelligence/articles/10.3389/frai.2024.1330258          [30] L. Bu, C. Alippi, and D. Zhao, “A pdf-Free change detection test based
+ [6] R. N. Gemaque, A. F. J. Costa, R. Giusti, and E. M. dos Santos, “An        on density difference estimation,” IEEE Trans. Neural Netw. Learn. Syst.,
+     overview of unsupervised drift detection methods,” WIREs Data Mining          vol. 29, no. 2, pp. 324–334, Feb. 2018.
+     Knowl. Discov., vol. 10, no. 6, 2020, Art. no. e1381.                        [31]  T. Cerquitelli, S. Proto, F. Ventura, D. Apiletti, and E. Baralis, “Towards
+ [7]  P. Shen, Y. Ming, H. Li, J. Gao, and W. Zhang, “Unsupervised concept drift         a real-time unsupervised estimation of predictive model degradation,” in
+      detectors: A survey,” in Proc. Adv. Natural Comput. Fuzzy Syst. Knowl.         Proc. Real-Time Bus. Intell. Anal., 2019, pp. 1–6.
+      Discov., 2023, pp. 1117–1124.                                            [32]  F. Ventura et al., “A new unsupervised predictive-model self-assessment
+ [8] E. Werner, N. Kumar, M. Lieber, S. Torge, S. Gumhold, and W. E. Nagel,        approach  that  scales,”  in Proc. IEEE  Int. Congr. Big Data, 2019,
+     “Towards computational performance engineering for unsupervised con-         pp. 144–148.
+      cept drift detection: Complexities, benchmarking, performance analysis,”    [33]  S. A. Bashir, A. Petrovski, and D. Doolan, “Udetect: Unsupervised con-
+      in Proc. 13th Int. Conf. Data Sci., Technol. Appl., 2024, vol. 1, pp. 318–329.         cept change detection for mobile activity recognition,” in Proc. 14th
+ [9]  F. Bayram, B. S. Ahmed, and A. Kassler, “From concept drift to model           Int. Conf. Adv. Mobile Comput. Multi Media, 2016, pp. 20–27, doi:
+      degradation: An overview on performance-aware drift detectors,” Know.-        10.1145/3007120.3007144.
+     Based Syst., vol. 245, 2022, Art. no. 108632. [Online]. Available: https:    [34] R. F. de Mello, Y. Vaz, C. H. Grossi, and A. Bifet, “On learning guar-
+     //doi.org/10.1016/j.knosys.2022.108632                                         antees to unsupervised concept drift detection on data streams,” Expert
+[10] H. Hu, M. Kantardzic, and T. S. Sethi, “No free lunch theorem for concept          Syst. Appl., vol. 117, pp. 90–102, 2019. [Online]. Available: https://www.
+       drift detection in streaming data classiﬁcation: A review,” WIREs Data         sciencedirect.com/science/article/pii/S0957417418305682
+     Mining Knowl. Discov., vol. 10, no. 2, 2020, Art. no. e1327.                [35] D. Kifer, S. Ben-David, and J. Gehrke, “Detecting change in data streams,”
+[11]  P. Wang, H. Yu, N. Jin, D. Davies, and W. L. Woo, “QuadCDD: A          in Proc. 13th Int. Conf. Very Large Data Bases, 2004, pp. 180–191.
+     quadruple-basedapproachforunderstandingconceptdriftindatastreams,”    [36] K. Nishida and K. Yamauchi, “Detecting concept drift using statisti-
+     Expert Syst. Appl., vol. 238, 2024, Art. no. 122114. [Online]. Available:          cal testing,” in Discovery Science. Berlin, Germany: Springer, 2007,
+     https://doi.org/10.1016/j.eswa.2023.122114                                     pp. 264–269.
+[12]  J. N. Adams, C. Pitsch, T. Brockhoff, and W. M. P. van der Aalst, “An    [37]  S. Rabanser, S. Günnemann, and Z. C. Lipton, “Failing loudly: An
+     experimental evaluation of process concept drift detection,” Proc. VLDB         empirical study of methods for detecting dataset shift,” in Proc. Neu-
+     Endow, vol. 16, no. 8, pp. 1856–1869, Apr. 2023. [Online]. Available:          ral Inf. Process. Syst., 2018, pp. 1396–1408, [Online]. Available: https:
+     https://doi.org/10.14778/3594512.3594517                                    //api.semanticscholar.org/CorpusID:53096511
+[13]  J. Gama, P. Medas, G. Castillo, and P. Rodrigues, “Learning with drift    [38]  F. J. Massey Jr, “The kolmogorov-smirnov test for goodness of ﬁt,” J.
+      detection,” in Proc. Adv. Artif. Intell., 2004, pp. 286–295.                      Amer. Stat. Assoc., vol. 46, 1951, Art. no. 253.
+[14] M. Baena-Garcia, J. Del Campo-Ávila, R. Fidalgo, A. Bifet, R. Gavalda,    [39] H. Cramér, “On the composition of elementary errors: First paper: Math-
+     and R. Morales-Bueno, “Early drift detection method,” in Proc. 4th Int.         ematical deductions,” Scand. Actuarial J., vol. 1928, pp. 13–74, 1928.
+     Workshop Knowl. Discov. Data Streams, 2006, pp. 77–86.                  [40] E. Lughofer, E. Weigl, W. Heidl, C. Eitzinger, and T. Radauer, “Drift
+[15]  J. Gama and G. Castillo, “Learning with local drift detection,” in Proc.         detection in data stream classiﬁcation without fully labelled instances,” in
+     Adv. Data Mining Appl., 2006, pp. 42–55.                                      Proc. 2015 IEEE Int. Conf. Evolving Adaptive Intell. Syst., 2015, pp. 1–8.
+[16]  I. Frías-Blanco,  J. D. Campo-Ávila, G. Ramos-Jiménez, R. Morales-    [41] A. Suprem, J. Arulraj, C. Pu, and J. Ferreira, “ODIN: Automated drift
+     Bueno, A. Ortiz-Díaz, and Y. Caballero-Mota, “Online and non-parametric        detectionandrecoveryinvideoanalytics,”Proc.VLDBEndow.,vol.13,pp.
+       drift detection methods based on hoeffding’s bounds,” IEEE Trans. Knowl.        2453–2465, 2020. [Online]. Available: https://doi.org/10.14778/3407790.
+     Data Eng., vol. 27, no. 3, pp. 810–823, Mar. 2015.                          3407837
+[17] A. Liu, G. Zhang, and J. Lu, “Fuzzy time windowing for gradual con-    [42] M. Hushchyn and A. Ustyuzhanin, “Generalization of change-point de-
+      cept drift adaptation,” in Proc. 2017 IEEE Int. Conf. Fuzzy Syst., 2017,          tection in time series data based on direct density ratio estimation,” 2020.
+     pp. 1–6.                                                                          [Online]. Available: https://arxiv.org/abs/2001.06386
+--- Page 14 ---
+GRECO et al.: UNSUPERVISED CONCEPT DRIFT DETECTION FROM DEEP LEARNING REPRESENTATIONS IN REAL-TIME                                  6245
+
+
+
+
+[43] K. Yamanishi and J.-I. Takeuchi, “A unifying framework for detecting    [67]  J. Lin, “Divergence measures based on the shannon entropy,” IEEE Trans.
+      outliers and change points from non-stationary time series data,” in           Inf. Theory, vol. 37, no. 1, pp. 145–151, Jan. 1991.
+     Proc. 8th ACM SIGKDD Int. Conf. Knowl. Discov. Data Mining, 2002,    [68] “Reprint of: Mahalanobis, P.C. 1936, “On the generalised distance in
+     pp. 676–681, doi: 10.1145/775047.775148.                                              statistics,” Sankhya A, vol. 80, no. 1, pp. 1–7, Dec. 2018.
+[44]  F. Hinder, V. Vaquet, J. Brinkrolf, and B. Hammer, “On the hardness and    [69] A. Bhattacharyya, “On a measure of divergence between two multinomial
+      necessity of supervised concept drift detection,” in Proc. 12th Int. Conf.         populations,” Sankhy¯a: Indian J. Statist., vol. 1946, pp. 401–406, 1946.
+     Pattern Recognit. Appl. Methods, 2023, pp. 164–175.                             [Online]. Available: http://www.jstor.org/stable/25047882
+[45] O. Gözüaçik, A. Büyükçakir, H. Bonab, and F. Can, “Unsupervised con-    [70] R. M. J. Byrne, “Counterfactuals in explainable artiﬁcial intelligence
+      cept drift detection with a discriminative classiﬁer,” in Proc. 28th ACM Int.        (XAI): Evidence from human reasoning,” in Proc. 28th Int. Joint Conf.
+     Conf. Inf. Knowl. Manage., New York, NY, USA, 2019, pp. 2365–2368,           Artif. Intell., 2019, pp. 6276–6282, doi: 10.24963/ijcai.2019/876.
+      doi: 10.1145/3357384.3358144.                                           [71] B.Mittelstadt,C.Russell,andS.Wachter,“ExplainingexplanationsinAI,”
+[46] A. Liu, Y. Song, G. Zhang, and J. Lu, “Regional concept drift detection          in Proc. Conf. Fairness, Accountability, Transparency, 2019, pp. 279–288,
+     and density synchronized drift adaptation,” in Proc. 26th Int. Joint Conf.          doi: 10.1145/3287560.3287574.
+       Artif. Intell., 2017, pp. 2280–2286.                                        [72] X. Zhang, J. J. Zhao, and Y. LeCun, “Character-level convolutional net-
+[47]  S. Hido, T. Idé, H. Kashima, H. Kubo, and H. Matsuzawa, “Unsupervised        works for text classiﬁcation,” in Proc. Adv. Neural Inf. Process. Syst., 2015,
+     change analysis using supervised learning,” in Proc. Adv. Knowl. Discov.         pp. 649–657.
+     Data Mining, Berlin, Heidelberg, 2008, pp. 148–159.                       [73]  T. Mitchell, “Twenty newsgroups,” UCI Mach. Learn. Reposit., 1997.
+[48]  F. Hinder, V. Vaquet, J. Brinkrolf, and B. Hammer, “Model-based ex-         [Online]. Available: https://doi.org/10.24432/C5C323
+      planations of concept drift,” Neurocomputing, 2023. [Online]. Available:    [74] M. De-Arteaga et al., “Bias in bios: A case study of semantic representation
+     https://www.sciencedirect.com/science/article/pii/S0925231223007634           bias in a high-stakes setting,” in Proc. Conf. Fairness, Accountability,
+[49]  F. Hinder, A. Artelt, V. Vaquet, and B. Hammer, “Contrasting explanation         Transparency, 2019, pp. 120–128.
+      of concept drift,” in Proc. Eur. Symp. Artif. Neural Netw., Comput. Intell.    [75] L. Deng, “The MNIST database of handwritten digit images for machine
+     Mach. Learn., 2022, pp. 293–298.                                               learning research,” IEEE Signal Process. Mag., vol. 29, no. 6, pp. 141–142,
+[50]  J. N. Adams, S. J. van Zelst, T. Rose, and W. M. van der Aalst, “Ex-        Nov. 2012.
+      plainable concept drift in process mining,” Inf. Syst., vol. 114, 2023, Art.    [76]  I. Corporation, “Intel image classiﬁcation dataset,” [Online]. Available:
+     no. 102177. [Online]. Available: https://www.sciencedirect.com/science/         https://www.kaggle.com/datasets/puneet6060/intel-image-classiﬁcation
+     article/pii/S0306437923000133                                           [77] A. Coates, A. Ng, and H. Lee, “An analysis of single-layer networks in
+[51] L. Yang et al., “CADE: Detecting and explaining concept drift samples         unsupervised feature learning,” J. Mach. Learn. Res. - Proc. Track, vol.
+      for security applications,” in Proc. 30th USENIX Secur. Symp., 2021, pp.         15, pp. 215–223, 2011.
+     2327–2344.                                                              [78] K. Karkkainen and J. Joo, “Fairface: Face attribute dataset for balanced
+[52]  F. Hinder, V. Vaquet, J. Brinkrolf, A. Artelt, and B. Hammer, “Localization          race, gender, and age for bias measurement and mitigation,” in Proc.
+     ofconceptdrift:Identifyingthedriftingdatapoints,”inProc.2022Int.Joint       IEEE/CVF Winter Conf. Appl. Comput. Vis., 2021, pp. 1548–1558.
+     Conf. Neural Netw., 2022, pp. 1–9.                                        [79] R.Ardilaetal.,“Commonvoice:Amassively-multilingualspeechcorpus,”
+[53]  F. Hinder and B. Hammer, “Concept drift segmentation via kolmogorov-          in Proc. 12th Lang. Resour. Eval. Conf., 2020, pp. 4218–4222. [Online].
+      trees,” in Proc. ESANN, 29th Eur. Symp. Artif. Neural Netw., Comput.         Available: https://aclanthology.org/2020.lrec-1.520
+       Intell. Mach. Learn., 2021.                                                [80]  J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, “BERT: Pre-training
+[54] R. Guidotti, A. Monreale, S. Ruggieri, F. Turini, F. Giannotti, and D.         of deep bidirectional transformers for language understanding,” in Proc.
+      Pedreschi, “A survey of methods for explaining black box models,” ACM        2019 Conf. North Amer. Chapter Assoc. Comput. Linguistics, 2019,
+     Comput. Surv., vol. 51, no. 5, pp. 1–42, Aug. 2018. [Online]. Available:         pp. 4171–4186. [Online]. Available: https://aclanthology.org/N19-1423
+     https://doi.org/10.1145/3236009                                          [81] V. Sanh, L. Debut, J. Chaumond, and T. Wolf, “DistilBERT, a distilled ver-
+[55] C. Molnar, Interpretable Machine Learning. UAE: Lulu.com, 2020.              sion of bert: Smaller, faster, cheaper and lighter,” 2020, arXiv: 1910.01108.
+[56] X. Wang et al., “Conceptexplorer: Visual analysis of concept drifts in    [82] Y. Liu et al., “RoBERTa: A robustly optimized BERT pretraining ap-
+     multi-source time-series data,” in Proc. 2020 IEEE Conf. Vis. Analytics         proach,” 2019, arXiv: 1907.11692.
+      Sci. Technol., 2020, pp. 1–11.                                             [83] K. Simonyan and A. Zisserman, “Very deep convolutional networks for
+[57] K. B. Pratt and G. Tschapek, “Visualizing concept drift,” in Proc. 9th ACM          large-scale image recognition,” 2014, arXiv:1409.1556.
+    SIGKDD Int. Conf. Knowl. Discov. Data Mining, 2003, pp. 735–740, doi:    [84] A. Dosovitskiy et al., “An image is worth 16x16 words: Transformers for
+     10.1145/956750.956849.                                               image recognition at scale,” 2020, arXiv: 2010.11929.
+[58] G. I. Webb, L. K. Lee, B. Goethals, and F. Petitjean, “Analyzing concept    [85]  S. Schneider, A. Baevski, R. Collobert, and M. Auli, “Wav2Vec: Unsuper-
+       drift and shift from sample data,” Data Min. Knowl. Discov., vol. 32, no.         vised pre-training for speech recognition,” 2019, arXiv: 1904.05862.
+      5, pp. 1179–1199, Sep. 2018, doi: 10.1007/s10618-018-0554-1.             [86]  S. Ravfogel, Y. Elazar, H. Gonen, M. Twiton, and Y. Goldberg, “Null it out:
+[59]  J. A. Gama,  I. Žliobaitundeﬁned, A. Bifet, M. Pechenizkiy, and A.        Guarding protected attributes by iterative nullspace projection,” in Proc.
+     Bouchachia, “A survey on concept drift adaptation,” ACM Comput. Surv.,         58th Annu. Meeting Assoc. Comput. Linguistics, 2020, pp. 7237–7256.
+      vol. 46, pp. 1–37, 2014, doi: 10.1145/2523813.                                   [Online]. Available: https://aclanthology.org/2020.acl-main.647/
+[60]  S. Greco and T. Cerquitelli, “Drift lens: Real-time unsupervised con-    [87]  S. Greco, K. Zhou, L. Capra, T. Cerquitelli, and D. Quercia, “NLPguard:
+      cept drift detection by evaluating per-label embedding distributions,” in     A framework for mitigating the use of protected attributes by nlp classi-
+     Proc. 2021 Int. Conf. Data Mining Workshops, 2021, pp. 341–349, doi:          ﬁers,” in Proc. ACM Hum.-Comput. Interact., vol. 8, pp. 1–25, 2024, doi:
+     10.1109/ICDMW53433.2021.00049.                                        10.1145/3686924.
+[61]  S. Greco, B. Vacchetti, D. Apiletti, and T. Cerquitelli, “Driftlens: A concept    [88] A. Van Looveren et al., “Alibi detect: Algorithms for outlier, adversar-
+       drift detection tool,” in Proc. 27th Int. Conf. Extending Database Technol.,           ial and drift detection,” 2019. [Online]. Available: https://github.com/
+     Paestum, Italy, 2024, pp. 806–809, doi: 10.48786/edbt.2024.75.                  SeldonIO/alibi-detect
+[62] Y. Bengio, A. Courville, and P. Vincent, “Representation learning: A    [89] Spearman Rank Correlation Coefﬁcient. Berlin, Germany: Springer, 2008,
+     review and new perspectives,” IEEE Trans. Pattern Anal. Mach. Intell.,         pp. 502–505, doi: 10.1007/978-0-387-32833-1_379.
+      vol. 35, no. 8, pp. 1798–1828, Aug. 2013.                                  [90] F.Ventura,S.Greco,D.Apiletti,andT.Cerquitelli,“Trustingdeeplearning
+[63] D. Dowson and B. Landau, “The fréchet distance between multivari-         natural-language models via local and global explanations,” Knowl. Inf.
+      ate normal distributions,” J. Multivariate Anal., vol. 12, pp. 450–455,           Syst., vol. 64, pp. 1863–1907, 2022, doi: 10.1007/s10115-022-01690-9.
+     1982.                                                                    [91]  F. Ventura, S. Greco, D. Apiletti, and T. Cerquitelli, “Explaining deep
+[64] L. N. Wasserstein, “Markov processes over denumerable products of         convolutional models by measuring the inﬂuence of interpretable features
+     spaces describing large systems of automata,” Problemy Peredachi In-          in image classiﬁcation,” Data Mining Knowl. Discov., vol. 38, pp. 3169–
+      formatsii, vol. 5, pp. 64–72, 1969.                                           3226, 2024, doi: 10.1007/s10618-023-00915-x
+[65] M. Heusel, H. Ramsauer, T. Unterthiner, B. Nessler, and S. Hochre-    [92] E.  Poeta, G. Ciravegna, E.  Pastor,  T.  Cerquitelli, and E.  Baralis,
+       iter, “GANs trained by a two time-scale update rule converge to a lo-        “Concept-based  explainable  artiﬁcial  intelligence: A  survey,” 2023,
+      cal NASH equilibrium,” in Proc. Adv. Neural Inf. Process. Syst., 2017,         arXiv:2312.12936.
+     pp. 6629–6640.
+[66]  S. Kullback and R. A. Leibler, “On information and sufﬁciency,” The Ann.
+     Math. Statist., vol. 22, no. 1, pp. 79–86, 1951.

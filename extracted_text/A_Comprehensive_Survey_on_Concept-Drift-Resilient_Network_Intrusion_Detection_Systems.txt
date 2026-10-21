@@ -1,0 +1,1947 @@
+Title: A_Comprehensive_Survey_on_Concept-Drift-Resilient_Network_Intrusion_Detection_Systems
+
+--- Page 1 ---
+Received 10 April 2026, accepted 4 May 2026, date of publication 7 May 2026, date of current version 12 May 2026.
+
+Digital Object Identifier 10.1109/ACCESS.2026.3691262
+
+
+
+A Comprehensive Survey on
+Concept-Drift-Resilient Network
+Intrusion Detection Systems
+
+
+MATEUS KOMARCHESQUI  1, VITOR GABRIEL DA SILVA RUFFO  2,
+DANIEL MATHEUS BRANDÃO LENT  2, VINÍCIUS FERREIRA SCHIAVON  1,
+MATHEUS RIKI NAKANISHI1, GUSTAVO HIDEYUKI KITAMURA NISHIKAWA1,
+LUIZ FERNANDO CARVALHO  3, AND MARIO LEMES PROENÇA JR.  1
+1Computer Science Department, State University of Londrina, Londrina 86057-970, Brazil
+2Electrical Engineering Department, State University of Londrina, Londrina 86057-970, Brazil
+3Computer Engineering Department, Federal University of Technology—Paraná, Apucarana 86812-460, Brazil
+
+Corresponding author: Mario Lemes Proença Jr. (proenca@uel.br)
+
+This work was supported in part by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior–Brazil (CAPES) under Grant 001,
+in part by the Araucaria Foundation, and in part by the National Council for Scientific and Technological Development (CNPq) of Brazil
+under Grant 306397/2022-6.
+
+
+
+ ABSTRACT  The evolution of computer networks for service provision, through new devices and
+  architectures, renders past traffic patterns obsolete. The shift in the statistical properties of data is known as
+  concept drift (CD) and is bound to affect automated pattern recognition-based systems. Network intrusion
+  detection systems (NIDS) are widely studied security solutions that model and monitor network traffic
+  behavior, alerting when malicious activities are detected. The lack of adaptability to evolving networks
+  renders NIDS ineffective over time, leading to operational instability and increased vulnerability. In this
+  survey, we aim to present an empirical literature review on state-of-the-art CD-resilient NIDS. The essential
+  steps involved in developing such systems are comprehensively examined: benchmark datasets, NIDS
+  development, drift detection and adaptation, and dynamic performance evaluation. An increasing trend in
+  academic output has underscored the critical importance of this evolving field since 2022. We support its
+  research by identifying open issues and highlighting future investigation directions.
+
+
+ INDEX TERMS Anomaly detection, concept drift survey, datasets, DDoS, drift adaptation, drift detection,
+  intrusion detection, network intrusion detection, NIDS.
+
+
+
+I. INTRODUCTION                                                        is  referred  to  as concept  drift (CD). As a  result,  the
+Computer networks serve as the backbone of the modern    environment  is  characterized by heterogeneous,  volatile
+digital era, facilitating global interconnectivity through a    network traffic [5], [6], [7], [8]. Discriminating between
+wide range of online services. The development of new    environmental evolution and malicious activities is a vital
+applications, the widespread adoption of Internet of Things     requirement for automated, near-real-time security solutions.
+devices, the deployment of high-speed infrastructures, such      Autonomous security systems are often built upon pattern
+as 5G, and the shift in user behavior, continuously transform     recognition models, categorized as machine learning (ML),
+this ecosystem [1], [2], [3], [4]. These mutations frequently     that presuppose learned data distributions remain consistent
+alter the network traffic profile, rendering previously defined     over time [9], [10], [11], [12], [13]. This assumption does
+baselines by security systems obsolete. This phenomenon     not reflect the real-world non-stationary nature of network
+                                                               streams. Thus,  static machine learning  architectures are
+  The associate editor coordinating the review of this manuscript and    fundamentally challenged by the emergence of CD, which
+approving it for publication was Asad Waqar Malik    .                    degrades their predictive performance post-deployment [14],
+
+
+                                      2026 The Authors. This work is licensed under a Creative Commons Attribution 4.0 License.
+VOLUME 14, 2026                                      For more information, see https://creativecommons.org/licenses/by/4.0/                                 69689
+--- Page 2 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+[15], [16]. The unaddressed presence of drift can lead to        • Introduce an up-to-date taxonomy of drift adaptation
+increased false alarms or to missed detection of zero-day          techniques, categorizing them according to the NIDS’
+attacks, punishing legitimate users and overlooking anoma-           target updating component;
+lies. Given the time-sensitive constraints of modern networks,        • Quantify the most popular performance metrics, espe-
+adaptability to dynamic environments is particularly critical,           cially those specific to dynamic environments;
+as delays in responding to novel data patterns can create        •  Identify  the gaps  in  research  that  warrant  further
+security vulnerabilities and operational instability [17], [18].          investigation.
+   Drift-resilient network intrusion detection systems (NIDS)
+                                                    The remainder of this survey  is organized as follows:
+are  increasingly  gaining  notoriety  in  research. Shallow
+                                                             Section II reviews the related work; Section III presents
+learning ensembles, clusterization, and deep learning neural
+                                                                    theoretical  foundation on  data  stationarity and concept
+networks  are  often combined  with  drift  detection and
+                                                                               drift; Section IV describes the applied methodology for
+adaptation techniques to implement adaptive NIDS. Exam-
+                                                                         literature reviewing; Section V discusses the obtained results;
+ples  of anomaly  detection  strategies comprise  adaptive
+                                                             Section VI  highlights  the  identified open  issues,  also
+random forests [19], k-nearest neighbors [20], convolutional
+                                                                 indicating the future research directions; and Section VII
+neural networks [21], long short-term memory [22], and
+                                                           concludes on our findings.
+autoencoders  [23]. Adaptation  to dynamic environments
+is frequently dependent on labeled data, and can lever-
+age  retraining whenever  drift  is detected  [24],  periodi-       II. RELATED WORK
+cally [25], or by incrementally adding knowledge to the    This section presents a review of relevant works that survey
+system [26].                                                concept  drift  in network  traffic analysis using machine
+  This survey article proposes a comprehensive system-     learning models. We  discuss  their main  characteristics,
+atic  review  of  the  state  of  the  art  in  concept-drift-     particular insights, and the inferences they provide. Finally,
+resilient network  intrusion  detection  systems. None  of   we highlight how our work builds upon these studies by
+the  related works  simultaneously  addressed benchmark     presenting a systematic review of the state of the art in
+datasets, NIDS modeling,  drift detection and adaptation,    concept drift handling for network traffic classification and
+and dynamic-specific performance  metrics. The  present    anomaly detection.
+study aims  to  bridge  this  research gap by  discussing       Riess [27] surveyed the automated adaptation of machine
+these essential topics and exploring their interdependencies.     learning models via metaheuristics in environments with
+By integrating these dimensions,  this review provides a    concept drift. In this analysis, 17 studies were qualitatively
+cohesive understanding of the relationship between data     classified by metaheuristic type, adaptation approach, and the
+quality, algorithmic  plasticity, and  evaluation  rigor. For     regarded drift patterns. The author highlights that population-
+cybersecurity  research,  this  holistic  perspective  reveals    based methods, such as Genetic Algorithms and Particle
+critical vulnerabilities in current adaptive paradigms, such    Swarm Optimization, are the most dominant techniques for
+as the reliance on unrealistic labeling speeds. At the same     high-dimensional optimization problems in drift adaptation.
+time, for practitioners, it serves as a technical blueprint for    The work pinpoints flaws in the reviewed studies, such as the
+navigating operational trade-offs among detection accuracy,     lack of specifying the tested drift types or the reliance solely
+computational overhead, and system stability in live, evolving    on accuracy for evaluation, but lacks a deeper discussion
+networks.                                                     of the employed drift detection algorithms, datasets, and
+  Building upon this integrated approach, our work intro-     metrics.
+duces an up-to-date taxonomy of model adaptation tech-       Agrahari and Singh [28] surveyed data stream mining,
+niques and an organization of drift-simulation strategies for     focusing on drift detectors and their key traits, advantages,
+static datasets. We further analyze the systems’ dependence    and limitations. The authors categorize drift detection meth-
+on ground truth and the forgetting of previously acquired    ods into an eightfold taxonomy but provide little discussion
+knowledge. Finally, future directions in the field are high-     of drift-based benchmarks and evaluation metrics. The study
+lighted as a roadmap to address the identified research     highlighted the need to optimize false-positive and false-
+gaps.                                                          negative rates, handle multidimensional data, and address
+  The contributions of this work are sixfold:                     class imbalance in continuous-flow environments. Besides,
+   • Present the most used benchmarking datasets and drift     the real-time analysis of unsupervised and semi-supervised
+     simulation  strategies  for developing and  evaluating     data streams was identified as a prevailing challenge.
+     intrusion detection systems;                                Suárez-Cetrulo et al. [29] published a literature review
+   •  Identify the usage of machine learning strategies in    on the use of machine learning in continuous data streams,
+    implementing NIDS to inform researchers on the most    with emphasis on handling recurrent concept  drift. The
+    and least explored strategies;                              authors surveyed passive and active adaptation strategies,
+   •  List the frequently employed methods for detecting the     highlighting online ensemble, meta-learning, and cluster-
+     occurrence of concept drift according to ground truth     ing approaches. Drift-related performance metrics used to
+    dependence;                                               evaluate the detection and adaptation capacity of models
+
+
+69690                                                                                                               VOLUME 14, 2026
+--- Page 3 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+TABLE 1. Related surveys on concept drift in machine learning models.
+
+
+
+
+
+were discussed, while the benchmark datasets were briefly     streams, being evaluated with drift-specific metrics. The
+described. The study  highlights  that online incremental     study also highlights the lack of high-quality annotation of
+learning algorithms incur higher computational costs due to      drift occurrences in publicly available datasets, as well as
+the relearning of older patterns in the presence of recurring     the need for further research on the detection of gradual
+drifts. The authors suggest  that  future  research  further    and incremental  drift. The survey’s scope  is limited to
+integrate data stream learning, time-series analysis, transfer      drift detection in data streams, thereby omitting the broader
+learning, and deep learning to develop autonomous adaptive     discussion on adaptation strategies and their application to the
+strategies.                                                        intrusion detection task.
+  Mahdi et  al. [30] presented a comprehensive roadmap      Moriano  et  al. [32] conducted a systematic  literature
+for adapting to concept drift in data stream mining. The    review on adaptive anomaly detection in Cyber-Physical
+authors categorized  drift detection techniques into three    Systems. The authors evaluated 65 papers and introduced a
+families: statistical-, window-, and ensemble-based methods.    taxonomy that categorizes them by attack type, application
+Statistical methods were highlighted as computationally    domain, learning paradigm, and data management strategy.
+efficient for abrupt  drift, while they often struggle with    The analysis revealed that while online methods are better
+gradual drift. Conversely, ensemble methods were identified     suited to tackle concept drift in data streams, the majority
+as robust against recurring drift, although they suffer from     of existing research still relies on offline, static training. It is
+high memory consumption and complexity. They argued     also pointed out that most studies address either real-time data
+that  future  research must  address  the  class imbalance     processing or model adaptation strategies, but rarely integrate
+problem in drifting streams and develop semi-supervised or    both into a fully adaptive solution. The work lacks an in-depth
+unsupervised approaches, as the assumption of immediate    review of drift-specific evaluation metrics and benchmark
+label availability rarely holds in the real world. However, the     datasets.
+work fails to survey drift-specific metrics and solutions to the       Abdullahi et  al. [33] presented a systematic literature
+intrusion detection task.                                     review on concept drift mitigation specifically within time-
+  Shyaa et al. [17] proposed a comprehensive review of     series applications. The authors analyzed 60 articles, cate-
+71 papers on integrating machine learning into intrusion     gorizing them based on drift speed and learning paradigm.
+detection systems, with an emphasis on the implications of    This work identified support vector machines (SVM) and
+concept drift and feature drift. This study proposed a concep-    long short-term memory networks as the most frequently
+tual framework to address class imbalance, high-dimensional    employed models, while pointing to SVM as the most
+data, and drift challenges to mitigate the obsolescence of     effective for  drift detection and adaptation. Furthermore,
+intrusion detection systems in dynamic environments. The     the authors noted reliance on synthetic datasets, which may
+absence of models capable of handling both concept and     not fully capture the complexity of real-world noise. They
+feature drift simultaneously was highlighted. Furthermore,    concluded that future work must prioritize adaptive models
+the authors pinpointed the lack of methodologies that address     that do not require explicit retraining, emphasizing hybrid
+both class imbalance and concept drift in intrusion detection    approaches to better differentiate between actual drift and
+systems. The work overlooks specialized evaluation metrics     outliers. The work failed to survey metrics for measuring drift
+essential for assessing concept drift within the constraints of    and strategies for implementing intrusion detection systems.
+dynamic, real-time streams.                               The reviewed related works are summarized in Table 1,
+  Lukats  et  al.  [31] conducted  a  literature  review  of    where the columns correspond to fundamental concerns for
+unsupervised concept drift detectors for data streams that     the effective development of drift-resilient traffic analysis.
+accounted for ground-truth delayed availability. The authors    Most studies analyze both detection and adaptation tech-
+surveyed 61 articles and provided a detailed examination     niques for concept drift. Only a few works review specific
+of 10 algorithms based on architecture, core ideas, and      drift metrics or focus on intrusion detection. None of the
+input  data  constraints. Seven  of  these algorithms were    analyzed studies simultaneously covers the topics of concept
+implemented and benchmarked across 11 real-world data      drift detection, adaptation, dynamic-environment metrics,
+
+
+
+
+VOLUME 14, 2026                                                                                                          69691
+--- Page 4 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+intrusion detection, and benchmark datasets. We bridge this     indicates that, despite a change in the distribution of feature
+gap by conducting an updated, in-depth literature review of     vectors, the relationship between the input and output Pt(y|x)
+the state of the art, comprehending such elementary topics    remains unchanged. In such a scenario, the classification
+for adaptive NIDS development.                          model may not need to be updated, as its learned decision
+                                                       boundary continues to separate samples from different classes
+                                                                      correctly. If the change is caused by Pt(y|x)̸ = Pt+n(y|x)III. BACKGROUND
+                                                                whilst Pt(x) =  Pt+n(x), then  it is called a real drift (c).A. DATA STATIONARITY
+                                                   The word ‘‘real’’ means the latent function, which maps
+Machine learning algorithms are commonly based on the
+                                                                inputs to outputs, has changed. In this case, the model must
+assumption that the training and test data are independent
+                                                       be updated to track the new decision boundary to classify
+and identically distributed (i.i.d.), and likely stationary over
+                                                                  feature vectors accurately. In the hybrid case, both Pt(y|x)
+time [34]. Some ML practitioners might assume that each
+                                                      and Pt(x) change, also requiring model updates to maintain
+sample in the dataset was generated in isolation without
+                                                                     classification accuracy (d).
+influence from previous samples. They also presume that
+                                                         Concept  drift  is  additionally categorized by how the
+each training and test data sample is drawn from a single
+                                                             old data distribution Pt(x, y) transitions to the novel one
+probability distribution,  i.e., the samples were generated
+                                                            Pt+n(x, y) over time, as illustrated in Fig. 2 [43]. For example,
+using the same set of latent rules and thus share similar
+                                                       sudden concept drift is characterized by an abrupt change
+numerical patterns and trends [35]. The  i.i.d. assumption
+                                                                   in distribution between two consecutive time steps (a). Such
+enables developers to train ML models to perform a target
+                                                          unexpected drift necessitates prompt model adaptation to
+task and estimate their runtime generalization performance
+                                                       minimize the harm caused by false inferences. Conversely,
+on  a  test  set  before  deploying them  in  a  real-world
+                                                                          drifts may also occur gradually, with the old distribution
+application.
+                                                        smoothly transitioning to the new one over multiple time
+  Network anomaly detection has been widely conducted
+                                                                 steps (b). Since such drift is more subtle, it may be more
+utilizing machine learning, and inherently, the i.i.d. assump-
+                                                     complex to detect than the sudden counterpart. Recurrent
+tion [11], [36]. Computer networks are known for their
+                                                                          drifts constitute a challenging category in which different data
+high dynamism and  evolution  over  time,  resulting  in
+                                                                    distributions cyclically and indefinitely alternate throughout
+non-stationary traffic trends [37], [38], [39]. Thus, ML-based
+                                                           time (c). In such a scenario, models should retain knowledge
+NIDS built upon the i.i.d. data paradigm will likely suffer
+                                                               of  all  distributions and make  predictions based on the
+from long-term performance degradation when deployed
+                                                                 current distribution in the cycle. Concept drift can occur
+to  process  real-time  data,  since  the  traffic  probability
+                                                          under  various  conditions, making  it  difficult  to  find a
+distribution is expected to shift over time. Realistic NIDS
+                                                                  single universal method for detecting  it and adapting the
+implementations must account for data non-stationarity and
+                                                                learning model. Hence, it is evident that CD handling follows
+integrate mechanisms to detect and adapt to drift in the
+                                                                the No Free Lunch theorem. Researchers should develop
+traffic probability distribution, thereby promoting continuous
+                                                                 specialized detection and adaptation methods tailored to
+effectiveness and generalization.
+                                                                the  drifts  they  expect  to encounter  in  their  respective
+                                                                 applications [44].
+B. CONCEPT DRIFT
+Concept drift is a subfield of statistics and machine learning
+                                                                      IV. METHODOLOGY
+that investigates emerging patterns, trends, and relationships
+                                                   Our research goal is to conduct an empirical review of the
+in data over time  [40],  [41]. The formal mathematical
+                                                                       state of the art in ML-based anomaly and intrusion detection
+definition of CD is commonly stated in a supervised learning
+                                                          systems that are robust to concept drift. A generic represen-
+setting. Let x ∈χ denote a feature vector sampled from
+                                                                     tation of the common pipeline involving the development
+feature space and y ∈Y  its respective classification label,
+                                                               of concept drift-resilient NIDS is depicted in Fig. 3. This
+where Y = {class1, class2,  . . . , classk}. The dataset used                                                                   structure frequently encompasses network traffic collection
+to develop an ML model consists of (x, y) sequential data
+                                                                via data streams, knowledge integration, network intrusion
+points. Concept drift is characterized by a change in the
+                                                                detection systems and their inferences, drift detection, and
+joint probability distribution of such points between distinct
+                                                                   integration of drifted data. We survey such common steps
+timestamps t and t + n, written as Pt(x, y)̸ = Pt+n(x, y)                                                            during the development of NIDS by addressing the following
+[42]. Following Bayes’ theorem, Pt(x, y) can be factored as                                                               research questions:
+Pt(y|x)×Pt(x) [14]. Therefore, a change in Pt(x, y) is directly
+caused by an alteration in the label posterior distribution        • RQ1 - What datasets are considered for benchmarking
+Pt(y|x), or in the feature distribution Pt(x), or both.                 experiments?
+ CD can be classified according to which factor of Pt(x, y)        • RQ2  - Which machine learning models have been
+triggers the data shift [17], as shown in Fig. 1. If the variation        implemented to address anomaly detection?
+is caused by Pt(x)̸ = Pt+n(x) while Pt(y|x) = Pt+n(y|x), then        • RQ3 - What algorithms are predominantly utilized for
+it is named virtual drift or feature drift (b). The term ‘‘virtual’’          the identification of concept drift?
+
+
+69692                                                                                                               VOLUME 14, 2026
+--- Page 5 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+ FIGURE 1. Concept drift trigger types: no drift (a), virtual drift (b), real drift (c), and hybrid drift (d).
+
+
+
+
+
+FIGURE 2. Concept drift transition types: sudden (a), gradual (b), and recurrent (c).
+
+
+
+                                                                     Fig. 4  depicts  the research methodology’s  sequential
+                                                         approach to the proposed empirical literature review and the
+                                                                 resolution of the aforementioned questions. The first stage
+                                                                   in conducting a comprehensive review of this field involves
+                                                                the  identification and  selection of appropriate scholarly
+                                                              databases (Fig. 4a Database Selection). We defined some spe-
+                                                                          cific criteria for selecting appropriate databases for our study:
+                                                               online accessibility through our institutions’ agreements;
+                                                            indexing of high-impact journals aligned with the research
+                                                             scope; a predominance of English language publications;
+                                                             support for advanced Boolean logic and metadata filtering;
+                                                      and the capability to export results in standardized formats
+                                                         such as.csv  or.bib. ACM Digital Library, IEEE Xplore,
+                                                               ScienceDirect, and Springer Link were the four databases
+                                                        found to satisfy these specifications.
+                                                    The search scope was defined using Boolean query strings
+                                                               incorporating  critical domain-specific keywords (Fig. 4b
+                                                                      Identification). To ensure a comprehensive capture of relevant
+                                                                           literature, we built a query string with 12 related terms,
+FIGURE 3. The common pipeline for implementing drift-resilient NIDS.       namely: Intrusion Detection, Anomaly Detection, Attack
+                                                               Detection, Traffic Classification, IDS, Network Security,
+                                                DDoS, Concept Drift, Data Drift, Real Drift, Virtual Drift,
+   • RQ4 - How are adaptation techniques structured to mit-
+                                                      and Feature  Drift. Since the selected databases’ search
+     igate the impact of concept drift on model performance?
+                                                            engines support a maximum of 8 Boolean operators, we refor-
+   • RQ5 - Which performance metrics are employed for
+                                                         mulated the query into three distinct ones:
+     evaluating both intrusion and drift detection?
+   • RQ6 - What are the current open issues and prospective        • Q1: (‘‘Intrusion’’ OR ‘‘Anomaly’’ OR ‘‘Attack’’) AND
+    avenues for future investigation in this field?                     ‘‘Detection’’ AND ‘‘Concept Drift’’;
+
+
+VOLUME 14, 2026                                                                                                          69693
+--- Page 6 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+                                                                After data cleansing, the screened 116 full-text articles
+                                                      were thoroughly assessed for fitness and suitability for data
+                                                                    extraction, answering the six research questions defined
+                                                          beforehand (Fig. 4d Inclusion). We divided the research
+                                                              questions into two scopes: intrusion detection (RQ1, RQ2,
+                                                      and RQ5) and drift handling (RQ3 and RQ4). To mitigate
+                                                                 bias and ensure a robust analysis, each scope was assigned
+                                                                   to an odd number of co-authors who reviewed all screened
+                                                                papers. Each author was responsible  for analyzing and
+                                                                  tabulating the RQs within their assigned scope, subsequently
+                                                                 contributing to the writing of the sections corresponding to
+                                                                       their findings. This setup guaranteed both overlap in analysis
+                                                                (multiple perspectives per RQ) and a  built-in tiebreaker
+                                                                      criterion for inclusion decisions (odd decisions per article,
+                                                      which inherently resolves reviewers’ disagreements through
+                                                              majority voting).
+                                                    The reading overlap played a vital role in our methodology,
+                                                            avoiding biased analysis and contributing to a fairer process,
+                                                           while open  issues (RQ6) were noted by every  author
+FIGURE 4. Research methodology.
+                                                            throughout the inclusion task and compiled by the first author.
+                                                   The insights extracted from these works are used to delineate
+                                                                the state of the art, with the following sections organized
+   • Q2: (‘‘Intrusion Detection’’ OR ‘‘Traffic Classification’’                                                                   to address each research question separately. This structure
+   OR ‘‘IDS’’ OR ‘‘Network Security’’) AND (‘‘Concept                                                             allows readers to navigate the review efficiently and focus on
+     Drift’’ OR ‘‘Data Drift’’ OR ‘‘Real Drift’’ OR ‘‘Virtual                                                                   specific areas of interest. The results of the conducted survey
+     Drift’’ OR ‘‘Feature Drift’’);                                                                are exhibited hereafter.
+   • Q3: ‘‘DDoS’’ AND ‘‘Concept Drift’’ OR ‘‘Anomaly
+     Detection’’ AND  ‘‘Concept  Drift’’ OR  ‘‘Intrusion                                                                V. RESULTS
+     Detection’’ AND ‘‘Concept Drift’’ OR ‘‘Traffic Classi-                                                   The state of the  art on concept  drift handling in intru-
+     fication’’ AND ‘‘Concept Drift’’.                                                               sion detection is reviewed in this section. The following
+  As shown in Fig. 4, Q1 yielded 1,154 papers, while Q2     subsections answer the six proposed research questions by
+and Q3 returned 1,303 and 891, respectively. Only full-length     presenting the latest advancements regarding benchmark-
+journal articles published between 2022 and 2025 inclusively     ing datasets, machine learning-based intrusion detection,
+were considered, which summed up to 3,348 records across    concept  drift detection and adaptation, and performance
+the selected databases and queries. While it is acknowledged     metrics.
+that  significant foundational work  exists  prior  to 2022,
+focusing on full-length articles from this period onward     A. METADATA
+ensures that our review reflects the most recent advancements      Firstly, we analyze the metadata associated with the articles
+and emerging challenges in this rapidly evolving field. This     gathered through our research methodology. We conducted
+temporal scope also preserves analytical depth, enabling     data collection on August 5th, 2025 across four data sources:
+rigorous screening of the high volume of records generated    IEEE Xplore, Science Direct, ACM Digital Library, and
+by our comprehensive search strategy.                           Springer. These queries produced an initial set of 1481 works,
+  After removing 1,867 duplicates resulting from overlap-    with Science Direct being the primary source (823), followed
+ping queries in the identification phase, the remaining 1,481    by Springer (372), IEEE Xplore (181), and ACM Digital
+articles underwent a manual selection process to assess     Library (105).
+their alignment with our research scope (Fig. 4c Screening     We then filtered the articles, discarding those that did
+and  Eligibility). We check whether the papers proposed     not meet our inclusion criteria. This process narrowed the
+intrusion  or anomaly  detection  solutions  for computer     final set to 69 papers, representing 4.7% of the original
+network environments that specifically addressed concept      retrieval. Such a reduction suggests that concept drift  is
+drift. Furthermore, surveys and review articles were excluded    widely acknowledged in the field of intrusion detection, but
+to focus on primary research contributions. This manual     solutions to this problem are scarce.
+refinement is essential, as keyword matches do not always        Fig. 5 illustrates the annual distribution of selected works,
+guarantee thematic relevance. Specific pertinent works from     revealing a consistent upward trend from 2022 to 2025. This
+other domains were included  if they  utilized computer     rise in scientific production underscores that concept drift
+network datasets and offered innovative approaches adaptable    remains an evolving and active research area. It is worth
+to the network security paradigm.                              noting that, although six early access articles scheduled for
+
+
+69694                                                                                                               VOLUME 14, 2026
+--- Page 7 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+                                                              TABLE 2. Public drift-based datasets and their presence in surveyed
+                                                                         works.
+
+
+
+
+
+                                                              TABLE 3. Public static datasets and their number of appearances.
+
+
+
+
+
+FIGURE 5. Selected articles distribution per year.
+
+
+
+
+
+                                                 As presented in Table 2, only 4 datasets showed any
+                                                             type of drift. The MAWI Working Group archive presented
+                                                                   in [50]  is the most used  drift-based  dataset, appearing
+                                                                   in 2 studies: dos Santos  et  al. [45], and H. Wu  et  al.
+                                                                    [46]. This dataset spans over two decades of traffic from
+                                                                the WIDE Project, providing a source for the analysis of
+                                                             gradual drift resulting from long-term evolution in network
+                                                               protocols and user behavior. The DS2OS Traffic Traces
+FIGURE 6. Selected articles per database.                                dataset  is employed by Wahab [47], and can be found
+                                                                   in [51], exhibiting drift within benign IoT traffic patterns;
+                                                                the specific type of this drift remains undocumented by
+2026 were screened, none met the eligibility criteria. The     the original authors. The IP Maliciousness dataset [52] is
+distribution of selected papers per data source is illustrated     considered in García and DeCastro-García [48] and was
+in Fig. 6. IEEE Xplore and Science Direct collectively     curated by the Spanish National Institute of Cybersecurity;
+account for over 90% of the selected studies, suggesting       it captures a longitudinal  shift by providing data from
+they are primary repositories for adaptive NIDS research.    two distinct periods (May 2021 and April 2022), with an
+Fig. 7 depicts the distribution of articles per journal. This    eleven-month hiatus between captures, facilitating the study
+distribution highlights the most active periodicals, helping     of drift. The UGR’16 dataset [39], present in Shajari et al.
+researchers target relevant venues. For visual clarity, journals     [49], addresses cyclostationarity, capturing the periodic and
+contributing two or fewer articles were omitted from this     seasonal fluctuations inherent in real-world large-scale ISP
+figure.                                                                       traffic, helping to identify benign cyclical changes in IDS.
+                                                 As shown in Table 3, a small group of static datasets
+B. DATASETS                                                     prevails in the surveyed  literature. CIC-IDS2017 [53]  is
+In this section, we answer the first research question (RQ1),     the most  prevalent,  with 17  appearances,  followed by
+providing more  details about  the  datasets used  in  the   KDDCup 1999 [54] and NSL-KDD [55] with 14 and
+reviewed works. Such data span multiple execution scenarios,    11 occurrences, respectively. The remaining most frequent
+including computer networks, forecasting, power stations,     datasets each appeared at least three times, with HIKARI2021
+LED  displays,  cluster  problems,  system  calls,  mobile    and ISCXVPN2016 sharing the tenth position. Beyond these,
+Android API calls, physical activity, quality of service, and    seven datasets were featured in only two studies each, while
+server performance. Given the scope of this survey, only    27 others appeared in only one study each.
+network-related datasets were considered, yielding a total      The scarcity of concept drift datasets hinders the bench-
+of 50 items. Those that inherently present drift are listed in    marking of drift-resilient NIDS. To reduce such a problem,
+Table 2, which displays their names and surveyed works that     researchers commonly apply data preprocessing techniques
+employ them; the 10 most used static datasets are exhibited     to  static benchmarks aiming  to simulate  non-stationary
+in Table 3, which shows their names and times used across     testing environments, as detailed in Table 4. These processing
+the analyzed papers.                                     methods are categorized as follows:
+
+
+VOLUME 14, 2026                                                                                                          69695
+--- Page 8 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+                       FIGURE 7. Selected articles distribution per journal.
+
+
+
+   • Class imbalance: this approach involves generating           albeit  abstract,  non-stationary  environments. These
+     discrete subsets with varying percentages of specific          generators often lack the high-dimensional complexity
+      traffic types. By artificially shifting the class propor-        and  semantic nuances  of  real-world  environments,
+     tions across different temporal windows, authors can        which can  result  in models  that perform well on
+     evaluate an IDS’s robustness against virtual drift. While        benchmarks but struggle with the unpredictability of live
+     effective for testing sensitivity to distribution changes,         deployments.
+     this method often  fails to simulate changes in the        • Geometric partitioning: this technique utilizes math-
+     underlying feature relationships, potentially leading to         ematical distances, specifically cosine distance, to seg-
+    an incomplete evaluation of detection performance in        ment data samples. By partitioning the feature space
+    complex environments. For example, Qiao et al. [22],         based on geometric dissimilarity, researchers can sim-
+     using BoT-IoT; M. Liu et al. [56], with MIRAGE2019,          ulate apparent conceptual shifts between different seg-
+    ISCXVPN2016, and a proper (NJUPT2023); and Liao        ments of the data stream, as implemented by Junjie
+     et al. [57], utilizing KDDCup 1999.                       Zhang et al. [25], which used the cosine distance in
+   • Data fusion: this method involves merging traffic data          the ACI-IoT-2023 dataset. Relying solely on geometric
+    from different periods to create a heterogeneous stream.          distance may  overlook temporal dependencies and
+    These samples can originate from the same source,          structural patterns inherent  to real-world behaviors,
+     following the example of Niu et al. [26], that merged          potentially creating  artificial boundaries that do not
+     different days from NSL-KDD; or disparate generations,           reflect realistic shifts.
+     as done by Zha et al. [18], who merged CIC-IDS2017     Two other strategies were identified among the surveyed
+    and CSE-CIC-IDS2018, and Huang and Ma [58] that     research to validate systems’ resilience to drift. The first strat-
+    used VeReMi and VeReMi Extension. This strategy    egy is employed by Qiao et al. [22], which decoupled their
+     helps to simulate the long-term evolution of network      drift detection method from the NIDS. While the intrusion
+     behaviors. The primary limitation of data fusion is the     detection capabilities of their system are assessed using the
+     potential for architectural inconsistencies and feature-set    BoT-IoT dataset, an IoT-based network traffic collection, the
+     discrepancies across  datasets, which may introduce      drift detection module was evaluated separately on 2 other
+      artifacts that do not reflect genuine network behavior     datasets. These datasets, namely SEA Concept and UG-
+     evolution.                                         2C-5D, comprise domain-agnostic synthetic data streams
+   • Synthetic generation and  injection:  this category     that simulate abrupt and gradual drift on generic numerical
+    encompasses both the modification of real datasets and     data,  respectively. This approach allows for an isolated
+     the use of purely synthetic benchmarks. Researchers use    performance assessment of drift detection in scenarios where
+    frameworks like Binary Generator with Feature Drift    no datasets with drift are available within the scope of the
+    (BG-FD) [59] or Massive Online Analysis (MOA) [60],    work. The second approach is present in the works [41], [57],
+     [61] to create controlled drift based on pre-existing     [60] and is related to the assessment of unseen outliers in
+    network  traces.  Additionally, foundational  synthetic     data stream classification. This strategy groups new outliers
+     generators present in the MOA toolkit [60], such as    by similarity, considering a lot of related occurrences as a
+    Streaming nsemble Algorithm (SEA), Stagger, Agrawal,    new class. Emerging classes can comprise drifted benign
+     Radial Basis Function (RBF), Waveform, and Hyper-      traffic or zero-day attacks, which may not be suitable for
+     plane, are frequently employed as baseline benchmarks    most intrusion detection implementations. This methodology
+     to validate detection algorithms in highly controlled,     risks increasing false-positive and false-negative rates, as the
+
+
+
+
+69696                                                                                                               VOLUME 14, 2026
+--- Page 9 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+TABLE 4. Main drift generation methods.
+
+
+
+
+
+model may  not  distinguish between  legitimate concept
+evolution and malicious activity.
+  Researchers generally adopt one of four primary strategies
+to address the intersection of computer networks, intrusion
+detection (or traffic classification), and concept drift under
+limited data resources:
+  1) The  first approach utilizes specialized datasets that
+      inherently contain concept  drift; while  this  is the
+     most direct methodology, its application is significantly
+      constrained by the scarcity of such input.
+  2) The second strategy involves applying the synthetic
+      generation techniques outlined in Table 4 to modify
+       static datasets and simulate non-stationary behaviors.
+  3) A third option is to treat new patterns as emerging
+      classes. This approach is related to the traffic clas-
+       sification task and may not be suitable for intrusion
+                                                                 FIGURE 8. Network intrusion detection algorithms taxonomy.
+      detection, as new classes can represent drifted benign
+      concepts or zero-day attacks. The lack of differentiation
+     between legitimate and anomalous traffic may increase
+      false alerts.                                       grew from two  identified works  in 2022  [41], [62]  to
+  4)  Finally, the most prevalent strategy involves imple-    seven by 2025  [20],  [56],  [58],  [60],  [63],  [64],  [65],
+     menting detection systems that, in theory, mitigate     representing a proportional increase from around 15.4%
+     concept  drift;  however,  these  systems  often  lack     to 20.6% of the  total research output. This progression
+      rigorous validation through specialized testing. The     underscores a heightened scholarly focus on mitigating the
+     absence of such targeted evaluation fails to empirically     label-scarcity challenges inherent in real-world networks.
+      verify whether the proposed solution can maintain     Parallel to this trend, shallow individual classifiers, such
+      predictive accuracy over time in dynamic, real-world     as SVMs, Naive Bayes, and clustering, have declined from
+      environments.                                             three works in 2022 [66], [67], [68] to a single instance
+                                                                   in 2025 [60]. Conversely, ensemble techniques and neural
+C. NETWORK INTRUSION DETECTION SYSTEM               network architectures, including random  forest, isolation
+In this section, we answer the second research question     forest, and extreme learning, have seen prolific growth,
+(RQ2) by organizing the collected NIDS models according to     rising collectively from 9 to 25 works over the same period.
+their ground-truth dependency. Network intrusion detection    Summing up, there is an increasing interest in the semi-
+systems have numerous implementations. They range from     supervised paradigm, as well as ensemble and neural network
+signature to anomaly-based methods, grounded in behavioral     techniques, while the use of shallow learning is decreasing.
+patterns and statistical analysis, respectively. Both strategies   A breakdown of these algorithms by paradigm is provided in
+require the extraction of intricate data structures, favoring    Table 5.
+machine learning implementations, which emerge as the
+predominant approach among surveyed works. ML models    1) SUPERVISED LEARNING
+can be categorized into three main learning paradigms:    Supervised learning employs labeled data during training to
+supervised (59% of compiled research), semi-supervised   map input features to target variables, encompassing both
+(26%), and unsupervised (15%). These are further divided     differentiation of categorical outcomes and estimation of
+into a range of subcategories, as shown in Fig. 8. The     continuous values. In the network intrusion detection context,
+distribution of ML strategies for NIDS implementation across      traffic can be organized into binary classes (i.e., legitimate
+supervised, semi-supervised, and unsupervised paradigms is    and fraudulent) or into multiclass schemes that comprise
+depicted in Fig. 9a, 9b, and 9c, respectively.                   a variety of specific attack types. Among the surveyed
+ A chronological analysis reveals an upward trajectory      literature, data were most commonly available in streams
+in semi-supervised research. The volume of publications    and IP flow statistics, while the employed anomaly detection
+
+
+VOLUME 14, 2026                                                                                                          69697
+--- Page 10 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+TABLE 5. Network intrusion detection algorithms. SP: Supervised, US: Unsupervised, SS: Semi-supervised.
+
+
+
+
+
+                                                          reduced model variance, and enhanced robustness. A voting
+                                                           procedure aggregates each base classifier’s decision into a
+                                                                  single ensemble inference. Concept drift may significantly
+                                                                      affect the performance of  this type of algorithm when
+                                                                                              it models the  entire dataset  offline and  statically; thus,
+                                                                                              it is typically implemented in its ‘‘adaptive’’ form, called
+                                                          Adaptive Random Forest (ARF), where each tree in the
+                                                       ensemble is a Hoeffding tree. Hoeffding trees do not require
+                                                                               all the data to be available at once, so they can be trained
+                                                                continuously. Paim and Enembreck [19] used an adaptive tree
+                                                       ensemble with an algorithm to select which base classifiers
+                                                                are considered in the voting. Eldhai et al. [74] compared
+                                                               adaptive random  forests with Hoeffding  adaptive  trees.
+                                                    Niu et al. [75] use an ensemble of trees that creates new
+                                                                        classifiers when it detects that one has a low performance.
+                                                         Abdulboriy and Shin [76] created an ensemble that includes
+                                                  ARF, k-nearest neighbors, and a softmax regressor. Wu et al.
+                                                               [77] use ARF-EDDM to adapt to drift when detected by other
+                                                          methods.
+                                                            Other ensemble methods appeared in roughly 27% of
+                                                                the supervised reviewed NIDS. The ensemble’s composi-
+                                                                   tion varies across works, since any combination of base
+                                                                        classifiers can form a committee. Some works, such as
+                                                       Malathy  et  al.  [83], use  the  divergence  of  classifiers’
+                                                                inferences to detect drifting over time. Jiang et  al. [84]
+                                                           use an ensemble of light gradient boosting machines that
+                                                                       attribute voting weights to the base learners based on their
+                                                           performance. Alashhab  et  al. [85] propose an ensemble
+FIGURE 9. Network intrusion detection algorithms distribution.             of multi-layer perceptron, BernoulliNB, passive-aggressive,
+                                                      and stochastic gradient descent classifier. Shyaa et al. [86]
+methods ranged from traditional ML, such as Random Forest
+                                                              presented a genetic algorithm to create an ensemble of
+and SVM, to Neural Networks, as displayed in Fig. 8.
+                                                         extreme learning machines variants. F.-Q. Li et  al. [87]
+  Decision tree algorithms represent the majority of the
+                                                     employed AdaBoost to adjust the weights of the data for their
+gathered methods, being combined  into Random Forest
+                                                               decision tree ensemble.
+(RF) ensembles in 29% of supervised works, as depicted
+                                                            Neural networks (NN) accounted  for 29%  of  label-
+in Fig. 9a. Random forests leverage ensemble learning to
+                                                         dependent anomaly detection systems, and work by combin-
+create multiple decision trees that are trained on different
+                                                             ing neurons into sequential layers. These algorithms feed data
+random subsets of data instances and features. This strategy,
+                                                          forward and harness backpropagation to adjust the neurons’
+called bootstrap aggregating (Bagging), favors parallelism,
+                                                           weights during training. In supervised learning, they are often
+
+
+69698                                                                                                               VOLUME 14, 2026
+--- Page 11 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+trained to map feature inputs directly to the data classes.    Networks, Ensemble, and Naive Bayes, as illustrated in
+Model size may vary based on data dimensionality and     Fig.  8. Ensembles accounted  for 44% of the reviewed
+availability to avoid overfitting and underfitting. Since they     semi-supervised studies, while neural networks accounted for
+do not offer a clear explanation of why or how each value    50%, as compared in Fig. 9b.
+contributes to each inference, explainable AI algorithms have     One example of semi-supervised ensemble-based systems
+been employed to provide deeper insights into the decision-      is presented by B. Li et al. [62]. The authors propose an
+making process  [21],  [37],  [65],  [73]. Over  the  years,    ensemble that gradually grows to form clusters of data
+multiple variations of neural networks have been developed     labeled by a specialist and can detect new classes of attacks.
+to improve their performance across different tasks. For   An  isolation-forest-inspired ensemble was proposed by
+instance, convolutional neural networks (CNN) specialize in    Zhao et al. [96] that uses labeled data during training but
+computer vision tasks where inputs do not represent specific    can still adapt to unknown classes. A third ensemble was
+features; instead, they extract spatial relationships from data.     presented by Gu et al. [20], which combines a fuzzy inference
+Cerasuolo et al. [21] and Junjie Zhang et al. [25] implement    system with a k-nearest neighbors (KNN) ensemble and a
+CNN to classify networking data.                              challenging sample learner. This system has a supervised
+  Another specialized NN found in the literature  is the     step to build a knowledge base, followed by semi-supervised
+long short-term memory (LSTM) network. This type of     learning  via pseudo-labeling with a KNN ensemble  to
+model has a memory module to store a state that affects    improve anomaly detection continuously.
+future predictions, enabling sequential processing and the       Semi-supervised NIDS based on neural networks are
+extraction of temporal context from data. These networks are     often  trained  for  regression  tasks  to  either  measure
+especially useful for anomaly detection, since flows often     anomaly-prediction  error  or  generate a  deviation  score
+exhibit temporal correlation. Qiao et al. [22] compare the     relative to a benign base class. For instance, Wang et al.
+performances of CNN and LSTM in multiclass classification     [93] propose an LSTM-based framework that performs one-
+on a drifting environment. Soltani et al. [69] present a similar     step-ahead predictions within a sliding window. Anomalies
+approach by comparing CNN and LSTM within a framework     are  identified by modeling  prediction  errors through a
+that continuously adapts to data drift.                         Gaussian distribution, where an instance is flagged  if  its
+  The extreme learning paradigm appeared in almost 10%     calculated anomaly score exceeds a predefined threshold.
+of the supervised articles investigated, which are listed on    However, an arbitrary number is chosen as this limit, which
+Table 5. This neural network comprises a single hidden layer,     requires labeled data. Autoencoders were also employed,
+designed to be simpler and faster than multi-layer methods.    compressing and decompressing data, ultimately measuring
+Since its training is performed non-iteratively, the model can     the decompression  error.  Faber  et  al.  [23]  declare  as
+be updated when necessary in an online learning context.    anomalous any data that makes its autoencoder’s error surpass
+Nitish et al. [98] and Rabash et al. [59] both present online     the defined threshold, which is defined by the anomalies
+extreme learning methods for updating in a time-sensitive     available in the datasets using a ROC Curve. A different
+environment for network anomaly detection.                   autoencoder approach was employed by Yin et al. [63], which
+  Support vector machines (SVM) represent about 5% of     uses supervised learning to guide the training of a contrastive
+the annotated data learning and do not rely on neurons. This    model that maximizes the distance between instances within
+technique determines a hyperplane boundary between the    each class. After deployment, the model is capable of working
+defined classes, aiming to maximize the distance between the     unsupervisedly.
+established partition and the closest data points from each
+class. Jain et al. [66] presented an SVM for classifying data
+processed by a clustering algorithm. Kalita et al. [105] also    3) UNSUPERVISED
+applied an SVM for binary classification of anomalies.        Machine learning models are classified as unsupervised if
+                                                                       their training and deployment completely forgo the use
+2) SEMI-SUPERVISED AND HYBRID                             of labeled data. Unlike supervised-learning algorithms that
+The classification of semi-supervised algorithms remains     leverage a function that maps a set of entries to a desired
+diverse, largely due to the different definitions within the     output, unsupervised models identify the inherent structure
+literature. While Gu  et  al. [20] maintain the  traditional     of data to determine the patterns that emerge across different
+view by utilizing a limited set of labeled data alongside a     instances. Since these methods can be designed to recognize
+larger unlabeled set, other perspectives expand this scope    a general base trend in data and alert when a deviation occurs,
+significantly. For instance, Pasikhan et al. [97] categorize     they are frequently employed for network intrusion detection.
+single-class training as semi-supervised, while Liao et al.     Accordingly, concept drift may primarily increase the false
+[57] include algorithms capable of incorporating entirely     positive rate, as once drifted legitimate traffic can be mistaken
+new data classes. This broad conceptualization allows for     for attacks. The unsupervised methods extracted from the
+a more permissive inclusion of methodologies, though  it    analyzed works span over Clustering, Neural Networks,
+risks overlapping with adjacent learning paradigms. The     Isolation Forest, Ensemble, and One-class SVM, as listed in
+surveyed semi-supervised implementations comprise Neural    Table 5.
+
+
+VOLUME 14, 2026                                                                                                          69699
+--- Page 12 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+  Clustering algorithms group data in the feature space based     incorporates decision trees to classify them. Similarly, Elsaid
+on their similarities, accounting for 30% of unsupervised    and Binbusayyis [104] also presume data is mostly normal,
+approaches, as portrayed in Fig. 9c. Among the observed    so the isolation forest algorithm is capable of separating
+literature, two main categories were found: agglomerative     outliers from normal traffic.
+and density-based. Agglomerative clustering works by treat-
+ing each data point as its own cluster, then grouping them     D. DRIFT DETECTION
+into larger clusters based on proximity. This method has     In this section, we discuss the summary of the drift detection
+an advantage over more common methods like k-means,     algorithms found in the selected works, answering the third
+since  it does not require a predefined number of clusters     research question (RQ3). Fig. 10 is a taxonomy of how these
+as a hyperparameter;  it works similarly to a taxonomy     solutions are categorized according to their implementation
+tree, where the number of clusters is determined by the     approach. Supervised drift detection refers to algorithms that
+height at which the dendrogram is thresholded. This method     identify concept deviations by calculating some error metric
+is often called hierarchical, as in Schwengber et al. [68],    on labeled data. If the error exceeds a predefined threshold,
+which uses Euclidean distance to calculate the difference     the algorithm infers that the accuracy drop is due to concept
+between network flows and iteratively groups the two closest      drift within the analysis window [24], [89]. Unsupervised
+clusters. Another agglomerative approach is presented by      drift detection refers to algorithms that recognize concept
+Wu  et  al.  [46],  combined  with  a  divide-and-conquer     alteration by analyzing changes in the statistical distributions
+approach. To handle bulkier data volumes, the model divides     of unlabeled data. These usually compute a divergence metric
+traffic feature vectors into multiple blocks, creates clusters    between historical data and a recent window, inferring drift
+for each block, and then merges the results. Conversely,    from the magnitude of the divergence [60], [73], [103].
+density-based algorithms summarize data into micro-clusters    Semi-supervised drift detection algorithms present a hybrid
+that may grow  or  shrink  over  time,  as  presented by    approach that leverages the strengths of using labeled and
+Scaranti et al. [67]. These clusters are categorized by density:     unlabeled data [77], [81], [104].
+high-density ones represent normal behavior, intermediate        Fig. 11 shows a frequency histogram for the drift detection
+ones might represent anomalies or evolve into high-density     algorithms implemented by the reviewed works. The unsu-
+normal ones, and sparse ones are composed of outliers.          pervised paradigm is the most frequent, with 23 occurrences.
+  Neural networks can employ unsupervised learning using    The widespread adoption of this implementation approach
+prediction  or  reconstruction  error,  comprising 30%  of    stems from  its independence from  labeled  data, which
+surveyed  label-independent  intrusion  detection  systems.     reduces costs in production environments. Unsupervised
+By employing a symmetrical architecture that progressively     solutions lower  the  overall  intrusion  detection system’s
+constrains and subsequently expands layer dimensionality,     response latency, since raw data can be processed directly,
+autoencoders induce the extraction of salient features through     avoiding the delay of the labeling procedure [56], [94]. Nev-
+lossy compression into a  latent representation, followed     ertheless, 22 of the reviewed works still implement the super-
+by an output reconstruction phase. The error obtained by     vised paradigm. Their high accuracy in identifying drifting
+comparing a reconstructed sample to its original counterpart    samples explains their frequent use in concept drift detection
+can be harnessed to separate normal and abnormal traffic.     despite their inherent drawbacks. The semi-supervised was
+If the reconstruction error for a specific instance surpasses     less commonly observed, appearing on 9 works. Future work
+a threshold, it is considered an anomaly. Unsupervised NIDS   may study how to better use the semi-supervised, hybrid
+usually define such threshold independently of labeled data,    approach to detecting concept drift with high accuracy while
+as done by Shajari et al. [49], using the ceiling function of    minimizing computational costs.
+the mean squared error observed during training. Another     We should  highlight  that 14  of  the reviewed works
+approach  is presented by Tang et  al. [101], which uses    proposed adaptive intrusion detection systems that do not rely
+extreme value theory based on the distribution of anomaly    on concept drift detection. They present a proactive, passive
+scores in a data stream to determine the threshold.                strategy in which the intrusion detection system is updated
+ A different unsupervised algorithm class is the isolation     recurrently with newly collected data without depending on a
+forest, which appears in 20% of this learning paradigm’s    concept drift trigger. For instance, Rabash et al. [59] assume
+research. Designed  for anomaly  detection,  this method     that drift is a recurring problem and execute the Enhanced
+operates under the principle that normal traffic is predominant    Dynamic Filter-Based Feature Selection and classifier model
+and anomalies are different and rare. An isolation forest     retraining at regular time intervals. Liu et al. [82] proposed
+works by randomly selecting a feature and a split value.    an online active learning IDS that outputs confidence values
+As separations are performed, samples are progressively     for each inference on network traffic and regularly retrains
+isolated, yielding distinct classifications for samples based     the model using samples with low prediction confidence.
+on the number of splits it takes to isolate them. The fewer    Yin et al. [63] discussed how to apply contrastive autoen-
+splits required to  isolate the  data, the more anomalous     coders  to  detect anomalous  network  traffic, which  is
+it  is considered. Mrudula et  al. [103] propose a system     adaptable to concept drift through periodic retraining using
+that integrates  isolation  forests to detect anomalies and     historical and recent pseudo-labeled traffic samples.
+
+
+69700                                                                                                               VOLUME 14, 2026
+--- Page 13 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+  The scientific community has recently been exploring a    Enembreck [19] and Pasikhan et al. [97] introduced evolving
+multitude of drift detection algorithms based on different    ensemble machine learning models for data classification,
+paradigm implementations. Table 6 lists the 32 drift detec-     leveraging supervised ADWIN to detect concept drift and
+tion algorithms  identified, indicating the implementation    allow model updating.
+paradigm and the corresponding works. The most common      Another frequent method for detecting drift using labeled
+strategy  for  detecting  drift  is  to  track  the  increase  in     data is the drift detection method [42]. DDM is based on the
+the system’s error rate between past and current times-    model’s error probability at time t, denoted pt, representing
+tamp analysis. Such detection algorithms occurred 8 times     the likelihood of misclassification for the current sample
+in the reviewed works and are classified as supervised, since    under analysis.  pt  is estimated as the ratio of incorrect
+the applied error metrics compare the predicted labels with     inferences to the total number of processed samples n in
+the corresponding ground-truth labels. Another frequently     previous timestamps. The method also approximates the dis-
+used algorithm is adaptive windowing (ADWIN), a flexible     persion of pt as the standard deviation σt = √pt(1 −pt)/n.
+method applied across the three considered paradigms of drift    The minimum observed values for the probability and its
+detection: supervised, unsupervised, and semi-supervised.     dispersion, pmin and σmin, are also stored for future reference.
+The  drift detection method (DDM) and the  early  drift   DDM assumes that under a static scenario, the value of pt
+detection method (EDDM) are well-established algorithms    should decrease through time as the model observes more
+that are frequently applied in isolation or in combination     samples. Significant increases in the probability pt may signal
+with ADWIN  to  detect  drift  in a supervised or semi-     the occurrence of concept drift. If pt +σt >= pmin +2×σmin
+supervised fashion, respectively. Multiple authors build their     then DDM raises a warning signal, indicating a probable
+unsupervised or semi-supervised  drift detection methods    concept drift start. The algorithm also begins storing data
+by calculating a divergence metric between the statistical    samples in its short-term memory for later model updates.
+distributions of historical and recent data windows. The     Eventually, if pt + σt >=  pmin + 3 × σmin, then DDM
+applied ones include, but are not limited to, the Kolmogorov-    confirms the drift event, updates the classification model
+Smirnov, Kullback-Leibler, Entropy, Page-Hinkley, Jensen-    with samples stored in memory, and resets all variables to
+Shannon, and Wasserstein metrics. The following subsections      restart the concept monitoring process. Nixon et al. [24], and
+provide a further discussion on the most common  drift    Noori et  al. [90] discussed concept drift-aware intrusion
+detection algorithms.                                            detection systems that adopt DDM to detect traffic changes
+                                                      and update the classification model.
+1) SUPERVISED                                     One critical drawback of DDM is its difficulty in capturing
+The drift detection algorithms are classified as supervised     slow, gradual  drifts, as the  drift threshold may take too
+when they require labeled data to identify behavior evolution    long to trigger, causing short-term memory overflow [108].
+in traffic data. The supervised approach commonly relies    The Early Drift Detection Method  is proposed to detect
+on comparing the change in IDS classification error on     these subtle  drift events. Network administrators should
+traffic data between previous and current timestamps. The    choose the appropriate  drift detection method based on
+simplest realization of this method is to track the accuracy     the expected drift types (e.g., abrupt or sudden) that may
+metric of traffic classification. For instance, Eskandari and     arise in their target network environment, or implement a
+Khotanlou [71] and Saravanan and Balasubramanian [80]     hybrid approach to identify multiple categories of drift if
+proposed  adaptable systems  for  classifying time  series     necessary. EDDM works similarly to DDM, but for each
+data that detect concept drift when the drop in accuracy    timestamp t, it keeps track of the average distance between
+across consecutive timestamps exceeds a decision threshold.    two consecutive incorrect inferences, p′t, and its respective
+Kalita et al. [105] detect drift by analyzing an alternative met-     standard deviation, σt′ . The maximum observed distance
+ric, namely the loss function used to train the classification      p′max and standard deviation σmax′    are also tracked. When
+model.                                                                  p′t and σt′ begin to decrease over time, the classification
+  More elaborate methods for supervised drift detection are    model is committing mistakes more frequently, which may
+also adopted in the reviewed works, with adaptive windowing    be the early evidence of an incoming concept drift event.
+among the most widely used. ADWIN keeps a dynamic     Therefore,  if  (p′t + 2 × σt′ )/(p′max + 2 × σmax)′   <  α
+sliding window w containing the last n evaluations of the     then EDDM raises the warning alarm, storing the newly
+system’s classification error. w is split into two adjacent    incoming samples. When (p′t + 2 × σt′ )/(p′max + 2 × σmax)′  <
+subwindows w1 and w2, where the former represents older    β, the  drift level  is reached, and the model  is updated
+evaluations while the latter represents the most recent ones.    with stored samples while variables are reset. Anithakumari
+When the absolute difference between the subwindow mean    and Mishra [88] implemented an intrusion detection system
+values exceeds a cutoff value ϵ, ADWIN infers that concept     adaptable to concept drift in non-stationary IoT networks.
+drift has occurred due to increased model error. In such a    They conducted a comparative analysis between EDDM
+scenario, the older elements in w are removed until the mean    and alternative drift detection algorithms, namely Hoeffding
+values of w1 and w2 no longer differ significantly. Paim and      drift detection method (HDDM) and ADWIN. Extensive
+
+
+
+VOLUME 14, 2026                                                                                                          69701
+--- Page 14 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+      FIGURE 10. Drift detection algorithms taxonomy.
+
+
+                                                          remarkable performance in unsupervised ones. The unsu-
+                                                              pervised ADWIN maintains two adjacent sliding windows,
+                                                  w1 and w2, each containing raw features from the previous
+                                                      and currently observed network  traffic, respectively. The
+                                                               absolute difference between the mean values of w1 and w2 is
+                                                                   calculated. If  it exceeds a threshold δ, ADWIN signals a
+                                                                    distribution drift event. The drifting samples are stored for
+                                                                          later updates to the learning model. Abdulboriy and Shin [76]
+                                                              described an incremental ensemble learning method for
+                                                                   training a voting-based hybrid model aimed  at network
+FIGURE 11. Drift detection paradigm frequency.
+                                                                  intrusion detection. They utilized unsupervised ADWIN to
+                                                        keep their system robust against network behavior  drift.
+validation experiments across the IoTID20, EDGE-IIoT,    Singh et al. [73] developed an explainable deep-learning-
+Aalto, and RT-IoT22 benchmarks conclude  that EDDM    based NIDS that is self-adaptable to non-stationary networks
+achieves the optimal solution.                                 using the unsupervised ADWIN algorithm.
+                                                              Table 6 reveals that most unsupervised drift detection
+2) UNSUPERVISED                                      methods are founded on the analysis of the statistical distribu-
+The independence from labeled data for identifying drifting     tion of historical and recent samples. ADWIN performs such
+network  behavior  is  the  hallmark  of an  unsupervised     analysis using mean-value calculations, whereas other meth-
+algorithm. Such methods commonly compare statistics of    ods use more mathematically complex metrics. For example,
+past and incoming traffic to detect significant variation in    Selvam and Balasubramanian [100] apply a machine learning
+numerical features. Beyond its applicability in supervised    model to produce probability estimates for the incoming IP
+settings, the adaptive windowing method has also achieved    flows in the network. They use the Kolmogorov-Smirnov test
+
+
+
+69702                                                                                                               VOLUME 14, 2026
+--- Page 15 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+TABLE 6. Drift detection algorithms. SP: Supervised, US: Unsupervised, SS: Semi-supervised.
+
+
+
+
+
+to assess the divergence between the cumulative distribution    a threshold, then D3N assumes a drift event has occurred.
+function (CDF) of these probabilities and the CDF of the   Wang et al. [93] developed an LSTM regression model to
+training IP flows. Mrudula et al. [103] proposed a security     predict future traffic and detect anomalies in Industrial IoT
+system that detects network drift by evaluating the magnitude     environments. Drift signals are triggered when the model’s
+of the Kullback-Leibler Divergence between the feature    accumulated prediction  error  (e.g., mean squared  error)
+distribution of past and latest traffic samples. The classifier     surpasses a given threshold.
+proposed by Cao et al. [94] outputs a probability distribution
+for each analyzed network message, where a concentrated
+distribution represents that the model is highly confident in    3) SEMI-SUPERVISED
+the sample’s classification. An increase in the information    Semi-supervised drift detection comprises hybrid algorithms
+entropy of the output distribution may be interpreted as     that combine supervised and unsupervised methods. They
+concept  drift,  as  prediction  probabilities become more      utilize both labeled and unlabeled data  to monitor the
+dispersed, indicating a rise in model uncertainty.                evolution of traffic behavior from multiple perspectives. The
+  Some authors use strategies beyond distribution analysis    most frequent semi-supervised strategy in the reviewed works
+for unsupervised  drift  detection. dos Santos  et  al. [45]      is to combine the unsupervised ADWIN with a classification-
+and H. Wu et  al. [46] proposed machine learning-based     error-based method. Wu et al. [77] proposed an ensemble
+traffic  classification systems  that can adapt to dynamic     of online learning models for anomaly detection in IoT.
+environments. Their models classify traffic samples with    Such models are integrated with ADWIN and EDDM for
+a confidence probability; inferences with confidence val-     identifying abrupt and gradual concept drifts in the network.
+ues below a threshold are considered  drifting samples.     Jiangjiang Zhang  et  al. [79] discussed an IoT intrusion
+Schwengber et al. [68] utilize the non-linear discriminative     detection system based on a novel ensemble model. Their
+drift detector (D3N) to improve their botnet detection sys-    system detects concept  drift  if and only  if the ADWIN
+tem’s resilience to drifting network behavior. D3N maintains    and EDDM methods simultaneously trigger an  alert for
+a sliding window of older and newer samples, in which the     the traffic under analysis. Saqib et  al. [65] introduced a
+older samples receive a different pseudo-label than the newer      drift-resilient IDS for volumetric attack identification in
+ones. If these sets of samples are separable by a decision    programmable networks. The system detects traffic evolution
+tree classifier with an area under the ROC curve exceeding     using DDM, which is subsequently double-checked with an
+
+
+
+VOLUME 14, 2026                                                                                                          69703
+--- Page 16 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+unsupervised ADWIN method to confirm or refute the occur-     time-, cost-, and labor-intensive. Some works aim to mitigate
+rence of drift. Nonetheless, alternative strategies can also     the unavailability and delay of labeling by employing various
+be used to implement a hybrid adaptive IDS. For instance,     strategies. For instance, García and DeCastro-García [48]
+Jain  et  al. [66] described a network anomaly detection     rely on conformal prediction to generate pseudo-labels for
+system that uses k-Means for feature extraction and SVM    new unlabeled  data.  If ground-truth becomes  available,
+for data classification. Their system is robust to dynamic    even  if  delayed,   it  is  also  integrated  into  the  online
+environments by detecting drift through a dual approach that     learning update process. Although, the  article highlights
+combines Kullback-Leibler divergence analysis and the Drift     that  these  pseudo-labels show  inconsistent performance
+Detection Method, and by retraining the learning models.        in cybersecurity datasets. Huang and Ma [58] propose a
+                                                            semi-supervised intrusion detection system that mitigates the
+E. DRIFT ADAPTATION                                    dependence on high-quality, immediately labeled data. The
+In this section, we discuss the summary of the drift adaptation    system incorporates incremental k-means to separate normal
+algorithms gathered from the selected works, answering the    and abnormal traffic, and the density-based stream model to
+fourth research question (RQ4). Fig. 12 presents a taxonomy     further identify these anomalous samples. As a new attack
+of these methods, organized by their primary target-update      is identified, it is temporarily classified as unknown until a
+component for evolving environments. Model-centric strate-    human agent manually labels it.
+gies involve adapting non-ensemble machine learning models       Besides the unavailability of labeled data, a challenge that
+through retraining or incremental/online learning [41], [66].     often appears in dynamic systems is catastrophic forgetting.
+Ensemble-based methods comprise adjusting the structure    This phenomenon, also known as catastrophic interference,
+or the weighted decision voting parameters of committee     refers to the degradation of an ML model’s previously
+models [84], [97]. Data & representation regards feature and     acquired knowledge as sequential incorporation of new data
+instance space management, through stable feature extraction     drastically updates the underlying model’s parameters [21],
+and dynamic reselection, as well as knowledge pool updat-     [23], [69]. Some of the surveyed works address this issue
+ing [67], [81]. Finally, meta-strategies & external factors      explicitly. For instance, Saravanan and Balasubramanian [80]
+encompasses techniques ranging from human intervention to     consider both new and historical data when retraining their
+hyperparameter tweaking [105], [106].                         system. This technique, called buffer replay, reassures older
+   Fig. 13 illustrates the frequency of articles within the drift     patterns by keeping them in the training pool. However,
+adaptation algorithm taxonomy. Model-centric approaches     storing a continuous flow of data is resource-intensive. Thus,
+predominate among the reviewed works, accounting for    Liu et al. [56] implement an undersample strategy to store
+approximately 58% of the total (40 out of 69). The remaining    only the most representative portion of data for buffer replay.
+distribution  is  as  follows: ensemble-based methods (14    Other strategies such as data preprocessing, preservation of
+papers, 20%), data & representation (12, 18%), and meta-     older models, and layer regularization are also explored [69],
+strategies & external factors (3, 4%). Table 7 catalogs 27 spe-     [82], [107].
+cific algorithms underlying these macroscopic categories,
+correlating each strategy to the articles that implemented    1) MODEL-CENTRIC ADAPTATION
+them. Triggered retraining was the most common algorithm,    The drift adaptation algorithms are categorized as model-
+retraining the target machine learning model when an external     centric when  their  evolution  strategy  involves  directly
+detector signals drift. The second most common procedure    modifying the target ML model’s learnable parameters or
+is incremental learning, which encompasses the incremental     architecture. We chose to dissociate ensemble-based systems
+addition of knowledge to a model. Periodic retraining appears    from this category because their structure fundamentally
+in 5 works and concerns solutions that assume  drift as    depends on multiple base learners, thereby yielding specific
+a given and periodically retrain their models with newer     adaptation solutions. Fig. 12 displays this taxonomy excerpt
+data. These and other solutions, such as online learning,     subdivided into two approaches: retraining and incremental
+active learning, ensemble weighted voting update, dynamic   & online learning.
+ensemble selection, and feature reselection, were combined       Retraining algorithms aim to update natively stationary
+within distinct learning paradigms to sustain the model’s    models by training a similar model from scratch, using new
+performance and address non-stationary data.                     data, but not necessarily limited to it. The most commonly
+  Adaptation techniques are often directly tied to the target    employed drift adaptation solution was triggered retraining,
+ML model’s learning  strategy;  thus, the most common    which appeared as the only strategy in 12 analyzed papers,
+adaptation approaches span more than one of the considered     as shown in Table 7. This algorithm retrains the target model
+training paradigms,  i.e., supervised, semi-supervised, and    once a drift is identified by an external detector. Conversely,
+unsupervised, as shown in Table 7. Supervised drift adapta-     periodic retraining appeared singly in 4 research papers,
+tion was employed in 46 works (67%), while unsupervised    assuming drift as a certain and training models from scratch
+appeared in 12 (17%), and semi-supervised in 11 (16%).     at fixed intervals.
+Even though most works rely on ground-truth, the latter      The other three methods based on retraining appeared
+are scarce in real-world scenarios because labeling data is     in the surveyed literature as hybrid and iterative solutions.
+
+
+69704                                                                                                               VOLUME 14, 2026
+--- Page 17 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+         FIGURE 12. Drift adaptation algorithms taxonomy.
+
+
+
+                                                    on every batch of new data. Regular updates  fall under
+                                                                the periodic  retrain umbrella, while on-demand updates
+                                                                  recreate a model from scratch when the accumulated error
+                                                          exceeds a threshold. The last two approaches were identified
+                                                    by the authors as the most effective for maintaining the
+                                                    model up to date, whilst the on-demand update presented
+                                                          lower accumulated error and lower resource usage. Finally,
+                                                   Zhang et al. [25] implemented a hybrid procedure combining
+                                                                periodic and triggered retraining. Their system relies on a
+                                                                  large model in the cloud that serves as an oracle for ground
+FIGURE 13. Drift adaptation taxonomic frequency.                          truth and is assumed to be immune to drift. Multiple tiny
+                                                      models are placed on the edge to perform anomaly detection.
+                                               As edge models drift or a predetermined period of time
+Nixon et al. [24] proposed training a background autoencoder     passes, they are retrained.
+when drift is alerted by a DDM algorithm. When the drift       Incremental & online Learning algorithms promote contin-
+is confirmed, the foreground model is replaced. Wang et al.     ual aggregation of new data on a model’s knowledge. In this
+[93] compared three retraining strategies: iterative, regular,     context, works often employ terminologies such as continual,
+and on-demand. Iterative offline updates retrain the model     lifelong, incremental, online, stream, and active learning in
+
+
+VOLUME 14, 2026                                                                                                          69705
+--- Page 18 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+TABLE 7. Drift adaptation algorithms. SP: Supervised, US: Unsupervised, SS: Semi-supervised.
+
+
+
+
+
+this context. Among these, active learning designates systems          It is worth noting that two other works added knowledge
+that rely on the interactive participation of a human oracle     to their systems using specific architectures that natively
+for data labeling [62], [82]. The remaining methods focus on     support  adaptation. Soltani  et  al. [69] presented a  dis-
+data ingestion and overlap significantly. Incremental learning     tributed  intrusion  detection system  that  incorporates an
+is the broadest category, describing models that acquire    expansion-compression incremental learning method. Their
+knowledge additively over time, typically by processing     solution increases the number of neurons in the dense layers
+accumulated batches of new data [21], [72]. Online and     of the distributed models when new data is received. The
+stream learning refine this concept by updating the model     central model leverages knowledge distillation to incorporate
+one instance at a time [47]; stream further emphasizes the     the agents’ learned parameters. Once the main model  is
+uninterrupted, real-time nature of the data flow [24], [89].     updated, the agents replace  their local neural networks.
+Finally, continual and lifelong learning explicitly addresses    Eskandari and Khotanlou [71] implemented a combination
+the system’s  stability, prioritizing the integration of new     of transfer and parallel learning. An RNN-based model
+data while preserving previously acquired knowledge [23],      is  trained and  constantly  fine-tuned  (i.e., incrementally
+[69]. Since we address catastrophic forgetting in a dedicated     updated) on new data. A parallel replica is retrained from
+section, this survey treats continual and lifelong as either     scratch for every batch of new data. When a gradual drift
+incremental or  online, depending on  the  granularity of     occurs, and the base model’s updated performance is lower
+updates. The distinction between stream and online learning     than the parallel’s, the main model is replaced. For abrupt
+is also omitted.                                                             drift, the performance comparison is ignored, and the parallel
+  Adaptation solutions that rely on incremental learning as    model is promptly implemented.
+the main tool for non-stationarity accounted for 11 collected
+works. Among  these,  tree  [26],  [74],  [96],  [107] and    2) ENSEMBLE-BASED ADAPTATION
+autoencoder-based [23], [41], [101] systems where the most    Ensemble-based adaptation algorithms comprise committee-
+common. Online learning was implemented alone in 4 works,     specific adjustments, such as updating the weighted voting
+combined with active learning in  3, and with triggered     parameters and modifying the ensemble structure. Thus, the
+retraining in 1. The integration of active learning provides    taxonomy for ensemble-based algorithms is further split into
+ground-truth elucidation in semi-supervised approaches, as in     voting & weights update and structure & selection, as shown
+Liu et al. [82], where a human specialist manually labels     in Fig. 12. The first subcategory includes 7 works across
+uncertain  instances.  In  supervised  solutions,  the  oracle    3 distinct approaches. The most straightforward strategy is to
+categorized new  drifted samples  [62],  [103]. Triggered    update the base learners’ weights in the ensemble’s decision
+retraining was considered by Lu  et  al. [99]  to  offline     voting, as implemented by Abbasi et al. [92]. Their method is
+retrain the model from scratch when online performance    prone to accuracy loss in dynamic environments because the
+degrades.                                                  ensemble’s knowledge is static. To mitigate this limitation,
+
+
+69706                                                                                                               VOLUME 14, 2026
+--- Page 19 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+some works replace their worst-performing classifiers with    language model (LLM) was trained using a technique called
+newly trained ones, while adjusting their decisive weights in   BURST graph matching.
+the ensemble [61], [84], [91]. Since retraining a model from       Instance space management refers to the updating of
+scratch may be cost-intensive, incremental learning was also     reference data samples in both cluster- and sliding-window-
+combined with updating voting weights [76], [77], [78].        based systems. Cluster-based reference set update employs
+  Structure &  selection ensemble  adaptation comprises     techniques that dynamically incorporate new data points,
+techniques  that modify  the  structure  of  the  ensemble.     thereby creating additional clusters. Scaranti et al. [67] model
+Algorithms that dynamically select coalitions of base learners     data through potential and core micro-clusters. When a new
+according to  their  classification performance on current     pattern is detected, a potential micro-cluster is created to
+data accounted for 3 papers. The primary technique, named    accommodate it. Recurring potential clusters are promoted
+dynamic ensemble selection, works by maintaining a pool     to core clusters, representing a new consolidated standard.
+of base learners and dynamically composing an ensemble    Gudapati et al. [64], and Liao et al. [57] are also based on
+based solely on the decision of the best-performing subgroup     micro-clusters, although both solutions attribute confidence
+of classifiers [42], [88]. Dynamic selection alone does not    weights to their clusters. The confidence of a cluster  is
+update the model’s knowledge; rather, it temporarily relies     automatically updated regarding its ability to model new data.
+on the best-performing static ones. To integrate new data into    The work of Schwengber et al. [68] trained their intrusion
+this paradigm, Paim and Enembreck [19] used an external     detection system in a pseudo-labeled sliding window of
+drift detector for each base classifier, replacing it with a newly     the current network concept. The content of this window
+trained model when its performance declined.                        is dynamically regulated, whereby the system discards the
+   Alternatively, to avoid the resource overhead of storing     entire block of older instances upon detecting a drift to
+and selecting multiple unused models, structural strategies     adapt to new statistical distributions. If the concept remains
+can be adopted. The most common  structural tweaking    unchanged, only a small portion of the window is replaced by
+analyzed was base-classifier replacement. This procedure    newer data.
+comprehends substituting obsolete base learners when a drift
+is detected [20], [97]. To circumvent the delay of training    4) META-STRATEGIES & EXTERNAL FACTORS
+a new model when drift is detected, Huang and Ma [58]    Miscellaneous  algorithms  were  organized  into  meta-
+proposed a dual ensemble learning system that leverages     strategies & external factors, as they depend on federated
+coextensive active-standby ensembles. While one model     learning,  human  action,  or  hyperparameter  tweaking.
+classifies new data, the other is trained incrementally. The    Quin et al. [70] implemented a distributed network traffic
+active committee is replaced when drift is detected.               classification system that operates via communication rounds
+                                                       between edge nodes and the server. In each new round,
+3) DATA & REPRESENTATION ADAPTATION                      the central model incorporates node expertise via Federated
+Techniques based on feature or instance space management    Averaging and distributes the updated classifier to the edges.
+are categorized as data & representation adaptation. Within    These nodes update the received model locally using a joint
+this category, feature space management primarily addresses     objective function that combines supervised and contrastive
+feature drift. This is achieved either by dynamically reselect-     losses.
+ing features as they become more significant or by assuming      Regarding  human  action,  the  system  proposed  by
+a stable representation immune to shifting  distributions.     L. Wang et al. [106] depends on manual failure analysis
+Feature reselection is frequently combined with strategies    and execution of adaptive mitigation mechanisms when
+such as dynamic ensemble selection, genetic programming      drift  is  detected. The employed operations comprehend
+combiners, and triggered/periodic retraining, as listed on     service offloading and traffic interception, to restore system
+Table 7. For instance, Malathy et al. [83] utilized Select      stability. Lastly, even though some works use hyperparameter
+K-Best and Poisson Inclusion  to  reselect  representative    tweaking as part of their adaptation solution, Kalita et al.
+features while dynamically choosing the top 2 out of 4 base     [105] rely solely on it. Their Support Vector Machine-based
+classifiers.                                                        intrusion detection system is tailored to achieve dynamicity
+  Regarding   genetic  programming,  works  such   as    by tuning its hyperparameters. Three approaches are explored
+Noori et al. [90] and Shyaa et al. [86] used it to generate    depending on the gravity of the drift: a complete search
+graphs that combine base learner decisions. On the other     for parameters using moth-flame optimization (MFO) when
+hand, Yang et  al. [81] employed the Pearson correlation    a major  drift  is detected; a lightweight MFO initialized
+coefficient  to  select  the k most  correlated  features on    with prior explored parameters for minor drifts exceeding
+drifted data and trigger model retraining when drift occurs.    a threshold; and a simple search within the stored prior
+Rabash et  al. [59] periodically retrained their system by    knowledge list is conducted for the smallest variations.
+genetically determining the updated most important feature
+set. Conversely, assuming stability in graph abstraction of    5) CATASTROPHIC FORGETTING
+network representations, Lin et al. [102] proposed a static    As dynamic models continuously aggregate new knowledge,
+and drift-immune feature selection method, in which a large     old learned patterns tend to be forgotten or degraded, whether
+
+
+VOLUME 14, 2026                                                                                                          69707
+--- Page 20 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+TABLE 8. Catastrophic forgetting mitigation strategies.
+
+
+
+
+
+due to neurons’ weights being overwritten in neural networks    and Le-Khac [41], and Li et al. [87]. Conversely, obsolete
+or because of obsolete base classifiers being replaced in    models were retained within the ensembles, as this method
+ensembles, for example. The trade-off between the ability    focused solely on integrating new models [42], [107].
+to learn new tasks and  retain old knowledge poses an        Elastic Weight Consolidation was leveraged to calcu-
+essential problem in adaptive systems, known as the stability-     late parameter importance, updating weights via regular-
+plasticity dilemma [109]. While some works favor plasticity     ization [101] and, in a specific instance, through layer
+over stability justified on the evolving nature of data [47],     freezing [91]. Regarding transfer learning, two approaches
+[48], [88], real-world applications for changing environments    were identified: dos Santos et al. [45] applied it to distributed
+should preserve the validity of historical expertise, which may     systems. In contrast, Shyaa et al. [86] utilized the feature
+become active in the future [23], [37]. Thus, many proactive    count maximization principle to retain the weights of inactive
+strategies emerge to mitigate catastrophic forgetting, also     features, ensuring they are not relegated to oblivion. Finally,
+known as catastrophic interference.                               to address the bias toward new classes, Cerasuolo et  al.
+  Catastrophic  forgetting was  addressed  in 25  of  the     [21] proposed a bias correction technique that modifies the
+69 collected research papers, displayed in Table 8. Two    model’s architecture by adding a parameterized layer.
+works, specifically Lin et al. [102] and Junjie Zhang et al.
+[25], proposed the use of a stable and stationary large model.
+Since their approach is stationary, no strategy was explored to       F. METRICS
+mitigate forgetting. Similarly, Abbasi et al. [92] only update     In  this  section, the metrics of the analyzed works are
+the decisive weights of base classifiers, thereby preserving     organized by category, answering the fifth research question
+the overall ensemble’s expertise.                            (RQ5). Metrics are fundamental to evaluating the perfor-
+  The most common procedure is Buffer Replay, present    mance aspects of each proposed work. The chosen metrics
+singly in 8 works and with alternative implementations in    must align with the work’s goals to properly measure the
+other 7. This strategy comprises the conservation of historic     success of the proposed design. Not every article makes
+data in the update set, along with new samples [66], [93].    concept drift detection and mitigation its primary goal; thus,
+Some replay implementations aim to mitigate labeling delay    most metrics encountered measure the proposed model’s
+and unavailability by considering pseudo-labeled  drifted    performance in detecting and mitigating anomalies rather
+data [63], [65]. Since storing data indefinitely becomes     than in handling concept drift. Internal metrics, typically used
+unfeasible in the long term, four works kept representative     for model selection or optimization, fall outside the scope of
+undersampled  sets  of  historic  data  to  reduce memory     this survey. We focus exclusively on external metrics, which
+overhead [37], [56], [99], [100]. Another replay alternative     evaluate the model’s generalization performance on unseen
+is generative replay, which appeared in 2 works [18], [71].     data, independent of the training set. Fig. 14 illustrates a
+This variation trains a neural network capable of recreating    taxonomy of the considered performance metrics, separated
+historical instances while avoiding excessive storage resource    by evaluation scope.
+consumption. Traditional replay was also combined with
+layer-wise  regularization  in the study by Soltani  et  al.
+[69] to constrain gradients and prevent overwriting neuron    1) CONCEPT DRIFT HANDLING
+weights.                                              Only 7 of 69 works presented metrics for uniquely measuring
+  Seven algorithms accounted for the remaining 10 studies,    concept drift handling. Traditional metrics such as precision,
+where data preprocessing and obsolete models preservation      recall, and F1-score are the most frequent. However, whilst
+appeared in more than one study. Data preprocessing refers     they are suitable for anomaly detection in both dynamic
+to  assigning weights  directly  to  data,  as proposed by    and stationary scenarios, there are other ways to showcase
+Liu et al. [82], or to preserving older data clusters, as in Kuppa      drift detection techniques specifically. All works that used
+
+
+69708                                                                                                               VOLUME 14, 2026
+--- Page 21 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+   FIGURE 14. Performance metrics taxonomy.
+
+
+drift-specific metrics are  listed, given  their scarcity and     false positives (FP), and false negatives (FN), which are
+singular appearance.                                            often organized in a confusion matrix. These measurements
+ Wu et al. [46] calculate the Accuracy of Drifted Samples     enlighten authors about the performance of their systems
+dividing the correctly detected by the total drifted traffic.    and help them make decisions based on the preferred error
+This approach is similar to the Class Misjudgement metric,     trade-off for their application scenario. Thus, the selection of
+used by Liao et  al. [57], in which the authors calculate     specific metrics often reflects the unique constraints of the
+the rate of misjudgement of existing classes as a drifting    proposed model, such as false alarm minimization or class
+one. They also present the percentage of drifting elements    imbalance addressing.
+undetected by the system (% of Undetected Drift). Those       Accuracy, Precision, Recall, and F1-Score are the most
+three metrics are a straightforward way of quantifying the    commonly used metrics, being defined by functions (1)
+system’s detection performance, but require the developers     to (4). They are often referred to by different names, such
+to know  the  ground-truth  labels not only  in terms  of     as detection rate for accuracy and sensitivity (or true positive
+maliciousness but also whether the data are drifting or simply     rate) for recall. Each one of them represent different forms of
+outliers.                                                          correctness: Accuracy represents how often the classification
+  Another measurement for drift mitigation performance is      is correct among all samples; Precision is the rate at which
+the Degree of Impact as presented by Zhang et al. [25].     positive answers are correct; Recall shows the classifier’s
+This metric represents the difference in accuracy between     capability  of  identifying  all  the  positive elements; and
+a specialist, up-to-date model and an older one. Similarly,    F1-Score is the harmonic mean of Precision and Recall.
+Zhang et al. [79] also measure the Drift Detection Rate,
+by calculating the precision, recall, and F1-score on drift                         TP + TN
+                                                                 Accuracy =                                  (1)
+detection, relying on CD annotations. Similar to previous                     TP + TN + FP + FN
+metrics, these depend on specialized information that can be                       TP
+                                                                           Precision =                                  (2)
+laborious to obtain in real-world environments.                              TP + FP
+  Since the intrusion detection problem is particularly time-                       TP
+                                                                            Recall =                                  (3)
+sensitive, the delay in detecting concept drift is key. The                     TP + FN
+Drift Detection Delay may be measured both in time and                                 Precision × Recall
+                                                                    F1-Score = 2 ×                              (4)
+in the number of instances until detection, as employed by                                 Precision + Recall
+Qiao et al. [22], and by M. Liu et al. [56], respectively.
+On the other hand, Saqib et al. [65] measure the Model      The F1-Score is preferable to Accuracy for measuring
+Retraining Rate over time, aiming for its minimization to    performance on imbalanced datasets, where negative samples
+avoid performance issues, traffic disruptions, and packet loss     are more common than positive ones. However, it may return
+without interfering with other detection metrics.                a biased value if the number of negatives is lower than the
+                                                   number of positives. In those cases, a more suitable metric
+2) CLASSIFICATION                                                       is Matthew’s Correlation Coefficient (MCC). Represented
+Classification-based measures represent the most prevalent     in (5), this metric considers every primitive metric of the
+category of metrics in the surveyed papers. They rely mostly     confusion matrix, and, unlike F1-score, its value is not biased
+on quantifying true positives (TP), true negatives (TN),     in case the positive and negative classes have unmatched
+
+
+VOLUME 14, 2026                                                                                                          69709
+--- Page 22 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+proportions.                                                4) COMPLEXITY
+                                                         Algorithm complexity is a way to estimate the cost and
+                TP × TN −FP × FN
+ MCC = √(TP + FP)(TP + FN)(TN + FP)(TN + FN)        scalability of a proposed system relative to the cost of pro-                                                              cessing input samples. Pasikhani et al. [42] use Big O notation
+                                                           (5)
+                                                                   to address the entire system’s complexity. Others measure
+  In hypothesis  testing, a Type 1 error  (false  positive)     indicators to  it, such as Training Time, Flow Throughput,
+occurs when a null hypothesis is incorrectly rejected due     Latency, and Inference Time [58], [77], [81], [83]. These
+to statistical noise or misleading data. Conversely, a Type 2    methods can be considered suitable for the network anomaly
+error (false negative) occurs when a false null hypothesis     detection task, since they measure computing cost, and NIDS
+is incorrectly accepted, failing to detect a discrepancy that     often operate in time-sensitive environments.
+more precise measurements would have. In the context of
+                                                           5) CLUSTERING-SPECIFIC METRICSnetwork intrusion detection, Type 1 errors represent the
+misclassification of legitimate traffic as malicious, while     In the selected works, clustering methods were a frequent
+Type 2 errors correspond to missed attacks. To quantify     option for detecting classes and adapting the model to unseen
+the trade-off between these error types, specialized metrics     data. Works such as Zhao et al. [96] and Wu et al. [46]
+become essential. Specificity, or true negative rate (TNR),     applied, respectively, clustering accuracy and micro F1-score
+quantifies the model’s ability to classify negative samples     to evaluate the system’s quality. However, clustering-specific
+(normal traffic). Closely related is the false positive rate     metrics can be employed to measure performance in a more
+(FPR), which measures how  often a benign sample  is     tailored way.
+incorrectly flagged as anomalous. False negative rate (FNR)     Some clustering systems may work with a variable number
+measures the rate of attacks the system fails to detect and is     of groups created on demand by their algorithm. There is
+equivalent to the complement of the recall. The functions for    a sweet spot to the number of groups created, as too many
+these metrics are represented on (6), (7), and (8), respectively.    groups become less meaningful to the categorization of data,
+                                                      and too few groups will not separate classes enough. Thus,
+                 TN                                                                                              it is important to judge the quality of those clusters and                                                           (6)         Specificity =
+               TN + FP                               assign a score to them. The Fuzzy PBM-index used by
+                 FP                                Li et al. [87] is represented in (10) where K is the number
+          FPR =      = 1 −Specificity      (7)
+               FP + TN                                of clusters, E is the deviation of the dataset, D is the maximal
+                FN                                   distance between the centers of the clusters, and J  is a
+          FNR =      = 1 −Recall           (8)
+               FN + TP                           measure of the intrinsic variance within clusters. This metric
+                                                           rewards fewer groups, a greater distance between clusters,
+   Finally, the G-Mean is the geometric mean of arbitrary
+                                                      and how close the dataset points are to the centers of their
+class-wise performance measures, usually combining Speci-
+                                              own clusters. This provides a quantitative way to compare not
+ficity and Recall. Its primary purpose is to mitigate bias
+                                                           only clustering algorithms but also how the same algorithm
+toward majority classes, providing an indicator of perfor-
+                                                         behaves with different numbers of clusters, enabling better
+mance deficiencies even when the overall accuracy remains
+                                                           decision-making when adding or removing clusters. This
+high due to class imbalance. The G-Mean formulation is
+                                                             metric does not require labeling since it only measures the
+presented in (9), where N represents the number of selected
+                                                               ‘‘geometry’’ of the clusters.
+metrics and mi denotes the value of the ith component metric.
+                                                                             1   E       2
+                          N                                                     1                                     IFuzzy−PBM =   ×  × D             (10)
+          Y                                                          K    J
+              G-Mean =                               mi N                 (9)
+                                 i=1                            Another  metric found  in  the reviewed works  is  the
+                                                          Adjusted Mutual Information (AMI) [96]. As opposed to
+3) RESOURCE USAGE                              PBM, this metric compares the clustering results to the
+Network anomaly detection systems are designed to receive     dataset labels and can also be used to compare two sets of
+network traffic and update forwarding rules continuously.     clusters. It is similar to an accuracy score, but it is capable
+Thus, measuring resource usage is necessary to evaluate the     of handling varying numbers of clusters for each class. This
+system’s cost relative to hardware utilization. Among the    way, if a model separates a single class into two clusters but
+surveyed literature, works presented metrics such as CPU and    keeps the clusters ‘‘pure’’, it still receives a positive score. The
+GPU Usage, Memory Usage, and Energy Consumption [25],     metric is called ‘‘adjusted’’ because it addresses the standard
+[42], [61], [71].                                           mutual information (MI) flaw: it rewards models that create
+  Specific metrics may also be employed in systems to     multiple small clusters, artificially inflating their score. The
+handle specific cases, such as average Tree Depth in the     adjusted version subtracts the MI score that may occur by
+ensemble of Hoeffding trees [19]. This case applies to both    random chance, which could be achieved by creating multiple
+resource usage and algorithmic complexity, as the ensemble     clusters. Its formula is represented in (11), where U and V are
+and tree sizes grow during training.                                sets of clusters to be compared, such as the predicted labels
+
+
+69710                                                                                                               VOLUME 14, 2026
+--- Page 23 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+and the ground-truth annotations; MI and E[MI] denote the     metrics were employed in Faber et al. [23]. The standard
+observed and expected mutual information, respectively, and    performance measurement chosen as the base metric was
+H(·) signifies the entropy of the partitions.                       receiver operating characteristic - area under the curve (ROC-
+                                                  AUC), used for binary classification that evaluates how well                MI(U, V) −E[MI(U, V)]
+  AMI(U, V) =                                     (11)    a model distinguishes between classes across all possible
+               avg(H(U), H(V)) −E[MI(U, V)]
+                                                               decision thresholds. The ROC curve visualizes the trade-off
+                                                       between true positive rate (sensitivity) and false positive rate6) INCREMENTAL LEARNING-SPECIFIC METRICS
+                                                               as the threshold varies. The AUC transforms this performanceIncremental learning models are designed to be frequently,
+                                                                  history into a single number, where 1 represents a perfectsometimes constantly, updated. They offer a dynamic frame-
+                                                             system, and 0.5 or lower represents random guessing orwork that does not rely on historical datasets, which become
+                                                            worse.obsolete over time. Instead, incremental learning methods
+                                                                        Finally, Update Time measures the latency of integratingprocess network traffic as new data arrives, either in batches
+                                                new data into the model, considering it operates in a real-timeor singular instances. To evaluate them, pure, traditional
+                                                         environment [99]. The lower the latency, the more likely themetrics such as accuracy do not work, as they treat the whole
+                                                    model is to operate at full capacity on newer data.dataset statically, as a single set, without considering timing
+context.
+                                                           7) REGRESSION-SPECIFIC METRICS
+  Incremental learning metrics evaluate the model’s adapt-
+                                                               In regression algorithms, the base for measuring performanceability and knowledge retention across training iterations by
+                                                                               is the inference error. The only two error metrics found weretracking standard metrics’ evolution across sequential tasks.
+                                              Mean Absolute Error (MAE) and Root Mean Squared ErrorTherefore, metrics such as Backward Transfer (BWT) repre-
+                                                  (RMSE), both from Wang et al. [93]. Their formulas aresent how new learned concepts affect previously encountered
+                                                               represented in (14) and (15) respectively, where yi is the ithsamples. Its function is described in (12), where T  is the
+                                                                observation, ˆyi is the correct value for that element, and N istotal number of tasks; Ri,i is the model’s performance based
+                                                                the total number of elements.on any standard metric on task i immediately after it was
+trained on it; and RT,i is the performance after the model was                          1 XN
+                                                 MAE =          |yi −ˆyi|              (14)trained on all tasks. In network anomaly detection, data can                                                       N
+be fed incrementally to the model at different granularities,                                   i=1
+either in batches or as single instances. This metric shows               sPN                                                                                                         i=1(yi −ˆyi)2
+the model’s average performance after each training feed-             RMSE =                             (15)
+                                                            N
+forward cycle, thereby better reflecting how new data affects
+                                     MAE grows linearly with its inputs. It is better suited toolder data. A positive BWT indicates that, on average, newer
+                                                           avoid getting the result distorted by outliers. RMSE givesdata helps with older tasks, and a negative the opposite.
+                                                   more weight to bigger values than smaller ones. Thus,Overall, it indicates the model’s ability to resist catastrophic
+                                                                                              it is more appropriate when the objective is to improve theforgetting.
+                                                          model’s consistency and generalization, rather than to perfect  In contrast, Forward Transfer (FWT) assesses the model’s
+                                                  some samples while neglecting others.ability to generalize old knowledge to future, unlearned
+concepts. As shown in (13), Ri−1,i represents the performance
+                                                                      VI. OPEN ISSUES AND FUTURE DIRECTIONS
+of the model on batch i before it was trained on it, and bi is
+                                                               In  this  section, we answer  the  final  research question
+the performance of a model that was not trained at all. This
+                                                        (RQ6). Relevant open issues identified during the study
+metric indicates how previous knowledge helps with new
+                                                                are discussed, indicating practical implementation challenges
+data compared to a completely untrained model. A positive
+                                                      and future research directions. Drift adaptation is handled
+FWT demonstrates that the system can generalize knowledge
+                                                                   in the surveyed works through 27 gathered algorithms,
+to new information, whereas a negative FWT means the
+                                                                revealing a tendency towards  supervised,  model-centric
+opposite.
+                                                             approaches, with retraining and incremental learning variants
+                        T−1                                                           being the most common.  Drift detection was  explicitly                     1         X
+         BWT =            (RT,i −Ri,i)          (12)     addressed by the majority of research, yielding 32 algorithms,                 T −1
+                               i=1                            mostly unsupervised, and based on data distribution analysis.
+                              T                              Furthermore, intrusion detection relied for the most part on                     1 X
+         FWT =            (Ri−1,i −bi)          (13)    shallow learning and static evaluation metrics. This trend can                 T −1
+                               i=2                           be related to the scarcity of representative computer network
+  Lifelong Performance is a summary statistic that captures      traffic datasets exhibiting drift.
+the cumulative performance across the model’s entire opera-
+tional history. It is similar to a raw performance measurement,     A. DATASETS
+but without considering future data collection. Backward     Training machine learning models  is directly hinged on
+Transfer,  Forward  Transfer,  and  Lifelong  Performance     data. As datasets represent real-world computer networks
+
+
+VOLUME 14, 2026                                                                                                          69711
+--- Page 24 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+more faithfully,  it is expected that systems become more     C. DRIFT DETECTION
+proficient  at  detecting  attacks and  intrusions. The lack     Active  concept  drift  detection was employed  in most
+of concept  drift portrayal in currently available datasets     of the analyzed  literature, while fewer works adopted a
+poses as one of the main limitations to the applicability of     passive approach. Among active detection research, the most
+IDS outside the laboratory. This limitation is compounded   common solution relies on evaluating the intrusion detection
+by privacy regulations (such as GDPR or LGPD), which     system’s classification error. This strategy is intrinsically
+restrict the collection of granular network traffic, thereby    dependent on promptly available and highly accurate labeled
+hindering the use of raw data for research and preventing the     data. Practically, this assumption is often decoupled from
+capture of authentic drift patterns that occur in production     operational  reality, where  the immediate  availability  of
+environments.                                           ground truth is the exception rather than the rule.
+  Even though 50 network traffic datasets were collected,      The  reliance on  rapid  labeling  introduces  significant
+only 4 effectively contained drift, namely the MAWI Working     bottlenecks, as manual annotation is a cost-intensive task that
+Group archive, DS2OS Traffic Traces, IP Maliciousness, and    cannot scale with the throughput of high-speed networks.
+UGR’16. Only 5 works considered these datasets in their    This delay creates a critical gap in real-time detection, as the
+drift experimental benchmarking, leading the remainder of    computational overhead of processing and labeling traffic
+research to rely on data from other domains, to simulate non-     in production environments often degrades performance.
+stationarity artificially, or even disregard explicit empirical     Consequently, to bridge the lab-to-production gap, research
+tests of drift resilience. Four main simulation techniques    must pivot toward approaches that mitigate ground-truth
+were outlined in our review, comprising class imbalance,    dependency, such as semi-supervised  learning,  labeling-
+data fusion, synthetic generation and injection, and geometric     delay  resilient algorithms, or unsupervised,  distribution-
+partitioning. Every method has a particular flaw, failing    based detection.
+to represent precise feature interactions, network evolution,      Most detection was achieved by monitoring data dis-
+realistic traffic semantics, or temporal dependencies.             tribution changes, thereby remaining label-agnostic. While
+  We highlight that researchers should further make use of    unsupervised  approaches  account  for  the  majority  of
+available network traffic datasets that contain drift, rather      drift detection methods, these algorithms would  benefit
+than simulating it or overlooking drift evaluation altogether.    from a deeper exploration of similarity metrics, such as
+To mitigate data scarcity, we encourage future research to     Entropy, Jensen-Shannon, Kullback-Leibler, Page-Hinkley,
+focus on collecting or emulating computer network data that    and Wasserstein. This research gap is even more pronounced
+natively encompasses dynamicity.                                in semi-supervised, hybrid implementations, which remain
+                                                                    significantly under-explored.
+                                                         Concept drift handling follows the No Free Lunch theorem,
+B. NETWORK INTRUSION DETECTION SYSTEMS             where a singular method is unable to outperform all others in
+Network intrusion and attack detection is a task that often     every scenario [44]. Thus, drift detection algorithms must be
+leverages machine  learning’s  ability  to model  intricate    chosen under the constraints of the expected CD type. Once
+patterns in data. We identified a predominance in shallow,     virtual drift encompasses the change in the input distribution
+supervised learning strategies. Among these, the majority    while maintaining  the  decision boundary,  this category
+of works implement ensemble-based systems, especially     of shift  is best identified by distribution-based methods.
+variants of random forests such as the adaptive random forest.     Conversely, real drift occurs when the decision boundary is
+We observed a decline in the adoption of shallow individual    changed without altering the input distribution, providing an
+classifiers, such as SVMs, Naive Bayes, and clustering, which    advantage to classification error-based techniques. Aiming to
+have been increasingly supplanted by ensemble methods     address both circumstances, we advocate that future research
+and  neural networks. Even though  the semi-supervised    develop hybrid systems.
+paradigm accounts for a smaller portion of works, an upward      Moreover, researchers should address the detection delay,
+trend  in these  solutions has been  identified, aiming  to    which may create a vulnerability window where the model
+mitigate ground-truth  scarcity. We uphold  this tendency     operates under an obsolete decision boundary. For instance,
+by encouraging future research to explore label-agnostic    while the DDM may exhibit lag when encountering gradual
+anomaly detection designs further.                                      drift, the EDDM is specifically designed to identify such
+  Neural networks  still are a minority throughout every     occurrences more promptly. Minimizing  this  latency  is
+learning paradigm. This  cohort  is  primarily  limited  to     crucial, as delayed detection can lead to an accumulation of
+CNN, LSTM, and autoencoder implementations. Further-     false alarms and prolonged exposure to evolving threats.
+more, research into graph neural networks, large language
+models, transformers, and attention mechanisms remains
+scarce. Given the scale and complexity of real-world data,     D. DRIFT ADAPTATION
+we advocate for a more extensive investigation of neural    To maintain system performance in dynamic environments,
+networks, particularly deep learning, for intrusion detection      drift adaptation techniques must be considered. Most of the
+systems in dynamic scenarios.                                analyzed works employ supervised methods that rely entirely
+
+
+69712                                                                                                               VOLUME 14, 2026
+--- Page 25 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+on labeled data and are not necessarily beholden to the     exploration  to minimize memory overhead and  latency,
+underlying intrusion detection system’s learning paradigm.    such as model regularization and parameter freezing. These
+Fewer  researchers implement  strategies  to  mitigate  the    approaches are particularly critical for ensuring scalability in
+real-world delays and gaps in the labeling process, using both     high-throughput environments where the cost of retraining on
+unsupervised and semi-supervised approaches.                   large buffers is prohibitive.
+  Besides ground truth dependency, most works  fail to
+address the degradation of previously learned patterns. Only      E. METRICS
+25 analyzed papers considered the implications of catas-     Evaluating a system’s efficiency in performing the task it was
+trophic forgetting while aiming to mitigate it. Plasticity may    designed to address is often done using quantitative metrics.
+be pursued as a design choice, favoring the natural evolution    Only 7 surveyed works reported drift-specific measurements,
+of data over the stability of knowledge. Nevertheless, insights    mainly variations of accuracy. These metrics often depend not
+that are currently obsolete may regain validity as recurring    only on traffic type annotation, but also on some signaling
+patterns emerge in the data. In the field of network security     that samples represent a drifted version of an already known
+and anomaly detection, patterns should be preserved as their     class. Besides being laborious and time-consuming, these
+forgotten counterparts may be mistaken for anomalies if they     annotations are often obtained manually, making them prone
+reappear.                                                          to errors and unavailability. An automated alternative to
+  Continuous adaptation can be targeted by poisoning and    measuring and annotating  drift  is clustering, which can
+adversarial attacks, which progressively inject anomalous     display centroids shifting over time. This demonstration
+traffic into the system, exploiting its sensitivity to drift or      is currently limited to studies that employ cluster-based
+its retraining logic to gradually shift the decision boundary    anomaly detection. Thus, we suggest that future research
+until malicious activities are classified as legitimate. With-     leverage clustering as a means to demonstrate and measure
+out triggering alarms, these strategies deface the system’s      drift, thereby mitigating dependence on labeled data.
+modeling of legitimate behavior, rendering them ineffective      Whereas incremental and online learning encompass the
+at detecting anomalies. Thus, we advocate that researchers     adaptation  of 19 works, only 4  scope-specific  metrics
+explore defensive techniques such as adversarial skepticism    were identified in 2 works, namely Backward Transfer,
+and data sanitization.                                     Forward Transfer, Lifelong Performance, and Update Time.
+                                                            Consequently, future research should explore more compre-
+1) LABEL DEPENDENCE                                       hensively incremental-specific metrics to provide a deeper
+Works  that showed some  level  of  resilience  to  label     understanding of system evolution over time.
+scarcity in the adaptation process are almost evenly divided
+between unsupervised and semi-supervised. Both paradigms      VII. CONCLUSION
+are restricted to model-centric and data & representation    The dynamicity of network traffic often reflects on behavioral
+algorithms, except for the work of Wu et al. [61], which     profiling changes, which can render security systems out-
+fell under ensemble-based adaptation in the semi-supervised     dated and ineffective. This misalignment between the learned
+paradigm.                                            model and evolving traffic patterns creates a vulnerability
+  Considering the insights obtained, we suggest that authors    window that attackers can exploit to remain undetected. Dur-
+focus their research on less label-dependent adaptation solu-     ing this interval, the system’s ability to distinguish between
+tions. This can be achieved by implementing unsupervised     legitimate fluctuations and malicious intent is compromised,
+or semi-supervised methods that are resilient to labeling    fundamentally degrading operational continuity and integrity
+delays. Works should decouple the learning paradigms of     of network infrastructure.
+intrusion  detection and  drift-adaptation algorithms  to a      To provide a walkthrough on the mitigation of these
+greater extent. Dynamic anomaly thresholding should also      risks, we presented a thorough empirical literature review on
+be further explored, especially in label-agnostic incremental     concept-drift-resilient anomaly detection and traffic classifi-
+learning solutions.                                              cation systems in the field of computer network security. This
+                                                            survey builds upon previous studies by comprehensively ana-
+2) CATASTROPHIC FORGETTING                                lyzing the components of state-of-the-art dynamic security
+Most works that addressed catastrophic forgetting imple-     systems. These elements comprise benchmarking datasets,
+mented buffer replay and its variants. Although some of these    modeling intrusion detection systems, concept drift detection,
+works aim to reduce storage overhead by saving fewer yet    concept drift adaptation, and performance evaluation. This
+representative samples or by generating synthetic data, this     holistic perspective helps researchers identify critical gaps
+focus remains narrow to a single algorithm. Even though     in current adaptive paradigms and offers practitioners a
+these improvements obviate the need to  retain obsolete     technical roadmap to balance detection accuracy with the
+data, prolonged training times remain a significant concern,     operational constraints of real-world networks.
+since each incorporation of new data must consider samples       Following  the  proposed  methodology,  we  selected
+that represent past knowledge. Other  strategies  that are    69 papers to compose the foundation of our review. The
+independent of reassuring old information warrant further     five most used datasets are CIC-IDS2017, KDDCup 1999,
+
+
+VOLUME 14, 2026                                                                                                          69713
+--- Page 26 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+NSL-KDD, CSE-CIC-IDS2018, and IoTID20, none of which     capabilities with data privacy legislations and the need for
+exhibits drift in the network traffic concept. Four datasets     low-latency processing in high-speed networks remains the
+depict dynamic environments, namely the MAWI Working     ultimate frontier for making concept-drift-resilient NIDS a
+Group archive, DS2OS Traffic Traces, IP Maliciousness,     staple of modern cybersecurity infrastructure.
+and UGR’16. Most studies implement explicit drift detection
+using dedicated algorithms, primarily by monitoring error    REFERENCES
+rate  increase,  leveraging  adaptive windowing, ADWIN         [1] R. Z. Ahmad, M. Rizwan, M. J. Yousuf, M. B. Khan, A. Almadhor,
+integrated with EDDM, and DDM. Adaptation to  shifts              T. R. Gadekallu, and S. Abbas, ‘‘Device-to-device communication in
+                                                             5G heterogeneous network based on game-theoretic approaches: A
+is majorly achieved via triggered retraining, incremental            comprehensive survey,’’ J. Netw. Comput. Appl., vol. 238, Jun. 2025,
+learning,  and  ensemble  voting  weights  and  structure              Art. no. 104152, doi: 10.1016/j.jnca.2025.104152.
+updating. The implementation of intrusion detection systems         [2] M. S. Akbar, Z. Hussain, M. Ikram, Q. Z. Sheng, and S. C. Mukhopad-
+                                                                                        hyay, ‘‘On challenges of sixth-generation (6G) wireless networks: A
+is mostly hinged on supervised ensembles, especially random            comprehensive survey of requirements, applications, and security issues,’’
+forests and their adaptive counterparts. Neural networks are                J. Netw. Comput. Appl., vol. 233, Jan. 2025, Art. no. 104040, doi:
+less frequently used and are generally tied to CNN, LSTM,             10.1016/j.jnca.2024.104040.
+                                                                                           [3] A. Chebaane, D. Scholze, Y. Rezgui, A. Abdennebi, A. Al-Khatib,
+and autoencoder algorithms. Performance is largely assessed           A. Khelil, L. Badraoui, and C. Liu, ‘‘Fine-grained latency analysis of
+by static metrics, such as accuracy, precision, recall, and F1-             real-world 5G-enabled multi-tier edge computing for school zone traffic
+score, except for 8 drift-specific indicators present in 7 works.                safety,’’ Discover Internet Things, vol. 5, no. 1, p. 112, Oct. 2025, doi:
+                                                                                   10.1007/s43926-025-00218-1.
+  Although the  field has seen a  rise  in  scientific pro-         [4]  S. Singh, E. E. Sham, and D. P. Vidyarthi, ‘‘Optimizing fog device
+duction  regarding dynamic  intrusion  detection  systems,            deployment  for maximal network  connectivity and edge coverage
+some challenges remain unaddressed. We have identified             using metaheuristic algorithm,’’ Future Gener. Comput. Syst., vol. 157,
+                                                                                         pp. 529–542, Aug. 2024, doi: 10.1016/j.future.2024.04.010.
+critical  issues  that  are  still open and  warrant  further                                                                                           [5] M. Le,  T. Huynh-The,  T. Do-Duy,  T.-H. Vu,  W.-J. Hwang, and
+investigation, structured into a research agenda to guide             Q.-V. Pham,  ‘‘Applications  of  distributed  machine  learning  for
+future developments. In the short term, researchers should             the  Internet-of-Things: A comprehensive  survey,’’ IEEE Commun.
+                                                                                     Surveys  Tuts.,  vol.  27,  no.  2,  pp. 1053–1100,  Apr.  2025,  doi:
+focus on overcoming the scarcity of drift-oriented datasets,                                                                            10.1109/COMST.2024.3427324.
+which are essential for the reliable evaluation of dynamic         [6]  Sakshi, A. Malik, and A. K. Sharma, ‘‘A survey on blockchain based IoT
+models. Performance measurement could be improved by             forensic evidence preservation: Research trends and current challenges,’’
+                                                                                 Multimedia Tools Appl., vol. 83, no. 14, pp. 42413–42458, Oct. 2023, doi:
+employing clustering techniques  to estimate data  shifts,                                                                                   10.1007/s11042-023-17104-z.
+thereby relying on pseudo-labels instead of ground truth.         [7]  L. Wang, J. Liu, Q. He, F. Chen, and X. Xia, ‘‘Hierarchical runtime
+Incremental learning-specific metrics should also be further               reliability anomaly detection for edge services rejuvenation,’’ IEEE
+                                                                                         Trans. Mobile Comput., vol. 25, no. 4, pp. 5807–5823, Apr. 2026, doi:
+studied to provide insights into the system’s performance                                                                              10.1109/TMC.2025.3632794.
+under evolution, while unsupervised detection should further         [8] Q. Yang, W. He, M. Chen, H. Du, S. Shao, F. Wu, S. Liu, Y. Ji, and
+include underexplored data distribution metrics, such as           K. Ren, ‘‘End-to-end open-set semi-supervised learning for fine-grained
+                                                                                     encrypted traffic classification,’’ IEEE Trans. Inf. Forensics Security,
+Entropy, Jensen-Shannon, Kullback-Leibler, Page-Hinkley,                                                                                                   vol. 21, pp. 1347–1362, 2026, doi: 10.1109/TIFS.2026.3653575.
+and Wasserstein.                                                                    [9]  V. G. da Silva Ruffo, D. M. B. Lent, M. Komarchesqui, V. F. Schiavon,
+  Medium-term challenges involve enhancing operational          M. V. O. de Assis, L. F. Carvalho, and M. L. Proença, ‘‘Anomaly and
+                                                                                              intrusion detection using deep learning for software-defined networks: A
+resilience; even though deep learning should be more widely
+                                                                                                    survey,’’ Expert Syst. Appl., vol. 256, Dec. 2024, Art. no. 124982, doi:
+employed, future frameworks must prioritize resilience to            10.1016/j.eswa.2024.124982.
+delayed or unavailable labels, addressing the high com-       [10] M. Lefoane, I. Ghafir, S. Kabir, and I.-U. Awan, ‘‘Internet of Things
+putational costs and real-time constraints found in  real-              botnets: A survey on artificial intelligence based detection techniques,’’
+                                                                                                               J. Netw. Comput. Appl., vol. 236, Apr. 2025, Art. no. 104110, doi:
+world environments. This can be accomplished through             10.1016/j.jnca.2025.104110.
+semi-supervised hybrid approaches, which  rely  partially       [11] M. Shen, K.  Ye, X.  Liu,  L. Zhu,  J. Kang,  S. Yu, Q.  Li, and
+on ground  truth, and unsupervised methods that remain           K. Xu, ‘‘Machine learning-powered encrypted network traffic analysis:
+                                                    A comprehensive survey,’’ IEEE Commun. Surveys Tuts., vol. 25, no. 1,
+entirely independent of labels for anomaly and drift detection             pp. 791–824, 1st Quart., 2023, doi: 10.1109/COMST.2022.3208196.
+and adaptation. Furthermore, adaptation algorithms should       [12]  V. S. D. Priya, S. C. Sethuraman, and M. K. Khan, ‘‘Blockchain-
+be more decoupled from the underlying NIDS learning            based deep learning models for intrusion detection in industrial control
+                                                                                      systems: Frameworks and open issues,’’ J. Netw. Comput. Appl., vol. 243,
+paradigms and explore dynamic anomaly-score thresholding           Nov. 2025, Art. no. 104286, doi: 10.1016/j.jnca.2025.104286.
+within incremental learning environments. Implementing       [13] M. A. Shyaa, N. F. Ibrahim, Z. B. Zainol, R. Abdullah, M. Anbar, and
+dynamic NIDS must place greater emphasis on the mitigation             L. Alzubaidi, ‘‘IGPC-MSOS: A knowledge-preserving transfer learning
+                                                                             framework with dynamic mode-switching for handling concept drift in
+of drift detection and adaptation delay, as well as catastrophic            network intrusion detection systems,’’ Knowledge-Based Syst., vol. 337,
+forgetting, especially by alternatives beyond buffer replay to            Mar. 2026, Art. no. 115361, doi: 10.1016/j.knosys.2026.115361.
+ensure scalability.                                                             [14]  F. Bayram, B. S. Ahmed, and A. Kassler, ‘‘From concept  drift to
+                                                                          model degradation: An overview on performance-aware drift detectors,’’
+  In the long term, the focus must shift toward adversarial           Knowledge-Based  Syst.,  vol. 245,  Jun. 2022,  Art. no. 108632,  doi:
+robustness and deployment at scale. Future research should            10.1016/j.knosys.2022.108632.
+investigate how continuous adaptation logic can be hardened       [15]  I. Martins, J. S. Resende, P. R. Sousa, S. Silva, L. Antunes, and J. Gama,
+                                                                                        ‘‘Host-based IDS: A review and open issues of an anomaly detection
+against  adversarial behavior and poisoning  attacks  that            system in IoT,’’ Future Gener. Comput. Syst., vol. 133, pp. 95–113,
+exploit  drift sensitivity. Finally, balancing these adaptive           Aug. 2022, doi: 10.1016/j.future.2022.03.001.
+
+
+69714                                                                                                               VOLUME 14, 2026
+--- Page 27 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+ [16] R. Chu, M. Luo, L. Yang,  J. Xiao, and Y. Liao, ‘‘Concept  drift       [36] H. Huang, P. Wang, J. Pei, J. Wang, S. Alexanian, and D. Niyato, ‘‘Deep
+       analysis based on isolation forest for effectively detecting network attack             learning advancements in anomaly detection: A comprehensive survey,’’
+       in IoT scenarios,’’ IEEE Access, vol. 14, pp. 3245–3258, 2026, doi:          IEEE Internet Things J., vol. 12, no. 21, pp. 44318–44342, Nov. 2025,
+      10.1109/ACCESS.2025.3650576.                                                      doi: 10.1109/JIOT.2025.3585884.
+ [17] M. A. Shyaa, N. F. Ibrahim, Z. Zainol, R. Abdullah, M. Anbar, and       [37]  L. Xu, Z. Han, D. Zhao, X. Li, F. Yu, and C. Chen, ‘‘Addressing
+       L. Alzubaidi, ‘‘Evolving cybersecurity frontiers: A comprehensive survey            concept drift in IoT anomaly detection: Drift detection, interpretation, and
+      on concept drift and feature dynamics aware machine and deep learning in              adaptation,’’ IEEE Trans. Sustain. Comput., vol. 9, no. 6, pp. 913–924,
+       intrusion detection systems,’’ Eng. Appl. Artif. Intell., vol. 137, Nov. 2024,           Nov. 2024, doi: 10.1109/TSUSC.2024.3386667.
+       Art. no. 109143, doi: 10.1016/j.engappai.2024.109143.                        [38] N. Malekghaini, E. Akbari, M. A. Salahuddin, N. Limam, R. Boutaba, B.
+ [18] C. Zha, Z. Wang, Y. Fan, B. Bai, Y. Zhang, S. Shi, and R. Zhang, ‘‘A-            Mathieu, S. Moteau, and S. Tuffin, ‘‘Deep learning for encrypted
+     NIDS: Adaptive network intrusion detection system based on clustering                traffic  classification  in  the  face  of  data   drift: An  empirical
+      and stacked CTGAN,’’ IEEE Trans. Inf. Forensics Security, vol. 20,               study,’’ Comput. Netw.,  vol. 225, Apr. 2023,  Art. no. 109648,  doi:
+       pp. 3204–3219, 2025, doi: 10.1109/TIFS.2025.3551643.                           10.1016/j.comnet.2023.109648.
+ [19] A. M. Paim and F. Enembreck, ‘‘Adaptive random tree ensemble for       [39] G.  Maciá-Fernández,  J. Camacho,  R.  Magán-Carrión,  P.  García-
+       evolving data stream  classification,’’ Knowl.-Based  Syst.,  vol. 309,            Teodoro, and R. Therón, ‘‘UGR-16: A new dataset for the evaluation
+       Jan. 2025, Art. no. 112830, doi: 10.1016/j.knosys.2024.112830.                     of cyclostationarity-based network IDSs,’’ Comput.  Secur.,  vol. 73,
+ [20] X.  Gu,  G.  Howells,  and  H.  Yuan,  ‘‘A  semi-supervised  soft             pp. 411–424, Mar. 2018, doi: 10.1016/j.cose.2017.11.004.
+       prototype-based  autonomous  fuzzy  ensemble  system  for  network       [40]  S. U. Din, Q. Yang, J. Shao, C. B. Mawuli, A. Ullah, and W. Ali,
+       intrusion  detection,’’  Appl.  Soft  Comput.,  vol.  170,  Feb.  2025,             ‘‘Synchronization-based semi-supervised data streams classification with
+       Art. no. 112719, doi: 10.1016/j.asoc.2025.112719.                                    label evolution and extreme verification  delay,’’  Inf.  Sci., vol. 678,
+ [21]  F. Cerasuolo, G. Bovenzi, D. Ciuonzo, and A. Pescapè, ‘‘Adaptable,            Sep. 2024, Art. no. 120933, doi: 10.1016/j.ins.2024.120933.
+       incremental, and explainable network intrusion detection systems for       [41] A. Kuppa and N.-A. Le-Khac, ‘‘Learn to adapt: Robust drift detection
+       Internet of Things,’’ Eng. Appl.  Artif.  Intell., vol. 144, Mar. 2025,              in  security  domain,’’ Comput.  Electr.  Eng.,  vol.  102,  Sep. 2022,
+       Art. no. 110143, doi: 10.1016/j.engappai.2025.110143.                               Art. no. 108239, doi: 10.1016/j.compeleceng.2022.108239.
+ [22] H. Qiao, B. Novikov, and J. O. Blech, ‘‘Concept drift analysis by dynamic       [42] A. M.  Pasikhani,  J.  A.  Clark,  and  P.  Gope,  ‘‘Adversarial RL-
+       residual projection for effectively detecting botnet cyber-attacks in IoT            based IDS  for  evolving  data  environment  in 6LoWPAN,’’ IEEE
+        scenarios,’’ IEEE Trans. Ind. Informat., vol. 18, no. 6, pp. 3692–3701,             Trans.  Inf. Forensics  Security,  vol. 17, pp. 3831–3846, 2022,  doi:
+       Jun. 2022, doi: 10.1109/TII.2021.3108464.                                      10.1109/TIFS.2022.3214099.
+ [23] K. Faber, R. Corizzo, B. Sniezynski, and N. Japkowicz, ‘‘VLAD: Task-       [43] A. Bernardo and E. D. Valle, ‘‘An extensive study of C-SMOTE,
+       agnostic VAE-based lifelong anomaly detection,’’ Neural Netw., vol. 165,            a continuous synthetic minority oversampling technique for evolving data
+       pp. 248–273, Aug. 2023, doi: 10.1016/j.neunet.2023.05.032.                           streams,’’ Expert Syst. Appl., vol. 196, Jun. 2022, Art. no. 116630, doi:
+ [24] C. Nixon, M. Sedky,  J. Champion, and M. Hassan, ‘‘SALAD: A            10.1016/j.eswa.2022.116630.
+        split active learning based unsupervised network data stream anomaly       [44] H. Hu, M. Kantardzic, and T. S. Sethi, ‘‘No free lunch theorem for
+       detection method using autoencoders,’’ Expert Syst. Appl., vol. 248,            concept drift detection in streaming data classification: A review,’’ WIREs
+      Aug. 2024, Art. no. 123439, doi: 10.1016/j.eswa.2024.123439.                   Data Mining Knowl. Discovery, vol. 10, no. 2, p. 1327, Mar. 2020, doi:
+ [25]  J. Zhang, Z. Chen, H. Cheng, J. Li, and G. Min, ‘‘Improving multi-model            10.1002/widm.1327.
+      anomaly traffic detection in MEC networks with large-model- powered       [45] R. R. dos Santos, E. K. Viegas, A. O. Santin, and P. Tedeschi, ‘‘Fed-
+      continuous learning,’’ IEEE Netw., vol. 39, no. 3, pp. 56–62, May 2025,             erated learning for reliable model updates in network-based intrusion
+       doi: 10.1109/MNET.2025.3532109.                                                      detection,’’ Comput. Secur., vol. 133, Oct. 2023, Art. no. 103413, doi:
+ [26]  Z. Niu, J. Xue, Y. Wang, T. Lei, W. Han, and X. Gao, ‘‘QARF: A             10.1016/j.cose.2023.103413.
+      novel malicious traffic detection approach via online active learning for       [46] H. Wu, W.  Li,  X.  Chen,  G.  Cheng,  X.  Hu,  and  Y.  Zhuang,
+       evolving traffic streams,’’ Chin. J. Electron., vol. 33, no. 3, pp. 645–656,             ‘‘Batch  classifier with adaptive update  for backbone  traffic  classi-
+     May 2024, doi: 10.23919/cje.2022.00.360.                                                  fication,’’ Comput. Commun., vol. 202, pp. 57–72, Mar. 2023, doi:
+ [27] M. Riess, ‘‘Automating model management: A survey on metaheuristics            10.1016/j.comcom.2023.02.013.
+       for concept-drift adaptation,’’ J. Data, Inf. Manage., vol. 4, nos. 3–4,       [47] O. A. Wahab, ‘‘Intrusion detection in the IoT under data and concept
+       pp. 211–229, Dec. 2022, doi: 10.1007/s42488-022-00075-5.                              drifts: Online deep learning approach,’’ IEEE Internet Things J., vol. 9,
+ [28]  S. Agrahari and A. K. Singh, ‘‘Concept drift detection in data stream min-             no. 20, pp. 19706–19716, Oct. 2022, doi: 10.1109/JIOT.2022.3167005.
+       ing: A literature review,’’ J. King Saud Univ. - Comput. Inf. Sci., vol. 34,       [48] D. E. García and N. DeCastro-García, ‘‘Conformal  prediction  for
+       no. 10, pp. 9523–9540, Nov. 2022, doi: 10.1016/j.jksuci.2021.11.006.                 labelling and updating online models in the presence of concept drift in
+ [29] A. L. Suárez-Cetrulo, D. Quintana, and A. Cervantes, ‘‘A survey              cybersecurity,’’ J. Inf. Secur. Appl., vol. 93, Sep. 2025, Art. no. 104120,
+      on machine learning  for  recurring concept  drifting data  streams,’’              doi: 10.1016/j.jisa.2025.104120.
+      Expert  Syst.  Appl.,  vol.  213,  Mar.  2023,  Art. no. 118934,  doi:       [49] M. Shajari, H. Geng, K. Hu, and A. Leon-Garcia, ‘‘Tensor-based online
+      10.1016/j.eswa.2022.118934.                                                network anomaly detection and  diagnosis,’’ IEEE Access,  vol. 10,
+ [30] O. A. Mahdi, N. Ali, E. Pardede, A. Alazab, T. Al-Quraishi, and B.             pp. 85792–85817, 2022, doi: 10.1109/ACCESS.2022.3197651.
+      Das, ‘‘Roadmap of concept  drift adaptation in data stream mining,       [50] K. Cho, K. Mitsuya, and A. Kato, ‘‘Traffic data repository  at the
+       years  later,’’ IEEE  Access,  vol.  12,  pp. 21129–21146,  2024,  doi:        WIDE project [dataset],’’ in Proc. USENIX Annu. Tech. Conf. (USENIX
+      10.1109/ACCESS.2024.3358817.                                            ATC),  Jun.  2000,  pp. 263–270.  [Online].  Available:  https://www.
+ [31] D. Lukats, O. Zielinski, A. Hahn, and F. Stahl, ‘‘A benchmark and survey             usenix.org/conference/2000-usenix-annual-technical-conference/
+       of fully unsupervised concept drift detectors on real-world data streams,’’              traffic-data-repository-wide-project.
+        Int. J. Data Sci. Analytics, vol. 19, no. 1, pp. 1–31, Jan. 2025, doi:       [51]  F. Aubet and M. Pahl. (2018). DS2OS Traffic Traces [Dataset]. Accessed:
+      10.1007/s41060-024-00620-y.                                                        Jan. 19, 2026. [Online]. Available: https://www.kaggle.com/datasets/
+ [32]  P. Moriano, S. C. Hespeler, M. Li, and M. Mahbub, ‘‘Adaptive anomaly              francoisxa/ds2ostraffictraces.
+       detection for identifying attacks in cyber-physical systems: A systematic       [52] D. E. García and N. DeCastro-García, ‘‘Transfer and online learning
+        literature review,’’ Artif. Intell. Rev., vol. 58, no. 9, p. 283, Jun. 2025, doi:              for IP maliciousness prediction in a concept drift scenario,’’ Wireless
+      10.1007/s10462-025-11292-w.                                                     Netw., vol. 30, no. 9, pp. 7423–7444, Dec. 2024, doi: 10.1007/s11276-
+ [33] M. Abdullahi, H. Alhussian, N. Aziz, S. J. Abdulkadir, Y. Baashar, A.            024-03664-x.
+      A. Alashhab, and A. Afrin, ‘‘A systematic literature review of concept       [53]  I. Sharafaldin, A. H. Lashkari, and A. A. Ghorbani, ‘‘Toward generating
+        drift mitigation in time-series  applications,’’ IEEE Access, vol. 13,            a new intrusion detection dataset and intrusion traffic characterization,’’
+       pp. 119380–119410, 2025, doi: 10.1109/ACCESS.2025.3587231.                     in Proc. 4th Int. Conf. Inf. Syst. Secur. Privacy, 2018, pp. 108–116, doi:
+ [34] C. M. Bishop and N. M. Nasrabadi, Pattern Recognition and Machine            10.5220/0006639801080116.
+      Learning. Cham, Switzerland: Springer, 2006.                                 [54]  (1999). KDD Cup 1999 Data [Dataset]. Accessed: Jan. 19, 2026.
+ [35]  I. Goodfellow, Y. Bengio, and A. Courville, ‘‘Deep learning,’’ MIT Press,             [Online].     Available:     https://kdd.ics.uci.edu/databases/kddcup99/
+      Cambridge, MA, USA, Tech. Rep. 978-0262035613, 2016.                        kddcup99.html.
+
+
+VOLUME 14, 2026                                                                                                          69715
+--- Page 28 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+ [55] M. Tavallaee, E. Bagheri, W. Lu, and A. A. Ghorbani, ‘‘A detailed analysis       [73] A. Singh, P. Mishra, P. Vinod, A. Gaur, and M. Conti, ‘‘SFC-NIDS:
+       of the KDD CUP 99 data set,’’ in Proc. IEEE Symp. Comput. Intell. Secur.        A sustainable and explainable flow filtering based concept drift-driven
+      Defense Appl., Jul. 2009, pp. 1–6, doi: 10.1109/CISDA.2009.5356528.               security approach for network introspection,’’ Cluster Comput., vol. 27,
+ [56] M. Liu,  P. Wang, Z. Li, Y. Ye, Z. Wang, and X. Chen, ‘‘UDDA-             no. 7, pp. 9757–9782, Oct. 2024, doi: 10.1007/s10586-024-04444-0.
+     TC: Unsupervised real-time  drift detection and adaptation for con-       [74] A. M. Eldhai, M. Hamdan, A. Abdelaziz, I. A. T. Hashem, S. F. Babiker,
+       tinual traffic classification in mobile edge computing,’’ IEEE Trans.          M.  N.  Marsono, M.  Hamzah,  and  N.  Z.  Jhanjhi,  ‘‘Improved
+      Consum. Electron., vol. 71, no. 3, pp. 8940–8952, Aug. 2025, doi:              feature selection and stream  traffic classification based on machine
+      10.1109/TCE.2025.3579882.                                                        learning  in  software-defined  networks,’’  IEEE  Access,  vol.  12,
+ [57] G. Liao, P. Zhang, H. Yin, X. Deng, Y. Li, H. Zhou, and D. Zhao,             pp. 34141–34159, 2024, doi: 10.1109/ACCESS.2024.3370435.
+       ‘‘A novel semi-supervised classification approach for evolving data       [75]  Z. Niu,  J. Xue, D. Qu, Y. Wang,  J. Zheng, and H. Zhu, ‘‘A novel
+       streams,’’ Expert Syst. Appl., vol. 215, Apr. 2023, Art. no. 119273, doi:            approach based on adaptive online analysis of encrypted traffic for
+      10.1016/j.eswa.2022.119273.                                                         identifying malware in IIoT,’’ Inf. Sci., vol. 601, pp. 162–174, Jul. 2022,
+ [58]  Y. Huang and M. Ma, ‘‘AILL-IDS: An automatic incremental lifetime              doi: 10.1016/j.ins.2022.04.018.
+       learning intrusion detection system for vehicular ad hoc networks,’’ IEEE       [76] A. Abdulboriy and J. S. Shin, ‘‘An incremental majority voting approach
+       Trans. Intell. Transp. Syst., vol. 26, no. 2, pp. 2669–2678, Feb. 2025, doi:              for intrusion detection system based on machine learning,’’ IEEE Access,
+      10.1109/TITS.2024.3510584.                                                            vol. 12, pp. 18972–18986, 2024, doi: 10.1109/ACCESS.2024.3361041.
+ [59] A.  J.  Rabash, M.  Z. A.  Nazri, A.  Shapii, and M. K.  Hasan,       [77]  Y. Wu,  L.  Liu,  Y. Yu, G. Chen, and  J. Hu,  ‘‘Online ensemble
+      ‘‘Non-dominated  sorting  genetic  algorithm-based  dynamic  feature             learning-based anomaly detection for IoT systems,’’ Appl. Soft Comput.,
+       selection  for  intrusion  detection  system,’’ IEEE  Access,  vol.  11,              vol. 173, Apr. 2025, Art. no. 112931, doi: 10.1016/j.asoc.2025.112931.
+       pp. 125080–125093, 2023, doi: 10.1109/ACCESS.2023.3328395.              [78]  Y. K. Beshah, S. L. Abebe, and H. M. Melaku, ‘‘Multi-stage adversarial
+ [60] N. Samadi,  J.  Tanha, and M.  Jalili,  ‘‘Graph  theory-based  semi-            defense for online DDoS attack detection system in IoT,’’ IEEE Access,
+       supervised self-training for data stream classification and emerging              vol. 13, pp. 72657–72673, 2025, doi: 10.1109/ACCESS.2025.3560186.
+       class detection,’’ Inf. Sci., vol. 698, Apr. 2025, Art. no. 121762, doi:       [79]  J. Zhang, B. Gong, Q. Wang, Y. Wu, and G. Zheng, ‘‘An intelligent edge
+       10.1016/j.ins.2024.121762.                                                           dual-structure ensemble method for data stream detection and releasing,’’
+ [61]  Z. Wu, P. Gao, L. Cui, and J. Chen, ‘‘An incremental learning method          IEEE Internet Things J., vol. 11, no. 1, pp. 863–879, Jan. 2024, doi:
+      based on dynamic ensemble RVM for intrusion detection,’’ IEEE Trans.            10.1109/JIOT.2023.3286185.
+      Netw. Service Manage., vol. 19, no. 1, pp. 671–685, Mar. 2022, doi:       [80]  S. Saravanan and U. M. Balasubramanian, ‘‘An adaptive scalable data
+      10.1109/TNSM.2021.3102388.                                                      pipeline for multiclass attack classification in large-scale IoT networks,’’
+ [62] B. Li, Y. Wang, K. Xu, L. Cheng, and Z. Qin, ‘‘DFAID: Density-            Big Data Mining Analytics, vol. 7, no. 2, pp. 500–511, Jun. 2024, doi:
+      aware and feature-deviated active intrusion detection over network traffic            10.26599/bdma.2023.9020027.
+       streams,’’ Comput. Secur., vol. 118, Jul. 2022, Art. no. 102719, doi:       [81]  L. Yang, S. Naser, A. Shami, S. Muhaidat, L. Ong, and M. Debbah,
+       10.1016/j.cose.2022.102719.                                                   ‘‘Toward zero touch networks: Cross-layer automated security solutions
+ [63]  Z.  Yin, H. Chen, H. Ma,  T. Hu, and  L.  Bai, ‘‘CAEAID: An              for 6G wireless networks,’’ IEEE Trans. Commun., vol. 73, no. 9,
+       incremental contrast learning-based intrusion detection framework for             pp. 7650–7679, Sep. 2025, doi: 10.1109/TCOMM.2025.3547764.
+      IoT networks,’’ Comput. Netw., vol. 262, May 2025, Art. no. 111161, doi:       [82] W. Liu, C. Zhu, Z. Ding, H. Zhang, and Q. Liu, ‘‘Multiclass imbalanced
+      10.1016/j.comnet.2025.111161.                                             and concept drift network traffic classification framework based on
+ [64] M.  Gudapati,  A.  Borah,  and  S.  R.  K.,  ‘‘Incremental  approach:             online active learning,’’ Eng. Appl. Artif. Intell., vol. 117, Jan. 2023,
+    A  workflow  model  for  semi-supervised  learning  environment,’’              Art. no. 105607, doi: 10.1016/j.engappai.2022.105607.
+      Eng. Appl.  Artif.  Intell., vol. 160, Nov. 2025, Art. no. 111815, doi:       [83] N. Malathy, A. T. Swvtha, T. B. Leela, and A. Raaman, ‘‘Real-time
+       10.1016/j.engappai.2025.111815.                                                     intrusion detection in IIoT stream data using window-based weighted
+ [65] M. Saqib, H. Elbiaze, and R. H. Glitho, ‘‘A data-driven approach to           ensemble techniques,’’ Social Netw. Comput. Sci., vol. 6, no. 1, p. 66,
+       mitigate evolving volumetric attacks in programmable networks,’’ IEEE              Jan. 2025, doi: 10.1007/s42979-024-03597-4.
+       Trans. Mach. Learn. Commun. Netw., vol. 3, pp. 883–902, 2025, doi:       [84]  J. Jiang, F. Liu, Y. Liu, Q. Tang, B. Wang, G. Zhong, and W. Wang, ‘‘A
+      10.1109/TMLCN.2025.3594659.                                           dynamic ensemble algorithm for anomaly detection in IoT imbalanced
+ [66] M. Jain, G. Kaur, and V. Saxena, ‘‘A K-means clustering and SVM             data streams,’’ Comput. Commun., vol. 194, pp. 250–257, Oct. 2022, doi:
+      based hybrid concept drift detection technique for network anomaly            10.1016/j.comcom.2022.07.034.
+        detection,’’ Expert Syst. Appl., vol. 193, May 2022, Art. no. 116510, doi:       [85] A. A. Alashhab, M. S. Zahid, B. Isyaku, A. A. Elnour, W. Nagmeldin,
+      10.1016/j.eswa.2022.116510.                                               A. Abdelmaboud, T. A. A. Abdullah, and U. D. Maiwada, ‘‘Enhancing
+ [67] G. F. Scaranti, L. F. Carvalho, S. Barbon, J. Lloret, and M. L. Proença,         DDoS attack detection and mitigation in SDN using an ensemble online
+      ‘‘Unsupervised online anomaly detection in software defined network           machine learning model,’’ IEEE Access, vol. 12, pp. 51630–51649, 2024,
+       environments,’’ Expert Syst. Appl., vol. 191, Apr. 2022, Art. no. 116225,              doi: 10.1109/ACCESS.2024.3384398.
+       doi: 10.1016/j.eswa.2021.116225.                                            [86] M. A. Shyaa, N. F. Ibrahim, Z. B. Zainol, R. Abdullah, and M. Anbar,
+ [68] B. H. Schwengber, A. Vergütz, N. G. Prates, and M. Nogueira, ‘‘Learning            ‘‘Reinforcement learning-based voting for feature drift-aware intrusion
+      from network data changes for unsupervised botnet detection,’’ IEEE              detection: An incremental learning framework,’’ IEEE Access, vol. 13,
+       Trans. Netw. Service Manage., vol. 19, no. 1, pp. 601–613, Mar. 2022,             pp. 37872–37903, 2025, doi: 10.1109/ACCESS.2025.3544221.
+       doi: 10.1109/TNSM.2021.3109076.                                           [87]  F.-Q. Li, R.-J. Zhao, S.-L. Wang, L.-B. Chen, A. W.-C. Liew, and W. Ding,
+ [69] M. Soltani, K. Khajavi, M. J. Siavoshani, and A. H. Jahangir, ‘‘A multi-             ‘‘Online intrusion detection for Internet of Things systems with full
+       agent adaptive deep learning framework for online intrusion detection,’’            Bayesian possibilistic clustering and ensembled fuzzy classifiers,’’ IEEE
+       Cybersecurity, vol. 7, no. 1, p. 9, May 2024, doi: 10.1186/s42400-023-             Trans. Fuzzy Syst., vol. 30, no. 11, pp. 4605–4617, Nov. 2022, doi:
+      00199-0.                                                                 10.1109/TFUZZ.2022.3165390.
+ [70]  T. Qin, G. Cheng, Z. Yin, Y. Wei, Z. Yao, and Z. Chen, ‘‘Building       [88]  T. Anithakumari and S. Mishra, ‘‘OASIS: Online adaptive ensembles for
+       robust traffic classifier under low quality data: A federated contrastive                drift adaptation on evolving IoT data streams,’’ Internet Things, vol. 31,
+       learning approach,’’ Digit. Commun. Netw., vol. 11, no. 5, pp. 1479–1492,         May 2025, Art. no. 101545, doi: 10.1016/j.iot.2025.101545.
+       Oct. 2025, doi: 10.1016/j.dcan.2025.06.001.                                   [89] M. Amin,  F. Al-Obeidat, A.  Tubaishat, B. Shah,  S. Anwar, and
+ [71] M. Eskandari and H. Khotanlou, ‘‘Data stream classification using a              T. A. Tanveer, ‘‘Cyber security and beyond: Detecting malware and
+      deep transfer learning method based on extreme learning machine and            concept drift in AI-based sensor data streams using statistical tech-
+       recurrent neural network,’’ Multimedia Tools Appl., vol. 83, no. 23,              niques,’’ Comput. Electr. Eng., vol. 108, May 2023, Art. no. 108702, doi:
+       pp. 63213–63241, Jan. 2024, doi: 10.1007/s11042-023-18075-x.                   10.1016/j.compeleceng.2023.108702.
+
+ [72]  S. Cai, H. Tang,  J. Chen, Y. Hu, and W. Guo, ‘‘CDDA-MD: An       [90] M. S. Noori, R. K. Z. Sahbudin, A. Sali, and F. Hashim, ‘‘Feature drift
+        efficient malicious  traffic detection method based on concept  drift           aware for intrusion detection system using developed variable length
+       detection and adaptation technique,’’ Comput. Secur., vol. 148, Jan. 2025,              particle swarm optimization in data stream,’’ IEEE Access, vol. 11,
+       Art. no. 104121, doi: 10.1016/j.cose.2024.104121.                                  pp. 128596–128617, 2023, doi: 10.1109/ACCESS.2023.3333000.
+
+
+69716                                                                                                               VOLUME 14, 2026
+--- Page 29 ---
+M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+
+ [91]  S. Suryawanshi, A. Goswami, and P. Patil, ‘‘CDA-PDDWE: Concept      [108] M. Baena-Garcıa, J. del Campo-Ávila, R. Fidalgo, A. Bifet, R. Gavalda,
+       drift-aware performance-based diversified dynamic weighted ensemble           and R. Morales-Bueno, ‘‘Early drift detection method,’’ in Proc. 4th Int.
+       for non-stationary environments,’’ Arabian J. Sci. Eng., vol. 49, no. 9,           Workshop Knowl. Discovery Data Streams, vol. 6, Berlin, Germany, 2006,
+       pp. 12989–13004, Sep. 2024, doi: 10.1007/s13369-024-08929-3.                    pp. 77–86.
+ [92] M. Abbasi, S. L. Flórez, A. Shahraki, A. Taherkordi, J. Prieto, and      [109]  S. Grossberg, How Does a Brain Build a Cognitive Code?. Dordrecht,
+         J. M. Corchado, ‘‘Class imbalance in network traffic classification: An          The Netherlands: Springer, 1982, pp. 1–52, doi: 10.1007/978-94-009-
+       adaptive weight ensemble-of-ensemble learning method,’’ IEEE Access,            7758-7_1.
+       vol. 13, pp. 26171–26192, 2025, doi: 10.1109/ACCESS.2025.3538170.
+
+ [93] R. Wang, H. Qiu, X. Cheng, and X. Liu, ‘‘Anomaly detection with a
+       container-based stream processing framework for industrial Internet of
+       Things,’’ J. Ind. Inf. Integr., vol. 35, Oct. 2023, Art. no. 100507, doi:
+       10.1016/j.jii.2023.100507.
+                                                                   MATEUS KOMARCHESQUI received the B.Sc.
+ [94]  J. Cao, X. Di, X. Liu,  J.  Li, Z.  Li, L. Zhao, A. Hawbani, and
+                                                                                                 degree in computer science from the State Uni-
+     M. Guizani, ‘‘Anomaly detection for in-vehicle network using self-
+                                                                                                               versity of Londrina (UEL), Brazil, in 2024, where
+       supervised learning with vehicle-cloud collaboration update,’’ IEEE
+                                                                                           he  is currently pursuing the M.Sc. degree  in       Trans. Intell. Transp. Syst., vol. 25, no. 7, pp. 7454–7466, Jul. 2024, doi:
+      10.1109/TITS.2024.3351438.                                                              computer science and the Ph.D. degree in electrical
+                                                                                                        engineering. He has been a member of the ORION
+ [95] M. Raeiszadeh, A. Ebrahimzadeh, R. H. Glitho, J. Eker, and R. A. F. Mini,
+                                                                                              Research Group, since 2023, where he developed       ‘‘Real-time adaptive anomaly detection in industrial IoT environments,’’
+     IEEE Trans. Netw. Service Manage., vol. 21, no. 6, pp. 6839–6856,                               research on intrusion detection using quantum
+      Dec. 2024, doi: 10.1109/TNSM.2024.3447532.                                                 computing, deep learning, and explainable arti-
+                                                                                                                              ficial intelligence. His research interests include [96]  Z. Zhao, Z. Li, X. Xie, J. Yu, F. Zhang, R. Zhang, B. Chen, X. Luo, M. Hu,
+      and W. Ma, ‘‘FOSS: Towards fine-grained unknown class detection      software-defined networking, network management and security, anomaly
+       against the open-set attack spectrum with variable legitimate traffic,’’      detection, concept drift, deep learning, and explainable artificial intelligence.
+     IEEE/ACM Trans. Netw., vol. 32, no. 5, pp. 3945–3960, Oct. 2024, doi:
+      10.1109/TNET.2024.3413789.
+
+ [97] A. M.  Pasikhan,  J. A.  Clark, and  P. Gope,  ‘‘Incremental hybrid
+       intrusion detection for 6LoWPAN,’’ Comput. Secur., vol. 135, Dec. 2023,
+       Art. no. 103447, doi: 10.1016/j.cose.2023.103447.
+                                                                               VITOR GABRIEL DA SILVA RUFFO received
+ [98] A. Nitish, J. Hanumanthappa, S. P. S. Prakash, and K. Krinkin, ‘‘Class                               the B.Sc. (summa cum laude) and M.Sc. degrees
+      imbalance and concept  drift invariant online botnet threat detection                                 in computer science from the State University of
+      framework for heterogeneous IoT edge,’’ Comput. Secur., vol. 141,
+                                                                                              Londrina (UEL), Londrina, Brazil, in 2023 and
+       Jun. 2024, Art. no. 103820, doi: 10.1016/j.cose.2024.103820.
+                                                                                                2025, respectively, where he is currently pursuing
+ [99] Q. Lu, K. An, J. Li, and J. Wang, ‘‘Network intrusion detection for                               the Ph.D. degree in electrical engineering. He is a
+      modern smart grids based on adaptive online incremental learning,’’
+                                                                                                             Visiting Researcher with the Polytechnic Univer-
+     IEEE Trans. Smart Grid, vol. 16, no. 3, pp. 2541–2553, May 2025, doi:
+                                                                                                                       sity of Valencia, Gandia, Spain. He has been an
+      10.1109/TSG.2025.3535949.
+                                                                                                  Active Member of the ORION Research Group,
+[100]  S. Selvam and U. M. Balasubramanian, ‘‘UASDAC: An unsupervised
+                                                                                      Computer Science Department, UEL, since 2021.
+       adaptive scalable DDoS attack classification in large-scale IoT network
+                                                                       His research interests include network anomaly detection, deep learning, and
+      under concept drift,’’ IEEE Access, vol. 12, pp. 64701–64716, 2024, doi:
+                                                                          concept drift.
+      10.1109/ACCESS.2024.3397512.
+
+[101]  L. Tang, R. Wei, B. Xia, Y. Tang, W. Wang, Q. Huang, and Q. Chen,
+       ‘‘Online anomaly detection in industrial IoT networks using a supervised
+       contrastive  learning-based  spatiotemporal  variational  autoencoder,’’
+     IEEE Internet Things J., vol. 12, no. 11, pp. 17399–17412, Jun. 2025,
+       doi: 10.1109/JIOT.2025.3537864.                                               DANIEL MATHEUS BRANDÃO LENT received
+[102] X. Lin, G. Xiong, G. Gou, W. Dong, J. Yu, Z. Li, and W. Xia, ‘‘Respond                               the bachelor’s and master’s degrees from the
+       to change with constancy: Instruction-tuning with LLM for non-I.I.D.                                State University of Londrina (UEL), in 2021 and
+      Network  traffic classification,’’ IEEE Trans.  Inf. Forensics Security,                            2023, respectively. He is currently pursuing the
+       vol. 20, pp. 5758–5773, 2025, doi: 10.1109/TIFS.2025.3574971.                                  Ph.D. degree in  electrical engineering (with a
+[103]  P.  S. Mrudula, R. D. A.  Raj, A.  Pallakonda,  Y. R. M. Reddy,                             focus on computer network security and deep
+      K. K. Prakasha, and V. Anandkumar, ‘‘Smart  grid  intrusion  detec-                                 learning). He is a member of the ORION Research
+       tion  for IEC 60870-5-104 with  feature  optimization,  privacy  pro-                           Group, which  studies computer networks and
+        tection, and  honeypot-firewall  integration,’’ IEEE  Access,  vol.  13,                               data communication with the Computer Science
+       pp. 128938–128958, 2025, doi: 10.1109/ACCESS.2025.3590151.                                                                                               Department, UEL. His research interests include
+[104]  S. A. Elsaid and A. Binbusayyis, ‘‘An optimized isolation forest based     deep learning and network anomaly detection.
+       intrusion detection system for heterogeneous and streaming data in the
+       industrial Internet of Things (IIoT) networks,’’ Discover Appl. Sci., vol. 6,
+       no. 9, p. 483, Sep. 2024, doi: 10.1007/s42452-024-06165-w.
+
+[105] D. J. Kalita, V. P. Singh, and V. Kumar, ‘‘A novel adaptive optimization
+      framework for SVM hyper-parameters tuning in non-stationary environ-
+      ment: A case study on intrusion detection system,’’ Expert Syst. Appl.,                         VINÍCIUS FERREIRA SCHIAVON received the
+       vol. 213, Mar. 2023, Art. no. 119189, doi: 10.1016/j.eswa.2022.119189.                              B.Sc.  degree  in  computer  science  from  the
+[106]  L. Wang,  S. Chen, X. Zhang, and  J.  Liu,  ‘‘Runtime  reliability                                State University of Londrina (UEL), in 2025,
+       fractional distribution change analytics against cloud-based systems                          where he is currently pursuing the M.Sc. degree
+     DDoS attacks,’’ J. Syst. Softw., vol. 220, Feb. 2025, Art. no. 112265, doi:                                 in computer science. He has been an Active Mem-
+       10.1016/j.jss.2024.112265.                                                                       ber of the Orion Research Group, Department
+[107]  S. Das, A. M. Pasikhani,  P. Gope,  J. A. Clark, C.  Patel, and B.                               of Computing, UEL, since 2023. His research
+       Sikdar, ‘‘AIDPS: Adaptive intrusion detection and prevention system for                                  interests include deep learning, datasets, anomaly
+      underwater acoustic sensor networks,’’ IEEE/ACM Trans. Netw., vol. 32,                                 detection, and network security.
+       no. 2, pp. 1080–1095, Dec. 2023, doi: 10.1109/TNET.2023.3313156.
+
+
+VOLUME 14, 2026                                                                                                          69717
+--- Page 30 ---
+                                                                    M. Komarchesqui et al.: Comprehensive Survey on Concept-Drift-Resilient NIDS
+
+
+
+
+                MATHEUS RIKI NAKANISHI received the B.Sc.                         LUIZ FERNANDO CARVALHO  received  the
+                       degree in computer science from the State Uni-                               master’s degree in computer science from the
+                           versity of Londrina (UEL), Brazil, in 2026, where                                State University of Londrina (UEL), in 2014,
+                      he is currently pursuing the M.Sc. degree. He is                           and the Ph.D. degree in electrical engineering
+                       a member of the ORION Research Group, which                           and telecommunications from the State University
+                        focuses on computer networks and data communi-                               of Campinas (UNICAMP),  in  2018. He  has
+                           cations, where he conducted research on anomaly                              experience in computer science, with an emphasis
+                         detection in software-defined networks under the                          on computer networks. He is part of the ORION
+                         influence of concept drift. His research interests                            Research Group and a Professor with the Federal
+                        include anomaly detection, network management                               University of Technology—Paraná (UTFPR). His
+and security, machine learning, and concept drift.                          main research interests include management and security of computer
+                                                                        networks and software-defined networks.
+
+
+
+
+
+                                                                 MARIO LEMES PROENÇA  JR.  received the
+                                                                                          M.Sc. degree in computer science from the Infor-
+                                                                                                   matics Institute, Federal University of Rio Grande
+                                                                                      do Sul (UFRGS), in 1998, and the Ph.D. degree
+                                                                                                               in electrical engineering and telecommunications
+                                                                                         from the State University of Campinas (UNI-
+                                                                            CAMP), in 2005. He is an Associate Professor and
+                                                                                                 a Leader of the ORION Research Group, which
+                                                                                                            studies computer networks with the Computer
+                 GUSTAVO HIDEYUKI KITAMURA NISHIKAWA                            Science Department, State University of Londrina
+                         received the B.Sc. degree in computer science     (UEL), Brazil. He has supervised more than 160 Ph.D., Master of Science,
+                     from the State University of Londrina (UEL),      graduate, and undergraduate students in computer science. He is a Master’s
+                           Brazil, in 2026, where he is currently pursuing the      Supervisor in computer science with the Computer Science Department,
+                      M.Sc. degree in computer science. He is a member     UEL. Also, he is the Ph.D. Supervisor with the Department of Electrical
+                         of the ORION Research Group. His research      Engineering, UEL. He has authored or co-authored over 120 papers in
+                            interests include management and  security  of      refereed international journals and conferences, book chapters, and one
+                      computer networks and deep learning.                 software register patent. His research interests include computer networks,
+                                                                      network operations, management and security, and IT governance.
+
+
+
+
+
+       Coordenação de Aperfeiçoamento de Pessoal de Nível Superior (CAPES) - ROR identifier: 00x0ma614
+
+
+
+
+
+69718                                                                                                               VOLUME 14, 2026

@@ -1,0 +1,1014 @@
+Title: A_Hybrid_Recommendation_System_A_Review
+
+--- Page 1 ---
+Received 8 August 2024, accepted 4 October 2024, date of publication 14 October 2024, date of current version 4 November 2024.
+
+Digital Object Identifier 10.1109/ACCESS.2024.3480693
+
+
+
+A Hybrid Recommendation System: A Review
+
+
+ANAGHA CHAUDHARI  1, A. A. HITHAM SEDDIG  1, (Senior Member, IEEE),
+ALIZA SARLAN  1, AND ROSHANI RAUT  2, (Senior Member, IEEE)
+1Centre for Foundation Studies, Department of Computer and Information Sciences, Universiti Teknologi PETRONAS (UTP),
+Seri Iskandar, Perak 32610, Malaysia
+2Department of Information Technology, Pimpri Chinchwad College of Engineering, Pune, Maharashtra 411044, India
+
+Corresponding author: Anagha Chaudhari (anagha_21002260@utp.edu.my)
+
+This work was supported by Yayasan Universiti Teknologi Petronas, YUTP-PRG 2023 under Grant 015PBC-028.
+
+
+ ABSTRACT Over the years, recommendation engines (REs) have steadily increased in popularity, providing
+  significant advantages by matching available items to users’ specific interests. As more users, products, and
+  rating information are introduced into the system, the relationship between users and recommended products
+  changes, leading to a phenomenon known as concept drift (CD), which degrades the system’s accuracy.
+ Deep learning (DL), a subset of machine learning methodologies, involves learning over multiple layers of
+  information processing phases and aids in addressing the CD problem. Additionally, federated recommender
+  systems (FedRecSys) provide privacy for user data within a decentralised framework. This paper proposes
+  a novel approach that hybridises DL methods with federated learning to detect and adapt to the concept
+  drift issue in E-commerce-based REs. It also focuses on the benefits of collaborative RE and provides a
+  systematic literature review of hybrid federated DL models to solve the challenges posed by concept drift
+  for accurate recommendations. The results can be evaluated using performance measures such as Root Mean
+  Square Error (RMSE), Mean Absolute Error (MAE), Mean Squared Log Error (MSLE), among others.
+
+
+ INDEX TERMS Recommendation engines, machine learning, big data, content-based filtering, collaborative
+  filtering, deep learning, concept drift, concept diagrams.
+
+
+
+I. INTRODUCTION                                      wide variety of products offered, these platforms primarily
+A. BIG DATA                                                      rely on Recommendation Engines (REs) to guide consumers
+Big data is a vast informational repository that businesses    towards products that match their preferences and interests.
+utilise to optimise product selection, pricing, and advertis-    These recommendation methods typically maximise rele-
+ing to increase revenues. Big data analytics—characterised    vance by estimating an item’s likelihood of being purchased
+by the six Vs (volume, variety, velocity, veracity, validity,     or clicked [1].
+and volatility) [1]—have emerged as a powerful tool for
+processing large amounts of data and enhancing decision-     B. RECOMMENDATION ENGINES (RE)
+making. Volume, the amount of information needed and     Presently, REs are widely used in e-commerce for content
+analysed to produce the desired outcome, is the primary     delivery and product recommendations. Previous research
+attribute.  It gathers information from cameras, scanners,     often represents item content using independent features, thus
+mobile devices, digitisers, video, email, social media, and the     ignoring the hidden connections between content aspects.
+internet. Variety refers to the different types of data analysed,    Only a select few sets of features may be responsible for the
+processed, and stored, such as text, images, videos, sounds,     user appeal of an item [21]. In-depth research on recommen-
+geometrics, and combinations of these types [1]. Veracity     dation models has been extensively covered in the literature,
+describes whether data is sufficiently accurate for use in big     primarily focusing on two features: 1) user interest, derived
+data [1]. Online marketplaces such as Amazon, eBay, and    from user ratings, purchase history, click-through activities,
+Etsy have expanded significantly in recent years. Due to the     or sharing habits, and 2) item content, which includes item
+                                                                       attributes [15]. Three basic recommendation paradigms have
+  The associate editor coordinating the review of this manuscript and    emerged regarding the use of various features: collaborative
+approving it for publication was Gang Li    .                                  filtering (CF), content-based filtering (CBF), and methods
+
+
+                          2024 The Authors. This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 License.
+VOLUME 12, 2024                                   For more information, see https://creativecommons.org/licenses/by-nc-nd/4.0/                              157107
+--- Page 2 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+that combine the two,  i.e., the hybrid filtering technique,      The outcomes of model-based procedures are simpler to
+as shown in FIGURE 1 [2], [15].                          comprehend and interpret. The learning of parametric models
+                                                      from data happens quickly, requiring less training data while
+                                                                                       still performing well even if the data  fit is not ideal [4].
+                                                             Conversely, memory-based techniques require more training
+                                                               data to estimate the mapping function. These techniques often
+                                                        have many more parameters, leading to longer training times.
+                                                   The training data are more likely to be overfit, making it
+                                                   more challenging to explain and provide examples of specific
+                                                                 predictions [4].
+                                                 REs face numerous issues, such as concept drift (CD),
+                                                             cold start, data sparsity, the grey sheep problem, and more.
+                                                   The most prominent issue that needs to be addressed in REs
+                                                                               is CD, which causes data drifts in the dynamic, streaming,
+                                                                  non-stationary, and large datasets typical of e-commerce REs.
+                                                       These drifts affect the accuracy, efficiency, and performance
+                                                               of the overall system, resulting in poor customer satisfaction
+                                                      and trust.
+                                                     To address this major issue in REs, we propose a novel
+                                                         approach that hybridises the collaborative RE (CRE)—the
+                                                                 best recommendation algorithm according to the literature
+                                                   review—and federated learning, an emerging dimension of
+                                                       deep learning. This new model, named Federated Recom-
+                                                    mender Systems (FedRecSys), detects and adapts to concept
+FIGURE 1. Filtering-based recommender system hierarchy.
+                                                                            drift through the federated learning mechanism. Federated
+                                                                learning provides security and privacy for users’ private
+                                                               data within a decentralised machine learning framework in
+C. RESEARCH BACKGROUND                            e-commerce REs.
+FIGURE 2 presents the various categories of REs as memory-       Therefore, this novel approach of FedRecSys offers accu-
+based (heuristic and non-parametric) and model-based (algo-     rate recommendations, ultimately gaining customer/user sat-
+rithmic and parametric) methods.                                  isfaction and trust.
+                                                    The rest of the paper is organised as follows: Section II
+                                                             focuses on the systematic literature review in three parts:
+                                                                       (a) recommendation systems as a model, (b) machine learning
+                                                      and recommendation systems for optimization, and (c) infor-
+                                                         mation retrieval and recommendation systems for effective
+                                                             information retrieval.
+                                                               Section III presents various comparative studies, including:
+                                                                       (a) Concept drift detection in REs using federated learning,
+                                                                   (b) top-rated websites, (c) types of REs, (d) survey method-
+                                                         ology (PRISMA), (e) challenges in REs, (f) challenges in
+                                                   CREs, (g) concept diagram (gap analysis), and (h) systematic
+                                                                         literature review on hybrid deep learning models and concept
+                                                                            drift issues.
+                                                               Section IV discusses Federated Learning in terms of
+                                                    FedRecSys and provides a detailed  literature review of
+                                                       FedRecSys. Section V focuses on research methodology.
+                                                             Section VI presents the literature review of RE datasets.
+                                                             Section VII elaborates on the dataset design, such as the
+FIGURE 2. Categories of Recommendation Engines (REs).             Amazon reviews/ratings dataset. Section VIII presents the
+                                                                   overall outcomes of the work proposed in the manuscript
+  When the RE is more familiar with the characteristics    through the conclusion, followed by the references.
+of users and objects,  it produces better results  [4]. For
+a specific period, evaluating recommendations based on
+impact, interaction, and conversion are well-known met-       II. RESEARCH CONTRIBUTION-PART I
+rics for assessing the efficacy of systems, particularly in     Several  research  studies  highlight  the  importance  of
+e-commerce platforms [4].                                REs,  their  various  real-life  applications,  datasets,  and
+
+
+157108                                                                                                              VOLUME 12, 2024
+--- Page 3 ---
+A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+TABLE 1. Systematic literature review of RS as business model, ML & RS and IR & RS.
+
+
+
+
+
+issues/challenges. In this study, the research work is presented       III. RESEARCH CONTRIBUTION-PART II-METASURVEY
+through an in-depth systematic literature review (SLR).          In this section, various comparative analyses and systematic
+  The SLR is organised into three sections, as shown in     literature reviews are presented as follows:
+TABLE 1:                                                                                        i. Comparison  of  related  studies  in machine  learn-
+   • -Recommendation system (RS) as a business model              ing  (ML),  recommendation  systems  (RS),  deep
+   • -Machine learning and recommendation system  for           learning (DL), concept  drift (CD), and  federated
+     optimization                                                     learning (FL).
+   • -Information retrieval and recommendation system for           ii. Comparison of top-rated websites.
+     effective information retrieval                                                iii. Types of REs.
+
+
+
+
+VOLUME 12, 2024                                                                                                         157109
+--- Page 4 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+TABLE 2. Systematic review of concept drift detection in RSs using federated learning (√: Yes, X: No).
+
+
+
+
+
+   iv. Survey methodology (PRISMA).                             Additionally, the meta-survey focuses on the hybridization
+   v.  Literature review on challenges in RE                     of deep learning models and concept drift issues, along with
+  vi.  Literature review on challenges in CRE.                   the related outcomes.
+  vii. Concept diagram (gap analysis).                                       i) TABLE 2  provides a  systematic review with an
+ viii. SLR on hybrid deep learning models and concept drift           in-depth analysis and future recommendations for con-
+      issues.                                                         cept drift detection in recommendation systems using
+  The above meta-survey provides a  detailed study of           federated learning.
+the types  of recommendation algorithms used  in  well-          ii) The top-rated websites can be compared with respect
+known e-commerce websites. It also facilitates an in-depth             to:
+analysis of various issues in REs, such as accuracy and        a) Techniques    for   recommendation   system   or
+scalability.                                                       engine
+
+
+157110                                                                                                              VOLUME 12, 2024
+--- Page 5 ---
+A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+TABLE 3. Comparison of top-rated websites for recommendation techniques.
+
+
+
+
+
+  b) Items or products and facilities recommended by the
+      websites [2], [13], as given in TABLE 3:
+
+  iii) Types of REs:
+Nowadays, people prefer to buy items online rather than in
+stores. Consumers once relied on recommendations from rel-
+atives or friends, but with the proliferation of digital options,
+it is essential to assure them that a product is worthwhile
+and enjoyable. Recommender systems were created to instil
+confidence in purchasing decisions [18]. These systems are
+among the most popular and widely used applications of
+machine learning in the commercial world. Recommendation
+systems help businesses boost revenue by enabling customers
+to find the best products for their needs [3], [18].
+  The different types of REs are described in detail below.       FIGURE 3. Content-Based Filtering (CB).
+
+
+A. CONTENT-BASED FILTERING RE
+FIGURE 3 focuses on the content-based filtering RE.            C. UTILITY-BASED FILTERING RE
+  This recommendation method centres on the products   FIGURE 5 focuses on the utility-based filtering RE.
+themselves, suggesting additional items with similar char-       This technology provides suggestions based on a cal-
+acteristics. Content-based filtering relies on the product’s     culation  of  the  value  to each  user,  contingent on  the
+attributes and does not depend on other users’ interactions     industry’s ability to define a user-specific utility function.
+to generate suggestions [3], [6].                          The key benefit of  this system  is  its capability to rec-
+                                             ommend product qualities such as availability and vendor
+B. DEMOGRAPHIC-BASED FILTERING RE                       trustworthiness [3], [6].
+FIGURE 4 focuses on the demographic-based filtering RE.
+  This recommendation system categorises users into groups     D. KNOWLEDGE-BASED FILTERING RE
+based on their demographics. It requires market research data.   FIGURE 6 focuses on the knowledge-based filtering RE.
+Its key advantage is that it does not depend on a history of user       This system generates recommendations based on infor-
+ratings [3], [6].                                           mation  about  the  interests  and  needs  of  each  user.
+
+
+VOLUME 12, 2024                                                                                                         157111
+--- Page 6 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+FIGURE 4. Demographic-Based Filtering (DB).
+
+
+
+
+
+                                                                 FIGURE 6. Knowledge-Based Filtering (KB).
+
+
+
+
+
+FIGURE 5. Utility-based filtering (UB).
+
+
+
+Understanding these functions helps connect a customer’s
+requirements with suitable products [3], [6].
+                                                                 FIGURE 7. Collaborative Recommendation Engine (CRE).
+
+E. COLLABORATIVE FILTERING RE
+FIGURE 7 represents CRE.
+  The collaborative  filtering approach predicts unknown     the user’s preferences and interests to assess the similar-
+outcomes by generating a user-item matrix of choices or      ity of profiles. User groups form the neighbourhood, and
+preferences for items [20]. This matrix is compared with     users who have not previously rated certain items receive
+
+
+157112                                                                                                              VOLUME 12, 2024
+--- Page 7 ---
+A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+recommendations for those items based on positive ratings     the foundation for the current systematic literature review.
+from others in their group. In a recommendation system,    Kitchenham’s [50] standard procedures were followed, and
+collaborative filtering can be used for both prediction and   FIGURE 9 shows the study screening and selection proce-
+suggestion [3], [20].                                             dure. TABLE 4 illustrates the SLR method.
+
+F. HYBRID FILTERING RE                                     TABLE 4. SLR method based on PRISMA protocol.
+FIGURE 8 focuses on the hybrid Filtering approach.
+
+
+
+
+
+                                                           Research Motivations:
+                                                         Concept drift detection in REs using FLis a rapidly evolv-
+                                                             ing methodology. Consequently, an in-depth examination of
+                                                                   prior studies is necessary. Our research aims to identify the
+                                                      most effective approaches for detecting concept drift issues
+FIGURE 8. Hybrid Filtering (HB).                                 and to explore current methods for addressing them using
+                                                        advanced DL techniques. This study will provide readers with
+   • This recommendation system can integrate any com-     insights into various concept drift challenges in REs, espe-
+     bination of two or more recommendation systems [6].     cially those that are emerging in the field. Some investigations
+    The hybrid recommendation system employs three fun-    have addressed concept drift using traditional methods and
+    damental  strategies: Post-fusion, Middle-fusion, and   DL techniques. Our work focuses on DL and federated learn-
+    Former-fusion [12], [29].                                 ing approaches for concept drift, emphasizing reliable and
+   • In the post-fusion approach, the outputs of multiple rec-     precise recommendations by REs. Additionally, we concen-
+    ommendation algorithms are combined using a voting      trate on studies related to resolving concept drift with FL
+    mechanism, linear combination, or confidence level to     techniques, as depicted in FIGURE 9.
+     generate the final recommendation results [12].                                                   V) Challenges in RE:
+   • In the Middle-fusion method, one recommendation
+                                           RE is advantageous for recommendations, although it faces
+     algorithm is combined with another [12].
+                                                                  several challenges. Some of these issues are discussed in
+   • In the Former-fusion method, various recommendation
+                                          TABLE 5.
+     algorithms are integrated into a single recommenda-
+     tion model, which is then trained on a diverse set of
+                                                              TABLE 5. Challenges in recommendation systems.
+    samples [12], [29].
+Monolithic hybrid recommendation, parallel hybrid recom-
+mendation, and pipeline hybrid recommendation are the
+three types of hybrid recommendation systems. A monolithic
+hybrid recommendation integrates multiple recommendation
+systems into a single algorithm. The other two types require
+at least two different recommendation systems, which must
+be combined [38].
+  Traditional hybrid recommender systems require signifi-
+cant manual effort for feature engineering and often struggle
+to extract deep-dimensional information for users and items,
+which limits the effectiveness and scalability of hybrid rec-
+                                                                         vi) Challenges in CRE:
+ommendations. The nonlinear architecture of deep neural
+                                           TABLE 6 presents challenges in CREs, with highlightednetworks, however, enables the automatic retrieval of latent
+                                                                       text indicating the targeted focus areas for the proposedor hidden properties from large datasets, thereby saving time
+                                                               research work.and effort [12], [29].
+  iv) Survey Methodology                                             vii) Concept Diagram (Gap Analysis)
+  The  preferred  reporting items  for systematic reviews     FIGURE 10 presents a pictorial representation of the out-
+and meta-analyses (PRISMA) [49] guidelines were used as    come of the systematic literature survey as a gap analysis.
+
+
+VOLUME 12, 2024                                                                                                         157113
+--- Page 8 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+          FIGURE 9. Diagram illustrates the screening and choice of research using PRISMA.
+
+
+TABLE 6. Challenges in collaborative recommendation systems.                   (ii) Simulating different learner behaviours to better adjust
+                                                            recommendations to various learning methods [8].
+                                                                                        (iii) Applying DL algorithms to big data applications in the
+                                                                        future [8].
+                                                         Given the gaps and challenges faced in ML when working
+                                                           with e-commerce platforms and dynamic real-time data, REs
+                                                              plays a crucial role by addressing these challenges through
+                                                               various outcomes, such as user-item preferences, associa-
+                                                                    tion/correlation matrices, past records, parallel execution, and
+                                                               exploration of E-Commerce platforms. These efforts result in
+                                                              optimised, ranked, and relevant recommendations for users.
+                                                       However, despite the various types of REs and hybrid REs
+                                                   shown in FIGURE 10, issues such as data sparsity, cold start,
+  Machine Learning Gaps:                               and concept drift remain.
+  Following are the limitations of machine learning (ML)    DL models (DLMs), such as convolutional neural networks
+algorithms:                                              [(CNNs), recurrent neural networks (RNNs), ], autoencoders
+   a) Optimization was required for massive datasets.          (AEs], deep belief network (DBN), neural collaborative fil-
+  b) To target real time data.                                     tering (NCF), and probabilistic matrix factorization (PMF),
+   c) Issues  of  data  sparsity  and  diversified  learner’s     address issues related to massive data, latent (hidden) fea-
+      behaviour.                                                     tures, and sparse data. Nevertheless, hybrid DLMs still face
+Several points were discussed in the previous study to address     the challenge of concept drift, which involves variations in
+these issues in the ML framework:                              data distribution over time. Recent research has focused on
+   (i) Validating ongoing cross-domain application work and     addressing the issue of concept drift with DL and REs.
+      developing a plan to integrate it with other techniques       viii  Literature Review (Hybrid Deep Learning Models and
+      using actual data [8].                                     Concept Drift Issue)
+
+
+157114                                                                                                              VOLUME 12, 2024
+--- Page 9 ---
+A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+   FIGURE 10. Gap analysis of systematic literature review.
+
+
+  TABLE 7 represents the literature review of hybrid DLMs,
+highlighting the issue of concept drift.
+  Concept Diagram of Hybrid Deep Learning Models han-
+dling the Concept Drift Issue:
+  The diagrammatic representation of the literature review
+on handling concept drift issues in deep learning models is
+shown in FIGURES 11 and 12.
+
+
+
+
+
+                                                                 FIGURE 12. Concept diagram of adaptation of concept drift issue.
+
+FIGURE 11. Concept diagram of handling concept drift issue.
+
+  Important highlights of FIGURE 12 are as follows:                   ii) Deep Learning (DL) Classifiers excel with complex
+    i) Shallow Learning (SL) Classifiers are simple, fast-         and unstructured data, such as big data, and provide
+      processing, and can efficiently handle classification           greater accuracy than SL classifiers due to their feature
+     and regression problems in structured data only.                  extraction mechanisms.
+
+
+VOLUME 12, 2024                                                                                                         157115
+--- Page 10 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+TABLE 7. Literature review of hybrid deep learning models and concept drift.
+
+
+
+
+
+  iii) Federated Learning (FL) offers a federated deep       Collaboration among astronomers,  statisticians, mathe-
+      learning framework that ensures user data privacy,     maticians, computer scientists, information scientists, and
+     manages concept drift, and enhances communication     data scientists is essential to extract meaningful insights from
+      efficiency.                                           massive datasets. Interdisciplinary and multidisciplinary col-
+                                                                 laboration  is key to addressing complex challenges and
+  Research Gaps in the related works:                      maximizing the potential of big data in astronomy [71].
+  Various tools and technologies are needed to tackle the      These studies [71] have extensively explored various big
+challenges posed by big data [71]. Cloud storage and cloud     data frameworks for healthcare and transportation applica-
+computing offer promising solutions but are still in the early     tions, implementing big data analytics and cloud computing
+stages of development. Moving algorithms closer to the data     services for large-scale applications.
+is essential to avoid data transformation, which requires sig-
+nificant internet bandwidth.                                         IV. FEDERATED LEARNING
+  Effective data management  is  critical, particularly for        • The  integration of on-device  Artificial  Intelligence,
+well-characterised archival data and heterogeneous datasets.         blockchain, and edge computing/IoT creates the mech-
+Emerging database technologies require careful considera-        anism for FL, where a centralised ML model is trained
+tion when selecting the appropriate type.                        on distributed data [37].
+  The rise of big data has also driven the development of effi-        • FL, as depicted in FIGURE 13, employs a method that
+cient data mining algorithms. Speed and efficiency are crucial         encrypts user-sensitive information using a key not con-
+for data exploration, and algorithms need to be parallelised,           trolled by the central cloud server [37]. This approach,
+distributed, or optimised for GPU-based or cluster-based       known as the Secure Aggregation Principle, allows the
+processing.                                                            centralised server to protect and combine the encrypted
+
+
+157116                                                                                                              VOLUME 12, 2024
+--- Page 11 ---
+A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+                                                               item attributes, and rating information. A data provider
+                                                                          entity typically contains additional user profiles or item
+                                                                            attributes [35].
+
+
+
+
+
+                                                                 FIGURE 14. Federated recommender system [41].
+
+
+                                                      FedRecSys can be categorised into Horizontal FedRec-
+                                                              Sys, Vertical FedRecSys, and Transfer FedRecSys [35],
+                                                          based on the sharing state of users and items, as shown
+                                                                   in FIGURE 15 [67].
+
+FIGURE 13. Overview of federated learning [37].
+
+
+
+     or encoded outcomes/results while being able to decode
+    only the aggregated results. This function-based encryp-
+     tion is referred to as a zero-sum masking protocol [37].
+   • The zero-sum mechanism masks the sum to 1 in one
+     direction and 0 in another. One direction handles the
+    mixing and protection of the encoded user data, while
+     the other decodes the training results/outcomes for the
+     server. This process continues until completion, at which
+     point the masks cancel each other out [37].
+
+
+A. FEDERATED RECOMMENDER SYSTEMS [FEDRECSYS]
+   • Federated recommender systems (FedRecSys), as shown
+     in FIGURE 14 [41], are a federated learning compo-
+     nent focused on decentralised suggestions. Compared
+     to traditional recommender systems (RecSys), FedRec-
+    Sys [35] significantly enhances user privacy and data     FIGURE 15. Types of federated learning [67].
+     security by decentralizing private user data at each
+     party [35].                                                       • The system is known as the Horizontal FedRec System
+   • Each party or organization can function as a data       when items are shared but users vary across parties.
+     provider or a recommender system (RecSys). The three          In this scenario, the parties could be individual users or
+    main components of a RecSys entity are user profiles,         groups of people [35].
+
+
+VOLUME 12, 2024                                                                                                         157117
+--- Page 12 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+   • The Vertical FedRec System is used when two parties
+     share the same user set but have separate item sets or
+     feature spaces. Here, the parties could be different data
+     providers or recommenders [35].
+   • The Transfer FedRec System is introduced when users
+     or items are not shared between parties. Typically, the
+     parties are distinct recommender systems [35].
+
+
+B. LITERATURE REVIEW: FEDERATED RECOMMENDER
+SYSTEMS
+TABLE 8 presents a detailed literature review of FedRecSys.
+  Challenges/research Gaps in Implementation of Hybrid
+Federated Deep Learning Models:
+  The challenges and research gaps in the development of the     FIGURE 16. Flowchart of research methodology.
+Hybrid Federated DLM as explained in the manuscript are as
+follows:
+  1) Adaptation of the main Federated DLM, focusing     factorization techniques, as illustrated in FIGURE 17. Collab-
+     on client devices’ updated item profiles (encrypted     orative filtering algorithms used in recommendation systems
+     item gradients) and aggregating user item gradients at     leverage this matrix factorization technique.
+      the decentralised server side for the next iteration of
+     improved recommendations.
+  2) Provision of security for the recommender system
+     framework by maintaining the privacy of user’s data.
+  3) Ensuring the accuracy and relevance of recommenda-
+      tions to the end user through performance measures
+     such as mean absolute error (MAE) and root mean
+      square error (RMSE).
+  Researchers and practitioners can address these challenges
+through the development of the novel FedRecSys framework     FIGURE 17. Matrix factorization structure.
+(hybrid federated DLM for recommender systems), which
+integrates the Federated Learning approach with a CRE to     CNNs and AEs, for example, benefit from identifying both
+address the critical issue of concept drift in recommendation     sparse features (mostly zero values and categorical data) and
+systems.                                                  dense features (non-zero values and continuous information)
+  The hybrid recommender system, or federated DLM, per-    and from removing latent (hidden) features. However, DLMs
+tains to the Hybrid framework of the FedRecSys, where FL     face the challenge of concept drift, which involves variations
+(a new dimension of DL) is applied to the collaborative     or changes in data distribution over time.
+recommendation system. In the literature review, the CRE is
+shown to be the most effective and preferred RE compared to     B. CONCEPT DRIFT
+others, as it operates on 3-dimensional data:                  Concept drift can either introduce a completely new idea or
+  user data, items, and ratings (clicks, reviews, buying/     involve an existing one. Drift recurrence refers to when a drift
+purchasing patterns/behaviour).                                    that was previously present reoccurs [1]. Since understanding
+  Thus, this hybrid approach not only addresses the major     the prior concept is sufficient, the drift recurrence mechanism
+concept drift issue in REs but also provides accurate and rel-      is more complex in adapting to the new idea [1]. A common
+evant recommendations to the end user, resulting in improved    example of drift recurrence is the customer decision to pur-
+recommendation performance.                               chase clothing; the desire to buy clothes returns or reemerges
+                                                         each winter [1], [22].
+V. RESEARCH METHODOLOGY                               Types of Concept Drift: (with the predictive point of view):
+FIGURE 16  illustrates the detailed flow of the project,       Different types of concept drift for the prediction are pre-
+encompassing data collection, design, analysis, implementa-     sented in FIGURE 18 [22].
+tion, and results comparison.
+
+
+A. DESCRIPTION
+The system will receive a large dataset, such as the Ama-
+zon ratings/reviews dataset collected from online shopping
+of various products/items. The collaborative filtering recom-
+mendation system will be applied to Amazon’s extensive
+collection of user evaluations. This system employs matrix     FIGURE 18. Types of Concept Drift (Predictive point of view).
+
+
+157118                                                                                                              VOLUME 12, 2024
+--- Page 13 ---
+A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+TABLE 8. Literature review of federated recommender systems.
+
+
+
+
+
+VOLUME 12, 2024                                                                                                         157119
+--- Page 14 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+TABLE 8. (Continued.) Literature review of federated recommender systems.
+
+
+
+
+
+  Eq. 1 defines concept drift between time point t0 and time       Types of Concept Drift: (from the point of view of time):
+point t1 [35], as given below:                                      Different types of concept drift with respect to time are
+                                                              presented in FIGURE 19.
+       ∃X : pt0(X, y)̸=pt1(X, y)        [35]         (1)
+
+
+Here, pt0 denotes the joint distribution of the input variable set
+X and target variable y, set at time t0. Concept drift incidence
+can be described using three methods [30], [35].
+
+   •  prior probabilities of classes, p(y) may change over time.
+                                                                 FIGURE 19. Types of Concept Drift (from the point of view of time).
+   •  class-conditional  probability  distributions, p (X,  y)
+    might change
+   •  posterior probabilities p(y|X) might change.                    • Sudden  Drift: Occurs when one concept (C1)  is
+                                                                    abruptly replaced by another concept (C2). For example,
+                                                               a researcher focused on big data storage and retrieval
+C. REAL DRIFT
+                                                                  algorithms might suddenly be tasked with preparing a
+It highlights the fluctuation in the prior probability of a                                                                survey on security issues in big data. This abrupt shift
+class. For example, if a student frequently reads sports news,                                                                        in focus from storage and retrieval to security issues
+it indicates an interest in sports. However, if the student’s                                                                     represents a sudden drift.
+interest shifts to political news, perhaps while writing a        • Gradual Drift: Occurs when a new concept (C2) begins
+report, this change—despite the consistent distribution of the                                                                        to grow in prominence while the original concept (C1)
+two topics—is known as ‘real drift’ [30].                                                                                    is still of interest. Over time, C2 becomes the dominant
+                                                               concept while C1 gradually declines until it eventually
+D. VIRTUAL DRIFT                                                  disappears. For instance, a researcher initially interested
+Virtual drift refers to changes in the distribution of incoming          in big data storage and retrieval algorithms might grad-
+data. For instance,  if a user is interested in sports news,          ually develop an interest in security issues in big data.
+the focus of sports news may shift from topics like foot-          Eventually, the researcher becomes fully focused on
+ball, basketball, and handball to the current major sporting          security issues and stops studying storage and retrieval
+event. Consequently, although the distribution of sports news          algorithms.
+changes, the user’s interest remains unchanged [22]. Other        • Incremental Drift: Can only be identified over an
+types of concept drift include Sudden, Incremental, Contin-         extended period as small, gradual changes accumulate.
+uous, Gradual, Reoccurring, and Hybrid Drifts, which relate         For example,  if members of the big data commu-
+to the prediction of time.                                               nity start focusing more on security issues rather than
+
+
+157120                                                                                                              VOLUME 12, 2024
+--- Page 15 ---
+A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+     storage and retrieval algorithms, over time, security      Adaptation and Ensemble Learning:
+     issues will capture their primary attention while storage        • The concept of ‘adaptability’ was developed to mitigate
+    and retrieval algorithms fall out of focus. Incremental         performance loss caused by concept drift in ML models.
+      drift typically involves one active concept at a time,         Adaptability refers to the ability of machine learning
+    whereas gradual drift involves two concurrently active        models to dynamically update themselves in response to
+     concepts.                                                 changes in the data.
+   • Re-occurring Drift: Refers to the reappearance of a        • The ‘Adaptation’ method allows ML models to be tuned
+     previously dominant concept after a period of absence.          or self-regulate to adjust to new ideas. This strategy
+    For example, a researcher might shift attention from big         helps to mitigate performance degradation due to its
+     data storage and retrieval algorithms to security issues.        dynamic nature [16].
+      If the researcher later finds security issues less relevant,        • To address issues of concept drift and unbalanced data,
+     they might return to focusing on storage and retrieval        ensemble learning [15] combines multiple classifiers to
+     algorithms.                                                  provide a high-performance solution [15], [25].
+  In the context of federated learning, DLMs hold sig-        • Ensemble learning [17] is a supervised ML technique
+nificant promise  for capturing and adapting  to  various           that involves a ‘committee of experts’ (i.e. multiple ML
+types of concept  drift. By leveraging a combination of         models) to make decisions based on a specific voting
+specialised algorithms, communication strategies, and adap-         system [17].
+tive learning techniques, DL models in federated settings        • Unlike deterministic forecasting techniques, which rely
+show considerable  potential  in  identifying and address-        on a single model, ensemble learning combines pre-
+ing  different forms of concept  drift. Despite challenges          dictions from multiple models into a single forecast
+such as communication overhead and heterogeneous data,        outcome [17], [25].
+concept drift can be effectively managed in decentralised sys-        • Studies have shown that ensemble learning often out-
+tems. Continuous advancements in federated learning algo-         performs any  single  forecasting  model, improving
+rithms and privacy-preserving methods are facilitating these          classification performance in the presence of concept
+improvements.                                                                 drift [1], [17].
+  Concept Drift in REs:                                              • Ensemble learning is applicable in both online (non-
+   • Regarding REs, as additional users, products, and rating          stationary) and offline machine learning environments
+     information are consistently added to the system, var-        and is suitable for problems involving large amounts of
+     ious changes occur in the critical interactions between        complex data [17].
+     users and the recommended items. This issue, known as        • In an ensemble approach, the final decision is made
+    concept drift or temporal dynamics, reflects the evolving        by aggregating the outputs of various classifiers. Tech-
+     nature of REs [4], [31].                                       niques such as Max Voting, Averaging, Stacking, Blend-
+   • Dynamic recommendation systems (DRSs) are designed          ing, Bagging, and Boosting are used to combine the
+     to adapt their recommendations to meet user needs in          decisions of each model [1], [25].
+     response to time-based changes in various domains, such
+     as user or item-related data and other time-sensitive
+                                                                      VI. LITERATURE REVIEW/SURVEY OF
+     events [4], [31].
+                                           RECOMMENDATION SYSTEMS DATASETS
+   • DRSs,  like  traditional  static  recommendation  sys-
+                                          TABLE 9 presents the detailed literature review of various
+     tems, employ common filtering algorithms: content-
+                                                       well-known datasets required for REs:
+    based (CB), collaborative filtering (CF), and hybrid
+    mechanisms [4].
+   • The application of time-based deep learning mecha-      VII. DATASET DESIGN
+    nisms to address time-based dynamics in recommen-   Amazon Reviews/rating Dataset [28]:
+     dation systems warrants further exploration. Recent      About the Dataset
+    advancements in DLMs have led to various approaches      The Datafiniti Product Database includes over 34,000 cus-
+     for handling concept drift [4], [31].                      tomer reviews for various Amazon products, such as the
+  1) Recurrent neural networks (RNNs) are used to man-     Kindle, Fire TV Stick, and others. The dataset contains
+     age concept drift for time series anomaly detection,     basic product details, ratings, review content, and additional
+      addressing issues arising from sudden or recurring     information [23], [28].
+     changes in typical behaviour. As new data becomes      Use Case of the Data
+      available, the model is incrementally trained to adjust        • Analyse Amazon’s most popular consumer electronics
+      to variations in data distribution [4], [31].                     product launches, gain insights into customer feedback,
+  2) Evolutionary neural network models are employed for        and support ML models.
+      time-evolving text classification. In the field of recom-        • Determine  the  most  reviewed  Amazon  products
+     mendation systems, significant efforts have been made          [23], [28].
+      to enhance system performance using deep learning        • Determine the number of initial and ongoing customer
+     approaches [4], [31].                                        reviews for each product [23], [28].
+
+
+VOLUME 12, 2024                                                                                                         157121
+--- Page 16 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+TABLE 9. Literature review of various datasets for RE.
+
+
+
+
+
+157122                                                                                                              VOLUME 12, 2024
+--- Page 17 ---
+A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+TABLE 9. (Continued.) Literature review of various datasets for RE.
+
+
+
+
+
+   • Compare reviews published within the first 90 days of a        • Movie Recommender Systems
+     product introduction and the item’s cost [23], [28].             • News Recommender Systems
+   • Evaluations in the first 90 days following a product        • Smart City Surveillance
+    launch compared to the duration the product has been        • Mobile Devices through Natural Language Processing
+    on sale [23], [28].                                                • E-Commerce and Social Media through Matrix Factor-
+   • Map review text keywords to reviewer ratings to enable          ization (Singular Value Decomposition)
+     sentiment model training [23], [28].                             • Financial Applications
+  Applications  of Hybrid Federated Deep Learning        • Healthcare
+Models                                                 Hybrid federated DLMs have diverse applications in per-
+  Hybrid federated DLMs offer versatile applications across     sonalised recommendations across multiple domains such as
+various domains for personalised recommendations while    e-commerce, healthcare, news and media, financial services,
+ensuring privacy and  scalability. Key  research domains     education, and e-learning. These models harness collective
+where Hybrid Federated DLM finds real-world applica-     insights from distributed data sources while maintaining user
+tions include Federated Recommendations and Federated     privacy. By doing so, they facilitate personalised experiences,
+Computer Vision. The real-world applications of Hybrid Fed-    improve decision-making processes, and foster innovation
+erated DLM are listed below:                                   across various industries.
+
+
+VOLUME 12, 2024                                                                                                         157123
+--- Page 18 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+  Scope of the Study                                     D. The literature review of RE and Collaborative RE dis-
+  The proposed system will focus solely on recommending          cusses the various issues handled by REs, emphasizing
+items to users by applying a selected DLM within REs.            that Concept Drift is the most significant issue requir-
+It addresses key challenges in REs, such as data sparsity,          ing detailed attention.
+and in DLMs, including concept drift detection, which can       E. The systematic literature review of DLMs and Feder-
+be integrated into the DL RE. The novelty of this system           ated Learning for managing Concept Drift introduces
+lies in the hybridization of Federated DL with REs, leading          a novel hybrid approach for detecting and adapting to
+to the development of the ‘Federated Recommender System         Concept Drift, which is an emerging area of research in
+(FedRecSys)’.                                                REs.
+  The performance of the system will be evaluated using        F. The proposed work will be evaluated using perfor-
+metrics such as accuracy, RMSE, and MAE, which aim to        mance measures such as Accuracy, RMSE, and MAE,
+enhance user satisfaction and trust.                              which aim to enhance user satisfaction and trust.
+  Challenges of the Proposed Study: The challenges in the
+design and implementation of Hybrid Federated DLM for    FUTURE RESEARCH DIRECTIONS
+accurate recommendations are as follows:                      Future Research Directions of the research work can be as
+  1) Selection of the concept drift-detection method with a     follows:
+     comparative analysis.                                           1. Detection and adaptation of various issues in REs using
+  2) Analysis of the adaptation process for concept drift,           multiple supervised methods.
+      considering different types of FL (Vertical, Horizontal,        2. Provision of  security  to  the recommender system
+     and Transfer).                                           framework by maintaining user data privacy.
+  3) Comparative analysis of security mechanisms in fed-        3. Ensuring the accuracy and relevance of recommenda-
+      erated environments, including Homomorphic Encryp-           tions to the end user through performance measures
+       tion,  Differential  Privacy, and Secure  Multi-Party          such as Mean Absolute Error (MAE), Root Mean
+     Computation.                                             Square Error (RMSE), and other relevant metrics.
+  4) Result analysis using various performance measures
+     and benchmark datasets.
+                                                 REFERENCES
+Researchers and practitioners can overcome these challenges
+                                                                                          [1]  V. Jagadeeswari, V. Subramaniyaswamy, R. Logesh, and V. Vijayakumar,
+with the development of this novel proposed framework            ‘‘A study on medical Internet of Things and big data in personalized
+of FedRecSys (Hybrid Federated DLM for Recommender            healthcare system,’’ Health Inf. Sci. Syst., vol. 6, no. 1, p. 14, Dec. 2018,
+Systems), which will incorporate the Federated learning             doi: 10.1007/s13755-018-0049-x.
+                                                                                          [2]  S. R. Chavare, C. J. Awati, and S. K. Shirgave, ‘‘Smart recommender
+approach and collaborative recommendation engine to handle           system using deep learning,’’ in Proc. 6th Int. Conf. Inventive Comput.
+the most important Concept drift issue in recommendation            Technol. (ICICT), Jan. 2021, pp. 590–594.
+system.                                                                                [3]  J. Beel, B. Gipp, S. Langer, and C. Breitinger, ‘‘Research-paper recom-
+                                                                         mender systems: A literature survey,’’ Int. J. Digit. Libraries, vol. 17,
+                                                                                        pp. 305–338, Jul. 2015, doi: 10.1007/s00799-015-.
+VIII. CONCLUSION                                                               [4]  P. M. Alamdari, N.  J. Navimipour, M. Hosseinzadeh, A. A. Safaei,
+The study reveals that significant research opportunities exist          and A. Darwesh, ‘‘A systematic study on the recommender systems in
+in Recommendation Engines (REs) and Federated Deep            the e-commerce,’’ IEEE Access, vol. 8, pp. 115694–115716, 2020, doi:
+                                                                            10.1109/ACCESS.2020.3002803.
+Learning Models (FDLMs). Recommendations are generated        [5]  P. Lindgren, P. Valter, and G. Kingo, ‘‘Sensing multi business model
+through various e-commerce platforms such as MovieLens,            innovationvia advanced sensor technology,’’ Nordic Baltic J. Inf. Commun.
+Epinions, Amazon Ratings, and others. Different types of            Technol., vol. 2018, no. 1, pp. 1–18, 2018, doi: 10.13052/nbjict1902-
+                                                                                  097x.2018.002.
+REs are examined in detail.
+                                                                                          [6]  P. K. Singh, P. Pramanik, A. Dey, and P. Choudhury, ‘‘Recommender
+  A. The proposed work focuses on a systematic litera-           systems: An overview research trends and future directions,’’ Int. J. Bus.
+      ture review of Machine Learning and Information             Syst. Res., vol. 15, pp. 14–52, Aug. 2020.
+      Retrieval,  including RE, RE  Datasets, RE  Chal-        [7]  P. Lindgren and Y. Taran, ‘‘A futuristic outlook on business models and
+                                                                                       business model innovation in a future green society,’’ J. Green Eng.,
+      lenges,  Collaborative RE, Deep Learning Models           Apr. 2011.
+     and  RE,  and  Federated  Recommender  Systems.        [8] C. Sardianos, G. B. Papadatos, and  I. Varlamis, ‘‘Optimizing parallel
+        It addresses and manages various issues, particularly            collaborative filtering approaches for improving recommendation systems
+                                                                                        performance,’’ Information, vol. 10, no. 5, p. 155, Apr. 2019.
+     Concept Drift, through the hybridization of RE and
+                                                                                          [9]  L. V. Tran, Y. Tay, S. Zhang, G. Cong, and X. Li, ‘‘HyperML: A boosting
+    FDLMs.                                                                    metric learning approach in hyperbolic space for recommender systems,’’
+  B. The proposed work outlines the advantages and limita-             in Proc. 13th Int. Conf. Web Search Data Mining, New York, NY, USA,
+      tions of various comparative studies, highlighting that           2020, p. 9, doi: 10.1145/3336191.3371850.
+                                                                                   [10] R. Louca, M. Bhattacharya, D. Hu, and L. Hong, ‘‘Joint optimization of
+      Collaborative RE generally outperforms other types of             profit and relevance for recommendation systems in e-commerce,’’ in Proc.
+     RE.                                                        RMSE, New York, NY, USA, 2019, pp. 1–4.
+  C. The comparative study  of  top-rated websites and      [11]  S. Raza and C. Ding, ‘‘Progress in context-aware recommender systems—
+     e-commerce  portals  examines  which DLMs  are        An overview,’’ Comput. Sci. Rev., vol. 31, pp. 84–97, Feb. 2019. [Online].
+                                                                                          Available: https://www.elsevier.com/locate/cosrev
+     employed by different e-commerce and social media      [12] G. George and A. M. Lal, ‘‘Review of ontology-based recommender sys-
+      platforms.                                                            tems in e-learning,’’ Comput. Educ., vol. 142, Dec. 2019, Art. no. 103642.
+
+
+157124                                                                                                              VOLUME 12, 2024
+--- Page 19 ---
+A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+
+[13]  V. D. Neha and B. Arora, ‘‘Experimental analysis of recommendation      [35] H. Chen, C. Fu, and C. Hu, ‘‘An efficient and secure recommendation
+     system in e-commerce,’’ Int. J. Innov. Technol. Exploring Eng., vol. 8, no.           system based on federated matrix factorization in digital economy,’’ Pers.
+     8S3, pp. 1–7, Jun. 2019.                                                        Ubiquitous Comput., vol. 27, no. 4, pp. 1595–1606, Aug. 2023.
+
+[14] R. Manikandan and V. Saravanan, ‘‘A novel approach on particle agent      [36]  Z.  Jie, S. Chen,  J. Lai, M.  Arif, and Z. He, ‘‘Personalized feder-
+    swarm optimization (PASO) in semantic mining for web page recom-            ated recommendation system with historical parameter clustering,’’ J.
+     mender system of multimedia data: A health care perspective,’’ Multimedia          Ambient Intell. Humanized Comput., vol. 14, no. 8, pp. 10555–10565,
+     Tools Appl., vol. 79, nos. 5–6, pp. 3807–3829, Feb. 2020.                       Aug. 2023.
+
+[15] A. K. Sahoo, C. Pradhan, and B. S. Prasad Mishra, ‘‘SVD based privacy      [37]  V.  Perifanis and  P.  S.  Efraimidis,  ‘‘Federated  neural  collaborative
+      preserving recommendation model using optimized hybrid item-based col-               filtering,’’   Knowledge-Based    Syst.,    vol.   242,   Apr.   2022,
+      laborative filtering,’’ in Proc. Int. Conf. Commun. Signal Process. (ICCSP),            Art. no. 108441.
+     Apr. 2019, pp. 0294–0298.                                                   [38] W. Ali, R. Kumar, Z. Deng, Y. Wang, and J. Shao, ‘‘A federated learning
+[16]  Y. Zhang, H. Abbas, and Y. Sun, ‘‘Smart e-commerce integration with           approach for privacy protection in context-aware recommender systems,’’
+     recommender systems,’’ Electron. Markets, vol. 29, no. 2, pp. 219–220,          Comput. J., vol. 64, no. 7, pp. 1016–1027, Aug. 2021.
+      Jun. 2019.                                                                   [39]  P. Zhou, K. Wang, L. Guo, S. Gong, and B. Zheng, ‘‘A privacy-preserving
+[17] D. Jannach, O. S. Shalom, and J. A. Konstan, ‘‘Towards more impactful             distributed contextual federated online learning framework with big data
+     recommender systems research,’’ in Proc. ImpactRS Workshop ACM Rec-           support in social recommender systems,’’ IEEE Trans. Knowl. Data Eng.,
+      Sys, Sep. 2019, pp. 1–3.                                                                  vol. 33, no. 3, pp. 824–838, Mar. 2021.
+[18] D. H. Park, H. K. Kim, I. Y. Choi, and J. K. Kim, ‘‘A review and classifi-      [40]  E. Yang, Y. Huang, F. Liang, W. Pan, and Z. Ming, ‘‘FCMF: Federated
+      cation of recommender systems research,’’ in Proc. Int. Conf. Social Sci.             collective matrix factorization for heterogeneous collaborative filtering,’’
+     Humanity (IPEDR), vol. 5. Singapore: IACSIT Press, 2011, pp. 1–12.             Knowledge-Based Syst., vol. 220, May 2021, Art. no. 106946.
+[19]  S. Sitalakshmi, ‘‘Intelligent information retrieval and recommender system      [41]  Y. Du, D. Zhou, Y. Xie, J. Shi, and M. Gong, ‘‘Federated matrix factoriza-
+     framework,’’ Int. J. Future Comput. Commun., vol. 2, no. 2, pp. 85–89,             tion for privacy-preserving recommender systems,’’ Appl. Soft Comput.,
+     2013.                                                                                     vol. 111, Nov. 2021, Art. no. 107700.
+[20] G. Adomavicius and A.  Tuzhilin, ‘‘Toward  the next generation of      [42] B. Shi, E. Z. Tragos, M. G. Ozsoy, R. Dong, N. Hurley, B. Smyth,
+     recommender systems: A survey of the state-of-the-art and possible exten-          and A. Lawlor, ‘‘DARES: An asynchronous distributed recommender
+       sions,’’ IEEE Trans. Knowl. Data Eng., vol. 17, no. 6, pp. 734–749,           system  using deep  reinforcement  learning,’’ IEEE  Access,  vol.  9,
+      Jun. 2005.                                                                         pp. 83340–83354, 2021.
+[21] H. Zhang, Y. Sun, M. Zhao, T. W. S. Chow, and Q. M. J. Wu, ‘‘Bridging      [43]  L. Yang, B. Tan, V. W. Zheng, K. Chen, and Q. Yang, Federated Recom-
+      user interest to item content for recommender systems: An optimization          mendation Systems. Shenzhen, China: Springer, 2020.
+      model,’’ IEEE Trans. Cybern., vol. 50, no. 10, pp. 4268–4280, Oct. 2020.       [44] C. Chen, J. Zhou, B. Wu, W. Fang, L. Wang, Y. Qi, and X. Zheng,
+[22]  S. M. Jameel, M. Ahmed, H. Alhussain, M. Rehman, and A. Budiman, ‘‘A             ‘‘Practical privacy preserving POI recommendation,’’ ACM Trans. Intell.
+       critical review on adverse effects of concept drift over machine learning             Syst. Technol., vol. 11, no. 5, pp. 1–20, Oct. 2020.
+      classification models,’’ Int. J. Adv. Comput. Sci. Appl., vol. 11, no. 1, 2020.      [45] B. Tan, B. Liu, V. Zheng, and Q. Yang, ‘‘A federated recommender system
+[23]  S. Disabato and M. Roveri, ‘‘Tiny machine learning for concept drift,’’             for online services,’’ in Proc. 14th ACM Conf. Recommender Syst., Brazil,
+      vol. 14, no. 8, Aug. 2021.                                                       Sep. 2020.
+[24] C. Yang, Y.-M. Cheung, J. Ding, and K. C. Tan, ‘‘Concept drift-tolerant      [46] A.  Jalalirad, M. Scavuzzo, C. Capota, and M. Sprague, ‘‘A simple
+      transfer learning in dynamic environments,’’ IEEE Trans. Neural Netw.          and efficient federated recommender system,’’ in Proc. 6th IEEE/ACM
+     Learn. Syst., vol. 33, no. 8, pp. 3857–3871, Aug. 2022.                                     Int. Conf. Big Data Comput., Appl. Technol., New York, NY, USA,
+[25] M. A. Hashmani, S. M. Jameel, M. Rehman, and A. Inoue, ‘‘Concept drift           Dec. 2019.
+      evolution in machine learning approaches: A systematic literature review,’’      [47] D. Chai, L. Wang, K. Chen, and Q. Yang, ‘‘Secure federated matrix
+       Int. J. Smart Sens. Intell. Syst., vol. 13, no. 1, pp. 1–16, Jan. 2020, doi:              factorization,’’ IEEE Intell. Syst., vol. 36, no. 5, pp. 11–20, Sep. 2021.
+      10.21307/ijssis-2020-029.                                                    [48]  L. Zhou,  S. El Helou,  L. Moccozet,  L. Opprecht, O. Benkacem,
+[26]  C.-C.  Lin,  D.-J. Deng,  C.-H. Kuo, and  L. Chen,  ‘‘Concept  drift           C. Salzmann, and D. Gillet, ‘‘A federated recommender system for online
+      detection and adaption in big imbalance industrial IoT data using an            learning environments,’’ in Advances in Web-Based Learning ICWL,
+     ensemble learning method of offline classifiers,’’ IEEE Access, vol. 7,             Berlin, Germany: Springer-Verlag, 2012.
+      pp. 56198–56207, 2019.                                                      [49] D. Moher, ‘‘Preferred reporting items for systematic reviews and meta-
+[27]  S. Wares, J. Isaacs, and E. Elyan, ‘‘Data stream mining: Methods and            analyses: The PRISMA statement,’’ PLoS Med., vol. 6, Aug. 2009,
+      challenges for handling concept drift,’’ Social Netw. Appl. Sci., vol. 1,            Art. no. e1000097.
+      no. 11, p. 1412, Nov. 2019, doi: 10.1007/s42452-019-1433-0.                  [50] B. Kitchenham and S. Charters, Guidelines for Performing Systematic
+[28]  [Online].    Available:    https://www.kaggle.com/datafiniti/consumer-            Literature Reviews in Software Engineering. Amsterdam, The Netherlands:
+     reviews-of-amazon products?select=1429_1.csv                                       Elsevier, 2007.
+[29] M. Madhukar, ‘‘Recommender systems,’’ Int. J. Latest Trends Eng. Tech-      [51] M. cakir, S. G. Oguducu, and R. Tugay, ‘‘A deep hybrid model for recom-
+      nol. (IJLTET), vol. 4, no. 3, Sep. 2014.                                        mendation systems,’’ 2020, arXiv:2009.09748.
+[30]  V.  Suryawanshi,  ‘‘A  review on  concept  drift,’’  J. Comput.  Eng.,      [52] X. Dong, L. Yu, Z. Wu, Y. Sun, L. Yuan, and F. Zhang, ‘‘A hybrid collab-
+      vol. 17, no. 1, pp. 20–26, Feb. 2015. [Online]. Available: https://www.             orative filtering model with deep structure for recommender systems,’’ in
+      iosrjournals.org                                                                 Proc. 31st AAAI Conf. Artif. Intell. (AAAI), 2017.
+[31]  I. Rabiu, N. Salim, A. Da’u, and A. Osman, ‘‘Recommender system based      [53] M. Vahidi Farashah, A. Etebarian, R. Azmi, and R. Ebrahimzadeh
+     on temporal models: A systematic review,’’ Appl. Sci., vol. 10, no. 7,             Dastjerdi, ‘‘A hybrid recommender system based-on link prediction for
+      p. 2204, Mar. 2020, doi: 10.3390/app10072204.                               movie baskets analysis,’’ J. Big Data, vol. 8, no. 1, Dec. 2021, doi:
+[32] G.-R. You, Y.-R. Shiue, W.-C. Yeh, X.-L. Chen, and C.-M. Chen,           10.1186/s40537-021-00422-0.
+      ‘‘A weighted ensemble learning algorithm based on  diversity using      [54]  Z. Huang, C. Yu, J. Ni, H. Liu, C. Zeng, and Y. Tang, ‘‘An efficient hybrid
+     a novel particle swarm optimization approach,’’ Algorithms, vol. 13,          recommendation model with deep neural networks,’’ IEEE Access, vol. 7,
+      no. 10, p. 255, Oct. 2020, doi: 10.3390/a13100255. [Online]. Available:            pp. 137900–137912, 2019.
+     https://www.mdpi.com/journal/algorithms                                     [55]  E. Çano and M. Morisio, ‘‘Hybrid recommender systems: A system-
+[33]  I. Khamassi and M. Sayed-Mouchaweh, ‘‘Self-adaptive ensemble classi-              atic literature review,’’ Intell. Data Anal., vol. 21, no. 6, pp. 1487–1524,
+       fier for handling complex concept drift,’’ Tech. Rep., 2015.                       Nov. 2017, doi: 10.3233/ida-163209.
+
+[34] G. Lin, F. Liang, W. Pan, and Z. Ming, ‘‘FedRec: Federated recommenda-      [56]  J. Chen, K. Li, H. Rong, K. Bilal, N. Yang, and K. Li, ‘‘A disease diagnosis
+      tion with explicit feedback,’’ IEEE Intell. Syst., vol. 36, no. 5, pp. 21–30,          and treatment recommendation system based on big data mining and cloud
+     Sep. 2021.                                                                        computing,’’ Inf. Sci., vol. 435, pp. 124–149, Apr. 2018.
+
+
+
+
+
+VOLUME 12, 2024                                                                                                         157125
+--- Page 20 ---
+                                                                                                          A. Chaudhari et al.: Hybrid Recommendation System: A Review
+
+
+
+
+[57]  S. Hors-Fraile, O. Rivera-Romero, F. Schneider, L. Fernandez-Luque,                            A. A. HITHAM SEDDIG (Senior Member, IEEE)
+      F. Luna-Perejon, A. Civit-Balcells, and H. de Vries, ‘‘Analyzing recom-                               received the Ph.D. degree in information tech-
+     mender systems for health promotion using a multidisciplinary taxonomy:                            nology from Universiti Teknologi PETRONAS
+   A scoping  review,’’  Int.  J. Med.  Informat.,  vol. 114,  pp. 143–155,                           (UTP), Malaysia, in 2014.
+      Jun. 2018.                                                                 He  completed  his  Postdoctoral  Fellowship
+[58]  S. M. Nielsen, K. Zobbe, L. E. Kristensen, and R. Christensen, ‘‘Nutri-                             with the High-Performance Computing Center
+      tional recommendations for gout: An update from clinical epidemiology,’’                         (HPCC), UTP, in 2016. He is currently an Asso-
+     Autoimmunity Rev., vol. 17, no. 11, pp. 1090–1096, Nov. 2018, doi:                                  ciate Professor with the Department of Computer
+      10.1016/j.autrev.2018.05.008.
+                                                                                         and Information Sciences, UTP. His extensive
+[59] N. Wanas, A. Farouk, D. Said, N. Khodeir, and M. Fayek, ‘‘Detection                               research experience includes leading significant
+     and handling of different types of concept drift in news recommendation       projects, such as STIRF 0153AA-F5 at Universiti Teknologi PETRONAS
+      systems,’’ Int. J. Comput. Sci. Inf. Technol., vol. 11, no. 1, pp. 87–106,
+                                                                 on ‘‘Real-Time Task Scheduling on Virtualized Cloud Computing Envi-
+     Feb. 2019.
+                                                                            ronments’’  (25,000 RM),  the NVIDIA GPU  Grant  project on  ‘‘A
+[60]  V. Mothukuri, R. M. Parizi, S. Pouriyeh, Y. Huang, A. Dehghantanha, and
+                                                                        Primary/Secondary Parallel Algorithm for Mining Frequent Itemsets and
+     G. Srivastava, ‘‘A survey on security and privacy of federated learning,’’
+                                                                            Association Rules on GPUs’’ (10,000 RM), SoTL 0152AA-A5 at Universiti
+     Future Gener. Comput. Syst., vol. 115, pp. 619–640, Feb. 2021.
+                                                                         Teknologi PETRONAS on ‘‘Improving Student Learning Performance by
+[61]  L. Li, Y. Fan, M. Tse, and K.-Y. Lin, ‘‘A review of applications in federated
+                                                                             Flipping Classes Using Virtual Classrooms’’ (20,000 RM), and a consul-
+      learning,’’ Comput. Ind. Eng., vol. 149, Nov. 2020, Art. no. 106854.
+                                                                            tancy project for PETRONAS on Predictive Analytics for Pipeline Freespan
+[62] C. Zhang, Y. Xie, H. Bai, B. Yu, W. Li, and Y. Gao, ‘‘A survey on federated
+                                                                         (572,400 RM). His prominent research interests include machine learning,
+      learning,’’ Knowl.-Based Syst., vol. 216, Mar. 2021, Art. no. 106775.
+                                                                     deep learning, data mining, real-time data and streaming analytics, the IoT,
+[63]  T.-D. Cao, T. Truong-Huu, H. Tran, and K. Tran, ‘‘A federated deep learn-                                                                    and cloud computing. He is affiliated with the IEEE Computer Society and
+     ing framework for privacy preservation and communication efficiency,’’ J.
+                                                                                the Malaysian Board of Technologists. He has received several prestigious
+      Syst. Archit., vol. 124, Mar. 2022, Art. no. 102413.
+                                                                      awards and has published numerous research articles in reputed Elsevier and
+[64]  J. R. Amalraj and R. Lourdusamy, ‘‘Security and privacy issues in federated
+                                                                    Scopus journals.
+     healthcare—An overview,’’ Open Comput. Sci., vol. 12, no. 1, pp. 57–65,
+     Feb. 2022.
+
+[65] M. S. Jere, T. Farnan, and F. Koushanfar, ‘‘A taxonomy of attacks on feder-
+      ated learning,’’ IEEE Secur. Privacy, vol. 19, no. 2, pp. 20–28, Mar. 2021.                       ALIZA SARLAN received the bachelor’s degree in
+[66]  Z. Li, V. Sharma, and S. P. Mohanty, ‘‘Preserving data privacy via federated                           IT from Universiti Utara Malaysia, in 1996, the
+      learning: Challenges and solutions,’’ IEEE Consum. Electron. Mag., vol. 9,                                                                                                       master’s degree in IT from Queensland Univer-
+      no. 3, pp. 8–16, May 2020.
+                                                                                                                                    sity, Australia, in 2002, and the Ph.D. degree in
+[67] M. Asad, A. Moustafa, and C. Yu, ‘‘A critical evaluation of privacy and                           IT from Universiti Teknologi PETRONAS (UTP),
+      security threats in federated learning,’’ Sensors, vol. 20, no. 24, p. 7182,
+                                                                                                   Malaysia, in 2015. Since 2019, she has been the
+     Dec. 2020, doi: 10.3390/s20247182.
+                                                                                                 Chair of the Computer and Information Sciences
+[68]  Z. Sun, Y. Xu, Y. Liu, W. He, L. Kong, F. Wu, Y. Jiang, and L. Cui, ‘‘A
+                                                                                               Department, UTP. She is currently a Researcher
+     survey on federated recommendation systems,’’ IEEE Trans. Neural Netw.
+                                                                                                 with the Center of Data Science (CeRDaS), UTP,
+     Learn. Syst., pp. 1–15, 2024.
+                                                                                                 with a focus on solving complex challenges in the
+[69] M. Harasic, F. S. Keese, D. Mattern, and A. Paschke, ‘‘Recent advances
+                                                                       upstream oil and gas (O&G) industry from a computer science perspective.
+     and future challenges in federated recommender systems,’’ Int. J. Data Sci.
+                                                                 She exploring data analytics, sentiment analysis, and data visualization. She
+      Anal., vol. 17, pp. 337–357, Aug. 2023, doi: 10.1007/s41060023-00442-4.
+                                                                                                  is active in conducting professional training in data analytics for both the
+[70] W. Lin, H. Leng, R. Dou, L. Qi, Z. Pan, and M. A. Rahman, ‘‘A federated
+                                                                               public and industry. She has contributed to understanding human factors
+      collaborative recommendation model for privacy-preserving distributed
+                                                                                    in software development and how technology use can enhance people’s
+     recommender applications based on microservice framework,’’ J. Parallel
+                                                                                         lives and quality of life. Her research interests include human behavior and
+      Distrib. Comput., vol. 174, pp. 70–80, Apr. 2023.
+                                                                          technology adoption, information system analysis and modeling, software
+[71] M. Faaique, ‘‘Overview of big data analytics in modern astronomy,’’
+                                                                                                reliability, and software testing. She has also been a member of Malaysia
+       Int. J. Math., Statist., Comput. Sci., vol. 2, pp. 96–113, Dec. 2023, doi:
+                                                                   Board of Technologists (MBOT), since 2018.     10.59543/ijmscs.v2i.8561.
+
+
+
+                                                                     ROSHANI  RAUT   (Senior  Member,  IEEE)
+                                                                                                       received the Ph.D. degree in computer science and
+                                                                                                        engineering.
+                                                                                        She   is  currently  an  Associate  Professor
+                                                                                                 with  the Department of Information Technol-
+                                                                                      ogy and  the  Associate Dean  of  international
+                                                                                                                relations of the Pimpri Chinchwad College of
+                                                                                                     Engineering, Savitribai Phule Pune University,
+                                                                                                Pune, Maharashtra, India. She has served as the
+                                                                                                     author and an editor for several upcoming books
+               ANAGHA CHAUDHARI  is currently a Ph.D.      with IGI Global, CRC Taylor and Francis, and Scrivener Wiley. Addition-
+                          (IT) Research Scholar with the Department of       ally, she has contributed to various conference committees as a Convener,
+                     Computer and Information Sciences, Universiti      a TPC Member, and a Board Member. She has received research and
+                       Teknologi PETRONAS (UTP), Malaysia. She has     workshop grants from BCUD, Pune University. She has presented more
+                        published in IEEE, Scopus, and Elsevier journals,      than 70 research communications at national and international conferences
+                     and holds patents and copyrights in her name. Her     and in journals. She holds 15 patents, with three granted. Her research
+                         research interests include evolutionary algorithms,       interests include artificial intelligence, machine learning, data mining, deep
+                     recommendation engines, machine learning, and      learning, and the Internet of Things. She has received numerous awards
+                            text mining. She has served as a reviewer, a TPC,       at both national and international levels for her research, teaching, and
+                     and an editorial board member for various publi-      administrative work.
+cations and is a member of ACM, IAENG, and ISTE.
+
+
+157126                                                                                                              VOLUME 12, 2024

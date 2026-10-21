@@ -1,0 +1,426 @@
+Title: Unsupervised Concept Drift Detection with a Discriminative
+
+--- Page 1 ---
+Session: Short - Classification                                        CIKM ’19, November 3–7, 2019, Beijing, China
+
+
+  Unsupervised Concept Drift Detection with a Discriminative
+                             Classifier
+
+
+             Ömer Gözüaçık                               Alican Büyükçakır
+
+
+             Bilkent Information Retrieval Group                       Bilkent Information Retrieval Group
+
+
+                      Bilkent University                                         Bilkent University
+
+
+                omer.gozuacik@bilkent.edu.tr                           alicanbuyukcakir@bilkent.edu.tr
+
+
+
+              Hamed Bonab                                          Fazli Can
+
+
+         Center for Intelligent Information Retrieval                    Bilkent Information Retrieval Group
+
+
+                  UMass Amherst                                          Bilkent University
+
+
+                  bonab@cs.umass.edu                                      canf@cs.bilkent.edu.tr
+
+ABSTRACT                                                        In traditional classification tasks, the main assumption is that
+
+In data stream mining, one of the biggest challenges is to develop      data is static which indicates both train and test environments are
+
+algorithms that deal with the changing data. As data evolve over     from the same distribution. However, this assumption is often vio-
+
+time, static models become outdated. This phenomenon is called       lated as real-world applications are dynamic and evolve over time.
+
+concept drift, and it is investigated extensively in the literature.      This is known as concept drift [11]. In such cases, the classification
+
+Detecting and subsequently adapting to concept drifts yield more     model becomes obsolete as the data distribution changes and the
+
+robust and better performing models. In this study, we present an       predictive function can no longer correctly map features to labels,
+
+unsupervised method called D3 which uses a discriminative classi-     hence deteriorating the predictive performance of models.
+
+fier with a sliding window to detect concept drift by monitoring        Concept drift detection is studied under two main categories:
+
+changes in the feature space. It is a simple method that can be used       explicit and implicit [20]. Explicit (supervised) detection techniques
+
+along with any existing classifier that does not intrinsically have a      require labels to be available just after data arrives, whereas implicit
+
+drift adaptation mechanism. We experiment on the most prevalent      (unsupervised) methods do not. For most cases, explicit methods
+
+concept drift detectors using 8 datasets. The results demonstrate      track the performance of the classifier over time. When there is
+
+that D3 outperforms the baselines, yielding models with higher      a significant drop, a drift is flagged. On the other hand, implicit
+
+performances on both real-world and synthetic datasets.             methods investigate the properties of the features. In many data
+
+                                                                streaming environments, labels are not available all the time. For
+
+KEYWORDS                                          some cases, only a percentage of them are present, or they arrive
+                                                               with delay [20].
+Data stream; concept drift; drift detection
+                                                                        In this paper, we propose an unsupervised method using a dis-
+ACM Reference Format:                                               criminative classifier over a sliding window to monitor the change
+
+Ömer Gözüaçık, Alican Büyükçakır, Hamed Bonab, and Fazli Can. 2019.      in the distribution of data. A classifier is trained and tested period-
+
+Unsupervised Concept Drift Detection with a Discriminative Classifier.
+                                                                               ically aiming to distinguish whether the new samples are from a
+In The 28th ACM International Conference on Information and Knowledge
+                                                                           similar distribution as the old. In a batch setting, a related problem
+Management (CIKM ’19), November 3–7, 2019, Beijing, China. ACM, New
+                                                                                        is covariate shift adaptation [19] where training and test distribu-York, NY, USA, 4 pages. https://doi.org/10.1145/3357384.3358144
+
+                                                                          tions differ. A method that uses a discriminative classifier similar to
+
+1  INTRODUCTION                                          the proposed approach is introduced to detect and correct covariate
+                                                                                   shift [3]. In a stream setting, to the best of our knowledge, this is the
+
+Data stream mining has became a major research topic due to the
+                                                                                          first method that utilizes a discriminative classifier for the concept
+increasing amount of data generated by various sources such as        drift detection task.
+social networks, online businesses, and military-financial applica-
+                                                           The main contributions of this paper are as follows. We (1) intro-
+tions [8]. These data are mostly wasted because of computational
+                                                              duce a simple yet effective method for unsupervised concept drift
+
+and memory-related limitations. They need to be processed im-
+                                                                        detection; (2) empirically test the proposed method on 8 datasets
+mediately otherwise they are lost due to the volatile nature of the
+                                                                      against widely used concept drift detection methods; (3) evaluate
+streaming environment [13].
+                                                                   the performance of our approach and demonstrate that it outper-
+
+Permission to make digital or hard copies of all or part of this work for personal or      forms the baselines, achieving the highest average rank.
+
+
+classroom use is granted without fee provided that copies are not made or distributed
+
+
+for profit or commercial advantage and that copies bear this notice and the full citation
+on the first page. Copyrights for components of this work owned by others than ACM    2 PROBLEM DEFINITION
+
+must be honored. Abstracting with credit is permitted. To copy otherwise, or republish,
+to post on servers or to redistribute to lists, requires prior specific permission and/or a     Stream classification is a supervised learning problem that takes
+
+fee. Request permissions from permissions@acm.org.                             place in data streams, under time and memory constraints [1]. A
+CIKM ’19, November 3–7, 2019, Beijing, China                                  data stream consists of data instances that arrive in time order,
+
+© 2019 Association for Computing Machinery.
+                                                                                            where                                                                                                                         representsACM ISBN 978-1-4503-6976-3/19/11...$15.00                                                    i.e. D = {(X0,y0), (X1,y1), . . . (Xt,yt ), . . . }                                                                                                         Xt
+
+https://doi.org/10.1145/3357384.3358144                                            features, and                                                                                             classes associated with the instance at time t. Class                                                                                      yt
+
+
+
+
+                                                           2365
+--- Page 2 ---
+Session: Short - Classification                                        CIKM ’19, November 3–7, 2019, Beijing, China
+
+
+
+                                            Old Data                     New Data
+                                                             (w)                                        (wρ)
+
+
+
+
+                                    Drif Detected                             No Drif
+                                                                (1)                                                                    (2)
+
+
+
+
+
+Figure 1: Drift detection workflow: (1): Drift detected. The old and the new data are separable. Samples from the old portion
+are discarded and partially filled with the samples from the new. (2): No drift. These sets are nested. The oldest wρ samples
+are removed and the window is shifted to left where the samples from the new fill the space that becomes empty.
+
+
+
+information for a data instance,     , is available only after testing,      operates with a sliding window whose size is adaptive with respect                                 yt
+
+i.e. predicting from                                          . A concept at a given time t is denoted as      to the changes in data. There are two sub-windows storing the                 Xt
+
+         In such an environment, concept drift detection is a task of      performance metrics for older and new data. A drift is detectedpt (X,y).
+determining whether the joint distribution of inputs X and targets         if the mean of these sub-windows differ by more than a certain
+y differ between times t0 and t1 [11].                                    threshold.
+
+
+                     ,                                                                         (1)    4  PROPOSED APPROACH: D3                     pt0(X,y)                                pt1(X,y)
+The primary objective for concept drift detection is to design a    We propose D3 (Discriminative Drift Detector), an unsupervised
+
+method that runs jointly with a classification model, modifying       drift detection method which uses a discriminative classifier that
+
+the model in accordance with the detected drift to provide robust-     can be used with any online algorithm without a built-in drift
+
+ness against changes in the data distribution, thus improving the       detector. We hold a fixed size sliding window of the latest data
+
+classification performance of the model.                            having two sets: the old and the new. A simple classifier is trained
+
+                                                                         to distinguish these sets. We detect a drift with respect to classifier
+3  RELATED WORK                                       performance. This process is done repeatedly as long as there is
+Concept drifts happening on both p(X) and p(y|X) simultaneously     new data. It is a simple and practical method.
+
+are identified as Rigorous Concept Drift [21]. Most implicit detec-          Ideally, the shift between two sets can be observed by estimating
+
+
+tion techniques focus on concept drift assuming that the changes in       their distributions and measuring the change between them (e.g.
+p(X) lead to changes in P(y|X), deteriorating the predictive perfor-      using KL Divergence). However, it is costly in streaming environ-
+
+mance. There are two approaches for detecting these type of drifts:     ments as the estimations need to be done repeatedly and we want
+
+
+novelty detection and multivariate distribution monitoring [20].      instant results. What we want is to observe whether two sets differ
+
+
+Methods based on novelty detection are referred to as clustering or      continuously, not to estimate their distributions. In our intuition, it
+
+
+outlier detection which use distance or density measures to detect     may be sufficient to learn the divergence between distributions, to
+
+
+unknown patterns [16].                                          be able to detect concept drifts implicitly.
+  Approaches based on multivariate distribution monitoring track      We hold a sliding window:W of the latest data with size w(1+ρ)
+the distribution of features individually by identifying each as a       (Alg. line 2). w is the size of the old data. ρ is the percentage of new
+
+stream. They make tests batch by batch: storing the older batch’s      data with respect to old. The size for the new data is calculated
+information as a reference, and inspect the changes in the newer      as wρ. We store the samples without breaking their time order.
+
+batch. KL-divergence, Hellinger distance, and correlation are com-     The leftmost side (tail) has the older samples whereas the other
+
+
+monly used for measuring the differences [6, 14]. A drift is signalled      side (head) has the newer, which can be seen in Figure 1. In the
+
+
+if there is a significant change in the average.                             initialization phase, when the whole window is empty, we wait
+
+
+   Page-Hinckley Test [18], DDM [10], EDDM [2] and ADWIN [4]       until it gets full (Alg. line 5). Afterwards, we start with the first
+are the most prevalent methods for concept drift detection. They      check. A new slack variable s is introduced. The oldest members
+are explicit methods relying on labeled data. The Page-Hinckley      of size w are labeled as old, and given value 0 (Alg. line 9). The
+
+Test tracks the cumulative difference between the observed values      remaining are labeled new, and given value 1 (Alg. line 10). Later, a
+
+
+and their mean of the chosen metric. It detects a change when       logistic regression model is trained as a discriminative classifier to
+the difference is more than a given threshold. DDM monitors the      distinguish old and new with s as labels (Alg. line 11).
+
+probability of error rate and its standard deviation. It signals a drift if      We use AUC as a measure of separability. It expresses to what
+
+
+the error rate within a period increases substantially. EDDM tracks      degree a model can distinguish two classes [9]. The AUC of a perfect
+
+
+the distance in between two back-to-back errors. It assumes this     model is near 1 indicating that the model can discriminate the
+distance to be larger if there is no drift and vice versa otherwise.      classes successfully. A poor model has an AUC near 0.5 when the
+
+DDM and EDDM follow the ideas based on control charts and       distribution of the classes overlap. Depending on the divergence of
+
+
+work one sample at a time. Unlike previous methods, ADWIN      the classes, we detect a drift. We expect the class distributions to
+
+
+
+
+                                                           2366
+--- Page 3 ---
+Session: Short - Classification                                        CIKM ’19, November 3–7, 2019, Beijing, China
+
+
+
+
+Algorithm 1 D3: Discriminative Drift Detector                                   Table 1: Datasets with drift
+
+   1: procedure D3(D,w, ρ,τ):                                 Name                       |X|    |y|      |D|
+   2:      Initialize window W where |W | = w(1 + ρ)                        ELEC [12]                  6    2    45,312
+   3:     Discriminative classifier C          ▷e.g: Logistic Regression            COVTYPE [5]             54    7   581,012
+   4:    for (X,y) in D do               ▷class label (y) is not used                       Real  Poker Hand [5]            10   10   829,201
+   5:          if W is not full then                                                     Rialto [15]                27   10    82,250
+   6:      W ←W ∪X              ▷i.e., add X to the head of W                 Rotating Hyperplane [15]   10    2   200,000
+   7:        else                                                     Moving Squares [15]        2    4   200,000
+   8:           S is vector of s, |W | = |S|      ▷s is a slack variable              Moving RBF [15]           10    5   200,000   9:              s = 0 for W [1,w]     ▷label for old (0) and new (1)                                                     Synthetic   Interchanging RBF [15]      2   15   200,000
+ 10:              s = 1 for W [w + 1,end]
+                                                                  Hoeffding Tree is chosen due to its effectiveness and prevalence in
+ 11:           Train C(W ,S)       ▷train C with S as labels of W
+                                                                   the literature. D3 is compared with 3 baseline methods: ADWIN
+ 12:              if AUC(C,S) ≥τ then      ▷measure AUC score
+                                                                                   [4], DDM [10] and EDDM [2]. They are all operated with default
+ 13:                  drift = True                        ▷drift detected
+                                                                    parameters.
+ 14:            Drop w elements from the tail of W
+                                                                         Interleaved-Test-Then-Train (prequential) is used for evaluation.
+ 15:            else
+                                          A new sample is tested by the classifier first, then the evaluation
+ 16:                  drift = False                       ▷no drift
+                                                                     metric is recorded and the classifier is trained by the instance. When-
+ 17:            Drop wρ elements from the tail of W
+                                                                  ever a drift is detected, the Hoeffding Tree is reset and retrained
+overlap or have slight differences when there is no drift. We set a      with the latest wρ samples (new data portion) for all methods.
+threshold (τ) for AUC to measure how much the classes (old and       As a discriminative classifier, logistic regression is used in D3
+
+new) are separable. If it is over the threshold, we signal a drift (Alg.     with default parameters. D3 is tuned with multiple parameters
+line 12-17).                                                            of w = [100, 250, 500, 1000, 2500], ρ = [0.1, 0.2, 0.3, 0.4, 0.5] and
+  There are two possible outcomes of the discriminative classifier,      τ = [0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90]. We make D3’s implemen-
+as it is illustrated in Figure 1. (1): AUC is greater than or equal to τ.      tation public1.
+
+A   drift         is          detected,                  the                          classifier’s                             performance                                                          is high,                                             and                                                        the old
+
+
+and    the      new            data are                    separable                               in the                                     feature space.                                                  In that                                                              case,                                            we    6  RESULTS AND DISCUSSION
+
+discard the samples from the old data part and replace them with     The hyper parameter choice is important for D3’s performance.
+the ones from the new data. (2): AUC is less than τ. The classifier’s      After evaluating it with multiple parameters, we found that it works
+performance is poor. This indicates that the predictive function fails      best overall when w = 100 , ρ = 0.1 and τ = 0.70. They are set as
+
+to separate the two intertwined distributions. Then, we remove the      the default parameters of our model. Parameters may be optimized
+oldest wρ samples and shift the window to left where the samples       for a selected dataset to achieve better individual scores.
+from the new fill the recently freed space. For both cases, we wait      We analyze the results of D3 with default parameters. The over-
+
+for new samples to come and check again for drift when the window        all accuracy for every method on each dataset is given in Table 2.
+
+is filled. This work-flow can go on, as long as the stream generates     The best scores are highlighted in bold. D3 does not utilize class
+
+data.                                                                      labels unlike the other concept drift detectors. With less informa-
+  Even though the sizes of the old (w) and new data (wρ) are hyper       tion, it outperforms them in most cases. When the accuracies for
+parameters of our model, we set the old to be always larger. We      each dataset are ranked from best to worst, D3 comes first with an
+
+need the old portion of the data to be descriptive enough for the      average rank of 1.38.
+current distribution and span as much area in the feature space as     Table 2: Averaged prequential accuracy and the rankings of
+possible. However, it should not be very large, otherwise it may con-     the methods for each dataset
+
+tain multiple concepts. Since the old is compared with a relatively                                   Accuracy (%)
+smaller portion (new data) to detect changes, using a metric that              Datasets
+                                                                  D3   ADWIN DDM  EDDM
+works well in the presence of class imbalance is highly important.     ELEC                  86.69   81.33      79.30   78.25
+For this reason, we use AUC to measure the performance of the     COVTYPE             87.17   80.48      83.36   82.76
+discriminative classifier, as it works well in such cases [9].            Poker Hand           75.59   66.96      73.42   71.31
+5  EMPIRICAL EVALUATION                              Rialto                 52.39   46.64      38.44   51.01
+                                                              Rotating Hyperplane   85.29   87.28     84.01   80.27
+5.1  Datasets
+                                                     Moving Squares        66.28   67.89     45.13   33.68
+We test our approach both on 8 well-known real-world and syn-      Moving RBF           51.59   40.21      35.04   35.33
+thetic datasets. The summary of datasets is shown in Table 1.           Interchanging RBF     82.81   88.65     41.23   60.06
+5.2  Experimental Setup                                Average Rank          1.38    2.25       3.13    3.25
+
+Experiments are implemented in scikit-multiflow [17]. A Hoeffding       The other methods track the performance of the classifier and
+
+Tree is used with default parameters for stream classification. For       signal a drift when there is a significant drop. They wait for the new
+
+this purpose, any classifier that supports incremental updates with-      1The source code is available on:
+
+out having a built-in concept drift detector can be used as well. The        https://github.com/ogozuacik/d3-discriminative-drift-detector-concept-drift
+
+
+
+
+                                                           2367
+--- Page 4 ---
+Session: Short - Classification                                        CIKM ’19, November 3–7, 2019, Beijing, China
+
+
+
+
+                                                     D3      ADWIN     DDM      EDDM
+
+
+
+
+
+                           (a) ELEC                                           (b) COVTYPE                                            (c) Poker Hand                                        (d) Moving RBF
+
+Figure 2: Prequential accuracy of the methods for the selected datasets. Each dataset is divided into 30 chunks and the results
+are the averaged prequential accuracies within them.
+
+
+
+concept to affect the performance of the classifier adversely and act       exist better individual scores when using different parameters on
+
+
+afterwards. According to the results, we see that D3 acts quicker     some of the datasets. Therefore, we also plan to work on the auto-
+by signaling a drift when there is a change in P(X). In Figure 2,      parameterization of our model, depending on the properties of the
+
+we give the prequential accuracy scores for 4 different datasets. It      stream.
+
+
+shows that the locations of the drifts (declines in accuracy) are in
+similar areas, but the classifier adapts to it faster with D3.       ACKNOWLEDGMENTS
+
+  However, this does not apply for all cases. D3 cannot detect      This study is partially supported by TÜBİTAK grant no. 117E870.
+concept drifts caused by changes only in P(y|X) which are referred
+to as real concept drift. In such cases, P(X) stays the same; therefore,   REFERENCES
+our method cannot detect the change. Furthermore, it detects drifts          [1] C. C. Aggarwal. 2007. Data streams: models and algorithms. Vol. 31. Springer
+unnecessarily when the change in P(X) does not affect P(y|X)             Science & Business Media.
+(virtual drift). D3’s performance on real-world datasets is better          [2] M.Morales-Bueno.Baena-Garcıa,2006.J. delEarlyCampo-Ávila,drift detectionR. method.Fidalgo, InA. FourthBifet, InternationalR. Gavalda, andWork-R.
+compared to synthetics. This can be caused by the properties of the            shop on Knowledge Discovery from Data Streams, Vol. 6. 77–86.
+
+                                                                                                  [3]  S. Bickel, M. Brückner, and T. Scheffer. 2007. Discriminative learning for differing
+datasets. In synthetic datasets, real and virtual concept drifts can be
+                                                                                                  training and test distributions. In Proc. of the 24th ICML. ACM, 81–88.
+more dominant. Even under these drawbacks, the results presented          [4] A. Bifet and R. Gavalda. 2007. Learning from time-changing data with adaptive
+in Table 2 and Figure 2 confirm that D3 works well compared to            windowing. In Proc. of the 2007 SIAM SDM. SIAM, 443–448.
+
+                                                                                                  [5] A. Bifet, B. Pfahringer, J. Read, and G. Holmes. 2013.  Efficient data stream
+the other methods.                                                                                  classification via probabilistic adaptive windows. In Proc. of the 28th Annual ACM
+  We used the Friedman Test with Nemenyi post-hoc analysis to           Symposium on Applied Computing. ACM, 801–806.
+check the statistical significance of the used methods. The critical          [6] S.-H. Cha. 2007. Comprehensive survey on distance/similarity measures between
+                                                                                                   probability density functions. City 1, 2 (2007), 1.
+distance for Nemenyi Significance is calculated by plugging in          [7]  J. Demšar. 2006. Statistical Comparisons of Classifiers over Multiple Data Sets.
+values specific for our setting from the Critical Values Table for Two             Journal of Machine Learning Research 7, Jan (2006), 1–30.
+Tailed Nemenyi Test [7]. We find CD = 1.658 resulting D3 to be          [8] W.future.Fan ACMand A.SIGKDDBifet. 2013.ExplorationsMining Newsletterbig data: current14, 2 (2013),status,1–5.and forecast to the
+statistically significantly better than DDM and EDDM.                         [9]  T. Fawcett. 2006. An introduction to ROC analysis. Pattern Recognition Letters 27,
+                      CD                                                        8 (2006), 861–874.
+                                                                                            [10]  J. Gama, P. Medas, G. Castillo, and P. Rodrigues. 2004.  Learning with drift
+                 1          2          3          4                                   detection. In Brazilian Symposium on Artificial Intelligence. Springer, 286–295.
+
+                                                                                            [11]  J. Gama, I. Žliobait˙e, A. Bifet, M. Pechenizkiy, and A. Bouchachia. 2014. A survey
+                                                                             on concept drift adaptation. ACM Computing Surveys (CSUR) 46, 4 (2014), 44.
+           D3                                EDDM                     [12] M. Harries and N. S. Wales. 1999. Splice-2 comparative evaluation: Electricity
+         ADWIN                               DDM                             pricing. (1999).
+                                                                                            [13] G. Krempl, I. Žliobaite, D. Brzeziński, E. Hüllermeier, M. Last, V. Lemaire, T.
+
+
+                                                                                       Noack, A. Shaker, S. Sievi, M. Spiliopoulou, et al. 2014. Open challenges for data
+Figure 3: Critical distance diagram for the overall accuracy.             stream mining research. ACM SIGKDD Explorations Newsletter 16, 1 (2014), 1–10.
+
+                                                                                            [14]  J. Lee and F. Magoules. 2012. Detection of concept drift for learning from stream
+7  CONCLUSION                                                                      data. In 2012 IEEE 14th HPCC & 2012 IEEE 9th ICESS. IEEE, 241–245.
+                                                                                            [15] V. Losing, B. Hammer, and H. Wersing. 2016. KNN classifier with self adjusting
+In this paper, we show an unsupervised method for concept drift          memory for heterogeneous concept drift. In 2016 IEEE 16th ICDM. IEEE, 291–300.
+
+detection, D3, using a discriminative classifier over a sliding window        [16] M. Masud, J. Gao, L. Khan, J. Han, and B. M. Thuraisingham. 2011. Classification
+
+                                                                                  and novel class detection in concept-drifting data streams under time constraints.
+of latest elements to monitor whether the old and the new samples            IEEE Transactions on Knowledge and Data Engineering 23, 6 (2011), 859–874.
+
+vary in their distributions. The experimental results show that D3        [17]  J. Montiel, J. Read, A. Bifet, and T. Abdessalem. 2018. Scikit-multiflow: a multi-
+                                                                                       output streaming framework. The Journal of Machine Learning Research 19, 1
+performs better overall, compared to the most extensively used
+                                                                                                         (2018), 2915–2914.
+methods for drift detection.                                                         [18] E. S. Page. 1954. Continuous inspection schemes. Biometrika 41, 1/2 (1954),
+
+  As a future work, we plan to investigate the kernelized version of             100–115.
+
+                                                                                            [19]  J. Quionero-Candela, M. Sugiyama, A. Schwaighofer, and N. D. Lawrence. 2009.
+our model. Throughout the experiments, we use logistic regression             Dataset shift in machine learning. The MIT Press.
+
+in D3, which limits us to detect drifts that show a linear pattern        [20]  T. S. Sethi and M. Kantardzic. 2017. On the reliable detection of concept drift from
+on P(X). We also want to test our approach with different types            streaming unlabeled data. Expert Systems with Applications 82 (2017), 77–99.
+                                                                                            [21]  P. Zhang, X. Zhu, and Y. Shi. 2008. Categorizing and mining concept drifting
+of classifiers, including non-linear ones, such as: SVMs and Deci-             data streams. In Proc. of the 14th ACM SIGKDD. ACM, 812–820.
+
+sion Trees. Even though we use default parameters for D3, there
+
+
+
+
+                                                           2368

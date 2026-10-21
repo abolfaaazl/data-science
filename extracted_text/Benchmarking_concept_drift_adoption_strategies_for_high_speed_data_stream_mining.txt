@@ -1,0 +1,555 @@
+Title: Benchmarking_concept_drift_adoption_strategies_for_high_speed_data_stream_mining
+
+--- Page 1 ---
+         International Conference on Emerging Research in Electronics, Computer Science and Technology – 2015
+
+
+  Benchmarking Concept Drift Adoption Strategies for
+          High Speed Data Stream Mining
+
+
+
+
+          Mohammed Ahmed Ali Abdualrhman                              M.C Padma
+      Computer Science department, University of Mysore              Department of Computer Science & Engineering, PES
+                       Mysore, India                                              College of Engineering
+                moh_alherwi@hotmail.com                                   Mandya , India
+                                                                        padmapes@gmail.com
+
+
+       Abstract —: Data streams are significantly influenced by the    changes in the underlying data distribution cause the models
+   notion change  that  is termed as concept  drift. The  act  of     built on old data to be inconsistent with the new concept’s data,
+   knowledge  discovery from  the  data  streams  under  notion    which will lead to the model being outdated. Over a few years,
+   adaption is a significant act to achieve the conventional learning                                                                      the research interests are focusing on devising scalable and
+   of the streaming data. The concept drift for conventional learning
+                                                                    robust concept drift adoption strategies and significant count of
+   of streaming data can be done under set of notions that can be
+                                                         them emerged as benchmark strategies. Due to the large scope   either static or dynamic. Due to the large scope of concept drift
+   that spanned to different domain contexts of data streaming, the    of concept drift that spanned to different domain contexts of
+   existing  models  are  partially  or  fully  not  generalized and    data streaming, these existing models are partially or fully not
+   compatible to different streaming and notion change context. In    generalized and compatible to different streaming and notion
+    this context, this paper presents the review of these models that    change context. Hence it is obvious to predict wide research
+   includes nomenclature of mining streaming data and notion    scope in concept drift adoption strategies. In this context to
+   evolution in concept drift adoption strategies.                      observe the  limits and  strengths of the  existing  strategies
+                                                                       available in recent literature. In this paper, we offer the review
+      Keywords: concept drift, defensing concept drift, conventional
+                                                                    of  these  models  that  includes  nomenclature  of  mining
+   learning, supervised and unsupervised concept drift adoption, data
+                                                                 streaming data and notion evolution in concept drift adoption   stream mining and concept evolution
+                                                                              strategies. The rest of the document organized as follows. The
+        1.   Introduction                                              section 2 is exploring the nomenclature of the mining data
+                                                                  streams and impact of concept drift, section 3 contains the
+     The current era of advanced computational strategies and    contemporary affirmation of the benchmarking models devised
+   automation is creating digital data with magnified speed in     in  recent  literature.  Further  the  section  4  explores  the
+   volume. This statement can be boosted by the report of a    conclusion of the article and possible research directions.
+   survey  statistics [1]. This survey quoted that the world of
+   automation and digitization generated around 3 zeta-bytes of         2.  NOMENCLATURE OF THE MINING DATA
+   data in 2012. The real-time applications such as spam filtering,        STREAMS AND THE IMPACT OF CONCEPT
+   network  traffic monitoring, credit card fraud detection and         DRIFT
+   stock market trend analysis generates data continuously. That        2.1  Mining Data streams
+   further streams from divergent end points of the distributed
+                                                         The process of mining data streams should be continuous,   systems.  The  features  such  as  Infinite  length,  variable
+                                                                should meet the speed of the records streaming and also should   transmission speed, and changeable data distribution of this
+                                                                      also able to notice the concept change in streaming records.   streaming  data  delivers   significant  challenges  in  data
+   processing. The knowledge discovery and information retrieval
+   from such streaming data is not compatible to the strategies     2.2 Concept Drifting:
+   those generally using in static data volumes. This is due to the                                                               Data streams are significantly influenced by the notion
+   fact that the notion changes in static data can be noticed prior                                                            change that referred as concept drift. A significant reference to
+   to  the  process  of  knowledge  discovery  and  information    claim  the notion change  in streaming data  is "change  in
+    retrieval. In contrast to this, the prior knowledge of possible    viewer’s interest against to the streaming data of news sites".
+   notions and concept drift [2] [3] is not available in streaming    The temporal longevity of the streaming data  is  certainly
+   data. Henceforth, developing and generalizing the strategies to    influenced by the change of notion that influence the learning
+   predict or notice the notion changes in streaming data, which is     strategies applied on data streams. Hence in regard to achieve
+   termed as concept drift adoption strategies is a significant and     the conventional  learning over  data  streams,  these notion
+   considerable research issue. A typical example of the notion    changes should be noticed.
+   change or concept drift is change of followers with different
+   profiles that influenced by the change of tweets in a trend. Such
+
+
+
+
+        978-1-4673-9563-2/15/$31.00 ©2015 IEEE
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:16 UTC from IEEE Xplore. Restrictions apply.
+--- Page 2 ---
+         International Conference on Emerging Research in Electronics, Computer Science and Technology – 2015
+
+
+
+
+      2.3  Concept Drift Adoption:                                standard for data streams with unappropriated notion changes
+                                                                      also can termed as data with imbalanced classes.
+     The strategic approach involved to achieve conventional
+   learning against notion change over data streams is said to be        2.5  Notion Progression in data streams with concept drift
+   the Concept Drift adoption.                                    proneness
+
+       2.3.1 Notion changeover frequency                           Notion progression during  the process of evolving new
+                                                                        classes is a considerable and significant issue of leaning over
+         It is the average of time taken for all observed concept drift
+                                                                    data streams with concept  drift proneness such as network
+   adoption during the process of learning over streaming data.
+                                                                                  traffic stream that used to learn towards the intrusion detection.
+   This is also referred as “speed of the concept drift” and that is
+                                                       The notion progression can be noticeable, if we consider each
+   of two types. One is regular concept drift, which reflects the
+                                                                  type of attack as a class label in network traffic streams, then
+   event of concept drift in regular periods and that may let to
+                                                                   notion progression occurs when a completely new kind of
+   predict the time interval of the next concept drift, which is
+                                                                        attack occurs in the traffic. The other life hack is the case of
+   often recursive (concept  drift  that transformed the data to
+                                                                    data streams related to twitter, where trends are considerable as
+   previous state). The other one is impulsive concept drift that
+                                                                         class labels and  if a new trend  is initiated then the notion
+   reflects the concept drift suddenly and at uneven time intervals.
+                                                                   progression may be noticeable  if the tweets under this new
+      2.4  The taxonomy of concept drift adoption strategies         trend is different from the previously observed tweets. The
+                                                                       issue of notion progression is addressed as a significant issue of
+     The process of learning over streaming data under the                                                                      learning over data streams with concept drift proneness is very
+   influence of concept drift is done in two levels. The initial level                                                   much limited.
+   of the learning process is tracing the significant notion change
+   as concept  drift and  further in second  level, adapting the         3.  CONTEMPORARY    AFFIRMATION    OF
+   learning process towards the convention of new state of the   BENCHMARKING  CONCEPT   DRIFT  ADOPTION
+   streaming   data.  The  Concept   drift  adoption  towards   STRATEGIES IN RECENT LITERATURE
+   conventional learning of the data streams can be categorized as
+                                                                       3.1  Decision Trees
+   follows:
+                                                      One of the model of type Adaptive learners is decision
+       2.4.1 Adaptive learners
+                                                                                trees, in particular C4.5 [4]. The model Very Fast Decision
+     The simplest way to adapt the concept  drift  is through    Tree (VFDT)  [5],  is said  to be the  first in decision  tree
+   Adaptive  learners.  These  Adaptive  learners  reflecting  a    category. The decision trees in streaming data is formed by the
+   learning process over data streams that mutes current learning   VFDT, which is primarily using Hoeffding bounds [6], [7] to
+   considerations against a concept drift and alters them towards    decide the minimum number of arriving examples to give
+   the notion changes, which are contradicting with state of data     certain level of confidence in splitting the node . Further, many
+   prior to concept drift observed. The Adaptive learners adapts     revisions  to  this model were  applied  in  the  context  of
+   the  concept   drift,  either  by  dynamically  expanding  or    magnifying speed and accuracy of concept drift adoption.
+   restricting the scope of the observable streaming data. The
+                                                                       3.2  K-Nearest Neighbors
+   process adapted by Adaptive learners is supervised or semi
+   supervised learning strategy, which is indicating that the full or       Another heavily studied learning algorithm that has been
+   partial prior knowledge of notion changes is a must constraint.     adapted for concept drift  is the kNearest Neighbors (kNN)
+                                                                     algorithm. Alippi and Roveri [8][9] demonstrate how to modify
+       2.4.2 Adaptive Training set based Learners
+                                                                      the kNN algorithm for use in the streaming case. First, they
+      This category of concept drift adoption is of unsupervised    demonstrate how to appropriately choose k in a data stream
+   learning strategy. Since the learning is done either on set of    which does not exhibit concept drift based on theoretical results
+   records as a window collected under similar notion or set of    from Fukunga [10].
+   records considered by the similar instance weights. Further, the
+                                                           With this framework, they describe how to update the kNN
+   present training set is in use with classifier will be muted and
+                                                                               classifier when no concept drift is detected (add new instances
+   updates learning set according to the new notion of the window
+                                                                         to the knowledge base), and when concept drift is detected
+   or new instances with similar weights.
+                                                            (remove obsolete examples from the knowledge base).
+       2.4.3 Ensemble Learners
+                                                                       3.3  Single Classifier
+     The use of multiple learners’ together is common practice
+                                          A single classifier based model is proposed in [15]. The
+   and often noticed in data engineering community, which is due
+                                                              approach  of  the  devised model  is  based on  single  best
+   to  the  pragmatic  efficiency  reflected by  these Ensemble
+                                                                   supervised  learning  algorithm  that  performs  test  instance
+   Learners. Applying multiple learners collectively on same data
+                                                                            classification on  runtime. The  evaluation  test  is  initially
+   often leads the classifier to deliver predictions with magnified
+                                                                         partitioned to subsets, which is based on the values represented
+   accuracy.  The  constraint of these ensemble or Ensemble
+                                                        by the instance attributes. The selection of the classifier is done
+   Learners’ strategy is to be the significant diversification in
+                                                                through  learning  accuracy  observed.  This  strategy  of
+   learning process of the different classifiers is must, otherwise
+                                                                   supervised learning is labeled as Attribute-oriented Dynamic
+   this strategy influenced by the defused performance due to
+                                                                           Classifier that miles ahead to most of the Ensemble Learners.
+   overfitting. These Ensemble Learners  strategy  is de  facto
+                                                       The big constraint of the model is that its accuracy inversely
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:16 UTC from IEEE Xplore. Restrictions apply.
+--- Page 3 ---
+         International Conference on Emerging Research in Electronics, Computer Science and Technology – 2015
+
+
+
+
+   proportionate to frequency of concept drift. If concept drift    Indexing structure to handle the time complexity of mining
+   frequency  is  high  then  learning  accuracy,  scalability and    process in high speed DataStream. In order to achieve this, the
+   robustness of the model is low.                               ensemble models initially molded as spatial databases to enable
+                                                                      the spatial indexing techniques. The concept drift prediction
+      3.4  Rule Mining Tree
+                                                           and handling is not clearly elevated in this model. This model
+    A novel tree based model to assess the concept drift is     is lagging at assessment of temporal validity of the class label
+   proposed in [16], which  is referred as Concept Drift Rule    and concept drift.
+   Mining Tree (CDR-Tree). The objective of the proposed model
+                                         A novel Ensemble Learner based ensemble classifier that
+    is to define the inference of concept drift as a form of set of
+                                                                     labeled as Rot-SiLA is devised in [26]. This ensemble classifier
+   hierarchically ordered rules. The contributions of this model
+                                                                                     is the combination of Rotation Forest algorithm [30] and SiLA
+   are unique and first of their kind. The approach, initially pairs
+                                                                          [29]. This model classifies based on similarity than distance.
+   the old and new instances of divergent time points in order to
+                                                       The experimental results are concluding the optimality of the
+   form the CDR-Tree. The node’s split point is determined by
+                                                                 devised model. The model is initially dividing the extracted
+   the process of information gain. The concept drift under high
+                                                                        feature set into subsets, which is based on PCA, the accuracy
+   frequency leads  to CDR-Tree more complexed, hence the
+                                                                    of the said model dependent of the accuracy of variance matrix
+   accuracy will be compromised. Though the devised model
+                                                                 formation for Principal component analysis.
+  recommended  the  discretization  strategy  to  minimize  the
+   complexity, it’s influence is nominal to retain accuracy and if        3.6  Weighted Features
+   the concept drift is influenced by recursive concepts then tree
+                                                          The data stream classification method introduced in [21] is
+   construction is gloomy.
+                                                                      the combination of weighted majority and adaptive sliding
+      3.5  Ensemble Learner                              window approaches. This model is devised under the aim of
+                                                                 handling  noisy  and  concept  drifting  data  streams  with
+     The model devised here in [17] is in the context of single
+                                                               magnified  accuracy  in  supervised  learning. The weighted
+   learner based  classification  limits observed on  text stream
+                                                                   majority model adapted here in this model is capable to adjust
+   under considerable concept  drift. In order to overcome the
+                                                                      the weights of the features reflecting the present concept and
+   limits of single learner based  classifier, the model in [17]
+                                                                 according to these weights, predicts the drift in the present
+   ensembles set of learners as a stack and classifies the concept
+                                                                    concept. The thresholds involved to slide the window in sliding
+    drift influenced  data. This process  is  referred as stacking
+                                                     window concept is critical to achieve accuracy in supervised
+   approach. This model also lost its control on memory usage if
+                                                                         learning. This indicates that the prior knowledge of concept
+   the concept drift frequency is high, which insists more stacks.
+                                                                         labels only magnifies the accuracy in classification.
+   Process complexity also magnifies, if data is with considerable
+   noise. This stacking approach is one of the good strategy to        3.7  Time Classification
+   handle the concept drift with recursive concepts.
+                                                                Handling latency and concept drift is the prime criteria of
+     The approach that contributed in [18] is adapting the pair of    the model devised in [22]. In order to achieve this the devised
+   learners as Ensemble Learner. One of these learners is online    model is equipped with set of algorithms CDTC version 1 and
+   learner and the other learner works as reactive leaner to fulfill   CDTC version 2  that are based on time of  classification
+   the objective of concept drift identification. The online learner    protocol to handle the latency. The model explored here is a
+   performs classification by using its entire training knowledge,    novel and the best of my knowledge,  it would be the  first
+   but the reactive learner performs according to the knowledge    attempt to assessing the concept drift under temporal validity.
+   gained through the training process applied on recent window.
+                                                                       3.8  Incremental Classification
+   This Ensemble Learner of two  classifiers  is outperforms  if
+   mining process encountered any unknown class labels. The      The  new   classification  algorithm   called  improved
+   significant constraint of this collective leaner approach is that,    incremental harmony-based classifier proposed in [23] is able
+     it cannot perform well against concept drift due to noise in     to classify the batch data. The classification strategy adopted
+   streaming data. This is due to neither of the classifier is unable    here is an incremental approach that continuously updates the
+   to track out the noise.                                           core classes. The computational overhead is minimal  if the
+                                                                concept drift is not considered. The experiments claimed the
+      In  order  to overcome  the  limits  observed  in  [18], a
+                                                                   robustness of the proposal to perform mining on DataStream
+   Ensemble   Learner   strategy  based  ensemble   classifier
+                                                                with  noise. The performance evaluation not discussed the
+   framework is proposed in [19].  Here, the major makeover of
+                                                                     influence of less significant concept drift and the concept drift
+   the paired  learner model devised  in [18]  is the usage of
+                                                        by recursive concept.
+   weighted ensemble (WE)  [31]  as  online  learner and  the
+   averaging probability ensemble (AE) [32] under the “Learnable        3.9  Naive Bayes classifiers
+   Assumption” [32] as reactive learner. The weighted ensemble
+                                         A  supervised  learning model  that  devised  in  [24]  is    classifier of the proposal trains on maximum data chunks and
+                                                                   attempting to quantify the concept drift in the network traffic.   the averaging ensemble classifier trained on the most recent
+                                                       The strategy of determining the concept drift is based on the   data chunk. The context of the concept drift and concept drift
+                                                                 curves reflecting the receiver operating characteristics. The   with recursive concept remains puzzle for this model.
+                                                            outcomes of the Naive Bayes classifiers is used to define these
+      Ensemble Learner based ensemble classifier is devised in    curves and further used these curves to identify the concept
+   [20]. This ensemble classifier was introduced a novel E-Tree     drift of the active class. The adaptive learning strategy that uses
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:16 UTC from IEEE Xplore. Restrictions apply.
+--- Page 4 ---
+         International Conference on Emerging Research in Electronics, Computer Science and Technology – 2015
+
+
+
+
+   fixed window to perform training  is critical process of the
+   model. The experimental results are not convincing to claim
+   that the said model  is significant towards DataStream with                                                       The ARTMAP [11] and fuzzy based ARTMAP [12] are two
+   capricious data characteristics and noise.                                                                      contributions in order to assess the concept drift of input data
+      3.10 Clustering                                               stream. The Adaptive Resonance Theory Map (ARTMAP) is
+                                                            an unsupervised learning strategy that forms clusters against all
+    SRASTREAM framework [25] is a conditionally involved                                                                      possible patterns in incremental order. Further these clusters
+   unsupervised learning framework that clusters the data during                                                                      are used to perform supervised learning such that the attributes
+   the concept drift. This framework is the combination of tasks                                                                    of the each cluster will be assigned to compatible class label.
+    listed as (i) clustering (ii) computing, (iii) evolution detection   The  further  contribution found  in  [12]  is  utilizing  fuzzy
+   and  (iv)  resource  monitoring.  The  model  is  aimed  at     principals along with ARTMAP. The fuzzification is done by
+   improvisation of the clustering speed under the expense of    two versions of Adaptive Resonance Theory labeled as ARTa
+   acceptable cluster accuracy. The experimental results claimed    and ARTb. These two versions are synced through an inter
+   the same but there is no evidence to conclude the stability at    Adaptive Resonance module. The incremental clustering that
+   losing cluster accuracy in order to achieve the clustering speed.    adapted here in these models is capable to deal the concept drift
+   In particular the model is most suspicious if concept drifting is     in effective manner.
+   with recursive concept.                                   The contribution found in [13] is an extension to the models
+     The model devised in [28] is a Density-based unsupervised    devised in [11] and [12], which enables the frequent update of
+   learning approach, which is capable to learn from data with    the fuzzy rules by pruning the inactive obsolete fuzzy rules.
+   capricious  characteristics and  noise. This approach  is  the    The dynamic pruning  is done through the pruning strategy
+   combination  of  two  algorithms  labeled  as  micro-cluster    devised in [14] that prunes according the attributes called rule
+   formation algorithm and grid formation algorithm, which is    confidence, rule usage frequency and rule significance. The
+   robust and scalable to investigate the concept drifts in data    model devised in [12] required to maintain the details of all
+   streams and demands no  prior knowledge  of number  of    instances  towards   statistical  assessment   that  leads   to
+   clusters.                                                      computational overhead. The model devised in [13] prunes the
+                                                                      instances by their relative confidence, usage frequency and
+  SA-Miner algorithm that devised in [27] is a frequent itemset     significance. In order to assess the concept drift with recursive
+   mining model that uses support determined by approximation    concept impact and with high frequency,  the  rule update
+   strategy. The discovery of concept drift is done through the    process is more computationally complexed and redundant in
+   support relationships. The core principle of the SA-Miner is     all of these three models devised in [11][12] and[13].
+   that  the support  variation observed under  the process of
+                                                       The summary of the important algorithms is shown in table 1
+   support-relationship assessment  is proportionate to concept
+    drift. The empirical study explored by authors indicating that
+   the proposed method is significant towards accurate mining of
+   the DataStream with minimal process time and memory usage.
+  The model  is not evident  to handle the DataStream with
+   concept drift reflected by recursive concepts.
+
+
+                                    TABLE 1 SUMMARY OF THE IMPORTANT ALGORITHMS
+
+
+
+            Drifting
+                           Benchmark Models                        Objective                            Observation
+            Strategies
+
+
+                                                                                        Works focus on streaming data
+                                                  To build a decision tree to deal with          comparing to traditional decision tree in
+                      The model Very Fast Decision Tree
+                                                               streaming data which is capable of learning    speed, accuracy and memory
+                     (VFDT) [5].
+                                                         from high speed data stream.                     utilization. However, it still cannot
+                                                                                                        handle concept drift in data streams.
+         Decision Trees
+                                                                                          The contributions of this model are
+                                                                                                      unique and first of their kind. It's
+                A Decision Tree-Based Approach
+                                                              Defines the inference of concept drift as a     influence is nominal to retain accuracy
+                              to Mining the Rules of Concept
+                                                         form of set of hierarchically ordered rules.    and if the concept drift is influenced by
+                              Drift [16].
+                                                                                                                  recursive concepts then tree
+                                                                                                                 construction is gloomy.
+
+                      Dynamic Classifier Selection for                                                                  Its accuracy inversely proportionate to
+                                                                                             It is based on single best supervised
+                             Effective Mining from Noisy Data                                               frequency of concept drift, if concept
+              Single                                               learning algorithm classifies on runtime. for
+                         Streams [15].                                                                                     drift frequency is high then learning
+             Classifier                                                effective mining from noisy data streams.
+                   AO-DCS (Attribute-Oriented                                                       accuracy, scalability and robustness of
+                      Dynamic Classifier Selection).                                                       the model is low.
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:16 UTC from IEEE Xplore. Restrictions apply.
+--- Page 5 ---
+         International Conference on Emerging Research in Electronics, Computer Science and Technology – 2015
+
+
+
+
+
+                                                                                                        This model also lost its control on
+                                                        Ensemble Learner approach that attempted   memory usage if the concept drift
+                           One-class Classification of Text        to classify the concept drift influenced data    frequency is high, which insists more
+                         Streams with Concept Drift [17].      using the stacking approach.                    stacks.
+                                                                                                           Process complexity also magnifies, if
+                                                                                                               data is with considerable noise.
+                                                                                          The significant constraint of this
+                                                              This approach is adapting the pair of
+                                                                                                                       collective leaner approach is that, it
+          Ensemble                                               learners as collective Learner, one of these
+                           Paired Learners for Concept                                                     cannot perform well against concept
+             Learner                                                learners is online learner and the other
+                              Drift[18],                                                                                          drift due to noise in streaming data.
+                                                                      learner works as reactive leaner to fulfill
+                                                                                                        This is due to neither of the classifier is
+                                                                   the objective of concept drift identification.
+                                                                                                        unable to track out the noise.
+                                                                                          The concept drift prediction and
+                                                              a novel E-Tree Indexing structure to handle
+                           E-Tree: An Efficient Indexing                                                    handling is not clearly elevated in this
+                                                                   the time complexity of mining process in
+                             Structure for Ensemble Models on                                              model. This model is lagging at
+                                                              high speed data stream.
+                         Data Streams [20].                                                             assessment of temporal validity of the
+                                                                                                                       class label and concept drift.
+
+                                                          Combination of weighted majority and         Prior knowledge of concept labels only
+                                                                 adaptive sliding window approaches, which   magnifies the accuracy in classification.
+                  New Evolving Ensemble Classifier
+           Weighted                                             are capable to adjust the weights of the        This algorithm mainly focused on
+                              for Handling Concept Drifting Data
+             Features                                               features reflecting the present concept and     accuracy at the expense of the
+                         Streams [21]
+                                                               according to these weights, predicts the       performance in terms of time and
+                                                                                drift in the present concept.                memory.
+
+                                                         Using set of algorithms CDTC version 1
+                      The use of time stamps in handling
+           Time                                        and 2 that are based on time of             The first attempt to assessing the
+                            latency and concept drift in online
+           Classification                                               classification protocol to handle the           concept drift under temporal validity.
+                            learning [22].
+                                                                      latency.
+
+                                                                                          The performance evaluation not
+                A new method of mining data
+           Incremental                                                                                       discussed the influence of less
+                           streams using harmony search        Able to classify the batch data
+           Classification                                                                                                significant concept drift and the concept
+                         harmony-based classifier [23].
+                                                                                                                                      drift by recursive concept.
+
+                                                                                                              -This algorithm shows no evidence to
+                                                                                       (i) Combination of clustering, computing,     conclude the stability at losing cluster
+                        Concept Drifting based Clustering     evolution detection and resource             accuracy in order to achieve the
+                       Framework for Data Streams          monitoring, (ii)aimed at improvisation of      clustering speed.
+                        (SRAStream) [25].                    the clustering speed under the expense of     -The model is most suspicious if
+                                                                 acceptable cluster accuracy                  concept drifting is with recursive
+            Clustering                                                                                         concept.
+
+                   An approach of support
+                          approximation to discover frequent
+                                                           Study the presence of concept drift under     The model is not evident to handle the
+                             patterns from concept-drifting data
+                                                                   the problem of mining frequent patterns      DataStream with concept drift reflected
+                           streams based on concept learning
+                                                         from transactional data streams.            by recursive concepts.
+                       SA-Miner [27].
+
+
+
+        4.  CONCLUSION                                           contributions will be the new or extended models in the contest
+                                                                    of the review.
+     The objective of the paper is taxonomy and contemporary
+   affirmation of the recent literature over mining data streams
+   under the influence of concept drift. The observations of the                       REFERENCES
+   review  is  that  the  current  research domain  is  seriously            [1] GANTZ, J. AND REINSEL, D. 2012. IDC: The digital universe in
+   contributing  the novel and optimal concept  drift handling               2020: Big data, bigger digital shadows, and biggest growth in the
+   strategies for mining data streams. The review was explored on                  far  east.  International Data  Corporation,  sponsored by EMC
+                                                                                              Corporation.
+   the benchmark contributions found in the literature of past
+                                                                                                [2] SCHLIMMER, J. AND GRANGER, R. 1986. Incremental learning
+   decade. The majority of these models are aimed at factors such              from noisy data. Mach. Learn. 1, 3, 317–354.
+   as high speed data streams, data streams with noise, mining            [3] WIDMER, G. AND KUBAT, M. 1996. Learning in the presence of
+   accuracy and time complexity of the mining strategy. The               concept drift and hidden contexts. Mach. Learn. 23, 1, 69–101.
+   factors such as context of concept drift, concept drift temporal            [4] Quinlan,   J.:  C4.5:  programs  for  machine  learning.  Morgan
+   validity and concept drift with recursive concepts were almost             Kaufmann (1993)
+                                                                                                [5] Domingos, P., Hulten, G.: Mining high-speed datastreams. In: KDD,
+   overlooked. Henceforth, it is obvious to conclude that there is a                pp. 71–80. ACM (2000)
+   big scope to conduct research towards finding new models to            [6] Hoeffding, W.: Probability inequalities for sums of bounded random
+   handle the concept  drift in mining data streams under the                  variables. JASA 58(301), 13–30 (1963)
+   context of factors like concept drift temporal validity, context            [7] Maron,  O., Moore, A.W.: Hoeffding  races: Accelerating model
+   and  influence  of  recursive  concept. Our  future  research                 selection search for classification and function approximation. In:
+                                                                                   NIPS, pp. 59–66 (1993)
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:16 UTC from IEEE Xplore. Restrictions apply.
+--- Page 6 ---
+         International Conference on Emerging Research in Electronics, Computer Science and Technology – 2015
+
+
+
+
+
+                                                                                          [29] A. M. Qamar,  E.  Gaussier,  J.-P.  Chevallet, and  J. H. Lim,
+          [8] Alippi, C., Roveri, M.: Just-in-time adaptive  classifiers in non-                 “Similarity learning for nearest neighbor classification,” in Data
+               stationary conditions. In: IJCNN, pp. 1014–1019. IEEE (2007)                   Mining, 2008. ICDM’08. Eighth IEEE International Conference
+          [9] Alippi,  C.,  Roveri, M.:  Just-in-time  adaptive  classifierspart  ii:                on. IEEE, 2008, pp. 983–988.
+             Designing the classifier. TNN 19(12), 2053–2064 (2008)                     [30] J. J. Rodriguez, L. I. Kuncheva, and C. J. Alonso, “Rotation forest:
+         [10] Fukunaga, K., Hostetler, L.: Optimization of k nearest neighbor         A new classifier ensemble method,” Pattern Analysis and Machine
+               density estimates. Information Theory 19(3), 320–326 (2002)                        Intelligence, IEEE Transactions on, vol. 28, no. 10, pp. 1619–
+         [11] Carpenter, G., Grossberg, S., Reynolds, J.: Artmap:Supervised real-               1630, 2006.
+             time learning and classification of nonstationary data by a self-           [31] M. Scholz and R. Klinkenberg. An ensemble classifier for drifting
+              organizing neural network. Neural Networks 4(5), 565–588 (1991)                 concepts. In Proc. ECML/PKDD’05 Workshop on Knowledge
+         [12] Carpenter, G., Grossberg, S., Markuzon, N.,Reynolds,  J., Rosen,               Discovery in Data Streams.
+               D.: Fuzzy artmap: A neural network architecture for incremental           [32] Jin Gao, Wei Fan, and Jiawei Han, On appropriate assumptions to
+              supervised learning of analog multidimensional maps. TNN 3(5),             mine data streams: Analysis and Practice, Proc. of ICDM’07, pp.
+            698–713 (1992)                                                         143-152
+         [13] Andres-Andres,  A.,  Gomez-Sanchez,   E.,  BoteLorenzo,  M.:
+              Incremental rule pruning for fuzzy artmap neural network. ICANN
+              pp. 655–660 (2005)
+         [14] Carpenter, G., Tan, A.: Rule extraction: From neural architecture to
+             symbolic representation. Connection Science 7(1), 3–27 (1995)
+         [15] Xingquan Zhu, Xindong Wu, and Ying Yang, “Dynamic Classifier
+               Selection  for  Effective  Mining  from  Noisy  Data  Streams”,
+              Proceedings of the Fourth IEEE International Conference on Data
+            Mining (ICDM’04)
+         [16] Chien-I Lee, Cheng-Jung Tsai, Jhe-Hao Wu, Wei-Pang Yang “A
+              Decision Tree-Based Approach to Mining the Rules of Concept
+                Drift”, Fourth International Conference on Fuzzy Systems and
+            Knowledge Discovery (FSKD 2007) IEEE.
+         [17] Yang Zhang, Xue Li, “One-class Classification of Text Streams
+              with Concept Drift” 2008 IEEE International Conference on Data
+            Mining Workshops.
+         [18] Stephen H. Bach, Marcus A. Maloof, “Paired Learners for Concept
+                Drift”, Eighth IEEE International Conference on Data Mining,
+             2008.
+         [19] Zhenzheng Ouyang, Min Zhou, Tao Wang, Quanyuan Wu,“Mining
+              Concept-Drifting  and  Noisy  Data  Streams  using  Ensemble
+                Classifiers”International Conference on Artificial Intelligence and
+             Computational Intelligence, 2009.
+         [20] Peng Zhang, Chuan Zhou, Peng Wang, Byron J. Gao, Xingquan
+             Zhu,  Li Guo,  “E-Tree: An  Efficient  Indexing  Structure  for
+            Ensemble Models on Data Streams”, IEEE TRANSACTIONS ON
+         KNOWLEDGE AND DATA ENGINEERING, JUNE 2011 1.
+         [21] Kapil  Wankhade,  Snehlata  Dongre,  Ravindra  Thool, “New
+             Evolving Ensemble Classifier for Handling Concept Drifting Data
+              Streams”,  2nd  IEEE  International  Conference  on  Parallel,
+               Distributed and Grid Computing, pp. 657-662, 2012
+         [22] G. R. Marrs • M. M. Black • R. J. Hickey, “The use of time stamps
+               in handling latency and concept drift in online learning”, Springer-
+              Verlag, 2012.
+         [23] Zohre Karimi  · Hassan Abolhassani  · Hamid Beigy, “A new
+            method of mining data streams using harmony search”, Springer
+             Science+Business Media, LLC February 2012.
+         [24] Mayank Pal Singh, “Quantifying Concept Drifting in Network
+               Traffic using ROC Curves from Naive Bayes Classifiers”, Nirma
+              University International Conference on Engineering (NUiCONE),
+            2013
+         [25] Gansen Zhao, Ziliu Li, Fujiao Liu and Yong Tang, “A Concept
+               Drifting based Clustering Framework for Data Streams”, Fourth
+               International Conference on Emerging Intelligent Data and Web
+              Technologies, 2013.
+         [26] Muhammad Shaheryar, Mehrosh Khalid and Ali Mustafa Qamar,
+             “Rot-SiLA: A Novel Ensemble Classification approach based on
+              Rotation Forest and Similarity Learning using Nearest Neighbor
+              Algorithm”, 12th International Conference on Machine Learning
+             and Applications, pp. 46-51, 2013.
+         [27] Chao-Wei  Li   ,  Kuen-Fang  Jea,  “An  approach  of  support
+             approximation to discover frequent patterns from concept-drifting
+              data streams based on concept learning”, Springer-Verlag London,
+             2013.
+         [28] Amineh Amini, Member, IEEE, Teh Ying Wah, and Hadi Saboohi,
+            Member,  ACM,  IEEE,  “On  Density-Based  Data  Streams
+               Clustering Algorithms: A Survey”, JOURNAL OF COMPUTER
+          SCIENCE AND TECHNOLOGY 29(1): 116–141 Jan. 2014.
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:16 UTC from IEEE Xplore. Restrictions apply.

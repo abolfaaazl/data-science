@@ -1,0 +1,753 @@
+Title: Machine learning based concept drift detection for predictive maintenance
+
+--- Page 1 ---
+                                             Computers & Industrial Engineering 137 (2019) 106031
+
+                                                 Contents lists available at ScienceDirect
+                    Computers & Industrial Engineering
+
+
+                                       journal homepage: www.elsevier.com/locate/caie
+
+
+Machine learning based concept drift detection for predictive maintenance                                                                              T
+Jan Zeniseka,b,⁎, Florian Holzingera, Michael Affenzellera,b
+a Heuristic and Evolutionary Algorithms Laboratory, University of Applied Sciences Upper Austria, Softwarepark 11, 4232 Hagenberg im Mühlkreis, Austria
+b Institute for Formal Models and Verification, Johannes Kepler University Linz, Altenberger Straße 69, 4040 Linz, Austria
+
+
+A R T I C L E  I N F O                   A B S T R A C T
+
+Keywords:                                           In this work we present a machine learning based approach for detecting drifting behavior – so-called concept
+Predictive maintenance                                    drifts – in continuous data streams. The motivation for this contribution originates from the currently intensively
+Machine learning                                    investigated topic Predictive Maintenance (PdM), which refers to a proactive way of triggering servicing actions
+Concept drift detection                                 for industrial machinery. The aim of this maintenance strategy is to identify wear and tear, and consequent
+Time series regression                                                malfunctioning by analyzing condition monitoring data, recorded by sensor equipped machinery, in real-time.Industrial radial fans                                              Recent developments in this area have shown potential to save time and material by preventing breakdowns and
+                                             improving the overall predictability of industrial processes. However, due to the lack of high quality monitoring
+                                                data and only little experience concerning the applicability of analysis methods, real-world implementations of
+                                                    Predictive Maintenance are still rare. Within this contribution, we present a method, to detect concept drift in
+                                                data streams as potential indication for defective system behavior and depict initial tests on synthetic data sets.
+                                                 Further on, we present a real-world case study with industrial radial fans and discuss promising results gained
+                                            from applying the detailed approach in this scope.
+
+
+1. Introduction                                                             entire fleets of machines, with no guarantee for valuable outcome.
+                                                                   Hence, such real-world implementations of predictive maintenance are
+   With the increasing amount of data available from today’s sensor       still rare.
+monitored industrial machinery, expectations among operators, pro-         In contrast to the envisaged lifetime prediction, our approach is to
+duction managers and data analysts concerning potential valuable in-     reveal the necessity of maintenance on a microscopic level. We aim to
+sights, are rising accordingly. One prominent approach originating     detect changing system behavior – so-called concept drifts (Tsymbal,
+from the ongoing  digital transformation  of industry  is Predictive    2004) – as an indication of beginning malfunctions. Therefore, we
+Maintenance (PdM). Its basic idea is to monitor and analyze a system in    employ machine learning methods to model healthy systems on a
+real-time in order to trigger maintenance proactively and prevent total    component level in detail and identify deviations from the modeled
+breakdowns (Selcuk, 2017). While corrective maintenance implies to      state, when evaluating them on a continuous data stream.
+fix something the moment it breaks and preventive maintenance means         In Section 2 an overview regarding related work in the field of
+to work on the basis of empirically defined maintenance schedules,    machine learning based approaches for predictive maintenance and a
+predictive maintenance relies on a system’s actual condition. For this     distinction from the content of the present work is given. Subsequently,
+purpose, machines are equipped with sensors and connected to a     Section 3 details the algorithm developed in the scope of this con-
+business intelligence unit in order to continuously monitor, learn and     tribution. Therefore, the algorithm pipeline and its components (e.g.
+predict their behavior. As an ultimate goal of predictive maintenance,     data preprocessing techniques, machine learning algorithms, evalua-
+estimating a production machine’s exact Remaining Useful Lifetime     tion routines) are described. In Section 4 results from tests on synthe-
+(RUL)  is frequently mentioned (Saxena, Goebel, Simon, & Eklund,      tically generated data are summarized. Further on, we present results
+2008). However, data sets which allow to make such ambitious lifetime    from a real-world case study concerning industrial radial fans in Section
+predictions are difficult to gather. Since the reasons for defective be-     5, for which the developed algorithm has been tested. Based on the
+havior of industrial machineries are manifold, it would be necessary to    performed experiments, we discuss the applicability of the approach,
+carry out a large number of cost intensive run-to-failure experiments on     focussed on in this work. Finally, we conclude with a brief summery, as
+
+  ⁎ Corresponding author at: Heuristic and Evolutionary Algorithms Laboratory, University of Applied Sciences Upper Austria, Softwarepark 11, 4232 Hagenberg im
+Mühlkreis, Austria.
+    E-mail addresses: jan.zenisek@fh-hagenberg.at (J. Zenisek), florian.holzinger@fh-hagenberg.at (F. Holzinger),
+michael.affenzeller@fh-hagenberg.at (M. Affenzeller).
+https://doi.org/10.1016/j.cie.2019.106031
+
+Available online 30 August 2019
+0360-8352/ © 2019 Elsevier Ltd. All rights reserved.
+--- Page 2 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+well as possible further directions in Section 6.                          phases are split, which enables extensive search for accurate models in
+                                                                        the time-uncritical offline phase and fast online evaluation when ap-
+2. Related work and unmet needs                                     plying the model on streaming data. This work enhances the regression
+                                                             model based concept drift detection with a forecasting component and
+  A fairly large number of recent contributions with reference to     hence, poses a step towards concept drift prediction.
+predictive maintenance  is dedicated to software frameworks or re-         Similarly to this work, first experiences of the developed meth-
+ference architectures (Lee, Kao, & Yang, 2014; Li, Wang, & Wang, 2017;     odologies in the area of predictive maintenance are often gained using
+Sayed, Lohse, Sondberg-Jeppesen, & Madsen, 2015; Wang, Zhang,     synthetic testbeds (Cartella et al., 2015; Kroll, Schaffranek, Schriegel, &
+Duan, & Gao, 2017). While these mostly elaborate on the beneficial    Niggemann, 2014; Wang et al., 2017), before applying them to the
+integration of recent technological developments such as Internet of      field. Nevertheless, the topic has already been discussed and partly
+Things, Cyber-Physical Systems, Digital Twins, Cloud Computing or Big    implemented on different levels for industry sectors, such as aircraft
+Data Analytics, they do not necessarily detail the data analysis tasks.    (Samaranayake & Kiridena, 2012), vehicle engines (Lee et al., 2014)
+Although this work is also driven by a real-world application, not the    and various manufacturing processes (Kanawaday & Sane, 2017; Mattes
+technical setup and implementation, but the applied data analysis     et al., 2012; Scheibelhofer, Gleispach, Hayderer, & Stadlober, 2016).
+methods are the main concern.                                     However, the specific field of monitoring industrial radial fans has not
+   In this context the term predictive analytics is frequently used, which    been covered yet. These systems are, for example, installed for de-
+basically refers to the adaption of statistical methods, such as machine     dusting large production halls and hence, rank among crucial equip-
+learning algorithms for tasks such as predictive maintenance. Among    ment for many manufacturing businesses which are absolutely neces-
+the most  frequently employed algorithms  are:  Linear  Regression,     sary to be kept alive and ongoing. In the scope of Section 5 we elaborate
+Random   Forest  Regression   (Mattes,  Schöpka,   Schellenberger,    on past and present research in this area and elaborate on our approach
+Scheibelhofer, & Leditzky, 2012), Boosted Trees (Cerqueira, Pinto, Sá, &    towards a predictive maintenance adaption for radial fans.
+Soares, 2016), Bayesian Networks (Mattes et al., 2012; Lee et al., 2014),
+Markov-Models (Cartella, Lemeire, Dimiccoli, & Sahli, 2015), Support     3. Machine learning based drift detection approach
+Vector Machines (Widodo & Yang, 2007), or Artificial Neural Networks
+(Li et al., 2017; Kanawaday & Sane, 2017). A closer distinction between       The approach in  this contribution  relies on applying machine
+the approaches, based on what the actual prediction goal is, shall be     learning algorithms to model the state of a healthy industrial ma-
+made at this point: Some contributions aim for the prediction of re-     chinery, in which  it is allegedly working “normal” and alert  if this
+maining useful lifetime concerning the respectively monitored system     concept starts to drift towards “unknown” or potentially “defective”.
+(Cartella et al., 2015; Lee et al., 2014; Mattes et al., 2012). However,     Strategies for detecting drifting behavior in data streams, emerging
+this requires large sets of data covering many different runs-to-failure    from condition monitoring, can be divided in two categories.
+(Saxena et al., 2008) for every system type in order to get reliable re-
+sults. Others, including this contribution, pursue detecting and pre-         Classifying data streams as normal, drifting or defective based an a                                                             •dicting systematic deviations from known healthy system states, which       comparison with a large instance pool of formally under supervision
+enables to trigger maintenance actions if a certain deviation threshold,        categorized data sets.
+defined by a domain expert, is transgressed (Li et al., 2017; Kanawaday        Predicting the next values in a data stream with a regression method                                                             •& Sane, 2017). Systematic changes in data are well-known as concept       and comparing these estimations with actually sensed values; an
+drifts (Widmer, 1996), for which examples of research include weather        increasing prediction error might indicate an underlying concept
+forecasting, traffic monitoring, medical decision aiding, bankruptcy          drift.
+prediction, biometric authentication as well as the application in the
+focus of this work: industrial system monitoring. The recent surveys of         In this work we use different machine learning methods following
+Žliobaitė, Pechenizkiy, and Gama (2016) and Krawczyk, Minku, Gama,     the second approach: regression model based concept drift detection
+Stefanowski, and Woźniak (2017) provide a comprehensive overview    and prediction.
+for concept drift categorizations, application examples, as well as de-         Fig. 1 illustrates the generalized version of the data processing
+tection and learning techniques. Among the most popular concept drift    workflow from the case study dealt within this work, which consists of
+detection methods developed over the years  are:  Drift Detection    two phases – an offline model building phase (upper part) and an online
+Method (DDM) (Gama, Medas, Castillo, & Rodrigues, 2004), Early Drift    model evaluating phase (lower part). In the offline phase a preproces-
+Detection Method (EDDM) (Baena-García et al., 2006), ECDD (Ross,     sing pipeline, which incorporates tasks such as data consolidation, fil-
+Adams, Tasoulis, & Hand, 2012) and Linear Four Rates (LFR) (Wang &      tration, aggregation or transpositioning, is set up and initially fed with
+Abraham, 2015). These methods are based on statistical process control     bulk data from the monitored system’s log files or database. In Section
+and have been designed for dealing with different kinds of classification     3.1 we elaborate on basic preprocessing actions, while Section 5 details
+tasks and various types of drifts. The approach, presented in this work     necessary steps for a real-world problem. The preprocessed data is
+shares their basic idea: If the estimation error of a preliminary built     subsequently used to train models in order to formalize normal ma-
+model increases, while being evaluated on a continuously updated set     chinery behavior. Therefore, we compiled a small set of prominent
+of data, up to a certain user-defined level, a concept drift is recognized.    machine learning algorithms – Linear Regression (LR), Random Forest
+   This work differs from the stated methods as  it concentrates on     Regression (RF), Symbolic Regression based on Genetic Programming
+applying and adapting drift detection for a regression problem situated     (SR), described in Section 3.2 – in order to develop two different model
+in a time-critical environment. A closely related example for regression     types: state detection models to verify system conditions and time series
+model based concept drift detection is given in Winkler et al. (2015).      forecasting models to predict time series in a n-step-ahead fashion.
+Therein, data streams with changing behavior are attempted to be     Mainly, however, this study aims to shed light on the matter of how to
+modeled with Symbolic Regression based on Genetic Programming in a     apply the developed models for the task of concept drift detection,
+sliding window fashion. Depending on the training success for each     hence, the way they are evaluated on a constantly updated stream.
+data partition, stable or drifting behavior can be determined with this     After a brief introduction to data preprocessing and the applied ma-
+method. However, since the detection is performed during the time     chine  learning  methods,  two  algorithms  are  presented.  One
+consuming model training phase, this approach is not feasible for being     enables  concept  drift  detection  (see  Section  3.3),  the  other  is
+applied on a continuously updated data stream with condition mon-    aiming for concept drift prediction (see Section 3.4). The entire ap-
+itoring data. Therefore, in Zenisek et al. (2017), model training and test    proach has been implemented using the open source framework
+
+                                                                        2
+--- Page 3 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+                                                                                                                        Fig. 1. From raw sensor data to concept
+                                                                                                                                          drift detection.
+
+
+
+
+
+HeuristicLab1 (Wagner et al., 2014).                                          3.2. Applied machine learning algorithms
+
+                                                                        For both used regression based model types, state detectors and time
+3.1. Preprocessing                                                                     series forecasters, various machine learning algorithms may be applied,
+                                                                            since the general approach is agnostic to underlying modeling techni-
+   The success of machine learning algorithms largely depends on     ques. In the scope of this study, we focus on a small set of prominent
+quality and form of the data. Handling missing values, filtering outliers     algorithms to support this statement. The selected algorithms create
+or correcting time-related irregularities are examples for problem spe-     regression models based on prepared training data sets with the aim to
+cific data preparation tasks. For the case study, these preprocessing     describe one dependent target variable with one or more independent
+steps are described in Section 5. However, dealing with time series does     input variables. The following enumeration briefly summarizes the
+also require some problem unrelated, generally applicable transfor-     applied algorithms and refers the reader to literature for further details.
+mations, further described in this section. The objective of these is to
+shape the data so that arbitrary regression algorithms can be applied.              Linear Regression (LR) refers to a multivariate linear combi-
+   One prominent technique for time series preprocessing is decom-                                    nation of regression coefficients (i.e.
+positioning. Applying so-called STL – i.e. Seasonal-Trend decomposi-                                     constants and weights of input vari-
+tion based on Loess (Cleveland, Cleveland, McRae, & Terpenning, 1990)                                        ables). The coefficients are estimated
+– splits a series into parts for season, cycle, trend and noise, which                               by the generalized least square tech-
+subsequently may be analyzed separately. Another technique is the                                  nique (Neter, Kutner, Nachtsheim, &
+spectral analysis of time series, which originates from the field of signal                               Wasserman, 1996).
+processing (Stein, 2016). Therein, the series is transferred to the fre-    Random Forest Regression (RF) is performed using an ensemble of
+quency domain using Fourier transform, which decomposes a series’                                    uncorrelated regression trees, which
+periodic (i.e. invariant) components into a combination of weighted                                    are randomly generated using bagging
+sine and cosine functions, which can be used for further investigation.                               and boosting to fit the given data. The
+   However, in this work we focus on a simpler and hence, faster                                       target  estimation  is  performed  by
+preprocessing method. New features are extracted by transposing the                                   averaging   the   tree   estimations.
+historically seen last n values in a series to a new input vector, which is                                           Initially this algorithm was developed
+subsequently provided to the machine learning algorithm. This is re-                                        for classification (Breiman, 2001).
+ferred to as backshifting or generating time lagged values. For the experi-          Symbolic Regression (SR) refers to models in the form of a syntax
+ments performed in this study the series have been backshifted between                                       tree consisting of arbitrary mathema-
+5 and 50 times. Considering a sample of 1000 events and 5 input                                            tical symbols (terminals: constants and
+variables and a maximum lag of 50, preprocessing the data results with                                       variables,  non-terminals:  mathema-
+a matrix consisting of 1000 rows and 255 columns. With such matrices,                                            tical functions), which can be seam-
+machine learning algorithms are subsequently capable of developing                                          lessly translated to plain mathematical
+time series regression models (see Eq. (1)). In order to enable the                                      functions. For target estimation syntax
+evaluation of these models also online, values have to be buffered in a                                        trees are evaluated top-down. Syntax
+First-In-First-Out (FIFO) fashion. In this work we applied backshifting                                        trees  are developed  using  the  sto-
+to train the time series forecaster models, but not to train state detection                                      chastic  genetic  programming  tech-
+models for identifying the current system condition (see details in Sec-                                  nique from the field of evolutionary
+tion 3.3).                                                                                             algorithms (Koza, 1994). Within this
+                                                                                               work, we used the genetic program-
+x t = f ( x t  1 , x t  2 , x t  3 , …x t  25 , …)                                     (1)                              ming variant with so-called Offspring
+                                                                                                                      Selection     (Affenzeller,    Winkler,
+   In analogy, a similar lagged-value vector may be built by computing                                Wagner, & Beham, 2009).
+the numerical differences between the last n values. Accordingly, ma-
+chine learning models, built with a differentiated input vector, forecast        Since Linear Regression is deterministic and parameterless, there is
+the next numerical change instead of the upcoming real value. Another,    no need to configure anything else than a data split for model training
+related  possibility  for feature extraction would be computing the    and  test. For tuning the parameters  of the  stochastic algorithms
+moving average of the last values of a series. In preliminary work these    Random Forest and Symbolic Regression a grid search has been per-
+time lagging enhancements, however, have been tested only with     formed, which is reported in the experiment section. This work aims to
+mediocre  results (Ahmed, Atiya, Gayar, & El-Shishiny, 2010) and    show the general applicability of regression model creating machine
+hence, all experiments in this work have been performed on solely     learning algorithms to lay the foundation of the concept drift detection
+backshifted series. We plan to investigate opportunities with decom-     approach, which is in the center of this work. This is pursued using a
+position techniques as well as alternative time lag variants in future     small set of three prominent algorithms. However, it does not focus on
+work.                                                                          fine tuning, neither on providing a large-scale comparison of those al-
+                                                                        gorithms. A more comprehensive comparison of machine learning
+                                                               methods with focus on their strengths and weaknesses for the task
+  1                                                           would exceed the scope of this work and hence, could be content of   http://dev.heuristiclab.com
+
+                                                                        3
+--- Page 4 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+
+
+
+
+                                                         Listing 1. Concept drift detection algorithm.
+
+subsequent work. A broad comparison of machine learning algorithms     evaluation from being prone to short-term anomalies and mine more
+applied for a different, but related regression task has already been     general trends, the model estimation error  is averaged within the
+given in Ahmed et al. (2010).                                          boundaries of a sliding window. The size parameter of the sliding
+   Linear Regression and Random Forest Regression represent very    window allows to control the number of consecutive sensor values, i.e.
+popular algorithms for regression problems in general and time series     the specific ”period of time” for which the model error is averaged, and
+regression more specifically (Ahmed et al., 2010), which have already     hence, the sensitivity of the detection algorithm. Eventually, concept
+been applied to the field of predictive maintenance (Mattes et  al.,      drift is detected, if the estimation error transcends a certain threshold,
+2012). Both provide vital reference points for testing Symbolic Re-     defined by an  application domain  expert. Hence,  setting such a
+gression, which has not yet gained as much attention regarding pre-     threshold is considered as problem-dependent, as  it also implies to
+dictive maintenance. One reason for closer investigating Symbolic Re-    handle the tradeoff between drift detection reactivity and drift detec-
+gression  is the capability of modeling non-linearities and having a     tion confidence. In 2 an exemplary threshold is illustrated, although
+larger extrapolation potential of the mined functions compared to      this work does not aim to evaluate the algorithm’s performance based
+Random Forest Regression. Moreover, the mathematical form of Sym-    on such thresholds.
+bolic Regression models matches the “natural language” for describing        Experiments in the scope of our most recent projects revealed pro-
+physical processes  in manufacturing industry. This might lead to     mising results using the described methodology and motivated for en-
+models which are highly accurate and furthermore, interpretable for    hancing the approach in this work towards drift prediction (see Section
+domain experts to gain new insights.                                          3.4).
+
+3.3. Concept drift detection                                                     3.4. Concept drift prediction
+   The concept drift detection algorithm is outlined in Listing 1. After       The outlined algorithm in Listing 2 enhances the concept drift de-
+problem-specific data preprocessing, the algorithm continues with     tection algorithm with a forecasting component. As well as for the latter
+training a regression model, which is later used as system state – i.e.     detection algorithm, first a state detector model, based on a system state
+system condition – detector. The modeling target should be a feature     representative feature, is trained. After preparing a second data set by
+which  is dependent on and hence, representative for the system’s     generating backshifted values, for each input variable a 1-step-ahead
+health. The other variables are used as training input. Optionally, the     time  series  forecaster  is created. Therefore, the selected machine
+variables, could be preprocessed by backshifting as described in Section     learning algorithm trains regression models, using all the lagged values
+3.1 and additionally used as input. This way, the state detector would     of the target variable and the first lagged value (i.e. the most recent
+able to consider each series’ history, rather than just the most recent     value) of each other variable as input. This guarantees that a series’
+value, which might lead to more accurate results. However, in this     internal as well as most recent external influences can be modeled.
+work, the state detector models are created without backshifted fea-    While the  training data  set  for the  state detector should be  re-
+tures, since the model estimation quality was already sufficiently high.     presentative for a healthy system state, the data for modeling fore-
+In order to enable a more comprehensive system state detection – i.e. to     casters must incorporate drifting behavior. Only,  if the models are
+consider more than one target variable, which is representative for the     trained on both healthy and drifting behavior representative data, they
+system condition – also multi-objective models or variable interaction     are able to forecast the present behavior when applied for concept drift
+networks (Kronberger, Burlacu, Kommenda, Winkler, & Affenzeller,     prediction.
+2017) could be trained. However, in this work we concentrate on the       The online phase of this algorithm differs from Listing 1 by the
+application of single-objective regression models, for which each of the     utilization and the so-called rolling horizon evaluation of the forecasters.
+described machine learning algorithms may be used to train.              Therefore, the time series regression models are evaluated sequentially
+   The online phase of the algorithm is designed to buffer data value by     for m times. Each time, the resulting vector of estimations is used to
+value, until the number of used time lags −1 is matched. Each subse-    update a buffer, such that beginning with the second evaluation round,
+quently received value updates the FIFO-buffer and furthermore, trig-     the models use their own estimations to forecast. Since the successive
+gers the evaluation of the created regression model, so that the defined     evaluation of the state model is not performed on current, i.e. actually
+state-representative feature is estimated. In order to detect concept     recorded data anymore, but on the forecasted streams instead, concept
+drifts, the relation between these model estimations and actual sensor      drifts may  theoretically be  predicted. Therefore however, the un-
+values is constantly monitored. If the model estimation error increases     certainty of the underlying time series forecasts is crucial.
+over the course of time, models do not fit the current data anymore,
+which might  indicate changing system behavior. To prevent the
+
+                                                                        4
+--- Page 5 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+
+
+
+
+                                                         Listing 2. Concept drift prediction algorithm.
+
+4. Synthetic data based experiments                               been found to  suit well for describing a machine’s run-to-failure.
+                                                              Schönmann, Dengler, Intra, Reinhart, and Lohmann (2017) illustrate a
+   Providing a reasonable testbed for concept drift detection on time     macroscopic model with a sigmoid function for describing a burn-in
+series, which are similar to those from industrial condition monitoring,     phase at the beginning of a system lifecycle and increasing wear at the
+is a non-trivial task. There is only little real-world benchmarking data    end of it. Similarly, Saxena et al. (2008) outline several mathematical
+available, which was authorized for publication. In order to provide a    models with exponential characteristics for simulating damage propa-
+realistic test environment, we follow a model based data synthetization     gation and noise. Also linear increase of wear might be considered, e.g.
+approach.                                                                      for friction linings, which are stressed in a constant fashion. Based on
+                                                                          these considerations, we defined a sigmoid function to simulate realistic
+4.1. Time series regression model based data synthetization                  gradual increase of wear (4). The resulting deterioration series will not be
+                                                                    provided for training nor evaluating any regression model. It is utilized
+   The basic idea of this data synthetization approach  is to reuse     to influence the other sampling functions to some extent by changing
+mathematical time series regression models – e.g. results from applying     the weight of sub-terms, as depicted in Eqs. (5) and (7). Changing the
+the Box-Jenkins method (Box, Jenkins, Reinsel, & Ljung, 2015) or     behavior of the input series, without adapting the target function for x1t,
+computing Fourier series by harmonic analysis (Stein, 2016) on real-     causes a change of the dependency between inputs to target. Hence, a
+world time series – in order to produce new synthetic time series with     hidden concept drift is introduced, which is not recognizeable from vi-
+the characteristics of the original data. In the following, the complete     sually inspecting the data series.
+synthetization specification is provided. First, we assume a sinusoid    d t = 1/(1 + exp                                                                                                                                          0.05 * ( c  300) )                                         (4)formula (2), representing a production machine’s periodic behavior,
+similar to what has been obtained from a real-world data set. The     x 2t =    t + x 1t  1 *(0.4 + 0.2 * dt  1 ) + cos (3.5 * t /5)/3                 (5)
+function output x1 subsequently represents the target variable of the
+state detector model. Based on Eq. (2), we derive several (more or less)       The sampling functions Eqs. (6)–(8) complete the set of input series.
+dependent series, using x1t  1 as weighted additive term in other time    With Eq. (9) a second wear-simulating function is provided, which is
+series models, such as autoregressive ones (6), or other periodic func-    used to generate the data streams for the final concept drift detection
+tions (3). These derived series subsequently serve as input for the state    and prediction tests. This way all final tests are performed solely on
+detector model. As per Section 3.4, a forecaster model is trained for each    unseen data.
+of these series. In the following formulas t refers to the past time steps,                           p               x 1
+implemented as integer counter variable which starts at 1 and increases     x 3t = 0.5 +    t +    Pi yt   i +   X1j yt   j
+                                                                                                                                                                                                                  i = 1                      j = 1                                     (6)by 1 for each generated value of a series. Moreover,   represents an
+additive term, sampled from a Gaussian distribution   N (0, 0.02)    P = [0.7,   0.2, 0.05], X1 = [0.02, 0.005]
+which is used to simulate signal noise and thus, impede the eventual                                                                           x 4 =    t + x 2t  1 / x 1t  1 *(0.3   0.1 * d t  1) + cos (0.2 * x 2t  1 * 0.2 * x 3t  1 )/2modeling task.
+                                                                                                                                                  (7)
+x 1t = 1 +    t + 0.5 *( sin ( t /5) + sin (2 * t /5)/2 + sin (5 * t /5)/7)        (2)
+                                                                          x 5 = cos (0.6 * x 2t  1 ) + 0.1 * x 3t  1                                     (8)
+x 2t =    t + x 1t  1 * 0.4 + cos (3.5 * t /5)/3                               (3)
+                                                              d 2t = 1/(1 + exp  0.05 * (c  250) )                                         (9)   Usually wear and tear are conceived as long-term trend, while da-
+mage or fatigue failure represent abrupt changes. To simulate different       The described approach may be summarized as a reversed and en-
+damage propagation patterns, exponential and logistic functions have    hanced version of modeling Auto Regressive Moving Average (ARMA)
+
+                                                                        5
+--- Page 6 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+Table 1                                                                 Table 3
+Parameter grid search boundaries for state detector and forecaster models. Each     Model estimation quality PR2 of input variable forecasters on the test partition of
+modeling experiment has been performed with 10 repetitions.                     the simulated data set.
+  Algorithm    Parameter          Value                                                Lag           10                   25                   50
+
+  RF         Number of Trees     25, 50, 100, 500                                      LR     RF     SR     LR     RF     SR     LR     RF     SR
+           R                     0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8
+        M                     0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8                       x2    0.972   0.935   0.964   0.989   0.966   0.977   0.992   0.977   0.983
+                                                                                x3   0.654   0.603   0.645   0.623   0.584   0.610   0.646   0.603   0.564  SR           Tree Length         25, 35, 50                                                                                x4    0.819   0.883   0.790   0.822   0.858   0.850   0.882   0.892   0.892               Population Size      50, 100, 250                                                                                x5    0.942   0.904   0.914   0.956   0.949   0.921   0.975   0.966   0.960  (fixed)      Type                Offspring Selection Genetic Algorithm
+             Max. Generations   1000
+               Function set        Unary functions (sin, exp, log)
+                                   Binary functions ( + ,   , × ,÷)                      (SR) outperform all others on the test partition. While RF models seem
+               Terminal set         constant , weight · variable                           to overfit, the SR models perform better on “unseen” data. The Linear
+                Selection           Gender specific selection (proportional and          Regression (LR) models do not overfit, but they cannot compete with
+                               random)                                   SR. However, all models represent very accurate state detectors and
+                 Fitness function      Pearson’s R2 correlation with the target            perform on a high level.               Crossover           Rate = 100% Subtree crossover
+              Mutation           Rate = 25% Change symbol, single-point,
+                               remove                                          4.2.3. Forecaster training
+                                    branch, replace branch                        The training of input variable forecasters was performed on a pre-
+                                                                       processed (ı.e. backshifted) and subsequently shuffled data set with a
+                                                                                 training-test split (67%/33%). A brief collection of performance resultsmodels with exogenous parts (ARMAX) (Bauer, 2009) and trigono-                                                                from the test partition with the measured PR2, is given in Table 3. Onemetric functions for sampling purposes. For a comprehensive descrip-                                                                  can observe that also these time series regression models perform on ation of related synthetization methodologies, the reader is referred to                                                                    high level. Only the forecasters for x3 trail behind, which is presumablyWinkler  et  al.  (2015)  and  Zenisek,  Wolfartsberger,  Sievi,  and                                                                    caused by the high level of noise in the series’ sampling process. TheAffenzeller (2018).                                                                            best models have been accomplished with Linear Regression and a
+                                                     maximum of 50 backshifted values per series (cf. Lag).
+4.2. Experiments and results
+                                                                                 4.2.4. Concept drift detection and prediction   The subsequently described experiments have been performed on a                                                                   Examples for the subsequently performed tests of the developedsynthetic data set following the specifications in Section 4.1. For                                                                        evaluation routines are illustrated in Fig. 2 regarding concept drift de-training data we generated series with 1000 events, while for test data –                                                                                     tection and in Fig. 3 regarding concept drift prediction. For this exemplaryused for performing concept drift detection and prediction tests – 500                                                                           evaluation, we selected a Symbolic Regression model as state detectorevents were sampled.                                                              and Linear Regression models as time series forecasters, following the
+                                                                            best stated test results. Furthermore, the models use a maximum of 10
+4.2.1. Algorithms configuration                                                   lags, since the result qualities are comparable with a higher number of
+   For both, building state detection models as well as time series fore-     lags and the execution time decreases considerably with less lags, which
+casters, a grid search for suitable algorithm parameters has been per-      is important for real-time applicability. The depicted series represent
+formed. The search only applies for Random Forest and Symbolic     the quality measures of the evaluated state detector models, averaged
+Regression, since Linear Regression is deterministic and does not need     within a sliding window with size = 100. One can easily observe from
+parameterization. The boundaries of the search are provided in Table 1.    both figures that it was possible to detect and predict the synthetically
+The picked parameter configurations are marked bold if applied for     introduced concept drift, since the progression of the computed quality
+detection models and underlined if applied for forecasters. The reader is    measures strongly correlates with the deterioration waveform DET,
+reminded that this work does not focus on extensive algorithm tuning,     available from the data sampling process: While the deterioration DET
+but instead aims to test the presented algorithm-agnostic concepts.         increases, all model error measures increase accordingly and the model-
+                                                                                    fitness indicating PR2 decreases. Hence, as soon as a decline in quality
+4.2.2. State detector training                                          measures becomes present, the model fails to describe the system be-
+   In Table 2 results from training the state detection models are pro-     haviour and a concept drift can be assumed. The Mean Absolute Error
+vided. For each algorithm configuration the Average Relative Error    (MAE), Mean Squared Error (MSE) and Root Mean Square Error (RMSE)
+(ARE), the Normalized Mean Squared Error (NMSE) and the squared     are additionally listed, as a deterioration may not manifests in all
+Pearson correlation (PR2) of the best model are listed. The training of     quality measures and the proposed algorithm intends to be agonstic to
+the models was performed on a shuffled data set, representing a healthy     the underlying quality measure, which could be shown.
+state, with a training-test split (67%/33%). The most accurate detectors         In Fig. 2 we added an exemplary detection threshold for demon-
+on the training partition have been created using Random Forest Re-     stration purposes. Such thresholds might be set by domain experts for
+gression (RF). However, the models built with Symbolic Regression     real-world applications according to the problem data and the aimed
+                                                                          detection sensitivity. However, for this work, it was not the goal to
+Table 2                                                                      specify a certain point of time in order to be able to state ”concept drift
+Model estimation qualities of the state detector for the simulated data set.        happened”. Instead, we aimed to measure the quality of the developed
+                             ARE        NMSE           PR2             drift detection approach. Since we knew the actual deterioration wa-
+                                                                 veform from the artificial data sampling process, we were able to
+                                  Train    Test    Train    Test    Train    Test      compare  it with the model quality progression and calculate their
+                                                                             correlation coefficient (see Fig. 4 and Table 2). This way, a temporally
+  Linear Regression (LR)          0.179   0.188   0.199   0.184   0.800   0.816       accurate assessment of the developed algorithms’ performance was  Random Forest Regression (RF)  0.063   0.174  0.030   0.208  0.974   0.793
+  Symbolic Regression (SR)        0.115  0.138   0.108  0.148   0.891  0.851       possible.
+                                                                The visual comparison of Figs. 2 and 3 furthermore, indicates that
+
+                                                                        6
+--- Page 7 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+                                                                                                                    Fig. 2. Known deterioration DET vs. detection
+                                                                                                                          qualities  (i.e. no forecasting). The horizontal
+                                                                                                   dashed  line  refers  to an  exemplary NMSE-
+                                                                                                                   threshold, which is to be set by a domain expert
+                                                                                                      with respect to the problem and the aimed de-
+                                                                                                                     tection sensitivity. In this (artificial) case, the
+                                                                                                              threshold has been set to 0.4, which is approx.
+                                                                                                                transgressed at event index 275, visualized by
+                                                                                                             the vertical dotted line.
+
+
+
+the prediction algorithm is able to capture the drift earlier as the de-     real-world use cases (see Section 5).
+tection algorithm, which depicts the beneficial working of the under-
+lying time series forecasting models. However, this temporal advance     5. Case study: radial fans
+comes with the price of a lower level of model estimation quality and
+stability (cf. generally higher error level and uneasier curves in Fig. 3).         After testing the machine learning based approach on synthetically
+The following evaluation aims to shed light on the effect of increasing     generated time series, verification on real-world data is the next logical
+the prediction horizon.                                                         step. Therefore, an experiment with real-world machinery was con-
+   In Table 4 a result collection, containing derived performance     ducted. Scheuch GmbH, an industry partner, provided a new radial fan,
+measures concerning the developed  drift detection and prediction    commonly found in industrial applications (see Fig. 5). This radial fan
+routines, is provided. In Fig. 4 an outline of the listed results is visua-    was used for a run-to-failure, generating data for this case study.
+lized and now discussed in greater detail: The shown performance
+measures represent the correlation coefficient, calculated between the     5.1. Related work
+known deterioration value on one hand and the quality measures from
+the evaluation of the state detector model on the other. The exact de-        Crucial for any health state modeling or health state prediction is
+terioration value is known at any time, since  it is synthetically in-     the acquisition of relevant sensor signals. Generally, these signals are
+troduced with the provided specification (see Section 4.1). The results     analyzed and the current state is derived from this recorded data. As
+show that both routines, concept drift detection (i.e. horizon = 0) as well    knowledge of health state specific characteristics is gained, deviations
+as concept drift prediction (i.e. horizon > 0), applied on the synthetic data    can be detected. Because the origin and manifestation of faults are
+set, are highly successful. We observed that (for a certain time frame)     manifold, relevant literature focuses on different signals and different
+an increasing forecasting horizon up to a certain level (cf. horizon < 25),     methodologies. As a starting point, some basic literature in the field of
+results in an increasing correlation. Within this time frame, the corre-      fault diagnosis and health monitoring shall be mentioned: (Adams,
+lation is even higher than the value gained from concept drift detection    2000; Gan, Wang, & Zhu, 2015; Goyal & Pabla, 2016; Rai & Upadhyay,
+(cf. horizon = 0), hence a prediction of concept drifts is possible. In the    2016; Scheffer & Girdhar, 2004; Wang, Xiang, Markert, & Liang,
+scope of a real-world implementation, this would mean that optimal     2016b). In the context of rotating machinery, vibration analysis is a
+points for maintenance actions could be determined and (to some ex-     frequently used method to detect faults (Jung, Zhang, & Winslett, 2017;
+tent) predicted, in real-time. However, with increasing prediction hor-    Lv & Qiao, 2017; Yang, Dong, Peng, Zhang, & Meng, 2015; Rusiński,
+izon the detection quality decays rapidly, no matter the monitored    Moczko, Odyjas, & Pietrusiak, 2014; Renwick & Babson, 1985; Wang,
+quality measure. Several reasons may be responsible for the limitation    He, & Kong, 2013). By applying different methodologies on the vibra-
+of the prediction horizon: On reason is the forecasting uncertainty,     tion data, such as Fourier transform, wavelet analysis or the use of
+which increases together with an increasing rolling prediction horizon,    symmetrized dot patterns (Wang, Liu, & Xu, 2016a; Xu, Liu, Zhu, &
+since the trained 1-step-ahead forecasters are quite accurate but not    Wang, 2016), detection of a healthy or damaged state can be achieved.
+perfect. Moreover, it is likely that with a too large prediction horizon,    Other possible ways to detect an defective state may utilize the acoustic
+the effect of a drift is simply not yet present in the data of the specific     signals of (radial) fans by modeling the normal acoustic behavior and
+frame, with which the algorithm was fed, which makes it impossible to     detect deviations (Abid et al., 2012; Dogan, Eisenmenger, Ochmann, &
+predict the drift. As well as defining the optimal sliding window size, or     Frank, 2018; Khelladi, Kouidri, Bakir, & Rey, 2008; Sanjose & Moreau,
+determining a proper model error threshold, finding a feasible predic-     2017). Other research considered atmospheric pressure and volumetric
+tion horiozon is difficult and remains an application-dependent chal-     flow (Xu, Wang, Liu, Li, & Wang, 2013; Velarde-Suárez, Ballesteros-
+lenge when using the proposed methods.                                 Tajadura, & Hurtado-Cruz, 2006). Furthermore, some literature focuses
+   The described methods represent a powerful and yet flexible fra-    on different origins or patterns of damage, such as crack detection (Hu
+mework for dealing with concept drift in data streams, as proved in   &  Li, 2015; Sun et  al., 2017; Yu, Fu, Gao, Zheng, & Xu, 2018),
+
+
+
+
+
+                                      Fig. 3. Known deterioration DET vs. prediction qualities with forecasting horizon = 25.
+
+                                                                        7
+--- Page 8 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+
+
+
+
+                                                    Fig. 4. Known deterioration vs. model prediction qualities.
+
+Table 4                                                      was arranged. This setup included an additional closed loop circulating
+Known deterioration vs. model predictions qualities.                           abrasive material, namely silicon carbide, to simulate long-term abra-
+  Hor.     ARE     NMSE      PR2      MAE      MSE      RMSE        sive stress in a shorter time frame. An additional filter was mounted to
+                                                                         separate and extrude fine particles from the cycle, whereas coarse
+  0        0.872       0.865     −0.835      0.870       0.871       0.901       grained particles remained in the cycle. This was absolutely necessary
+  5        0.895       0.921     −0.927      0.911       0.927       0.943        since the abrasive material poses a health hazard and may contaminate  10       0.905       0.931     −0.874      0.939       0.944       0.952
+  25       0.244       0.636     −0.636      0.195       0.636       0.628       the surrounding environment. The radial fan was powered by an elec-
+  50       0.561       0.863     −0.832      0.907       0.885       0.889         trical motor (37 kW) and a frequency converter allowed the adjustment
+  100     −0.714    −0.560      0.659     −0.678    −0.639    −0.639       of the rotational speed between 0 and 2940 rpm. A Venturi tube was
+                                                                                   installed, enabling the measurement of differential atmospheric pres-
+                                                                         sure and therefore the volumetric flow. An additional inlet, specially
+                                                                     designed for this setup, allowed a controlled release of abrasive mate-
+                                                                                          rial into the closed loop. This design minimized pressure loss and
+                                                                           therefore mitigated a possible negative impact on the test setup. For this
+                                                                      experimental setup, several new impellers were provided in order to be
+                                                            mounted and used for additional runs until a predefined grade of wear
+                                                                                                is achieved. This progression of wear was monitored via regular visual
+                                                                          inspection and analysis of the sensor data (e.g. maximum vibration
+                                                                         threshold of 11 mm/s reached), utilizing domain knowledge and the
+                                                                       experience of an expert. As soon as either safety issues occurred or the
+                                                                        setup showed signs of excessive wear, usually triggering a maintenance
+                                                                              in real-world applications, the impeller was replaced. For this work, one
+                                                                   complete run-to-failure was carried out and the whole process will be
+                                                                      repeated with the remaining impellers for future tests.
+                                                                                After some initial test runs and experimentation, with the goal to
+                                                                   approximate a feasible saturation of abrasive material in the airflow,
+                                                                        the chosen configuration wears an impeller in about 160 h. Fig. 6 and
+                                                                                  Fig. 7 illustrate the impeller used for the run-to-failure in it’s healthy
+                  Fig. 5. Radial fan used for data generation.                 and damaged state, respectively before and after the test run. In the
+                                                                         interim stages of wear, caking could be observed until, under the con-
+                                                                              stant influence of sandblasting, the worn impeller has finally breachedfoundation damage (Eskandari, Nik, & Pakzad, 2016; Eskandari-naddaf,                                                              and a replacement was necessary.Gharouni-nik, & Pakzad, 2018) and damaged bearings (Al-Bugharbee &                                                              To gather data of the gradual degradation of an impeller, severalTrendafilova, 2016; Ding & He, 2016; Janssens et al., 2016; Miao, Zhao,                                                                                different types of sensors were mounted on the radial fan (see Table 5).Lin, &  Lei, 2017; Orhan, Aktürk, &  Çelik, 2006; Satishkumar &                                                                  These sensors recorded the data used for drift detection. The differentSugumaran, 2017; Singh, Darpe, & Singh, 2017; Zhang, Zuo, & Bai,                                                                         types of sensors were chosen based on previous work in the field of2013). By applying multivariate regression methods, we can take                                                                               radial fans and general rotating machinery, detecting errors (see Sec-multiple, different sensor signals into account and are not limited by                                                                             tion 5.1).vibration, acoustics, pressure or volumetric flow alone.
+
+                                                                                 5.3. Data preparation
+5.2. Setup
+                                                              To prepare the data properly, several preprocessing steps were ne-
+   In preliminary studies, two impellers of which one was brand new     cessary. First of all, the complete run-to-failure produced about 250 GB
+and one artificially damaged, were used for a first approach on mod-     of raw data, therefore a reduction of data was imperative. The vibration
+eling the health state of a radial fan (Holzinger et al., 2018). The ex-     data was sampled with 1000 Hz, which is reasonable for offline analysis
+cessive degradation of an impeller is one of the most common failures of      (e.g. applying a fast Fourier transform), but superfluous for the meth-
+radial fans. Since a replacement of the impeller may only be necessary    odology proposed in this paper. To achieve a feasible algorithm run-
+after prolonged periods of use, depending on the environment and     time, the data was reduced to 1000 samples by applying linear down-
+usage, an alternative for faster degradation and eventual run-to-failures     sampling. Secondly, the repeatedly performed visual inspection implied
+is advisable. For this purpose, a new experimental setup in a laboratory    a regular shutdown and  start-up  of the  radial  fan. As a  sensor,
+
+                                                                        8
+--- Page 9 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+
+
+
+
+                                                 Fig. 6. The healthy impeller before the run-to-failure experiment.
+
+monitoring rotational speed, was attached, these sections of the dataset     Table 5
+could be easily identified and were removed. Thirdly, the variable     Overview of the mounted sensors.
+impact of the different sensor signals in combination with the three                                         Amount             Order number
+selected machine learning algorithms was analyzed, and only the 9
+most important signals were chosen for further consideration. The re-        Vibration                               2            VTV122
+sulting dataset required, depending on the chosen configuration, up to        Gyroscope/Accelerometer                  4            BMX055
+one and a half hour of computation for a single run.                              Rotational speed                         1             DI602A                                                                                    Temperature                            2           JUMO 90.2050
+   In Fig. 8 the estimations from a regression model, trained on a data        Pressure                                4                Ashcroft KX1
+set, representing a stable healthy system state, are compared with the       Ambient pressure                         1                Fuehler AD/A
+actually sensed values (see Training). Moreover, the figure depicts es-       Ambient temperature/Humidity             1            KIMO CTV 210-R
+timations, received when evaluating the same model on a different,
+wear-containing data set (see Test). One can clearly observe, the lower                                                                   proposed methodology was also applied on the data generated from theestimation quality for the latter case, which proofs that a machine                                                                        case study. To achieve a similar quality of result, for both, building statelearning regression model is able to discriminate well between healthy                                                                          detection models as well as time series forecasters, a grid search forand defective system behavior. Very similar results are observed when                                                                              suitable  algorithm  parameters  for Random  Forest and  Symbolicmirroring training-test comparison, i.e. when modeling an defective                                                                       Regression has been performed again. The search boundaries were thesystem state and evaluating on a healthy state representing data par-                                                            same as for the synthetic data experiments in Table 1. The most pro-tition.                                                                     mising configurations of both algorithms were selected to create re-
+                                                                           gression models for the subsequent experiments in which the presented
+5.4. Experiments and results                                                                       algorithms for identifying concept drift have been evaluated on real-
+                                                                 world data.
+    After the successful evaluation on synthetic benchmark data, the
+
+
+
+
+
+                                             Fig. 7. The formerly healthy impeller after the run-to-failure experiment.
+
+                                                                        9
+--- Page 10 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+
+
+
+
+Fig. 8. Estimations of a model which was trained on a data partition incorporating a healthy system state with good estimation results (see Training) and subsequently
+evaluated on a defective partition with intendedly worsened results (see Test).
+
+5.4.1. State detector training                                                 in the data stream from the radial fan. Experts, working on site at the
+   For the state detector training, the first 20% of the run-to-failure    monitored radial fan, confirmed that the illustrated deterioration mat-
+dataset were used, assuming that  this data partition represents a     ches with their visual observations. Since the real deterioration pro-
+healthy state. The regular visual inspections up to this point also gave     gression is not known and cannot be measured yet, we consider the ARE
+no indication of premature wear. Following the previously applied     of the concept drift detection model as the new reference waveform –
+procedure for training state detection models (see Section 4.2.2), the       i.e. ARE 0 is handled like the deterioration waveform DET in the ex-
+dataset was shuffled and split in two parts, training with 67% of the     periments with the synthetic data set (cf. Section 4.2.4). Due to the
+data and test with the remaining 33%. The results are presented in     confirmation of domain experts, we consider the drift detection wave-
+Table 6 and the Average Relative Error (ARE), Normalized Mean Square    form as quite similar to the expected real deterioration progression. As
+Error (NMSE) and Pearson’s R2 ( PR2 ) are defined as quality measure-     for Fig. 4, we compute the correlation between the concept drift de-
+ments. For validation of these results, the first 20% of raw data were     tection quality measure (i.e. ARE 0) and the remaining concept drift
+downsampled to 5000 records and the previously configured algo-     prediction qualities  (i.e. ARE 5  - ARE 100), which  is visualized in
+rithms were applied again, leading to very similar results. While the     Fig. 10. One can observe that the drift prediction quality drops with
+ARE, NMSE and R2 are fairly stable for both LR and SR, RF tends to     Horizon 10, however remains stable at a high level afterwards - cf. the
+overfit, however, still manages to achieve the best results. In contrast to     detection quality representing y-axis  is scaled between 0.80 (high
+the results from the synthetic data, significantly lower correlation but     quality) and 1.00 (max. quality).
+better relative and absolute error of the models can be observed.            According to the conducted data based experiments and detailed
+                                                                             analysis of experts on site at the stressed radial fan, concept drift de-
+5.4.2. Forecaster training                                                     tection has been successfully deployed in the scope of the case study.
+   As illustrated in Table 7, suitable forecaster models can be created. In    However, due to the lack of continuous deterioration information, the
+the presented case, a time lag of 10 to 25 can be suggested. The in-     predictability of concept drifts is currently only based on an assumption
+troduction of a higher lag does not show quality improvements, but results    and cannot be measured yet, although the performed tests already show
+in increased runtime for model training, as well as for the subsequent     very promising results. Further work will tackle this open issue and
+concept drift evaluation algorithms. A closer look at the resulting models     provide more detailed analysis for drift prediction.
+reveals that the models prefer more ”recent” lags over older ones, which is
+quite expectable for data with such highly periodic, stable characteristics.     6. Conclusion and outlook
+
+5.4.3. Concept drift detection and prediction                                     This work contributes to the trending concept of predictive main-
+   The results of the performed concept drift detection and concept drift     tenance by proposing a methodology to find error indicating patterns in
+prediction tests are summarized subsequently. Both routines have been     condition monitoring data streams, originating from complex industrial
+performed with Random Forest based state detection model and Random     systems. In the first part of this work we introduced two different routines
+Forest based time series forecasters with a maximum time lag = 10 and a      for applying regression models, trained with machine learning algorithms,
+sliding window size = 100.                                                      for concept drift detection and concept drift prediction. While the first
+   According to ARE 0 in Fig. 9, it is possible to detect the concept drift     routine represents an adaption of state of the art drift detection meth-
+                                                                               odologies, which has already been successfully tested, the latter one en-
+Table 6                                                                hances these methodologies by adding a forecasting component. Therefore,
+Model estimation qualities of the state detector for the real-world case study data     multi-variate time series regression models for each system input variable
+set.                                                                         are trained and subsequently evaluated with a so-called rolling horizon. The
+                             ARE        NMSE           PR2            successive drift detection is performed on already forecasted values, which
+                                                                           enables drift prediction to some extent.
+                                  Train    Test    Train    Test    Train    Test          For proof of concept, we accomplished to test both routines on
+                                                                            synthetic data streams successfully. However, the major experimental
+  Linear Regression (LR)          0.013   0.013   0.664   0.678   0.335   0.323       part was performed in the scope of a case study concerning complex  Random Forest Regression (RF)  0.006  0.012  0.139  0.589  0.902  0.416
+  Symbolic Regression (SR)        0.012   0.013   0.587   0.723   0.412   0.299       industrial radial fans. The state detection itself could distinguish be-
+                                                               tween  a  healthy  and  damaged  state  and  indicate  a  gradual
+
+                                                                       10
+--- Page 11 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+Table 7
+Model estimation quality PR2 of input variable forecasters on the test partition of the real-world case study data set.
+  Lag                                10                                           25                                          50
+
+                     LR            RF            SR            LR            RF            SR            LR            RF            SR
+
+  Press.sig.1            0.678            0.711            0.679            0.513           0.885           0.892           0.541           0.825           0.822
+  Press.sig.2            0.838            0.777            0.833           0.842           0.802           0.819           0.751           0.804           0.782
+  Press.sig.3           0.996           0.993            0.995           0.996           0.993           0.995           0.991           0.992           0.993
+  Vibr.sig.1             0.991           0.992           0.991            0.990           0.989           0.990           0.988           0.989           0.986
+  Vibr.sig.2             0.968            0.957            0.968           0.974           0.946           0.963           0.940           0.952           0.940
+  Temp.sig.1           0.996           0.997           0.997           0.996           0.980           0.996           0.984           0.995           0.981
+  Temp.sig.2           0.993           0.994           0.994           0.991           0.973           0.993           0.975           0.991           0.977
+  Temp.sig.3           0.861            0.914            0.896            0.653           0.865           0.921           0.587           0.908           0.894
+  Vol.flow              0.907            0.888            0.908           0.913           0.905           0.905           0.902           0.909           0.888
+
+
+
+
+
+Fig. 9. Average Relative Errors (ARE) of the state detector model evaluated on streams, which were forecasted with increasing horizon (cf. ARE horizon); horizon = 0
+refers to concept drift detection; horizon > 0 refers to concept drift predictions.
+
+
+
+
+
+Fig. 10. Detection quality vs. prediction qualities, i.e. the correlation of the ARE 0 waveform against all the other displayed horizons (i.e. horizon 5, 10, 25, 50, 100)
+from Fig. 9.
+
+deterioration. A benefit of the drift prediction can be observed by         analysis method applied to the area of predictive maintenance,
+choosing a sufficiently large forecast horizon, predicting the drift early       performance tuning of the developed routines might be another
+on. An increase of the forecast horizon, however, will also cumulate       worthwhile step.
+small errors introduced by each forecasting-step and therefore increases        Additional runs-to-failure would provide a more diverse dataset for                                                             •the absolute error between actual values and forecasted values. By        the training of the algorithm. This could further improve the results
+improving the forecasters, either the forecast horizon can be extended        or at least reduce a possible bias and increase the generalizability.
+or the error can be reduced. However, until now, drift prediction could       Another topic of interest is the idea of open ended learning, which                                                             •not be verified for the case study, since the necessary information        blurs the line between offline and online phase in order to slowly
+concerning deterioration progression is not measured yet.                   adapt models to concept drifts. The pursued detection of changes in
+   Based on these promising algorithm assessments, we plan larger       a system’s dynamics could be performed based on the model geno-
+scaled experiment series with a broader comparison of algorithms and        type, i.e. by analyzing changing model structures, instead of ana-
+configurations. This might accelerate decisions for other researchers        lyzing changing model estimation qualities.
+and practitioners on one hand and possibly reveals additional potential
+of the presented routines on the other. For future work we also consider    Declaration of Competing Interest
+tackling the following open issues.
+                                                                The authors declared that there is no conflict of interest.
+   As an alternative time series preprocessing technique decom- •   position techniques could be utilized. Additional information re-    Acknowledgments
+   garding season, trend, as well as new features from the frequency
+   domain may help to narrow the focus of drift detection.                The work described in this paper was done within the project
+   Employing ensemble models might make training and prediction    “Smart Factory Lab” which  is funded by the European Fund  for •    results more robust and enable confidence-based evaluations.          Regional Development (EFRE) and the country of Upper Austria as part
+   Due to the requirement of real-time evaluation ability for any     of the program “Investing in Growth and Jobs 2014–2020”. •
+                                                                       11
+--- Page 12 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+
+
+
+
+                                                                              Kanawaday, A., & Sane, A. (2017). Machine learning for predictive maintenance of in-
+   Florian Holzinger gratefully acknowledges financial support within           dustrial machines using iot sensor data. 2017 8th IEEE International Conference on                                                                                                Software Engineering and Service Science (ICSESS), IEEE (pp. 87–90).
+the   project  #862018   “Predictive  Maintenance   für   Industrie-      Khelladi, S., Kouidri, S., Bakir, F., & Rey, R. (2008). Predicting tonal noise from a high
+Radialventilatoren” funded by the Austrian Research Promotion Agency           rotational speed centrifugal fan. Journal of Sound and Vibration, 313, 113–133.
+(FFG) and the Government of Upper Austria.                                         https://doi.org/10.1016/j.jsv.2007.11.044.
+   The authors thankfully acknowledge the collaboration with Scheuch      Koza,naturalJ. R. (1994).selection.GeneticStatisticsprogrammingand Computing,as a means4, 87–112.for programming computers by
+GmbH and especially Erik Strumpf, providing the knowledge, man-      Krawczyk, B., Minku, L. L., Gama, J., Stefanowski, J., & Woźniak, M. (2017). Ensemble
+power and resources necessary for the case study.                                   learning for data stream analysis: A survey. Information Fusion, 37, 132–156.
+                                                                                                       Kroll, B., Schaffranek, D., Schriegel, S., & Niggemann, O. (2014). System modeling based
+                                                                               on machine learning for anomaly detection and predictive maintenance in industrial
+                                                                                                         plants. Emerging Technology and Factory Automation (ETFA), 2014 IEEE (pp. 1–7)IEEE.
+                                                                                        Kronberger, G., Burlacu, B., Kommenda, M., Winkler, S., & Affenzeller, M. (2017).
+                                                                                      Measures for the evaluation and comparison of graphical model structures.
+                                                                                                          International conference on computer aided systems theory (pp. 283–290)Springer.
+References                                                                                Lee, J., Kao, H.-A., & Yang, S. (2014). Service innovation and smart analytics for industry
+                                                                                              4.0 and big data environment. Procedia Cirp, 16, 3–8.
+Abid, M., Trabelsi, H., Taktak, M., Antoni, J., Ville, J. M., Fakhfakh, T., & Haddar, M.          Li, Z., Wang, Y., & Wang, K.-S. (2017). Intelligent predictive maintenance for fault di-
+    (2012). Tonal prediction of a faulty axial fan. Applied Acoustics, 73, 1022–1028.              agnosis and prognosis in machine centers: Industry 4.0 scenario. Advances in
+    https://doi.org/10.1016/j.apacoust.2012.04.009.                                            Manufacturing, 5, 377–387.
+Adams, M. L. (2000). Rotating machinery vibration: From analysis to troubleshooting (me-        Lv, W. & Qiao, Y. (2017). Fault Diagnosis Method of Cigarette Dust Collecting Centrifugal Fan
+    chanical engineering). CRC Press.                                                         Based on Set (pp. 506–513).
+Affenzeller, M., Winkler, S., Wagner, S., & Beham, A. (2009). Genetic algorithms and genetic      Mattes, A., Schöpka, U., Schellenberger, M., Scheibelhofer, P., & Leditzky, G. (2012).
+    programming: Modern concepts and practical applications. CRC.                                  Virtual equipment for benchmarking predictive maintenance algorithms. Proceedings
+Ahmed, N. K., Atiya, A. F., Gayar, N. E., & El-Shishiny, H. (2010). An empirical com-              of the 2012 Winter Simulation Conference (WSC). IEEE (pp. 1–12).
+    parison of machine learning models for time series forecasting. Econometric Reviews,      Miao, Y., Zhao, M., Lin, J., & Lei, Y. (2017). Application of an improved maximum cor-
+    29, 594–621.                                                                                  related kurtosis deconvolution method for fault diagnosis of rolling element bearings.
+Al-Bugharbee, H., & Trendafilova, I. (2016). A fault diagnosis methodology for rolling           Mechanical Systems and Signal Processing, 92, 173–195. https://doi.org/10.1016/j.
+    element bearings based on advanced signal pretreatment and autoregressive mod-           ymssp.2017.01.033.
+     elling. Journal of Sound and Vibration, 369, 246–265. https://doi.org/10.1016/j.jsv.       Neter, J., Kutner, M. H., Nachtsheim, C. J., & Wasserman, W. (1996). Applied linear sta-
+    2015.12.052.                                                                                                           tistical models, Vol. 4. Irwin: Chicago.
+Baena-García, M., del Campo-Ávila, J., Fidalgo, R., Bifet, A., Gavaldà, R., & Morales-        Orhan, S., Aktürk, N., & Çelik, V. (2006). Vibration monitoring for defect diagnosis of
+    Bueno, R. (2006). Early drift detection method.                                                    rolling element bearings as a predictive maintenance tool: Comprehensive case stu-
+Bauer, D. (2009). Estimating armax systems for multivariate time series using the state            dies. NDT and E International, 39, 293–298. https://doi.org/10.1016/j.ndteint.2005.
+    approach to subspace algorithms. Journal of Multivariate Analysis, 100, 397–421.             08.008.
+Box, G. E., Jenkins, G. M., Reinsel, G. C., & Ljung, G. M. (2015). Time series analysis:          Rai, A., & Upadhyay, S. H. (2016). A review on signal processing techniques utilized in
+    Forecasting and control. John Wiley & Sons.                                                 the fault diagnosis of rolling element bearings. Tribology International, 96, 289–306.
+Breiman, L. (2001). Random forests. Machine Learning, 45, 5–32.                                 https://doi.org/10.1016/j.triboint.2015.12.037.
+Cartella, F., Lemeire, J., Dimiccoli, L., & Sahli, H. (2015). Hidden semi-markov models for      Renwick, J. T., & Babson, P. E. (1985). Vibration analysis—A proven technique as a
+    predictive maintenance. Mathematical Problems in Engineering.                                 predictive maintenance tool. IEEE Transactions on Industry Applications, IA-21,
+Cerqueira, V., Pinto, F., Sá, C., & Soares, C. (2016). Combining boosted trees with me-          324–332. https://doi.org/10.1109/TIA.1985.349652.
+    tafeature engineering for predictive maintenance. International symposium on in-          Ross, G. J., Adams, N. M., Tasoulis, D. K., & Hand, D. J. (2012). Exponentially weighted
+     telligent data analysis (pp. 393–397)Springer.                                        moving average charts for detecting concept drift. Pattern Recognition Letters, 33,
+Cleveland, R. B., Cleveland, W. S., McRae, J. E., & Terpenning, I. (1990). Stl: A seasonal-         191–198.
+    trend decomposition. Journal of Official Statistics, 6, 3–73.                                 Rusiński, E., Moczko, P., Odyjas, P., & Pietrusiak, D. (2014). Investigation of vibrations of
+Ding, X., & He, Q. (2016). Time–frequency manifold sparse reconstruction: A novel             a main centrifugal fan used in mine ventilation. Archives of Civil and Mechanical
+   method for bearing fault feature extraction. Mechanical Systems and Signal Processing,           Engineering, 14, 569–579. https://doi.org/10.1016/j.acme.2014.04.003.
+    80, 392–413. https://doi.org/10.1016/j.ymssp.2016.04.024.                          Samaranayake, P., & Kiridena, S. (2012). Aircraft maintenance planning and scheduling:
+Dogan, H., Eisenmenger, C., Ochmann, M., & Frank, S. (2018). A hybrid CFD/BEM method        An integrated framework. Journal of Quality in Maintenance Engineering, 18, 432–453.
+     for the calculation of aeroacoustic noise from a radial fan.                                  Sanjose, M., & Moreau, S. (2017). Direct noise prediction and control of an installed large
+Eskandari-naddaf, H., Gharouni-nik, M., & Pakzad, A. (2018). Lifetime analysis on cen-          low-speed radial fan. European Journal of Mechanics, B/Fluids, 61, 235–243. https://
+     trifugal ID fan foundation in cement plants. 10, 57–61. doi:10.30880/ijie.2018.10.01.          doi.org/10.1016/j.euromechflu.2016.10.004.
+    009.                                                                                Satishkumar, R., & Sugumaran, V. (2017). Remaining life time prediction of bearings
+Eskandari, H., Nik, M. G., & Pakzad, A. (2016). Foundation analyzing of centrifugal ID           using K-star algorithm – a statistical approach. Journal of Engineering Science and
+    fans in cement pla nts. Alexandria Engineering Journal, 55, 1563–1572. https://doi.            Technology, 12, 168–181.
+    org/10.1016/j.aej.2016.04.011.                                                      Saxena, A., Goebel, K., Simon, D., & Eklund, N. (2008). Damage propagation modeling for
+Gama, J., Medas, P., Castillo, G., & Rodrigues, P. (2004). Learning with drift detection.            aircraft engine run-to-failure simulation. International conference on prognostics and
+    Brazilian symposium on artificial intelligence (pp. 286–295)Springer.                             health management 2008 (pp. 1–9)IEEE.
+Gan, M., Wang, C., & Zhu, C. (2015). Multiple-domain manifold for feature extraction in      Sayed, M. S., Lohse, N., Sondberg-Jeppesen, N., & Madsen, A. L. (2015). Selsus: Towards a
+    machinery fault diagnosis. Measurement: Journal of the International Measurement               reference architecture for diagnostics and predictive maintenance using smart manu-
+    Confederation, 75, 76–91. https://doi.org/10.1016/j.measurement.2015.07.042.                facturing devices.
+Goyal, D., & Pabla, B. S. (2016). The vibration monitoring methods and signal processing       Scheffer, C., & Girdhar, P. (2004). Practical machinery vibration analysis and predictive
+    techniques for structural health monitoring: A review. Archives of Computational             maintenance (practical professional). Newnes.
+    Methods in Engineering, 23, 585–594. https://doi.org/10.1007/s11831-015-9145-0.        Scheibelhofer, P., Gleispach, D., Hayderer, G., & Stadlober, E. (2016). A Methodology for
+Holzinger, F., Kommenda, M., Strumpf, E., Langer, J., Zenisek, J., & Affenzeller, M.               predictive maintenance in semiconductor manufacturing. Austrian Journal of
+    (2018). Sensor-based modeling of radial fans. Proceedings of the 30th European mod-              Statistics, 41, 161–173.
+     eling and simulation symposium (pp. 322–330).                                     Schönmann, A., Dengler, C., Intra, C., Reinhart, G., & Lohmann, B. (2017). Cycle man-
+Hu, B., & Li, B. (2015). Blade crack detection of centrifugal fan using adaptive stochastic         agement of manufacturing resources: Identification and prioritization of investment
+    resonance. Shock and Vibration, 2015. https://doi.org/10.1155/2015/954932.                needs. Production Engineering, 11, 51–60.
+Janssens, O., Slavkovikj, V., Vervisch, B., Stockman, K., Loccufier, M., Verstockt, S., ...        Selcuk, S. (2017). Predictive maintenance, its implementation and latest trends.
+   Van Hoecke, S. (2016). Convolutional neural network based fault detection for ro-            Proceedings of the Institution of Mechanical Engineers, Part B: Journal of Engineering
+    tating machinery. Journal of Sound and Vibration, 377, 331–345. https://doi.org/10.          Manufacture, 231, 1670–1679.
+    1016/j.jsv.2016.05.027.                                                                Singh, J., Darpe, A. K., & Singh, S. P. (2017). Bearing damage assessment using Jensen-
+Jung, D., Zhang, Z., & Winslett, M. (2017). Vibration analysis for iot enabled predictive         Rényi Divergence based on EEMD. Mechanical Systems and Signal Processing, 87,
+    maintenance. Proceedings – international conference on data engineering (pp. 1271–            307–339. https://doi.org/10.1016/j.ymssp.2016.10.028.
+    1282). https://doi.org/10.1109/ICDE.2017.170.                                             Stein, E. M. (2016). Harmonic analysis (PMS-43). Real-variable methods, orthogonality, and
+                                                                                                                 oscillatory integrals, Vol. 43. Princeton University Press.
+
+                                                                       12
+--- Page 13 ---
+J. Zenisek, et al.                                                                                                       Computers & Industrial Engineering 137 (2019) 106031
+
+Sun, W., Yao, B., He, Y., Chen, B., Zeng, N., & He, W. (2017). Health state monitoring of          monitoring and fault diagnosis. Mechanical Systems and Signal Processing, 21,
+    bladed machinery with crack growth detection in BFG power plant using an active          2560–2574.
+    frequency shift spectral correction method. Materials, 10. https://doi.org/10.3390/       Winkler, S. M., Affenzeller, M., Kronberger, G., Kommenda, M., Burlacu, B., & Wagner, S.
+   ma10080925.                                                                             (2015). Sliding window symbolic regression for detecting changes of system dy-
+Tsymbal, A. (2004). The problem of concept drift: definitions and related work. Computer           namics. Genetic programming theory and practice XII (pp. 91–107)Springer.
+    Science Department, Trinity College Dublin106.                                      Xu, X., Liu, H., Zhu, H., & Wang, S. (2016). Fan fault diagnosis based on symmetrized dot
+Velarde-Suárez, S., Ballesteros-Tajadura, R., & Hurtado-Cruz, J. P. (2006). A predictive           pattern analysis and image matching. Journal of Sound and Vibration, 374, 297–311.
+    maintenance procedure using pressure and acceleration signals from a centrifugal            https://doi.org/10.1016/j.jsv.2016.03.030.
+    fan. Applied Acoustics, 67, 49–61. https://doi.org/10.1016/j.apacoust.2005.05.006.       Xu, X. G., Wang, S. L., Liu, J. L., Li, F., & Wang, H. J. (2013). On-line fan monitoring
+Wagner, S., Kronberger, G., Beham, A., Kommenda, M., Scheibenpflug, A., Pitzer, E., ...          system based on improved intelligent regression algorithm. Applied Mechanics and
+    Dorfer, V. (2014). Architecture and design of the heuristiclab optimization environ-           Materials, 291–294, 1874–1879. https://doi.org/10.4028/www.scientific.net/AMM.
+    ment. Advanced methods and applications in computational intelligence (pp. 197–261)          291-294.1874.
+    Springer.                                                                        Yang, Y., Dong, X. J., Peng, Z. K., Zhang, W. M., & Meng, G. (2015). Vibration signal
+Wang, H., & Abraham, Z. (2015). Concept drift detection for streaming data. 2015                analysis using parameterized time-frequency method for features extraction of
+     International Joint Conference on Neural Networks (IJCNN), IEEE (pp. 1–9).                    varying-speed rotary machinery. Journal of Sound and Vibration, 335, 350–366.
+Wang, S., Liu, H., & Xu, X. (2016a). Fan fault diagnosis based on symmetrized dot pattern and          https://doi.org/10.1016/j.jsv.2014.09.025.
+    improved BP neural network (pp. 899–902). doi:https://doi.org/10.1121/1.413571.       Yu, M., Fu, S., Gao, Y., Zheng, H., & Xu, Y. (2018). Crack detection of fan blade based on
+Wang, J., He, Q., & Kong, F. (2013). Automatic fault diagnosis of rotating machines by           natural frequencies. International Journal of Rotating Machinery, 2018. https://doi.
+    time-scale manifold ridge analysis. Mechanical Systems and Signal Processing, 40,             org/10.1155/2018/2095385.
+    237–256. https://doi.org/10.1016/j.ymssp.2013.03.007.                                 Zenisek, J., Affenzeller, M., Wolfartsberger, J., Silmbroth, M., Sievi, C., Huskic, A., &
+Wang, Y., Xiang, J., Markert, R., & Liang, M. (2016b). Spectral kurtosis for fault detection,          Jodlbauer, H. (2017). Sliding window symbolic regression for predictive main-
+    diagnosis and prognostics of rotating machines: A review with applications.                 tenance using model ensembles. International conference on computer aided systems
+    Mechanical Systems and Signal Processing, 66–67, 679–698. https://doi.org/10.1016/j.           theory (pp. 481–488)Springer.
+    ymssp.2015.04.039.                                                                     Zenisek, J., Wolfartsberger, J., Sievi, C., & Affenzeller, M. (2018). Comparing machine
+Wang, J., Zhang, L., Duan, L., & Gao, R. X. (2017). A new paradigm of cloud-based               learning methods on concept drift detection for predictive maintenance. Proceedings
+    predictive maintenance for intelligent manufacturing. Journal of Intelligent                      of the 30th European modeling and simulation symposium (pp. 115–122).
+    Manufacturing, 28, 1125–1137.                                                     Zhang, Y., Zuo, H., & Bai, F. (2013). Classification of fault location and performance
+Widmer, G. (1996). Recognition and exploitation of contextual clues via incremental             degradation of a roller bearing. Measurement: Journal of the International Measurement
+    meta-learning. Proceedings of the 13th international conference on machine learning (pp.           Confederation, 46, 1178–1189. https://doi.org/10.1016/j.measurement.2012.11.025.
+    525–533).                                                                                     Žliobaitė, I., Pechenizkiy, M., & Gama, J. (2016). An overview of concept drift applica-
+Widodo, A., & Yang, B.-S. (2007). Support vector machine in machine condition                    tions. Big data analysis: new algorithms for a new society (pp. 91–114)Springer.
+
+
+
+
+
+                                                                       13

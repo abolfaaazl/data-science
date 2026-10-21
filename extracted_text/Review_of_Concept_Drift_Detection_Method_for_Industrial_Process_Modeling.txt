@@ -1,0 +1,432 @@
+Title: Review_of_Concept_Drift_Detection_Method_for_Industrial_Process_Modeling
+
+--- Page 1 ---
+  Proceedings of the 39th Chinese Control Conference
+  July 27-29, 2020, Shenyang, China
+
+
+    Review of Concept Drift Detection Method for Industrial Process
+                            Modeling
+
+                               Zijian Sun1,2, Jian Tang1,2, Junfei Qiao1,2, Chengyu Cui1,2
+
+                        1. Faculty of Information Technology, Beijing University of Technology, Beijing, 100124, China
+                                                   E-mail: sunzj@emails.bjut.edu.cn
+
+                     2. Beijing Key Laboratory of Computational Intelligence and Intelligent System, Beijing 100124, China
+                                                    E-mail: freeflytang@bjut.edu.cn
+
+       Abstract: With the advent of big data era in industry, data-driven modeling methods have been applied widely. The concept drift
+      problem in industrial process modeling has also attracted widespread attention. However, the current research on concept drift
+       focuses on classification tasks and computer fields, with less work on regression modeling of industrial processes. Aiming at the
+      above problems, this paper summarizes the concept drift detection methods for industrial process modeling, and guide for
+       solving this problem. First, the general definition of concept drift and its existence in industrial processes are introduced. Then,
+        the existing drift detection technologies based on process variables, based on prediction error of difficulty-to-measure parameter
+      and based on combine multiple factors are addressed. Thirdly, these methods are discussed, and some research difficulties are
+       given out. Finally, the conclusion and the future research directions for the existing concept detection difficulties are presented.
+     Key Words: Industrial process, Concept drift detection, Process variable, Prediction error, Sample distribution
+
+
+                                                                   preparation. This feature has attracted the attention of many
+ 1  Introduction                                                                    scholars. Especially, when the process data distribution
+    With the increasing requirements of complex industrial     changes over time, the old data-driven model is gradually
+  processes for control, operating efficiency and reliability, it     not suitable for current data. This phenomenon is also called
+  is difficult to obtain the changes of the difficulty-to-measure     concept drift [3].
+  parameter (i.e., production quality and quantity, pollution       Regarding the issue above, online learning methods are
+  emission index). Most of them are obtained by traditional     widely adopted, because their decision-making mechanism
+  decision-making based on expert knowledge and off-line     will be updated in real-time to deal with concept drift [4]. In
+  laboratory  analysis.  For  large and complex  industrial     recent  years,  for  different  learning  tasks and  learning
+  processes,   real-time   difficulty-to-measure   parameter     scenarios, a large number of online learning algorithms have
+  information needs to be integrated to achieve effective     been produced. Ref [5] proposed a perceptron algorithm
+  process control. Therefore, industrial process modeling has    implemented  with  an  online  learning  model.  It was
+  become an important part of the system characteristics     generalized as a non-linear perceptron method based on
+  analysis,  controller  design, and operating  optimization.     kernel functions [6]. The online passive active algorithms
+  However,  industrial  processes  usually  have  complex      [7], LASSO online learning algorithms [8], regularized dual
+  structures, which need many on-site interferences. Thus, it     average online learning methods [9], et al. are also proposed.
+  is difficult to construct the first principal model for different    However, for the concept drift problem, online learning
+  research objectives. To satisfy the high requirements of     algorithms still face various challenges, such as: (1) how to
+  security  and   stability,  data-driven  industrial  process     ensure the stability of online learning updates when the
+  modeling methods are currently widely used [1].                 distribution of new and old modeling samples is inconsistent;
+    There are usually many defects in the original process     (2) how to effectively learn when the sample concepts are
+  data, such as inconsistency, missing, noise, or redundancy.      different and are fused into the new model [10]; and (3) how
+ So the data preparation is one of the important stages of the     to identify  drift samples when the labeled samples are
+  data-driven  modeling  process.  The  purpose  of  the     sparsely acquired.
+  preparation phase  is to eliminate the defects mentioned       In response to the above challenges, research on concept
+  above and provide high-quality data for subsequent learning      drift detection has developed rapidly in recent years. Fig. 1
+  algorithms [2]. As the amount of process data increases, the    shows the growth of refs and citations related to concept
+  data stream becomes a common analysis object. In the      drift in the past 20 years [11]. As we know, the earlier drift
+  practical  industrial  process,  the  process  variables  are     detection system is the FLORA algorithm series [12]. The
+  obtained by using the PLC/DCS system with a continuous     algorithm initially realizes the distinction and storage of
+  data stream style. The non-stationarity of the data stream    sample concepts. In subsequent work, the causes, types, and
+  with time changes places higher requirements for data     definitions of concept drift have been further improved [13].
+                                                                  Different  learning methods  for  concept  drift  such  as
+                                                              semi-supervised learning, active learning, and repetitive
+     *This  work   is  supported  by   National  Key  R&D   Project     concept learning have been proposed successively [14, 15,
+  (2018YFC1900801) National Natural Science Foundation (NNSF) of     16]. Moreover, the existing model is also combined with
+  China (61890930-5, 61703089), and National ˂ Beijing Key Laboratory
+                                                                              drift detection. It is constructed as a specific drift adaptation  of  Process  Automation   in  Mining &  Metallurgy  (BGRIMM-
+  KZSKL-2018-06).                                        model [17]. In industrial data-driven models, concept drift
+                                                            has three main detection methods, i.e., based on process
+
+
+
+                                                 5754Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:49 UTC from IEEE Xplore. Restrictions apply.
+--- Page 2 ---
+  variables, based on prediction error of difficulty-to-measure    commonly used classification methods are described as four
+  parameter, and based on combine multiple factors. It can     types, which are sudden drift, gradual drift, incremental drift,
+  also be grouped as single sample and multi-sample detection    and reoccurring drift [3]. Examples are shown in Fig. 2:
+  methods.
+
+                                                                                                                                                               mean                                                               mean
+
+                                                                                                                      time                                      time             澳
+                                                                                                           (a) Sudden drift               (b) Incremental drift
+
+
+                     Fig. 1: Research trends in concept drift
+    At present, there are many review studies about concept                   mean                                                               mean  drift  [ 18 , 19 ]. They  comprehensively  introduced  the
+  research progress. Among them, ref [18] summarized the
+  drift detection algorithm based on classification tasks, and                              time                                      time             澳
+  ref [19] summarized  it from three perspectives, i.e., drift                        (c) Gradual drift              (d) Reoccurring drift
+  detection, understanding, and  adaptation. They  are not                        Fig. 2: Illustration of the four drift types
+  address on the concept drift problem on industrial process
+  modeling.                                                     2.2  Causes and Classification of Industrial Process
+    Therefore, compared with other review works, this paper         Concept Drift
+  focuses on the background of industrial processes modeling.                                             Common types of concept drift in industrial processes are
+  The main research focuses are: (1) enumerating commonly                                                         sudden drift and gradual drift, of which reoccurring drifts
+  used concept drift detection methods in the industry; (2)                                                                  are  rare due to the complex changes  in the  industrial
+  summarizing the current research results of drift detection,                                                             environment. According to two common causes of drift in
+  discuss methods based on the above three detection methods;                                                                    industry, it is divided into process drift and sensor drift [25].
+  (3)  provide  insights  into  problems  and  development                                                           There are two general reasons for the process drift. The
+  directions in this field.                                                                                   first one is the change of the process itself, such as the stable
+ 2  Description  of Concept  Drift  for Industrial    wear of mechanical components  in  the factory during
+     Processes                                                 operation. The second one is the change in the external
+                                                                conditions of the process, such as weather changes and
+                                                                      catalyst  deactivation.  In  the  municipal  solid  waste  2.1  General Definition and Classification of Concept
+                                                                   incineration process, the component and water content of       Drift
+                                                                  the waste will change according to the living level and
+    Concept drift refers to the statistical characteristics of the     seasons.
+  target sample change in a random manner over time [20].       Sensor drift, also known as measurement drift, is caused
+  This description was  first proposed by ref [ 21], whose    by changes in feedback from the measurement device. Some
+  purpose is to point out that noisy data will be transformed     researchers believe that it does not reflect changes in the
+  into non-noisy data in some cases. Moreover, these changes     process itself and is therefore not considered drift. But in a
+  are usually difficult to measure [22].                           data-driven model, any change in the data may affect the
+   The general form of concept drift in industrial processes     decision and update of the model. Therefore, this kind of
+  is as follows. Given the set of modeling samples at time [0,      drift should be distinguished in time, and the input and
+   t], d i    ( X i yi )(i  [ 0, t ]) is a sample in S 0, t  ^ d 0, } , d t ` ,     output changes  of  the sensor should be  discriminated
+                                                                      against.  where X i is the model input (this paper refers to the process
+                                                           There are many concept drift detection methods that have
+  variables),  iy  is the model output truth value (this paper    been incorporated into industrial processes. Ref [26] applied
+  refers to the difficulty-to-measure parameter), and within     detection methods based on non-parametric U test, local
+  S 0,t the samples all follow the distribution F0, t ( X, y ) . It is     performance parameter test and statistical analysis of raw
+                                                                data  to  online  prediction  of mass flow  in  circulating  assumed that the new sample d k ( k  [t +1, f )) follows the
+                                                                    fluidized bed boilers. Model prediction error  is used to
+  distribution  kF ( X, y )  . When F0, t ( X, y ) z Fk ( X, y )  ,  the     detect drift in the research of industrial radial fan adaptive
+  concept drift of the sample d k  is considered.                  maintenance, [27]. Ensemble regression model is used to
+                                                                   detect drift during the etching process of semiconductor    According to different research  priorities, researchers
+                                                            manufacturing [28].  divide concept drift into different categories. For example,
+  ref  [ 23] divided  it into virtual and real concept  drifts     2.3  Process of Concept Drift
+  according to different data generation environments; ref [24]
+  proposed a concept drift generation model based on the      Ref [19] proposed a general concept drift processing flow,
+  multi-source  of  data  generation. At  present,  the most     as shown in Fig. 3.
+
+
+
+
+                                                 5755Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:49 UTC from IEEE Xplore. Restrictions apply.
+--- Page 3 ---
+                                                         A drift detected
+                                                                                                       Update
+
+                                               Training and                  Concept Drift    Concept Drift    Concept Drift
+                            Stream Data                       Prediction
+                                              Learning                        Detection      Understanding      Adaptation
+
+                                                                 No drift detected
+                                                                  Fig. 3: Process of concept drift
+
+    In ref [19], the process of concept drift is divided into     used to detect the sudden and progressive drift [34, 35]. The
+  three steps, i.e., detection, understanding, and adaptation. It   ALD value is calculated in the input sample’s original space
+  also pointed out  that some methods can perform  drift     or kernel space firstly. Then, the drifting is judged according
+  detection  and  understanding  at  the same  time.  Drift     to the relationship between tG 1 and threshold v. That is to
+  detection  refers  to  the  technology and mechanism  of                                                                   say, when Gt 1 d v , it is considered that the new sample not
+  characterizing and quantifying concept drift by identifying
+                                                                                 drift. Otherwise, when Gt 1 ! v , it is considered that the new  change points or change  intervals.  Drift understanding
+  solves the problems of “when”, “where” and “how”, that is,    sample drift. The threshold v is determined according to the
+  to obtain drift obtaining state information such as time, area,     requirements of modeling accuracy and speed in the actual
+  and degree, and using it as input for drift adaptation. Drift      industrial system. In nature, it can usually be expressed as a
+  adaptation usually uses the method of simple retraining,     single-objective optimization problem [36].
+  comprehensive retraining, or model adjustment to update                                                                3.2  Methods   Based   on    Difficulty-to-measure
+  the model based on the drift state information. It should be                                                         Parameter
+  noted that the prediction error cannot be obtained in most of
+  the actual industrial processes because the true value of the      Ref [37] proposed a detection algorithm based on the
+  difficulty-to-measure process  is  difficult  to  obtain. For     prediction error band (PEB). When the PEB meets the
+  example,  in  the  process  of  municipal  solid  waste                                           1    2                                                                conditions ek d Rule ^Gk ,Gk , "`  , the sample is considered
+  incineration, the concentration of pollutants called dioxin is
+  difficult to be detected online in real-time. Thus, process     not drift. In which, Gk1 ,Gk2 , " represents different thresholds
+  variables-based methods have to be used in this case.             set  based on  prior knowledge and  Rule ()  represents
+ 3  Drift Detection Methods Review                   judgment rules set based on experience. The representative
+                                                              algorithm based on model’s prediction error is DDM [38]. It
+    This section divides the drift detection method into three                                                                                 is realized with three steps: (1) define the sample warning
+  categories,  i.e., based on  process  variables, based on                                                                     level and  drift level; (2) use a window to collect new
+  prediction error of difficulty-to-measure parameter, and                                                             samples; and (3) calculate the prediction error on the new
+  based on combine multiple factors.                                                              samples. When the error change amplitude reaches the
+  3.1  Methods Based on Process Variables                 warning level, it is ready to build a new model. Moreover,
+                                                                  the old model is still used to predict at this time. However,
+   The  process monitoring method based on  principal                                                 when the error change amplitude reaches the drift level, the
+  component analysis (PCA) has been successfully applied in                                                               old model will be replaced by a new one. The training
+  industrial processes with time-varying characteristics [29].                                                          samples are obtained accumulated during the process from
+  At first, the method divided the new sample td 1 into two     warning level to drift level. That is to say, DDM provides a
+  parts, i.e., tdˆ  1 and td 1 ˈwhich are projections of td 1 on     preliminary detection framework, which is to complete the
+                                                                      collection, detection, judgment, and update of new samples
+  the principal subspace and residual subspace of the PCA
+                                                            through the window, prediction error, and level definition.
+  model, respectively. Then, the squared prediction error
+                                                      The above methods are based on single samples. In the  (SPE) and Hoteling’s T2 index of the new sample are
+                                                                  detection method for multiple samples, the distance function
+  calculated [30]. Generally, SPE is used to measure the
+                                                                                 is generally used to quantify the distribution difference
+  projection of the new sample on the residual subspace. It
+                                                        between the old samples and new ones. When the sample
+  indicates the degree of deviation of the new sample from the
+                               2                                          distance is proved to be statistically significant, a concept  model. Moreover, T   is used to measure the change of the                                                                              drift alarm will be issued. Then, the old model will enter the
+ new sample on  the  principal component  subspace.  It                                                            update process.
+  indicates the degree of deviation of the new sample within                                                          Ref [39] earlier provided guidance for the design of
+  the model. Finally, it is judged that the new sample concept                                                                 distance function in multi-sample distribution difference
+  does not drift when SPE and T 2 meet the control limits of      analysis. Then, it proposed relative distance families. The
+ SPE and T 2 . In the recent researches, a weighted recursive     significance level of the distance family was determined by
+ PCA  detection  algorithm was proposed  [ 31 ].  It can     Chernoff bound and Vapnik Chervonenkis dimension. In
+  effectively reduce the computational complexity. Fuuther, a     another method, each sample block is mapped to a concept
+  detection  method  combining  exponentially  weighted     vector after the historical samples are divided into multiple
+  moving average (EWMA) and PCA was used for fault    sample  blocks.  Further,  multiple  concept  vectors  are
+  detection of cement plants [32]. Recently, a method based     clustered into a concept. When a new sample block arrives,
+  on signed directed graph (SDG) and PCA algorithms are       its concept vector and each cluster center distance is used to
+  used in online process monitoring systems [33].                 detect  drift  [ 40]. The above algorithm process can be
+   The  approximate  linear  dependence  (ALD)  value     represented by Fig.  4.  It can also represent a general
+  between the old training samples and the new sample is also     multi-sample detection process.
+
+
+
+                                                 5756Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:49 UTC from IEEE Xplore. Restrictions apply.
+--- Page 4 ---
+                                                              process  variable. Moreover,  it can fuse domain expert
+                   Historical samples       New samples retrieved by window           knowledge based on the actual industrial process. However,
+                                                                  the method was not verified with real data, and the statistical
+           d1     d2     d3    d4 Ă  dt           dt+1   dt+2   dt+3   dt+4   dt+5  Ă            test of sample distribution didn’t consider.
+                                                               t    t+1                             Ref [46] combined PCA and the statistical method based
+                                                     on the Wilcoxon test to monitor change of the sample class
+                                                                      distribution and the posterior probability distribution. At the
+           Extracting features between             Extracting features between new          same time, a data structure named P-tree is constructed to
+           historical samples (e.g. sample           samples (usually the same as the
+                   distance, etc.)                       features of historical samples)             store samples of concept changes to achieve the purpose of
+                                                                        efficient online model maintenance. The framework of this
+                                                              algorithm is shown in Fig. 5.
+
+                             Trigger distribution comparison
+                                                                                                                            Streaming Data
+
+                           Evaluation of Distribution Similarity                                                                                             Insert
+                  Fig. 4: Multi-sample drift detection process                                                                                                                                        Update  Concept Drift Detection
+                                                                                                                              Online Data            PCA        Statistical
+     Similarly, there is a method by using the central limit           Representativeness  Update      Maintenance
+                                                                                                    Learning                                  Update       Compression  theorem without relying on the sample distribution [41]; and                                   P-TREE
+  a method used the entropy value to calculate the difference                                                                       ConstrainedSynchronization-basedClustering
+  in the sample block distribution [42]. In recent research, a                                                      Prediction
+  concept neuron algorithm proposed by ref [43]. It adopts a                                  Lazy Learning (KNN)
+ window to monitor the residual distribution in the new
+                                                                                                 Fig. 5: Multi-scale model maintenance framework
+  sample block and  to update the model with a parameter
+  inverse gradient based on the residual after monitoring the                                                              This framework can also be used as a general multi-scale
+  change. Ref [44] proposed a change detection experiment                                                      model maintenance framework.
+  based on the least square density difference.
+                                                 4  Discussion and Analysis
+  3.3  Method Based on Combine Multiple Factors
+    Ref [45] combined ALD and relative prediction error     4.1  Methods Comparison
+  (RPE) methods by using fuzzy rules to judge concept drift.                                                      The characteristics of the above detection methods are
+  Compared  with  only ALD-based  algorithms and  only                                                      compared here, and the results are shown in Table 1.
+  PEB-based methods, this approach combined the model’s
+  predictive performance change and the drift characteristic of
+                                       Table 1 Comparison of Concept Drift Detection Methods
+
+            Ref
+   number       Year              Research content              Method category       Advantage         Disadvantage
+          number
+      1     [43]  2016    A method based on concept neuron       Method based on   Fast detection speed, Lack of representation
+                A method based on least-squares density    difficulty-to-measure       can find            of drift state
+      2     [44]  2016
+                                            difference                       parameter       abnormalities in time     information
+      3     [45]  2016   A method of combining ALD and RPE                                              Reliance on specific
+                                                           Method based on      Can balance     scenario modeling, it
+               A method of combining statistical-based and   combine multiple    detection speed and is difficult to establish
+      4     [46]  2018
+                             PCA                              factors           performance         standardized
+                                                                                                                               indicators
+                                                                                                                             Difficult to balance
+                                                                          Can accurately    model accuracy and
+                                                           Method based on
+      5     [33]  2018  A method of combining SDG and PCA                                  reflect sample     update speed, lack
+                                                                       process variables
+                                                                                          changes         reasonable trigger
+                                                                                                  mechanism
+                                                             Methods based on   Fast detection speed, Lack of representation
+                   An adaptive model maintenance based on
+      6     [27]  2019                                                difficulty-to-measure       can find            of drift state
+                                         prediction error
+                                                                        parameter       abnormalities in time     information
+    According to Table 1, the overall detection speed of the     accuracy of the test results is guaranteed. Moreover, it can
+  detection method based on difficulty-to-measure parameter     usually reflect a certain degree of drift and distribution
+  relatively fast. It can reflect the possible time and location of     difference  characteristics. Therefore, the model can be
+  the drift for the model in time. Thus, the model can take     selectively updated efficiently. However, the retrieval and
+  measures to deal with the concept drift that has just started     inspection of samples in this method are usually slower and
+  or is about to start. However, it is difficult for this detection    consume more computing resources.
+  method to reflect more drift state information and to update      The method based on combine multiple factors makes the
+  the model in a targeted manner.                           method have the advantages of the above two methods. But
+   The detection based on process variables  is usually      this requires that the connection between the two methods is
+  implemented by a distribution-based method. Thus, the     reasonable and has a scientific distribution of computing
+
+
+
+                                                 5757Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:49 UTC from IEEE Xplore. Restrictions apply.
+--- Page 5 ---
+  power. At the same time, the method faces the same    measurement method need to be established.
+  problem as  the method based on  difficulty-to-measure        (2) Research on improvement  of method based on
+  parameter, that is, it cannot be used when the true value is     prediction error of difficulty-to-measure parameter. After
+  difficult to obtain.                                           determining  the  sample  distribution  expression,  the
+                                                                  detection algorithm can further combine with PCA, PEB,
+  4.2   Difficulties Analysis                                                         sample distance or other indicators of change. Then, the new
+    Through the above analysis, it is found that the following      drift threshold indicators should be define to determine the
+  issues still need to be resolved in the field of concept drift     degree of drift.
+  detection for industrial processes.                                   (3) Research on improvement of process variables based
+     (1) How to obtain the sample expected distribution of the     method. The sample retrieval mechanism  is determined
+  actual industrial process                                     according to the sampling rate and the number of samples.
+    Although the research on concept  drift detection has    The distribution characteristics of the sample block are
+  achieved fruitful results, there is still no strict mathematical    summarized by clustering and other methods to establish a
+  description of the definition, speed, and amplitude of the      drift index. When a new sample block is detected drift, the
+  concept. Therefore, when detecting the condition of sample    model update method can be guided according  to the
+  drift, the differences in sample distribution are usually      similarity of the new samples and modeling samples.
+  reflected indirectly through indicators such as prediction
+                                                        References  error or sample distance. Thus,  it  is difficult to obtain
+  accurate  representations  of  the  sample  concept  and
+  distributions. At the same time, it is difficult to obtain some      [1]  E. R. Xin, Z. Dong, and X. L. Cao, Dynamic data driven
+  real values in the actual industrial process. Moreover, it is          modeling of industrial system based on state optimization,
+  difficult to apply the supervised detection method that does         Computer Simulation, 35(5): 139-142, 2018.
+  not rely on the sample distribution. Therefore, future work      [2]   S. García, L. Julián, and H. Francisco, Data preprocessing in
+                                                                             data mining, Springer International Publishing, 2015.  should  strengthen  the  study  of  sample  distribution
+                                                                             [3]    I. äOLREDLWơ  /HDUQLQJ XQGHU concept  drift: an overview,
+  expression  and  combine    it  with  unsupervised  or                                                                Computer Science, 2010.
+  semi-supervised  learning methods. That  is  to  say,  the                                                                             [4]   - *DPD  ,  äOLREDLWơ $  %LIHW M. Pechenizkiy, and A.
+  corresponding methods based only on process variables or          Bouchachia, A survey on concept  drift adaptation, ACM
+  based on a small number of truth values.                            computing surveys, 46(4): 1-37, 2014.
+     (2) How to mine more information from methods based      [5]   F. Rosenblatt, The perceptron: a probabilistic model for
+  on difficulty-to-measure parameter.                                    information  storage  and  organization   in  the   brain,
+    At present, most methods based on difficulty-to-measure          Psychological review, 65(6): 386-408, 1958.
+  parameter are limited to detecting samples as abnormal      [6]   S.  S.  Shwartz,  Online  learning  and  online  convex
+                                                                              optimization, Foundations and Trends in Machine Learning,  samples. However, they have not thoroughly studied other
+                                                                                  4(2): 107-194, 2012.
+  drift information carried by the samples, such as the time                                                                             [7]  K. Crammer, O. Dekel, J. Keshet, S. S. Shwartz, and Y.
+ when the drift may occur or the possibility of imminent drift.                                                                              Singer, Online passive-aggressive algorithms, Journal of
+  For this reason, as far as possible, a quantitative description         Machine Learning Research, 7(Mar): 551-585, 2006.
+  of the abnormality of each sample should be described. Thus,     [8]  L. Z. Jie, L. Y. Xiang, W. Feng, F. Yu, and Z. L. Xiang,
+  the model can be remind that how to prepare the next step to            Efficient and accelerated online learning for sparse group
+  ensure rapid adaptation when the drift arrives.                   LASSO, in: 2014 IEEE International Conference on Data
+     (3) How to make process variables based method more         Mining Workshop, 2014: 1171-1177.
+  accurate.                                                                [9]  L. Xiao, Dual averaging methods for regularized stochastic
+                                                                              learning  and  online  optimization,  Journal  of Machine   To obtain higher prediction accuracy and update speed in
+                                                                      Learning Research, 11(Oct): 2543-2596, 2010.
+  actual industrial models, selective updating and forgetting                                                                        [10] Z. J. Li, Y. X. Li, F. Wang, G. L. He, and L. Kuang, Online
+  should be performed according to the degree or type of drift                                                                              learning algorithms for big data analytics: a survey, Journal
+  of samples. Thus, this requires that the process variables can            of Computer Research and Development, 52(8): 1707-1721,
+  accurately express the difference between its distribution          2015.
+  information and  historical sample  distribution.  Current      [11] Citation  report  of  concept   drift,  Web   of  Science,
+  research focuses on existence, not the extent.                       www.isiknowledge.com.
+                                                                        [12] G. Widmer and M. Kubat, Learning in the presence of
+ 5  Conclusions and Prospect                                    concept drift and hidden contexts, Machine Learning, 23(1):
+                                                                         69-101, 1996
+    This paper  first introduced the general processes and                                                                        [13] R. ELWELL and R. POLIKAR, Incremental learning of
+  challenges of current data-driven modeling in the context of          concept   drift   in   nonstationary  environments,  IEEE
+  industrial processes. Then, it summarized the definition of          Transactions  on  Neural  Networks,  22(10):  1517-1531,
+  concept drift, research status, and industrial applications.        2011ˊ
+  Finally, analyzed some problems that need to be solved in      [14]  J. GAO, B. DING, W. FAN,  J. Han, and S. Y. Philip,
+  this field at this stage.                                                    Classifying data stream with skewed class distributions and
+    Further research is needed in the following aspects:                concept drifts, IEEE Transactions on Internet Computing,
+     (1) Research on define sample distribution expression.           12(6):37-49, 2008ˊ
+  The distance function can be combined with a variety of      [15]  J.  C.  Xue  and  G.  M.  Weiss,  Quantification  and
+  statistical testing methods. It can be used to analyze the           semi-supervised classification methods for handling changes
+                                                                                  in  class  distribution,  in: Proceedings  of the 15th ACM  correlation  degree and  change  characteristics  of  each
+  process variables. Thus, an accurate sample distribution
+
+
+
+                                                 5758Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:49 UTC from IEEE Xplore. Restrictions apply.
+--- Page 6 ---
+     SIGKDD international conference on Knowledge discovery      [34] Y. Engel, S. Mannor, and R. Meir. The kernel recursive
+      and data mining, 2009: 897-906.                                        least-squares  algorithm,  IEEE  Transactions  on  signal
+  [16] P. LI, X. D. WU, and X. G. HU, Learning from concept drift           processing, 52(8): 2275-2285, 2004.
+       data streams with unlabeled data, in: Proceedings of the 24th      [35]  J. Tang, W. Yu, T. Y. Chai, and L. Zhao, On-line principal
+      AAAI  Conference  on   Artificial   Intelligence,   2010:         component analysis with application to process modeling,
+      1945-1946ˊ                                                   Neurocomputing, 82: 167-178, 2012.
+  [17] Y. M . WEN, Y. N. WANG, and Y. ZHANG, Fast detection      [36]  J. Tang, T. Y. Chai, and L. J. Zhao. On-line KPLS algorithm
+       of concept drifts based on confident majority voting, Journal          with application to ensemble modeling parameters of mill
+        of Hunan University: Natural Sciences, 37(6): 36-40, 2010ˊ            load, Acta Automatica Sinica, 39(5): 471-486, 2013.
+  [18] Y. M. Wen, B. H. Qiang, and Z. G. Fan, A survey of the      [37] Y. Liu, H. Wang, J. Yu, and P. Li, Selective recursive kernel
+        classification  of  data streams with concept  drift, CAAI           learning for online identification of nonlinear systems with
+       Transactions on Intelligent Systems, 8(2): 95-104, 2013.         NARX form, Journal of Process Control, 20(2): 181-194,
+  [19]  J. Lu, A. Liu, F. Dong, F. Gu, J. Gama, and G. Q. Zhang,          2010.
+       Learning under concept drift: a review, IEEE Transactions      [38]  J. Gama, P. Medas, G. Castillo, and P. Rodrigues, Learning
+      on Knowledge and Data Engineering, 31(12): 2346-2363,          with drift detection, in: Proc. 17th Brazilian Symp. Artificial
+       2018.                                                                      Intelligence, 2004: 286–295.
+  [20] N. Lu, G. Zhang, and  J. Lu, Concept drift detection via      [39] D. Kifer, S. B. David, and J. Gehrke, Detecting change in
+      competence models, Artificial Intelligence, 209: 11-28, 2014.           data streams, in: Proc. 30th Int. Conf. Very Large Databases,
+  [21]  J. C. Schlimmer and R. H. Granger, Incremental learning          2004: 180–191.
+      from noisy data, Machine learning, 1(3): 317-354, 1986.          [40]  I.  Katakis, G.  Tsoumakas, and  I.  Vlahavas.  Tracking
+  [22] A. Liu, Y. Song, G. Zhang and J. Lu, Regional concept drift           recurring contexts using ensemble classifiers: an application
+        detection and density synchronized drift adaptation, in: Proc.            to email filtering, Knowledge and Information Systems, 22(3):
+       26th   Int.   Joint  Conf.   Artificial   Intelligence,  2017:          371-391, 2010.
+      2280–2286.                                                     [41] C.   Alippi  and  M.   Roveri.   Just-in-time   adaptive
+  [23] G. Widmer and M. Kubat, Effective learning in dynamic           classifiers—Part I: Detecting nonstationary changes, IEEE
+       environments by  explicit context tracking,  in: European          Transactions on Neural Networks, 19(7): 1145-1153, 2008.
+       Conference on Machine Learning, 1993: 227-243.                [42] P. Vorburger, A. Bernstein. Entropy-based concept  shift
+  [24] A. M. Narasimhamurthy and L. I. Kuncheva, A framework            detection, in: Sixth International Conference on Data Mining,
+        for generating data to simulate changing environments, in:          2006: 1113-1118.
+         Artificial Intelligence and Applications, 2007: 415-420.           [43] L. Moreira-Matias, J. Gama, and J. M. Moreira, Concept
+  [25] P. Kadlec, B. Gabrys, and S.  Strandt, Data-driven  soft          neurons–handling drift issues for real-time industrial data
+       sensors  in the process  industry, Computers & chemical          mining, in: Joint European Conference on Machine Learning
+       engineering, 33(4): 795-814, 2009.                              and Knowledge Discovery in Databases, 2016: 96-111.
+  [26]  J. Bakker, M. Pechenizkiy, I. äOLREDLWơ A. Ivannikov, and T.      [44] L. Bu, C. Alippi, and D. Zhao, A pdf-free change detection
+       Kärkkäinen, Handling outliers and concept drift in online             test  based  on  density   difference   estimation,  IEEE
+      mass flow prediction in CFB boilers, in: Proceedings of the           transactions on neural networks and learning systems, 29(2):
+       Third International Workshop on Knowledge Discovery from          324-334, 2016.
+       Sensor Data, 2009: 13-22.                                   [45] J. Tang, T. Y. Chai, Z. Liu, and X.  J. Zhou, Adaptive
+  [27]  J. Zenisek,  F. Holzinger, and M.  Affenzeller, Machine          ensemble modelling approach based on updating sample
+        learning  based  concept   drift  detection  for  predictive            intelligent  identification, Acta Automatica  Sinica,  42(7),
+       maintenance, Computers &  Industrial Engineering, 137:          1040-1052, 2016.
+       106031, 2019.                                                  [46]  J.  Shao,  F.  Huang,  Q.  Yang,  and  G.  Luo,  Robust
+  [28] F. Rosenthal, P. B. Volk, M. Hahmann, D. Habich, and W.           prototype-based learning on data streams, IEEE Transactions
+       Lehner, Drift-aware ensemble regression, in: International         on Knowledge and Data Engineering, 30(5): 978-991, 2017.
+      Workshop on Machine Learning and Data Mining in Pattern
+       Recognition, 2009: 221-235.
+  [29]  J. Tang, T. Y. Chai, Z. Liu, and X.  J. Zhou, Adaptive
+       ensemble modelling approach based on updating sample
+        intelligent  identification, Acta Automatica  Sinica,  42(7):
+       1040-1052, 2016.
+  [30] H. H. Yue, and  S.  J.  Qin,  Reconstruction-based  fault
+        identification  using  a  combined  index,  Industrial &
+       engineering chemistry research, 40(20): 4403-4414, 2001.
+  [31]  I.  Portnoy, K. Melendez, H.  Pinzon, M.  Sanjuan, An
+      improved weighted recursive PCA algorithm for adaptive
+        fault detection, Control Engineering Practice, 50: 69-83,
+       2016.
+  [32] A. Bakdi, A. Kouadri, and A. Bensmail, Fault detection and
+       diagnosis  in  a  cement  rotary  kiln  using PCA  with
+     EWMA-based  adaptive  threshold  monitoring  scheme,
+       Control Engineering Practice, 66: 64-75, 2017.
+  [33] X. Han, S. Tian,  J. A. Romagnoli, H. Li, and W. Sun,
+     PCA-SDG based process monitoring and fault diagnosis:
+        application    to   an    industrial    pyrolysis    furnace,
+      IFAC-PapersOnLine, 51(18): 482-487, 2018.
+
+
+
+
+
+                                                 5759Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:49 UTC from IEEE Xplore. Restrictions apply.

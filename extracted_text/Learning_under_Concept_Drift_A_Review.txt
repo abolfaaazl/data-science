@@ -1,0 +1,1358 @@
+Title: Learning_under_Concept_Drift_A_Review
+
+--- Page 1 ---
+2346                                      IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING,  VOL. 31,  NO. 12, DECEMBER 2019
+
+    Learning under Concept Drift: A Review
+
+
+                   Jie Lu   , Fellow, IEEE, Anjin Liu   , Member, IEEE, Fan Dong, Feng Gu,
+                                  Jo~ao Gama   , and Guangquan Zhang
+
+
+
+      Abstract—Concept drift describes unforeseeable changes in the underlying distribution of streaming data over time. Concept drift
+      research involves the development of methodologies and techniques for drift detection, understanding, and adaptation. Data
+       analysis has revealed that machine learning in a concept drift environment will result in poor learning results if the drift is not
+      addressed. To help researchers identify which research topics are signiﬁcant and how to apply related techniques in data analysis
+       tasks, it is necessary that a high quality, instructive review of current research developments and trends in the concept drift ﬁeld
+         is conducted. In addition, due to the rapid development of concept drift in recent years, the methodologies of learning under
+      concept drift have become noticeably systematic, unveiling a framework which has not been mentioned in literature. This paper
+      reviews over 130 high quality publications in concept drift related research areas, analyzes up-to-date developments in
+      methodologies and techniques, and establishes a framework of learning under concept drift including three main components:
+      concept drift detection, concept drift understanding, and concept drift adaptation. This paper lists and discusses 10 popular
+       synthetic datasets and 14 publicly available benchmark datasets used for evaluating the performance of learning algorithms
+      aiming at handling concept drift. Also, concept drift related research directions are covered and discussed. By providing
+       state-of-the-art knowledge, this survey will directly support researchers in their understanding of research developments in the
+       ﬁeld of learning under concept drift.
+
+
+      Index Terms—Concept drift, change detection, adaptive learning, data streams
+
+                              Ç
+
+1  INTRODUCTION
+
+    OVERNMENTS and companies  are  generating huge     Concept drift problem exists in many real-world situa-
+    amounts of streaming data and urgently need efﬁcient   tions. An example can be seen in the changes of behavior inG
+data analytics and machine learning techniques to support  mobile phone usage, as shown in Fig. 1. From the bars in
+them making predictions and decisions. However, the rap-   this ﬁgure, the time percentage distribution of the mobile
+idly changing environment of new products, new markets  phone usage pattern has changed from “Audio Call” to
+and new customer behaviors  inevitably  results  in  the  “Camera” and then to “Mobile Internet” over the past two
+appearance of concept drift problem. Concept drift means   decades.
+that the statistical properties of the target variable, which     Recent attractive research in the ﬁeld of concept drift tar-
+the model is trying to predict, change over time in unfore-   gets more challenging problems,  i.e., how to accurately
+seen ways [1]. If the concept drift occurs, the induced pat-   detect concept drift in unstructured and noisy datasets [2],
+tern of past data may not be relevant to the new data,    [3], how to quantitatively understand concept drift in a
+leading to poor predictions and decision outcomes. The   explainable way [4], [5], and how to effectively react to drift
+phenomenon of concept drift has been recognized as the  by adapting related knowledge [6], [7].
+root cause of decreased effectiveness in many data-driven     Solving these challenges endows prediction and deci-
+information systems such as data-driven early warning sys-   sion-making with the adaptability in an uncertain environ-
+tems and data-driven decision support systems. In an ever-   ment. Conventional research related to machine learning
+changing and big data environment, how to provide more   has been signiﬁcantly improved by introducing concept
+reliable data-driven predictions and decision facilities has   drift techniques in data science and artiﬁcial intelligence in
+become a crucial issue.                                        general, and in pattern recognition and data stream mining
+                                                                in particular. These new studies enhance the effectiveness
+                                                                of analogical and knowledge reasoning in an ever-changing
+                                                        environment. A new topic is formed during this develop-      J. Lu, A. Liu, F. Dong, F. Gu, and G. Zhang are with the Decision Systems
+   and e-Service Intelligence Laboratory, Centre for Artiﬁcial Intelligence,  ment: adaptive data-driven prediction/decision systems. In
+    Faculty of Engineering and Information Technology, University of Tech-   particular, concept drift is a highly prominent and signiﬁ-
+    nology Sydney, Sydney, NSW 2007, Australia. E-mail: {Jie.Lu, anjin.liu,   cant issue in the context of the big data era because the
+    fan.dong, Guangquan.zhang}@uts.edu.au, Feng.Gu@student.uts.edu.au.    uncertainty of data types and data distribution is an inher-
+      J. Gama is with the Laboratory of Artiﬁcial Intelligence and Decision Sup-
+                                                             ent nature of big data.    port, Faculty of Economics, University of Porto, Porto 4099-002, Portugal.
+    E-mail: jgama@fep.up.pt.                                      Conventional machine learning has two main compo-
+                                                               nents: training/learning and prediction. Research on learn-Manuscript received 6 Nov. 2017; revised 9 Sept. 2018; accepted 14 Oct. 2018.
+Date of publication 18 Oct. 2018; date of current version 4 Nov. 2019.         ing under concept drift presents three new components:
+(Corresponding author: Jie Lu.)                                            drift detection (whether or not drift occurs), drift under-
+Recommended for acceptance by X. Zhu.                             standing (when, how, where it occurs) and drift adaptation
+For information on obtaining reprints of this article, please send e-mail to:
+                                                                 (reaction to the existence of drift) as shown in Fig. 2. These
+reprints@ieee.org, and reference the Digital Object Identiﬁer below.
+Digital Object Identiﬁer no. 10.1109/TKDE.2018.2876857                   will be discussed in Sections 3, 4, and 5.
+
+
+                                     1041-4347  2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+                                    See ht_tp://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 2 ---
+LU ET AL.: LEARNING UNDER CONCEPT DRIFT: A REVIEW                                                                               2347
+
+
+
+
+
+                                                                                Fig. 2. Framework for handling concept drift in machine learning. Please
+                                                                    note that some methods can do concept drift detection and concept drift
+                                                                     understanding simultaneously.
+
+Fig. 1. Concept drift in mobile phone usage (data used in ﬁgure are for
+demonstration only).                                On completion of this process, 137 research articles, 10
+                                                       widely used synthetic datasets for evaluating the perfor-
+                                                mance of learning algorithms dealing with concept drift,   In literature, a detailed concept drift survey paper [8]
+                                                 and 14 publicly available and widely used real-world data-was  published  in  2014  but  intentionally  left  certain
+                                                                   sets were listed for discussion.sub-problems of concept drift to other publications, such as
+                                                    The main contributions of this paper are:the details of the data distribution change (PðXÞ) as men-
+tioned in their Section 2.1. In 2015, another comprehensive                                                                          (1)    It perceptively summarizes concept drift research
+survey paper [9] was published, which surveys and gives                                                              achievements and clusters the research into three
+tutorial of both the established and the  state-of-the-art                                                                         categories: concept  drift detection, understanding
+approaches. It provides a hybrid-view about concept drift                                                       and adaptation, providing a clear framework for
+from two primary perspectives, active and passive. Both                                                                concept drift research development (Fig. 2);
+survey papers are comprehensive and can be a good intro-                                                                          (2)    It proposes a new component, concept drift under-
+duction to concept drift researching. However, many new                                                                    standing, for retrieving information about the status
+publications have become available in the last three years,                                                                       of concept drift in aspects of when, how, and where.
+even a new category of drift detection methods has arisen,                                                                 This also creates a connection between drift detec-
+named multiple hypothesis tests drift detection. It is neces-                                                                        tion and drift adaptation;
+sary to review the past research focuses and give the most                                                                          (3)    It uncovers several very new concept drift techni-
+recent research trends about concept drift, which is one of                                                                   ques, such as active learning under concept drift and
+the main contribution of this survey paper.                                                              fuzzy competence model-based drift detection, and
+   Besides  these two  publications,  four  related survey                                                                    identiﬁes related research involving concept drift;
+papers  [6],  [7],  [10],  [11] have  also provided valuable                                                                          (4)    It systematically examines two sets of concept drift
+insights into how to address concept drift, but their speciﬁc                                                                         datasets, Synthetic datasets and Real-world datasets,
+research focus is only on data stream learning, rather than                                                             through multiple dimensions: dataset description,
+analyzing concept drift adaptation algorithms and under-                                                                              availability, suitability for type of drift, and existing
+standing concept drift. Speciﬁcally, paper [7] focuses on                                                                       applications;
+data reduction for stream learning incorporating concept                                                                          (5)    It suggests several emerging research topics and
+drift, while [6] only focuses on investigating the develop-                                                                       potential research directions in this area.
+ment in learning ensembles for data stream learning in a                                                    The remainder of this paper is structured as follows. In
+dynamic environment. [11] concerns the evolution of data                                                             Section 2, the deﬁnitions of concept drift are given and dis-
+stream clustering, and [10] focuses on investigating the cur-                                                            cussed. Section 3 presents research methods and algorithms
+rent and future trends of data stream learning. There is                                                                in concept  drift detection. Section 4 discusses research
+therefore a gap in the current literature that requires a fuller                                                     developments in concept  drift understanding. Research
+picture of established and the new emerged research on                                                                  results on  drift adaptation (concept  drift  reaction) are
+concept drift; a comprehensive review of the three major                                                          reported in Section 5. Section 6 presents evaluation systems
+aspects of concept drift: concept drift detection, understand-                                                 and related datasets used to test concept drift algorithms.
+ing and adaptation, as shown in Fig. 2; and a discussion                                                             Section 7 summaries related research concerning the con-
+about the new trend of concept drift research.                                                            cept drift problem. Section 8 presents a comprehensive anal-
+  The selection of references in this survey paper was per-                                                                  ysis of main ﬁndings and future research directions.
+formed according to the following steps:
+   Step 1. Publication database: Science Direct, ACM Digital  2  PROBLEM DESCRIPTION
+Library, IEEE Xplore and SpringerLink.
+                                                          This section ﬁrst gives the formal deﬁnition and the sources   Step 2. Preliminary screening of articles: The ﬁrst search
+                                                                of concept drift in Section 2.1. Then, in Section 2.2, the com-was based on keywords. The articles were then selected as
+                                                 monly deﬁned types of concept drift are introduced.references if they 1) present new theory, algorithm or meth-
+odology in the area of concept drift, or 2) report a concept
+drift application.                                          2.1  Concept Drift Deﬁnition and the Sources
+   Step 3. Result ﬁltering for articles: The articles selected in  Concept drift is a phenomenon in which the statistical prop-
+Step 2 were divided into three groups: concept drift detec-   erties of a target domain change over time in an arbitrary
+tion, understanding, and adaptation. The references in each  way [3]. It was ﬁrst proposed by [12] who aimed to point
+group were ﬁltered again, based on 1) Time: published   out that noise data may turn to non-noise information at dif-
+mainly within the last 10 years, or 2) Impact: published in   ferent time. These changes might be caused by changes in
+high quality journals/conferences or having high citations.    hidden variables which cannot be measured directly [4].
+   Step 4. Dataset selection: To help readers test their research   Formally, concept drift is deﬁned as follows:
+results, this paper lists popular datasets and their characteris-     Given a time period ½0; t , a set of samples, denoted as
+tics, the dataset providers, and how each dataset can be used.     S0;t ¼ fd0; . . . ; dtg, where di ¼ ðXi; yiÞ is one observation (or
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 3 ---
+2348                                      IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING,  VOL. 31,  NO. 12, DECEMBER 2019
+
+
+
+
+
+Fig. 3. Three sources of concept drift.
+
+
+a data instance), Xi is the feature vector, yi is the label, and
+S0;t follows a certain distribution F0;tðX; yÞ. Concept drift
+occurs  at  timestamp  t þ 1,   if  F0;tðX; yÞ 6¼ Ftþ1;1ðX; yÞ,    Fig. 4. An example of concept drift types.
+denoted as 9t : PtðX; yÞ 6¼ Ptþ1ðX; yÞ [2], [8], [13], [14].
+   Concept drift has also been deﬁned by various authors   historical concepts with the shortest time. The new concept
+using alternative names, such as dataset shift [15] or concept  may suddenly, incrementally, or gradually reoccur.
+shift [1]. Other related terminologies were introduced in    To better demonstrate the differences between these types,
+[16]’s work, the authors proposed that concept drift or shift   the term “intermediate concept” was introduced by [8] to
+is only one subcategory of dataset shift and the dataset shift   describe the transformation between concepts. As mentioned
+is consists of covariate shift, prior probability shift and con-  by [4], a concept drift may not only take place at an exact time-
+cept shift. These deﬁnitions clearly stated the research scope   stamp, but may also last for a long period. As a result, interme-
+of each research topics. However, since concept drift is usu-   diate concepts may appear during the transformation as one
+ally associated with covariate shift and prior probability   concept (starting concept) changes to another (ending con-
+shift, and an increasing number of publications [2], [8], [13],   cept). An intermediate concept can be a mixture of the starting
+[14] refer to the term ”concept drift” as the problem in which   concept and the ending concept, like the incremental drift, or
+9t : PtðX; yÞ 6¼ Ptþ1ðX; yÞ. Therefore, we apply the same deﬁ-  one of the starting or ending concept, such as the gradual drift.
+nition of concept drift in this survey. Accordingly, concept
+drift at time t can be deﬁned as the change of joint probability  3  CONCEPT DRIFT DETECTION
+of X and y at time t. Since the joint probability PtðX; yÞ can be   This section focuses on summarizing concept drift detection
+decomposed into two parts as PtðX; yÞ ¼ PtðXÞ   PtðyjXÞ,   algorithms. Section 3.1 introduces a typical drift detection
+concept drift can be triggered by three sources:               framework. Then, Section 3.2 systematically reviews and cate-
+                                                              gorizes drift detection algorithms according to their imple-
+       Source I: PtðXÞ 6¼ Ptþ1ðXÞ while PtðyjXÞ ¼ Ptþ1ðyjXÞ,
+                                                         mentation details for each component in the framework. At
+        that is, the research focus is the drift in PtðXÞ while
+                                                                                last, Section 3.3 lists the state-of-the-art drift detection algo-
+       PtðyjXÞ remains unchanged. Since PtðXÞ drift does
+                                                           rithms with comparisons of their implementation details.
+       not affect the decision boundary,  it has also been
+       considered as virtual drift [7], Fig. 3a.                 3.1 A General Framework for Drift Detection
+       Source II: PtðyjXÞ 6¼ Ptþ1ðyjXÞ while PtðXÞ ¼ Ptþ1ðXÞ   Drift detection refers to the techniques and mechanisms that
+       while PtðXÞ remains unchanged. This  drift  will   characterize and quantify concept drift via identifying change
+       cause decision boundary change and lead to learning   points or change time intervals [17]. A general framework for
+       accuracy decreasing, which is also called actual drift,   drift detection contains four stages, as shown in Fig. 5.
+        Fig. 3b.                                                Stage 1 (Data Retrieval) aims to retrieve data chunks from
+       Source III: mixture of Source I and Source II, namely   data streams. Since a single data instance cannot carry enough
+      PtðXÞ 6¼ Ptþ1ðXÞ and PtðyjXÞ 6¼ Ptþ1ðyjXÞ. Concept   information to infer the overall distribution [2], knowing how
+        drift focus on the drift of both PtðyjXÞ and PtðXÞ,   to organize data chunks to form a meaningful pattern or
+       since both changes convey important information  knowledge is important in data stream analysis tasks [7].
+      about learning environment Fig. 3c.                     Stage 2 (Data Modeling) aims to abstract the retrieved
+   Fig. 3 demonstrates how these sources differ from each   data and extract the key features containing sensitive infor-
+other in a two-dimensional feature space. Source I is feature   mation, that is, the features of the data that most impact a
+space drift, and Source  II is decision boundary drift. In  system if they drift. This stage is optional, because it mainly
+many real-world applications, Source I and Source II occur   concerns dimensionality reduction, or sample size reduc-
+together, which creates Source III.                                tion, to meet storage and online speed requirements [4].
+                                                             Stage 3 (Test Statistics Calculation) is the measurement of
+2.2  The Types of Concept Drift                             dissimilarity, or distance estimation. It quantiﬁes the sever-
+Commonly, concept drift can be distinguished as four types   ity of the drift and forms test statistics for the hypothesis
+[8] as shown in Fig. 4:                                                   test. It is considered to be the most challenging aspect of
+   Research into concept drift adaptation in Types 1-3 focuses   concept drift detection. The problem of how to deﬁne an
+on how to minimize the drop in accuracy and achieve the fast-   accurate and robust dissimilarity measurement is still an
+est recovery rate during the concept transformation process.  open question. A dissimilarity measurement can also be
+In contrast, the study of Type 4 drift emphasizes the use of his-  used in clustering evaluation [11], and to determine the dis-
+torical concepts, that  is, how to ﬁnd the best matched   similarity between sample sets [18].
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 4 ---
+LU ET AL.: LEARNING UNDER CONCEPT DRIFT: A REVIEW                                                                               2349
+
+
+
+
+
+                                                                                Fig. 6. Landmark time window for drift detection. The starting point of the
+                                                            window is ﬁxed, while the end point of the window will be extended after
+                                                            a new data instance has been received.
+
+                                  DDM detects whether the overall online error rate within the
+                                                        time window has increased signiﬁcantly. If the conﬁdence
+                                                                  level of the observed error rate change reaches the warning
+                                                                       level, DDM starts to build a new learner while using the old
+                                                               learner for predictions. If the change reached the drift level,
+                                                             the old learner will be replaced by the new learner for further
+                                                             prediction tasks. To acquire the online error rate, DDM needs
+                                                        a classiﬁer to make the predictions. This process converts
+                                                               training data to a learning model, which is considered as the
+                                                           Stage 2 (Data Modeling). The test statistics in Stage 3 consti-
+                                                                 tute the online error rate. The hypothesis test, Stage 4, is con-
+Fig. 5. An overall framework for concept drift detection.               ducted by estimating the distribution of the online error rate
+                                                 and calculating the warning level and drift threshold.
+                                                                Similar implementations have been adopted and applied   Stage 4 (Hypothesis Test) uses a speciﬁc hypothesis test
+                                                                in the Learning with Local Drift Detection (LLDD) [25],to  evaluate  the  statistical  signiﬁcance  of  the  change
+                                                           Early Drift Detection Method (EDDM) [26], Heoffding’sobserved in Stage 3, or the p-value. They are used to deter-
+                                                              inequality based Drift Detection Method (HDDM)  [23],mine  drift detection accuracy by proving the  statistical
+                                                    Fuzzy Windowing Drift Detection Method (FW-DDM) [5],bounds of the test statistics proposed in Stage 3. Without
+                                                 Dynamic Extreme Learning Machine (DELM) [27]. LLDDStage 4, the test statistics acquired in Stage 3 are meaning-
+                                                   modiﬁes Stages 3 and 4, dividing the overall drift detectionless for drift detection, because they cannot determine the
+                                                    problem into a set of decision tree node-based drift detec-drift conﬁdence interval, that is, how likely it is that the
+                                                                tion problems; EDDM improves Stage 3 of DDM using thechange is caused by concept drift and not noise or random
+                                                             distance between two correct classiﬁcations to improve thesample selection bias [3]. The most commonly used hypoth-
+                                                                    sensitivity of drift detection; HDDM modiﬁes Stage 4 usingesis tests are: estimating the distribution of the test statistics
+                                                          Hoeffding’s inequality to identify the critical region of a[19], [20], bootstrapping [21], [22], the permutation test [3],
+                                                                            drift; FW-DDM improves Stage 1 of DDM using a fuzzyand Hoeffding’s inequality-based bound identiﬁcation [23].
+                                                        time window instead of a conventional time window to    It is also worth to mention that, without Stage 1, the con-
+                                                         address the gradual drift problem; DEML does not changecept drift detection problem can be considered as a two-sam-
+                                                             the DDM detection algorithm but uses a novel base learner,
+ple test problem which examines whether the population of
+                                                   which is a single hidden layer feedback neural network
+two given sample sets are from the same distribution [18]. In
+                                                                called Extreme Learning Machine (ELM) [28] to improve
+other words, any multivariate two-sample test is an option
+                                                             the adaptation process after a drift has been conﬁrmed.
+that can be adopted in Stages 2-4 to detect concept drift [18].
+                                 EWMA for Concept Drift Detection (ECDD)  [29] takes
+However, in some cases, the distribution drift may not be
+                                                      advantage of the error rate to detect concept drift. ECDD
+included in the target features, therefore the selection of the
+                                                    employs the EWMA chart to track changes in the error rate.
+target feature will affect the overall performance of a learning
+                                                  The implementation of Stages 1-3 of ECDD is the same as
+system and is a critical problem in concept drift detection [24].
+                                                                  for DDM, while Stage 4 is different. ECDD modiﬁes the con-
+                                                             ventional EWMA chart using a dynamic mean ^p0;t instead of
+3.2  Concept Drift Detection Algorithms
+                                                             the conventional static mean p0, where ^p0;t is the estimated
+This section surveys  drift detection methods and algo-                                                             online error rate within time ½0; t , and p0 implies the theo-
+rithms, which are classiﬁed into three categories in terms of                                                                        retical  error  rate when the  learner was  initially  built.
+the test statistics they apply.
+                                                          Accordingly, the dynamicq ﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃvariance can be calculated by
+                                                             s2                                       ¼ ^p0;tð1    ^p0;tÞ   2  ð1   ð1     Þ2tÞ  where     controls                                                                                   Zt3.2.1   Error Rate-Based Drift Detection
+                                           how much  weight  is  given  to more  recent  data  asPLearner error rate-based drift detection algorithms form
+                                                   opposed to older data, and  ¼ 0:2 is recommended by thethe largest category of algorithms. These algorithms focus
+on tracking changes in the online error rate of base classi-   authors. Also, when the test statistic of the conventional
+ﬁers. If an increase or decrease of the error rate is proven to  EWMA chart is Zt >  ^p0;t þ 0:5LsZt, ECDD will report a
+be statistically signiﬁcant, an upgrade process (drift alarm)   concept drift warning; when Zt >  ^p0;t þ LsZt, ECDD will
+will be triggered.                                            report a concept drift. The control limits L is given by the
+  One of the most-referenced concept drift detection algo-   authors through experimental evaluation.
+rithms is the Drift Detection Method (DDM) [20]. It was the      In contrast to DDM and other similar algorithms, Statisti-
+ﬁrst algorithm to deﬁne the warning level and drift level for   cal Test of Equal Proportions Detection (STEPD) [30] detects
+concept drift detection. In this algorithm, Stage 1 is imple-   error rate change by comparing the most recent time win-
+mented by a landmark time window, as shown in Fig. 6.  dow with the overall time window, and for each timestamp,
+When a new data instance become available for evaluation,   there are two time windows in the system, as shown in
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 5 ---
+2350                                      IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING,  VOL. 31,  NO. 12, DECEMBER 2019
+
+
+
+
+
+Fig. 7. Two time windows for concept drift detection. The new data
+window has to be deﬁned by the user.
+
+Fig. 7. The size of the new window must be deﬁned by the
+user. According to [30], the test statistic uSTEPD conforms to
+standard normal distribution, denoted as uSTEPD  N ð0; 1Þ.
+                                                                                Fig. 8. Two sliding time windows, of ﬁxed size. The historical data win-
+The signiﬁcance level of the warning level and the drift level                                                       dow will be ﬁxed while the new data window will keep moving.
+were suggested as aw ¼ 0:05 and ad ¼ 0:003 respectively. As
+a result, the warning threshold and drift threshold can be  bounds on the probabilities of missed detections and false
+easily calculated.                                         alarms are theoretically proven, using Chernoff bounds and
+   Another popular two-time window-based drift detection   the Vapnik-Chervonenkis dimension. The authors of [37] do
+algorithm is ADaptive WINdowing (ADWIN) [31]. Unlike   not propose novel high-dimensional friendly data models
+STEPD, ADWIN does not require users to deﬁne the size of   for Stage 2 (data modeling); instead, they stress that a suit-
+the compared windows in advance; it only needs to specify   able model choice is an open question.
+the total size n of a “sufﬁciently large” window W. It then     Another typical density-based drift detection algorithm
+examines all possible cuts of W and computes optimal sub-    is the Information-Theoretic Approach (ITA) [22]. The intui-
+window sizes nhist and nnew according to the rate of change   tive idea underlying this algorithm is to use kdqTree to par-
+between the two sub-windows whist and wnew. The test statistic   tition the historical and new data (multi-dimensional) into a
+is  the  difference  of  the two sample means  uADWIN ¼   set of bins, denoted as A,and then use Kullback-Leibler
+j^mhist    ^mnewj. An optimal cut is found when the difference   divergence to quantify the difference of the density uITA in
+exceeds a threshold with a predeﬁned conﬁdence interval d.   each bin. The hypothesis test applied by ITA is bootstrap-
+The author proved that both the false positive rate and false   ping by merging Whist, Wnew as Wall and resampling as
+negative rate are bounded by d. It is worth noting that many W 0hist, W 0new to recompute the u ITA. Once the estimated
+concept drift adaptation methods/algorithms in the literature   probability Pðu ITA   uITAÞ < 1   a, concept drift  is con-
+are derived from or combined with ADWIN, such as [32],  ﬁrmed, where a is the signiﬁcant level controlling the sensi-
+[33], [34], [35]. Since their drift detection methods are imple-   tivity of drift detection.
+mented with almost the same strategy, we will not discuss      Similar distribution-based drift detection methods/algo-
+them in detail.                                             rithms are: Statistical Change Detection for multi-dimen-
+                                                                sional data (SCD)  [38], Competence Model-based  drift
+3.2.2  Data Distribution-Based Drift Detection              detection (CM) [2], a prototype-based classiﬁcation model
+The second largest category of drift detection algorithms is   for evolving data streams called SyncStream [36], PCA-
+data distribution-based drift detection. Algorithms of this  based change detection framework (PCA-CD) [39], Equal
+category use a distance function/metric to quantify the dis-   Density Estimation (EDE) [40], Least Squares Density Dif-
+similarity between the distribution of historical data and the   ference-based Change Detection Test (LSDD-CDT)  [21],
+new data. If the dissimilarity is proven to be statistically sig-   Incremental version of LSDD-CDT (LSDD-INC) [41] and
+niﬁcantly different, the system will trigger a learning model   Local Drift Degree-based Density Synchronized Drift Adap-
+upgradation process. These algorithms address concept drift   tation (LDD-DSDA) [4].
+from the root sources, which is the distribution drift. Not
+only can they accurately identify the time of drift, they can                                                            3.2.3   Multiple Hypothesis Test Drift Detection
+also provide location information about the drift. However,
+                                                          Multiple hypothesis test drift detection algorithms applythese algorithms are usually reported as incurring higher
+                                                               similar techniques to those mentioned in the previous twocomputational cost than the algorithms mentioned in Section
+                                                                  categories. The novelty of these algorithms is that they use3.2.1 [2]. In addition, these algorithms usually require users
+                                                           multiple hypothesis tests to detect concept drift in differentto predeﬁne the historical time window and new data win-
+                                                      ways. These algorithms can be divided into two groups: 1)dow. The commonly used strategy is two sliding windows
+                                                                   parallel multiple hypothesis tests; and 2) hierarchical multi-with the historical time window ﬁxed while sliding the new
+                                                             ple hypothesis tests.data window [3], [22], [36], as shown in Fig. 8.
+                                                    The idea of parallel multiple hypothesis drift detection   According to the literature, the ﬁrst formal treatment of
+                                                          algorithm is demonstrated in Fig. 9. According to the litera-change detection in data streams was proposed by [37]. In
+                                                                    ture, Just-In-Time adaptive classiﬁers (JIT) [19] is the ﬁrsttheir study, the authors point out that the most natural
+                                                          algorithm that set multiple drift detection hypothesis in thisnotion of distance between distributions is total variation,
+as  deﬁned  by:  TV ðP1; P2Þ ¼ 2supE2"jP1ðEÞ   P2ðEÞj  or  way. The core idea of JIT is to extend the CUSUM chart,
+equivalently, when the distributionR         has the density func-  known as the Computational Intelligence-based CUSUM
+tions f1 and f2, distL1 ¼   jf1ðxÞ   f2ðxÞjdx. This provides   test (CI-CUSUM), to detect the mean change in the features
+practical guidance on the design of a distance function for   interested by learning systems. The authors of [19], gave the
+distribution discrepancy analysis. Accordingly, [37] pro-   following four conﬁgurations for the drift detection target.
+posed a family of distances, called Relativized Discrepancy  Conﬁg1: the features extracted by Principal Component
+(RD). The authors also present the signiﬁcance level of the   Analysis (PCA), which removes eigenvalues whose sum is
+distance according to the number of data instances. The  below a threshold,  e.g.,  0.001. Conﬁg2: PCA extracted
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 6 ---
+LU ET AL.: LEARNING UNDER CONCEPT DRIFT: A REVIEW                                                                               2351
+
+
+
+
+
+Fig. 9. Parallel multiple hypothesis test drift detection.
+                                                                                Fig. 10. Hierarchical multiple hypothesis test drift detection.
+
+features plus one generic component of the original features   delay rate and low computational burden. The validation
+xi; Conﬁg3: detects the drift in each xi individually. Conﬁg4:   layer will be activated and deactivated based on the results
+detects drift in all possible combinations of the feature space   returned by the detection layer. The authors recommend two
+xi. The authors stated that Conﬁg2 is the preferred setting   strategies for designing the validation layer: 1) estimating the
+for most situations, according to their experimentation, and   distribution of the test statistics by maximizing the likelihood;
+also mentioned that Conﬁg1 may have a high missing rate,   2) adapting an existing hypothesis test, such as the Kolmo-
+Conﬁg3 suffers from a high false alarm rate, and Conﬁg4   gorov-Smirnov test or the Cramer-Von Mises test.
+has exponential computational complexity. The same drift      Hierarchical Linear Four Rate (HLFR) [51] is another
+                                                               recently proposed hierarchical drift detection algorithm. Itdetection strategy has also been applied in [42], [43], [44],
+                                                             applies the drift detection algorithm LFR as the detection[45] for concept drift adaptation.
+                                                                    layer. Once a drift is conﬁrmed by the detection layer, the   Similar implementations have been applied in Linear
+                                                              validation layer will be triggered. The validation layer ofFour Rate drift detection (LFR) [46], which maintains and
+                                          HLFR is simply a zero-one loss, denoted as E, over the
+tracks the changes in True Positive rate (TP), True Negative
+                                                        ordered  train-test  split.  If  the estimated zero-one  loss
+rate (TN), False Positive rate (FP) and False Negative rate
+                                                         exceeds a predeﬁned threshold, h ¼ 0:01, the validation
+(FN) in an online manner. The drift detection process also
+                                                               layer will conﬁrm the drift and report to the learning system
+includes warning and drift levels.
+                                                                 to trigger a model upgradation process.
+   Another parallel multiple hypothesis drift detection algo-                                                        Two-Stage Multivariate Shift-Detection based on EWMA
+rithm is three-layer drift detection, based on Information                                           (TSMSD-EWMA) [52] has a very similar implementation,
+Value and Jaccard similarity (IV-Jac) [47]. IV-Jac aims to indi-                                                      however, the authors do not claim that their method is a
+vidually address the label drift PtðyÞ Layer I, feature space                                                           hierarchy-based algorithm.
+drift PtðXÞ Layer II, and decision boundary drift PtðyjXÞ      Hierarchical  Hypothesis  Testing  with  Classiﬁcation
+Layer III. It extracts the Weight of Evidence (WoE) and Infor-   Uncertainty (HHT-CU) and Hierarchical Hypothesis Test-
+mation Value (IV) from the available data and then detects   ing with Attribute-wise ”Goodness-of-ﬁt” (HHT-AG) are
+whether a signiﬁcant change exists between the WoE and IV  two drift detection algorithms based on request and reverify
+extracted from Whist and Wnew by measuring the contribution   strategy [53]. For HHT-CU, the detection layer is a hypothe-
+to the label for a feature value. The hypothesis test thresholds   ses test based on Heoffding’s inequality that monitoring the
+are predeﬁned parameters uPtðyÞ ¼ uPtðXÞ ¼ uPtðXjyÞ ¼ 0:5 by  change of the classiﬁcation uncertainty measurement. The
+default, which are chosen empirically.                         validation layer is a permutation test that evaluates the
+   Ensemble of Detectors (e-Detector) [48] proposed to detect  change of the zero-one loss of the learner. For HHT-AG, the
+concept drift via ensemble of heterogeneous drift detector.   detection layer is conducted based on Kolmogorov-Smirnov
+The authors consider two drift detectors are homogeneous   (KS) test for each feature distribution. Then HHT-AG vali-
+as if they are equivalent in ﬁnding concept drifts, otherwise   date the potential drift points by requiring true labels of
+they are heterogeneous. e-Detector groups homogeneous   data that come from wnew, and performing d independent
+drift detectors via a diversity measurement, named diversity   two-dimensional (2D) KS test with each feature-label bivari-
+vector. For each group, it select the one with the smallest   ate distribution. Compare to other  drift detection algo-
+coefﬁcient of failure as the base detector to form the ensem-   rithms, HHT-AG can handle concept drift with less true
+ble. e-Detector reports concept drift following the early-ﬁnd-   labels, which makes it more powerful when dealing with
+early-report rule, which means no matter which base detec-   high veriﬁcation latency.
+tor detect a drift, the e-Detector reports a drift. Similar strat-
+egy has been applied in drift detection ensemble (DDE) [49].   3.3  Summary of Concept Drift Detection Methods/
+   Hierarchical drift detection is an emerging drift detection       Algorithms
+category that has a multiple veriﬁcation schema. The algo-                                                         Table 1 lists the most popular concept drift detection meth-
+rithms in this category usually detect drift using an existing                                                        ods/algorithms against the general framework summarized
+method, called the detection layer, and then apply an extra                                                                in Section 3.1 (Fig. 5). A comparative study on eight popular
+hypothesis test, called the validation layer, to obtain a sec-                                                                       drift detection methods can be found in [54].
+ond validation of the detected drift in a hierarchical way.
+The overall workﬂow is shown in Fig. 10.
+   According to the claim made by [50], Hierarchical Change-  4  CONCEPT DRIFT UNDERSTANDING
+Detection Tests (HCDTs) is the ﬁrst attempt to address con-   Drift understanding refers to retrieving concept drift informa-
+cept drift using a hierarchical architecture. The detection layer   tion about “When” (the time at which the concept drift occurs
+can be any existing drift detection method that has a low drift  and how long the drift lasts), “How” (the severity /degree of
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 7 ---
+2352                                      IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING,  VOL. 31,  NO. 12, DECEMBER 2019
+
+
+                                          TABLE 1
+                                 Summary of Drift Detection Algorithms
+
+
+Category              Algorithms              Stage 1                Stage 2                 Stage 3                     Stage 4
+
+Error rate-based  DDM [20]          Landmark              Learner              Online error rate           Distribution estimation
+            EDDM [26]         Landmark              Learner              Online error rate           Distribution estimation
+             FW-DDM [5]       Landmark              Learner              Online error rate           Distribution estimation
+             DEML [27]         Landmark              Learner              Online error rate           Distribution estimation
+               STEPD [30]         Predeﬁned whist, wnew    Learner               Error rate difference       Distribution estimation
+             ADWIN [31]        Auto cut whist, wnew      Learner               Error rate difference       Hoeffding’s Bound
+             ECDD [29]         Landmark              Learner              Online error rate      EWMA Chart
+           HDDM [23]        Landmark              Learner              Online error rate          Hoeffding’s Bound
+             LLDD [25]          Landmark, or           Decision trees        Tree node error rate       Hoeffding’s Bound
+                                            sliding whist, wnew
+
+Data             kdqTree [22]         Fixed whist, Sliding wnew  kdqTree          KL divergence            Bootstrapping
+distribution-based CM [2], [3]           Fixed whist, Sliding wnew  Competence model   Competence distance      Permutation test
+             RD [37]              Fixed whist, Sliding wnew  KS structure          Relativized Discrepancy   VC-Dimension
+              SCD [38]            Fixed whist, Sliding wnew  kernel density         log-likelihood              Distribution estimation
+                                                                   estimator
+              EDE [40]            Fixed whist, Sliding wnew  Nearest neighbor     Density scale             Permutation test
+                  SyncStream [36]      Fixed whist, Sliding wnew  PCA                 P-Tree                  Wilcoxon test
+              PCA-CD [39]         Fixed whist, Sliding wnew  PCA                Change-Score            Page-Hinkley test
+               LSDD-CDT [21]      Fixed whist, Sliding wnew  Learner               Relative difference         Distribution estimation
+               LSDD-INC [41]       Fixed whist, Sliding wnew  Learner               Relative difference         Distribution estimation
+              LDD-DSDA [4]       Fixed whist, Sliding wnew  k-nearest neighbor    Local drift degree          Distribution estimation
+
+Multiple             JIT [19]            Landmark               Selected features      4 conﬁgurations           Distribution estimation
+Hypothesis       LFR [46]           Landmark              Learner              TP, TN, FP, FN            Distribution estimation
+Tests               Three-layer [47]       Sliding both whist, wnew   Learner               PðyÞ, PðXÞ, PðXjyÞ        Distribution estimation
+                    e-Detector [48]      depends on            depends            depends                depends
+                                       base detector
+             DDE [49]           depends on            depends            depends                depends
+                                       base detector
+             TSMSD-EWMA [52]  Landmark              Learner              Online error rate      EWMA Chart
+              HCDTs [50]        Landmark            Depending on layers  Depending on layers      Depending on layer
+              HLFR [51]         Landmark              Learner              TP, TN, FP, FN            Distribution estimation
+              HHT-CU [53]       Landmark              Learner               Classiﬁcation uncertainty  Layer-I Hoeffding’s Bound,
+                                                                                                                        Layer-II Permutation Test
+             HHT-AG [53]        Fixed whist, Sliding wnew N/A             KS statistic on             Layer-I KS test,
+                                                                                  each attribute            Layer -II 2D KS test
+
+
+concept drift), and “Where” (the drift regions of concept drift).   statistically signiﬁcant difference. PCA-based drift detection
+This status information is the output of the drift detection   [36] outputs a drift signal when the p-value of the general-
+algorithms, and is used as input for drift adaptation.            ized Wilcoxon test statistic W BFl   is signiﬁcantly large. The
+                                                 method in [3] conﬁrms that a drift has occurred by verifying
+4.1  The Time of Concept Drift Occurs (When)         whether the empirical competence-based distance is signiﬁ-
+The most basic function of drift detection is to identify the   cantly large through permuataion test.
+timestamp when a drift occurs. Recalling the deﬁnition of     Taking into account the various drift types, concept drift
+concept drift 9t : PtðX; yÞ 6¼ Ptþ1ðX; yÞ, the variable t repre-   understanding needs to explore the start time point, the
+sents the time at which a concept drift occurs. In drift detec-  change period, and the end time point of concept drift. And
+tion  methods/algorithms, an alarm  signal  is used  to   these time information could be useful input for the adapta-
+indicate whether the concept drift has or has not occurred   tion process of the learning system. However the drift time-
+or not at the current timestamp. It is also a signal for a learn-  stamp alert in existing drift detection algorithms is delayed
+ing system to adapt to a new concept. Accurately identify-  compared to the actual drifting timestamp, since most drift
+ing the time a drift occurs  is  critical to the adaptation   detectors require a minimum number of new data to evalu-
+process of a learning system; a delay or a false alarm will   ate the  status  of the  drift, as shown  in  Fig.  11. The
+lead to failure of the learning system to track new concepts.
+  A drift alarm usually has a statistical guarantee with a
+predeﬁned false alarm rate. Error rate-based drift detection
+algorithms monitor the performance of the learning system,
+based on statistical process control. For example, DDM [20]
+sends a drift signal when the learning accuracy of the
+learner drops below a predeﬁned threshold, which is cho-
+sen by the three-sigma rule [55]. ECCD [29] reports a drift
+                                                                                Fig. 11. An example of the occurrence time and the severity of concept
+when the online error rate exceeds the control limit of                                                                                                       drift. One incremental drift starts to change at t þ 1 and ends at t þ 5. The
+EWMA. Most data distribution-based drift detection algo-   other sudden drift occurs between t þ 9 and t þ 10. The severity of these
+rithms report a drift alarm when two data samples have a   two concept drifts (Dtþ1-Dtþ5 and Dtþ9-Dtþ10) is marked with brackets.
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 8 ---
+LU ET AL.: LEARNING UNDER CONCEPT DRIFT: A REVIEW                                                                               2353
+
+
+                                                             the severity of the concept drift is. The distance “1” means
+                                                                 that a new concept is different from the pervious one, while
+                                                             the distance “0” means that two data concepts are identical.
+                                                  The test statistic d used in [38] gives an extremely small nega-
+                                                                    tive value if the new concept is quite different from the previ-
+                                                     ous concept. The degree of concept drift in [36] is measured
+                                                   by the resulting p-value of the test statistic W BFl  and the
+                                                  deﬁned AngleðDt; Dtþ1Þ of two datasets Dt and Dtþ1.
+                                                    The severity of concept drift can be used as a guideline
+                                                                  for choosing drift adaptation strategies. For example, if the
+Fig. 12. An example of the drift regions of concept drift.                  severity of drift in a classiﬁcation task is low, the decision
+                                                   boundary may not move much in the new concept. Thus,
+emergence time of the new concept is therefore still vague.   adjusting the current learner by incremental learning will
+Some concept drift detection algorithms such as DDM [20],  be adequate. In contrast, if the severity of the concept drift
+EDDM [26], STEPD [30], and HDDM [23], trigger a warning    is high, the decision boundary could change signiﬁcantly,
+level to indicate a drift may have occurred. The threshold   therefore discarding the old learner and retraining a new
+used to trigger warning level is a relaxed condition of the  one could be better than incrementally updating the old
+threshold used for the drift level; for example, the warning   learner. We would like to mention that, even though some
+level is set p-value to 95 percent or 2s, and the drift level is   researches have promoted the ability to describe and quan-
+set p-value to 99 percent or 3s. The data accumulated   tify the severity of the detected drift, this information is not
+between the warning level and the drift level are used as   yet widely utilized in drift adaptation.
+the training set for updating a learning model.
+                                                         4.3  The Drift Regions of Concept Drift (Where)
+4.2  The Severity of Concept Drift (How)              The drift regions of concept drift are the regions of conﬂict
+The severity of concept drift refers to using a quantiﬁed value  between a new concept and the previous concept. Drift
+to measure the similarity between the new concept and the   regions are located by ﬁnding regions in data feature space
+previous concept, as shown in Fig. 11. Formally, the severity  X where PtðX; yÞ and Ptþ1ðX; yÞ have signiﬁcant difference.
+of  concept  drift  can be  represented  as D ¼ dðPtðX; yÞ;  To illustrate this, we give an example of a classiﬁcation task
+Ptþ1ðX;yÞÞ, where d is a function to measure the discrepancy   in Fig. 12. The data used in this task are uniformly sampled
+of two data distributions, and t is the timestamp when the   in the range of ½0; 10 2. The left sub-ﬁgure is the data sample
+concept drift occurred. D usually is a non-negative value indi-  accumulated at time  t, where the decision boundary  is
+cating the severity of concept drift. The greater the value of D,   x1 þ x2 ¼ 8. The middle sub-ﬁgure is the data accumulated
+the larger the severity of the concept drift is.                      at time t þ 1, where the decision boundary is x1 þ x2 ¼ 9.
+   In general, error rate-based drift detection cannot directly   Intuitively, data located in regions 8   x1 þ x2 < 9 have
+measure the severity of concept drift, because  it mainly   different classes in time t and time t þ 1, since the decision
+focuses on monitoring the performance of the learning sys-  boundary has changed. The right sub-ﬁgure shows the data
+tem, not the changes in the concept itself. However, the   located in the drift regions.
+degree of decrease in learning accuracy can be used as an     The techniques to identify drift regions are highly depen-
+indirect measurement to indicate the severity of concept   dent on the data model used in the drift detection meth-
+drift. If learning accuracy has dropped signiﬁcantly when   ods/algorithms. Paper  [25] detected  drift data in  local
+drift is observed, this indicates that the new concept is differ-   regions of the instance space by using online error-rate
+ent from the previous one. For example, the severity of con-   inside the inner-nodes of a decision tree. The whole data
+cept drift could be reﬂected by the difference between pi and   feature space is partitioned by decision tree. Each leaf of
+pmin in [20], [27], denoted as D    pi   pmin; the difference   this decision tree corresponds to a hyper-rectangle in the
+between overall accuracy  ^phist and recent accuracy ^pnew in   data feature space. All leaf nodes contain a drift detector.
+[30],  expressed  as D    ^pnew     ^phist; and  the  difference  When the leaf nodes are alerted to a drift, the corresponding
+between test statistics in the former window E½^Xcut and test   hyper-rectangles indicate the regions of drift in the data fea-
+statistics in the later window E½^Yi  cut  [23], denoted as   ture space. Similar to [25], [22] utilized the nodes of the kdq-
+D   E½ ^Yi  cut   E½^Xcut . However, the meaning of these dif-   tree with Kulldorff’s spatial scan statistic to identify the
+ferences is not discussed in existing publications. The ability   regions in which data had changed the most. Once a drift
+of error rate-based drift detection to output the severity of   has been reported, Kulldorff’s statistic measures how the
+concept drift is still vague.                             two datasets differ only with respect to the region associ-
+   Data  distribution-based  drift  detection methods can   ated with the leaf node of the kdq-tree. The leaf nodes with
+directly quantify the severity of concept drift since the mea-   the greater statistical value of show the drift regions. [2]
+surement used to compare two data samples already reﬂects   highlighted the most severe regions of concept drift through
+the difference. For example, [37] employed a relaxation of the   top-p-competence areas. Utilizing the RelatedSets of the com-
+total variation distance dAðS1; S2Þ to measure the difference   petence model, the data feature space is partitioned by a set
+between two data distributions. [3] proposed a competence-   of overlapping hyperspheres. The RelatedSet-based empiri-
+based empirical distance dCBðS1; S2Þ to show the difference   cal distance deﬁnes the distance between two datasets on a
+between two data samples. Other drift detection methods   particular hypersphere. The drift regions are identiﬁed by
+have used information-theoretic distance; for example, Kull-   the corresponding hyperspheres with large empirical dis-
+back-Leibler  divergence  DðW1jjW2Þ,  also  called  relative   tance at top p percent level. [4] identiﬁed drift regions by
+entropy, was used in the study reported in [22]. The range of   monitoring the discrepancy in the regional density of data,
+these distances is ½0; 1 . The greater the distance, the larger  which is called the local drift degree. A local region with a
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 9 ---
+2354                                      IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING,  VOL. 31,  NO. 12, DECEMBER 2019
+
+
+                   TABLE 2
+ Summary of Drift Understanding for Drift Detection Algorithms
+
+Category               Algorithms     When   How   Where
+                          p
+Error rate-based    DDM [20]                          p
+              EDDM [26]                          p
+               FW-DDM [5]                          p
+               DEML [27]                          p
+                 STEPD [30]                          p                           Fig. 13. A new model is trained with latest data to replace the old model
+               ADWIN [31]                          p                   when a concept drift is detected.
+               ECDD [29]                          p
+             HDDM [23]                          p         p     (how) through the test statistics, but only a few algorithms
+                LLDD [25]
+                                                     have the ability to locate drift regions (where).
+                          p    p    p
+Data                kdqTree [22]                          p    p    p
+distribution-based   CM [2], [3]                      5  DRIFT ADAPTATION                          p    p
+               RD [37]
+                          p    p            This section focuses on strategies for updating existing                SCD [38]
+                          p                     learning models according to the drift, which is known as                EDE [40]                          p    p
+                     SyncStream [36]                                 drift adaptation or reaction. There are three main groups of                          p    p
+                 PCA-CD [39]                          p                        drift adaptation methods, namely simple retraining, ensem-
+                 LSDD-CDT [21]                          p                      ble retraining and model adjusting, that aim to handle dif-
+                  LSDD-INC [41]                          p    p    p      ferent types of drift.
+                LDD-DSDA [4]
+                          p                    5.1  Training New Models for Global DriftMultiple                JIT [19]                          p
+hypothesis tests      LFR [46]                          p                   Perhaps the most straightforward way of reacting to concept
+                        Three-layer drift                                drift is to retrain a new model with the latest data to replace
+                           detection [47]                          p                     the obsolete model, as shown in Fig. 13. An explicit concept
+                        e-Detector [48]
+                          p                        drift detector is required to decide when to retrain the model
+               DDE [49]
+                          p                      (see Section 3 on drift detection). A window strategy is often             EWMA [52]                          p
+                HCDTs [50]                           adopted in this method to preserve the most recent data for                          p
+                HLFR [51]                                  retraining and/or old data for distribution change test. Paired                          p
+                HHT-CU [53]                          p                      Learners [57] follows this strategy and uses two learners: the
+                HHT-AG [53]                                    stable learner and the reactive learner. If the stable learner fre-
+                                                          quently misclassiﬁes instances that the reactive learner cor-
+                                                                   rectly classiﬁes, a new concept is detected and the stable
+corresponding  increase or decrease  in density  will be   learner will be replaced with the reactive learner. This
+highlighted as a critical drift region.                                                 method is simple to understand and easy to implement, and
+   Locating concept drift regions beneﬁts drift adaptation.                                                       can be applied at any point in the data stream.
+Paper [56] pointed out that even if the concept of the entire    When adopting a window-based strategy, a trade-off
+dataset drifts, there are regions of the feature space that will                                                  must be made in order to decide an appropriate window
+remain stable signiﬁcantly longer than other regions. In an                                                                        size. A small window can better reﬂect the latest data distri-
+ensemble scenario, the old learning models of stable regions                                                              bution, but a large window provides more data for training a
+could still be useful for predicting data instances located  new model. A popular window scheme algorithm that aims
+within stable regions, or data instances located in drift                                                                 to mitigate this problem is ADWIN [31]. Unlike most earlier
+regions could be used to build a more updated current                                                        works, it does not require the user to guess a ﬁxed size of the
+model. The authors of [3] also pointed out that identifying  windows being compared in advance; instead, it examines
+drift regions can help in recognizing obsolete data that con-                                                                             all possible cuts of the window and computes optimal sub-
+ﬂict with current concepts and distinguish noise data from                                             window sizes according to the rate of change between the
+novel data. In their later research [2], they utilized top-  two sub-windows. After the optimal window cut has been
+p-competence areas to edit cases in a case-based reasoning                                                         found, the window containing old data is dropped and a
+system for fast new concept switching. One step in their                                            new model can be trained with the latest window data.
+drift adaptation is to remove conﬂict instances. To preserve     Instead of directly retraining the model, researchers have
+as many instances of a new concept as possible, they only                                                               also attempted to integrate the drift detection process with
+remove obsolete conﬂict instances which are outside the                                                             the retraining process for speciﬁc machine learning algo-
+drift regions. LDD-DSDA [4] utilized drift regions as an                                                              rithms. DELM [27] extends the traditional ELM algorithm
+instance selection strategy to construct a training set that   with the ability to handle concept drift by adaptively adjust-
+continually tracked a new concept.                                                           ing the number of hidden layer nodes. When the classiﬁca-
+                                                                tion  error  rate  increases — which could  indicate  the
+4.4  Summary of Drift Understanding                 emergence of a concept drift — more nodes are added to
+We summarize concept drift detection algorithms according   the network layers to improve its approximation capability.
+to their ability to identify when, how, and where concept   Similarly, FP-ELM [58] is an ELM-extended method that
+drift occurs, as shown in Table 2. All drift detection algo-   adapts to drift by introducing a forgetting parameter to the
+rithms can identify the occurrence time of concept drift  ELM model. A parallel version of ELM-based method [59]
+(when), and most data distribution-based drift detection   has also been developed for high-speed classiﬁcation tasks
+algorithms can also measure the severity of concept drift  under concept drift. OS-ELM [60] is another online learning
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 10 ---
+LU ET AL.: LEARNING UNDER CONCEPT DRIFT: A REVIEW                                                                               2355
+
+
+                                                               recent work [35], the Adaptive Random Forest (ARF) algo-
+                                                         rithm was proposed, which extends the random forest tree
+                                                           algorithm with a concept drift detection method, such as
+                                      ADWIN [31], to decide when to replace an obsolete tree with
+                                                        a new one. A similar work can be found in [66], which uses
+                                                        Hoeffding bound to distinguish concept drift from noise
+                                                           within decision trees.
+                                                             Besides extending classical methods, many new ensem-
+Fig. 14. A new base classiﬁer is added to the ensemble when a concept   ble methods have been developed to handle concept drift
+drift occurs.
+                                                         using novel voting techniques. Dynamic Weighted Majority
+                                         (DWM) [67] is such an ensemble method that is capable of
+ensemble of repressor models that integrates ELM using an
+                                                        adapting to drifts with a simple set of weighted voting
+ordered aggregation (OA) technique, which overcomes the
+                                                                    rules. It manages base classiﬁers according to the perfor-
+problem of deﬁning the optimal ensemble size.
+                                                mance of both the individual classiﬁers and the global
+   Instance-based lazy learners for handling concept drift
+                                                         ensemble. If the ensemble misclassiﬁes an instance, DWM
+have also been studied intensively. The Just-in-Time adap-
+                                                                 will train a new base classiﬁer and add it to ensemble. If a
+tive classiﬁer [19], [42] is such a method which follows the
+                                                         base classiﬁer misclassiﬁes an instance, DWM reduces its
+”detect and update model” strategy. For drift detection, it
+                                                       weight by a factor. When the weight of a base classiﬁer
+extends the traditional CUSUM test [61] to a pdf-free form.
+                                                      drops below a user deﬁned threshold, DWM removes  it
+This detection method is then integrated with a kNN classi-
+                                                    from the ensemble. The drawback of this method is that the
+ﬁer [42]. When a concept drift is detected, old instances
+                                                     adding classiﬁer process may be triggered too frequently,
+(more than the last T samples) are removed from the case
+                                                           introducing performance issues on some occasions, such as
+base. In later work, the authors of [11], [45] extended this
+                                             when  gradual  drift  occurs. A  well-known  ensemble
+algorithm to handle recurrent concepts by computing and
+                                                     method, Learn++NSE [68], mitigates this issue by weighting
+comparing current concept to previously stored concepts.
+                                                         base classiﬁers according to their prediction error rate on
+NEFCS [2] is another kNN-based adaptive model. A compe-
+                                                             the latest batch of data. If the error rate of the youngest clas-
+tence model-based drift detection algorithm [3] was used to
+                                                                siﬁer exceeds 50 percent, a new classiﬁer will be trained
+locate drift instances in the case base and distinguish them
+                                                      based on the latest data. This method has several other ben-
+from noise instances and a redundancy removal algorithm,
+                                                                   eﬁts: it can easily adopt almost any base classiﬁer algorithm;
+Stepwise Redundancy Removal (SRR), was developed to
+                                                                                           it does not store history data, only the latest batch of data,
+remove redundant instances in a uniform way, guarantee-
+                                                   which it only uses once to train a new classiﬁer; and it can
+ing that the reduced case base would still preserve enough
+                                                       handle sudden  drift, gradual  drift, and recurrent  drift
+information for future drift detection.
+                                                        because underperforming classiﬁers can be reactivated or
+                                                            deactivated as needed by adjusting their weights. Other vot-
+5.2  Model Ensemble for Recurring Drift
+                                                           ing strategies than standard weighted voting have also been
+In the case of recurring concept drift, preserving and reusing   applied to handle concept drift. Examples include hierarchi-
+old models can save signiﬁcant effort to retrain a new model                                                                    cal ensemble structure [69], [70], short term and long term
+for recurring concepts. This is the core idea of using ensem-                                             memory [13], [71] and dynamic ensemble sizes [72], [73].
+ble methods to handle concept drift [62]. Ensemble methods   A number of research efforts have been made that focus
+have received much attention in stream data mining research                                                  on developing ensemble methods for handling concept drift
+community in recent years. Ensemble methods comprise a                                                                of certain types. Accuracy Update Ensemble (AUE2) [74]
+set of base classiﬁers that may have different types or differ-                                                was proposed with an emphasis on handling both sudden
+ent parameters. The output of each base classiﬁer is com-                                                                       drift and gradual drift equally well.  It is a batch mode
+bined using certain voting rules to predict the newly arrived                                                      weighted voting ensemble method based on incremental
+data. Many adaptive ensemble methods have been devel-                                                         base classiﬁers. By doing re-weighting, the ensemble is able
+oped that aim to handle concept drift by extending classical   react quickly to sudden drift. All classiﬁers are also incre-
+ensemble methods or by creating speciﬁc adaptive voting                                                         mentally trained with the latest data, which ensures that the
+rules. An example is shown in Fig. 14, where new base classi-                                                     ensemble evolves with gradual drift. The Optimal Weights
+ﬁer is added to the ensemble when concept drift occurs.       Adjustment (OWA) method [75] achieves the same goal by
+   Bagging, Boosting and Random  Forests  are  classical                                                           building ensembles using both weighted instances and
+ensemble methods used to improve the performance of single                                                      weighted classiﬁers for different concept drift types. The
+classiﬁers. They have all been extended for handling stream-   authors of [76] considered a special case of concept drift —
+ing data with concept drift. An online version of the bagging                                                                   class evolution — the phenomenon of class emergence and
+method was ﬁrst proposed in [63] which uses each instance                                                           disappearance. Recurring concepts are handled in [77], [78],
+only once to simulate the batch mode bagging. In a later study                                                   which monitor concept information to decide when to reac-
+[64], this method was combined with the ADWIN drift detec-                                                                    tivate previously stored obsolete models. [79] is another
+tion algorithm [31] to handle concept drift. When a concept                                                 method that handles recurring concepts by reﬁning the con-
+drift is reported, the newly proposed method, called Leverag-                                                            cept pool to avoid redundancy.
+ing Bagging, trains a new classiﬁer on the latest data to replace
+the existing classiﬁer with the worst performance. Similarly,
+an adaptive boosting method was developed in [65] which   5.3  Adjusting Existing Models for Regional Drift
+handles concept  drift by monitoring prediction accuracy  An alternative to retraining an entire model is to develop a
+using a hypothesis test, assuming that classiﬁcation errors on  model that adaptively learns from the changing data. Such
+non-drifting data should follow Gaussian distribution. In a  models have the  ability to partially update themselves
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 11 ---
+2356                                      IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING,  VOL. 31,  NO. 12, DECEMBER 2019
+
+
+when the underlying data distribution changes  [80], as
+shown in Fig. 15. This approach is arguably more efﬁcient
+than retraining when the drift only occurs in local regions.
+Many methods in this category are based on the decision
+tree algorithm because trees have the ability to examine and
+adapt to each sub-region separately.
+   In a foundational work [81], an online decision tree algo-
+rithm, called Very Fast Decision Tree classiﬁer (VFDT) was
+                                                                                Fig. 15. A decision tree node is replaced with a new one as its perfor-
+proposed, which is especially tailored for high speed data   mance deteriorates when a concept drift occurs in a subregion.
+streams. It uses Hoeffding bound to limit the number of
+instances required for node  splitting. This method has
+                                                                      this previous research by reviewing the evaluation systems
+become very popular because of its several distinct advan-
+                                                     from three aspects: 1) validation methodology, 2) evaluation
+tages: 1) it only needs to process each instance once and
+                                                                 metrics, and 3) statistical signiﬁcance, and each evaluation is
+does not store instances in memory or disk; 2) the tree itself
+                                                          followed by its computation equation and usage introduction.
+only consumes a small amount of space and does not grow
+                                                                Validation methodology refers to the procedure for a learn-
+with the number of instances it processes unless there is
+                                                            ing algorithm to determine which data instances are used as
+new information in the data; 3) the cost of tree maintenance
+                                                              the training set and which are used as the testing set. There
+is very low. An extended version, called CVFDT [82], was
+                                                              are three procedures peculiar to the evaluation for learning
+later proposed to handle concept drift. In CVFDT, a sliding
+                                                           algorithms capable of handling concept drift: 1) holdout, 2) pre-
+window is maintained to hold the latest data. An alternative
+                                                                         quential, and 3) controlled permutation. In the scenario of a data-
+sub-tree is trained based on the window and its perfor-
+                                                                     set involving concept drift, holdout should follow the rule:
+mance is monitored. If the alternative sub-tree outperforms
+                                              when testing a learning algorithm at time t, the holdout set
+its original counterpart, it will be used for future prediction
+                                                              represents exactly the same concept at that time t. Unfortu-
+and the original obsolete sub-tree will be pruned. VFDTc
+                                                                   nately, it is only applied on synthetic datasets with predeﬁned
+[83] is another attempt to make improvements to VFDT
+                                                          concept drift times. Prequential is a popular evaluation scheme
+with several enhancements: the ability to handle numerical
+                                                     used in streaming data. Each data instance is ﬁrst used to test
+attributes; the application of naive Bayes classiﬁers in tree
+                                                              the learning algorithm, and then to train the learning algo-
+leaves and the ability to detect and adapt to concept drift.
+                                                               rithm. This scheme has the advantage that there is no need to
+Two node-level  drift detection methods were proposed
+                                             know the drift time of concepts, and it makes maximum use
+based on monitoring differences between a node and its
+                                                                 of the available data. The prequential error is computed based
+sub-nodes. The ﬁrst method uses classiﬁcation error rate
+                                                  on an accumulated sum of a loss function between the predic-and the second  directly checks  distribution  difference.                    Pn
+                                                                  tion and observed label: S ¼    t¼1 fð^yt; ytÞ. There are threeWhen a drift is detected on a node, the node becomes a leaf
+                                                             prequential error rate estimates: a landmark window (inter-
+and its descending sub-tree is removed. Later work [84],
+                                                                    leaved-test-then-train), a sliding window, and a forgetting
+[85] further extended VFDTc using an adaptive leaf strategy
+                                                  mechanism [90]. Controlled permutation [91] runs multiple test
+that chooses the best classiﬁer from three options: majority
+                                                               datasets in which the data order has been permutated in a
+voting, Naive Bayes and Weighted Naive Bayes.
+                                                               controlled way to preserve the local distribution, which
+   Despite the success of VFDT, recent studies [86], [87]
+                                                 means that data instances that were originally close to one
+have shown that its foundation, the Hoeffding bound, may
+                                                          another in time need to remain close after a permutation. Con-
+not be appropriate for the node splitting calculation because
+                                                                    trolled permutation reduces the risk that their prequential
+the variables  it computes, the information gain, are not
+                                                             evaluation may produce biased results for the ﬁxed order of
+independent. A new online decision tree model [88] was
+                                                           data in a sequence.
+developed based on an alternative impurity measure. The
+                                                              Evaluation metrics for datasets involving concept drift
+paper shows that this measure also reﬂects concept drift
+                                                         could be selected from traditional accuracy measures, such as
+and can be used as a replacement measure in CVFDT. In the
+                                                                 precision/recall in retrieval tasks, mean absolute scaled error
+same spirit, another decision tree algorithm (IADEM-3) [89]
+                                                                in regression, or root mean square error in recommender sys-
+aims to rectify the use of Hoeffding bound by computing
+                                                            tems. In addition to that, the following measures should be
+the sum of independent random variables, called relative fre-
+                                                        examined: 1) RAM-hours [92] for the computation cost of the
+quencies. The error rate of sub-trees are monitored to detect
+                                                     mining process; 2) Kappa statistic k ¼ p1  pranpran [93] for classiﬁca-drift and are used for tree pruning.
+                                                                  tion taking into account class imbalance, where p is the accu-
+                                                            racy of the classiﬁer under consideration (reference classiﬁer)
+6  EVALUATION, DATASETS, AND BENCHMARKS      and pran is the accuracy of the random classiﬁer; 3) Kappa-Tem-
+Section 6.1 discusses the evaluation systems used for learn-   poral statistic kper ¼ p1  pperpper [94] for the classiﬁcation of streaming
+ing algorithms handling concept drift. Section 6.2 introdu-   data with temporal dependence, where pper is the accuracy of
+ces synthetic datasets, which used to simulate speciﬁc and   the persistent classiﬁer (a classiﬁer that predicts the same
+controllable types of concept  drift. Section 6.3 describes   label pasﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃpreviously observed); 4) Combined Kappa  statistic
+real-world datasets, which used to test the overall perfor-  kþ ¼   maxð0; kÞmaxð0; kperÞ [94], which combines the k and
+mance in a real-life scenario.                                           kper by taking the geometric average; 5) Prequential AUC [95];
+                                                  and 6) the Averaged Normalized Area Under the Curve
+6.1  Evaluation Systems                         (NAUC) values for Precision-Range curve and Recall-Range
+The evaluation systems is an important part for learning algo-   curve [53], for the classiﬁcation of streaming data involving
+rithms. Some evaluation methodologies used in learning   concept drift. Apart from evaluating the performance of learn-
+under concept drift have been mentioned in [8]. We enrich   ing algorithms, the accuracy of the concept drift detection
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 12 ---
+LU ET AL.: LEARNING UNDER CONCEPT DRIFT: A REVIEW                                                                               2357
+
+
+                                          TABLE 3
+                          List of Synthetic Datasets for Performance Evaluation of Learning under Concept Drift
+
+             Dataset            #Insts.     #Attrs.      #Cls.         Types        Sources              Used by references
+
+  1   STAGGER [1]        Custom   3         2        Sudden                  II         [20], [23], [27], [30], [41], [57], [66], [73], [89],
+                                                                                                           [100], [101]
+  2   SEA [102]           Custom   3         2        Sudden                  II          [2], [5], [13], [20], [27], [32], [35], [51], [57], [58],
+                                                                                                                [64], [66], [68], [74], [77], [101], [102], [103], [104]
+  3    Rotating hyperplane   Custom   10        2         Gradual;                II          [2], [13], [21], [27], [30], [32], [35], [36], [41], [51],
+         [82], [105]                                             Incremental                      [58], [59], [64], [72], [73], [74], [79], [82], [85],
+                                                                                                                [89], [104]
+  4   Random RBF [106]    Custom   Custom   Custom   Sudden; Gradual;     III        [13], [20], [21], [26], [27], [29], [30], [35], [41],
+                                                             Incremental                      [50], [64], [68], [73], [74], [75], [89], [104], [107]
+  5   Random Tree        Custom   Custom   Custom   Sudden;                 II         [27], [35], [74], [84], [86], [87], [88], [89]
+         [81], [106]                                            Reoccurring
+  6   LED [108]           Custom   24        10       Sudden                  II         [23], [27], [35], [64], [74], [83], [84], [89], [101],
+                                                                                                   [104]
+  7    Waveform [108]      Custom   40        3        Sudden                  II         [18], [27], [79], [83], [84], [85], [89], [104]
+  8    Sine [20]            Custom   2         2        Sudden                  II         [20], [21], [26], [29], [73], [109]
+  9     Circle [20]           Custom   2         2         Gradual                 III        [20], [21], [26], [30], [41], [73], [103], [109]
+  10   Rotating            Custom   2         2         Gradual                 II         [13], [45], [51], [68], [109]
+       chessboard [68]
+
+
+method/algorithm can be accessed according to the following   concept drift. Since data instances are generated by prede-
+criteria: 1) true detection rate, 2) false detection rate, 3) miss detec-  ﬁned rules and speciﬁc parameters, a synthetic dataset is a
+tion rate, and 4) delay of detection [22].                    good option for evaluating the performance of learning
+    Statistical signiﬁcance is used to compare learning algo-   algorithms in different concept drift scenarios. The dataset
+rithms on achieved error rates. The three most frequently   provider, the number of instances (#Insts.), the number of
+used statistical tests for comparing two learning algorithms   attributes (#Attrs.), the number of classes (#Cls.), types of
+[96], [97] are: 1) McNemar test [98]: denote the number of   drift (Types), sources of drift (Sources), and used by referen-
+data instances misclassiﬁed by the ﬁrst classiﬁer and cor-   ces, are listed in Table 3.
+rectly classiﬁed by the second classiﬁer by a, and denote b
+in the opposite way. The McNemar statistic is computed as
+                                                         6.3  Real-World Datasets
+M ¼ signða   bÞ   ða   bÞ2=ða þ bÞ to test whether two clas-
+                                                            In this section, we collect several publicly available real-siﬁers perform equally well. The test follows the x2 distribu-
+                                                   world datasets, including real-world datasets with syn-tion; 2) Sign test: for N data instances, denote the number of
+                                                                   thetic drifts. The dataset provider, the number of instan-data instances misclassiﬁed by the ﬁrst classiﬁer and cor-
+                                                             ces  (#Insts.),  the number  of  attributes  (#Attrs.),  therectly classiﬁed by the second classiﬁer by B and the num-
+                                               number of classes (#Cls.), and used by references, areber of ties by T. Conduct one-sided sign test by computing
+  PN T N T              T                         shown in Table 4.
+p ¼   k¼B    k   0:5k   0:5N     k. If p less than a signiﬁcant     Most of these datasets contain temporal concept drift span-
+level, then the second classiﬁer is better than the ﬁrst classi-   ning over different period range - e.g., daily (Sensor [110]),
+ﬁer. and 3) Wilcoxon’s sign-rank test: For testing two classi-   seasonally (Electricity [111]) or yearly (Airlines [106], NOAA
+ﬁers on N datasets, let xi;1 and xi;2 ði ¼ 1; . . . ; NÞ denote the   weather [68]). Others include geographical (Covertype [108])
+measurements. The number of ties is T and Nr ¼ N   T.   or categorical (Poker-Hand [108]) concept drift. Certain date-
+                PNr
+The test statistic W ¼   i¼1ðsignðxi;1    xi;2Þ   RiÞ where Ri    sets, mainly text based, are targeting at speciﬁc drift types,
+is the rank ordered by jxi;1    xi;2j increasingly. Two classi-   such as sudden drift (Email_data [112]), gradural drift (Spam
+ﬁers perform equally is rejected if  jW j > Wcritical;Nr (two-   assassin corpus [113]), recurrent drift (Usenet [114]) or novel
+sided), where Wcritical;Nr can be acquired from the statistical   class (KDDCup’99 [108], ECUE drift dataset 2 [115])
+                                                        These datasets provide realistic benchmark for evaluat-table. All three tests are non-parametric. The Nemenyi test
+                                                           ing differnent concept drift handling methods. There are,[99] is used to compare more than two learning algorithms.
+                                                      however, two limitations of real world data sets: 1) theIt is an appropriate test for comparing all learning algo-
+                                                    groud truth of precise  start and end time of  drifts  is
+rithms with multiple datasets, based on the average rank of
+                                                 unknown; 2) some real datasets may include mixed drift
+algorithms over all datasets. The Nemenyi test consists of
+                                                                types. These limitations make it difﬁcult to evaluate meth-
+the following: two classiﬁers are performing differently if
+                                                     ods for understanding the drift, and could introduce bias
+the corresponding average ranks differ by at least the criti-
+          pﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ                   when comparing different machine learning models.
+cal difference CD ¼ qa  kðk þ 1Þ=6N , where k is the number
+of learners, N is the number of datasets, and critical values
+                                          7  THE CONCEPT DRIFT PROBLEM IN OTHER
+pqaﬃﬃ are based on the Studentized range statistic divided by
+  2. Other tests can be used to compare learning algorithms     RESEARCH AREAS
+with a control algorithm [99].                    We have observed that handling the concept drift problem is
+                                                          not a standalone research subject but has a large number of
+6.2  Synthetic Datasets                                     indirect usage scenarios. In this section, we adopt this new
+We list several widely used synthetic datasets for evaluating   perspective to review recent developments in other research
+the  performance  of  learning  algorithms  dealing  with   areas that beneﬁt from handling the concept drift problem.
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 13 ---
+2358                                      IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING,  VOL. 31,  NO. 12, DECEMBER 2019
+
+
+                                          TABLE 4
+                         List of Real-World Datasets for Performance Evaluation of Learning under Concept Drift
+
+                Dataset                 #Insts.      #Attrs.     #Cls.                        Used by references
+
+1      Airlines [106]                 539384      7          2           [4], [5], [35], [74], [104], [116], [117]
+2     Covertype [108]              581012      54         7          [13], [23], [35], [36], [59], [64], [74], [83], [84], [85], [88], [89], [104], [117]
+3       Electricity [111]               45312       8          2           [4], [5], [13], [20], [23], [26], [29], [31], [35], [36], [57], [64], [73], [74],
+                                                                                       [79], [88], [89], [103], [104], [117]
+4     Poker-Hand [108]             1025010     10         10         [13], [32], [64], [74], [104]
+5    NOAA weather [68]           18159       8          2           [2], [4], [13], [68], [69], [79], [107]
+6      Sensor [110]                  2219803     5          54         [36], [79]
+7     KDDCup’99 [108]             494021      41         23         [35], [47], [66], [70], [75], [86], [88], [101], [104]
+8     Usenet1 [114]                 1500        99         2          [23], [51], [89]
+9     Usenet2 [114]                 1500        99         2          [23], [89]
+10     Email_data [112]              1500        913        2          [45], [77], [78]
+11    Spam_data [112]              9324        499        2           [4], [5], [23], [36], [104], [118]
+12    Spam assassin corpus [113]     9324        39916      2           [4], [35], [77], [89]
+13   ECUE drift dataset 1 [115]      10983       287034     2           [2], [3]
+14   ECUE drift dataset 2 [115]      11905       166047     2           [2], [3]
+
+
+7.1  Class Imbalance                                        to concept  drift by monitoring classiﬁcation error. This
+Class imbalance is a common problem in stream data mining   micro-cluster algorithm was further extended to a parallel
+in addition to concept drift. Research effort has been made to   version using  the map-reduce technique  in  [129] and
+develop effective learning algorithms to tackle both problems   applied to solve the label-drift classiﬁcation problem where
+at same time. [119] presented two ensemble methods for   class labels are not known in advance [130].
+learning under concept drift with imbalanced class. The ﬁrst
+method, Learn++.CDS, is extended from Learn++.NSE and   7.3  Active Learning and Semi-Supervised Learning
+combined with the Synthetic Minority class Oversampling   Active learning is based on the assumption that there is a
+Technique (SMOTE). The second algorithm, Learn++.NIE,   large amount of unlabeled data but only a fraction of them
+improves on the previous method by employing a different  can be labeled by human effort. This is a common situation
+penalty constraint to prevent prediction accuracy bias and   in stream data applications, which are often also subject to
+replacing SMOTE with bagging  to avoid oversampling.   the concept drift problem. [117] presented a general frame-
+ESOS-ELM [120] is another ensemble method which uses  work  that combines  active  learning and concept  drift
+Online Sequential Extreme Learning Machine (OS-ELM) as a   adaptation.  It ﬁrst compares different instance-sampling
+basic classiﬁer to improve performance with class imbalanced   strategies for labeling to guarantee that the labeling cost
+data. A concept drift detector is integrated to retrain the classi-   will be under budget, and that distribution bias will be pre-
+ﬁer when drift occurs. The author then developed another   vented. A drift adaptation mechanism  is then adopted,
+algorithm [121], which is able to tackle multi-class imbalanced  based on the DDM detection method [20]. In [131], the
+data with concept drift. [122] proposed two learning algo-   authors proposed a new active learning algorithm that pri-
+rithms OOB and UOB, which build an ensemble model to   marily aims to avoid bias in the sampling process of choos-
+overcome the class imbalance in real time through resampling   ing instances for labeling. They also introduced a memory
+and time-decayed metrics. [123] developed an ensemble   loss factor to the model, enabling it to adapt to concept drift.
+method which handles concept drift and class imbalance with     Semi-supervised learning concerns how to use limited
+additional true label data limitation.                           true label data more efﬁciently by leveraging unsupervised
+                                                             techniques. In  this scenario, additional design  effort  is
+                                                          required to handle concept drift. For example, in [132], the
+7.2  Big Data Mining                                                          authors applied a Gaussian Mixture model to both labeled
+Data mining in big data environments faces similar chal-  and unlabeled data, and assigned labels, which has the abil-
+lenges to stream data mining [124], [125]: data is generated   ity to adapt to gradual drift. Similarly, [101], [133], [134] are
+at a fast rate (Velocity) and distribution uncertainty always    all cluster-based semi-supervised ensemble methods that
+exists in the data, which means that handling concept drift  aim to adapt to drift with limited true label data. The latter
+is also crucial in big data applications. Additionally, scal-   are also able to recognize recurring concepts. In [135], the
+ability is an important consideration because in big data   author adopted a new perspective on the true label scarcity
+environments, a data stream may come in very large and  problem by considering the true labeled data and unlabeled
+potentially unpredictable quantities (Volume) and cannot   data as two independent non-stationary data generating
+be processed in a single computer server. An attempt to   processes. Concept drift is handled asynchronously on these
+handle concept drift in a distributed computing environ-  two streams. The SAND algorithm [136], [137] is another
+ment was made by [126] in which an Online Map-Reduce   semi-supervised adaptive method which detects concept
+Drift Detection Method (OMR-DDM) was proposed, using   drift on cluster boundaries. There are also studies [90], [91]
+the combined online error rate of the parallel classiﬁcation   that focus on adapting to concept drift in circumstances
+algorithms to identify the changes in a big data stream. A  where true label data is completely unavailable.
+recent study [127] proposed another scalable stream data
+mining algorithm, called Micro-Cluster Nearest Neighbor   7.4  Decision Rules
+(MC-NN), based on nearest neighbor classiﬁer. This method   Data-driven decision support systems need to be able to adapt
+extends the original Micro-Cluster algorithm [128] to adapt   to concept drift in order to make accurate decisions and
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 14 ---
+LU ET AL.: LEARNING UNDER CONCEPT DRIFT: A REVIEW                                                                               2359
+
+
+decision rules is the main technique for this purpose. [104]     Based on these ﬁndings, we suggest four new directions
+proposed a decision rule induction algorithm, Very Fast Deci-   in future concept drift research:
+sion Rules (VFDR), to effectively process stream data. An
+                                                                          (1)   Drift detection research should not only focus onextended version, Adaptive VFDR, was developed to handle
+                                                                      identifying drift occurrence time accurately, but alsoconcept drift by dynamically adding and removing decision
+                                                          need to provide the information of drift severity andrules according to their error rate which is monitored by drift
+                                                                       regions. These information could be utilized for bet-detector. Instead of inducing rules from decision trees, [138]
+                                                                              ter concept drift adaptation.proposed another decision rule algorithm based on PRISM
+                                                                          (2)   In the real-world scenario, the cost to acquire true[139] to directly induce rules from data. This algorithm is also
+                                                                         label could be expensive, that is, unsupervised orable to adapt to drift by monitoring the performance of each
+                                                                semi-supervised  drift  detection  and  adaptationrule on a sliding window of latest data. [140] also developed
+                                                              could still be promising in the future.an adaptive decision making algorithm based on fuzzy rules.
+                                                                          (3)  A framework for selecting real-world data streamsThe algorithm includes a rule pruning procedure, which
+                                                             should be established for evaluating learning algo-removes obsolete rules to adapt to changes, and a rule recal
+                                                                rithms handling concept drift.procedure to adapt to recurring concepts.
+                                                                          (4)   Research on effectively integrating concept  drift   This section by no means attempts to cover every
+                                                             handling techniques with machine learning meth-research ﬁeld in which concept drift handling is used.
+                                                                odologies  for data-driven applications  is highlyThere are many other studies that also consider concept
+                                                                     desired.drift as a dual problem. For example, [141] is a dimension
+                                       We hope this paper can provide researchers with state-reduction algorithm to separate classes based on least
+                                                                   of-the-art knowledge on concept drift research develop-squares linear discovery analysis (LSLDA), which is then
+                                                    ments and provide guidelines about how to apply conceptextended to adapt to drift; [142] considered the concept
+                                                                       drift techniques in different domains to support users indrift problem in time series and developed an online
+                                                           various prediction and decision activities.explicit drift detection method by monitoring time series
+features; and [143] developed an incremental scaffolding
+                                       ACKNOWLEDGMENTS
+classiﬁcation  algorithm  for  complex  tasks  that  also
+involve concept drift.                                The work presented in this paper was supported by the
+                                                           Australian Research Council (ARC) under discovery grant
+8  CONCLUSIONS: FINDINGS AND FUTURE            DP150101645. The authors signiﬁcantly thank Yiliao Song
+                                                                  for her help in preparation of datasets and applications
+   DIRECTIONS
+                                               shown in Sections 6.
+We summarize the recent developments of concept drift
+research, and the following important ﬁndings can be  REFERENCES
+extracted:                                                                        [1]   G. Widmer and M. Kubat, “Learning in the presence of concept
+                                                                                            drift and hidden contexts,” Mach. Learn., vol. 23, no. 1, pp. 69–
+  (1)   Error rate-based and data distribution-based drift          101, 1996.
+       detection methods are still playing a dominant role    [2]   N. Lu, J. Lu, G. Zhang, and R. Lopez de Mantaras, “A concept
+       in concept drift detection research, while multiple           drift-tolerant case-base editing technique,” Artif. Intell., vol. 230,
+                                                                          pp. 108–133, 2016.
+       hypothesis test methods emerge in recent years;
+                                                                                     [3]   N. Lu, G. Zhang, and J. Lu, “Concept drift detection via compe-
+  (2)   Regarding to concept drift understanding, all drift         tence models,” Artif. Intell., vol. 209, pp. 11–28, 2014.
+       detection methods can answer “When”, but very few    [4]   A. Liu, Y. Song, G. Zhang, and J. Lu, “Regional concept drift
+      methods have the  ability to answer “How” and          detection and density synchronized drift adaptation,” in Proc.
+      “Where”;                                                           26th Int. Joint Conf. Artif. Intell., 2017, pp. 2280–2286.
+                                                                                     [5]   A. Liu, G. Zhang, and J. Lu, “Fuzzy time windowing for gradual
+  (3)   Adaptive models and ensemble techniques have                                                                          concept drift adaptation,” in Proc. 26th IEEE Int. Conf. Fuzzy
+      played an increasingly important role in recent con-            Syst., 2017, pp. 1–6.
+       cept  drift adaptation developments.  In  contrast,    [6]    B. Krawczyk,  L.  L. Minku,   J. Gama,   J.  Stefanowski, and
+       research  of retraining models with  explicit  drift       M. Woniak, “Ensemble learning for data stream analysis: A
+                                                                            survey,” Inf. Fusion, vol. 37, pp. 132–156, 2017.
+       detection has slowed;
+                                                                                     [7]    S. Ramırez-Gallego, B. Krawczyk, S. Garcıa, M. Wozniak, and
+  (4)  Most existing drift detection and adaptation algo-           F. Herrera, “A survey on data preprocessing for data stream min-
+       rithms assume the ground true label  is available          ing: Current  status and  future  directions,” Neurocomputing,
+        after classiﬁcation/prediction, or extreme veriﬁca-           vol. 239, pp. 39–57, 2017.
+        tion latency. Very few research has been conducted    [8]      J. Gama, I. Zliobait_e, A. Bifet, M. Pechenizkiy, and A. Bouchachia,
+                                                        “A survey on concept drift adaptation,” ACM Comput. Surv.,
+        to address unsupervised or semi-supervised drift                                                                                        vol. 46, no. 4, pp. 1–37, 2014.
+       detection and adaptation.                                         [9]   G. Ditzler, M. Roveri, C. Alippi, and R. Polikar, “Learning in
+  (5)  Some computational intelligence techniques, such as         nonstationary environments: A survey,” IEEE Comput.  Intell.
+       fuzzy logic, competence model, have been applied in         Mag., vol. 10, no. 4, pp. 12–25, Nov. 2015.
+                                                                                [10]    J. Gama, “A survey on learning from data streams: Current and
+       concept drift;
+                                                                               future trends,” Progress Artif. Intell., vol. 1, no. 1, pp. 45–55, 2012.
+  (6)   There is no comprehensive analysis on real-world    [11]    J. A. Silva, E. R. Faria, R. C. Barros, E. R. Hruschka, A. C. P. L. F.
+       data streams from the concept drift aspect, such as          d. Carvalho, and J. Gama, “Data stream clustering: A survey,”
+       the drift occurrence time, the severity of drift, and      ACM Comput. Surv., vol. 46, no. 1, pp. 1–31, 2013.
+       the drift regions.                                                 [12]    J. C. Schlimmer and R. H. Granger  Jr, “Incremental learning
+                                                                   from noisy data,” Mach. Learn., vol. 1, no. 3, pp. 317–354, 1986.
+  (7)  An increasing number of other research areas have                                                                                [13]   V. Losing, B. Hammer, and H. Wersing, “Knn classiﬁer with self
+       recognized the importance of handling concept drift,          adjusting memory for heterogeneous concept drift,” in Proc. 16th
+       especially in big data community.                                       Int. Conf. Data Mining, 2016, pp. 291–300.
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 15 ---
+2360                                      IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING,  VOL. 31,  NO. 12, DECEMBER 2019
+
+
+[14]    I. Zliobait_e and J. Hollmen, “Optimizing regression models for    [39]  A. A. Qahtan, B. Alharbi, S. Wang, and X. Zhang, “A pca-
+      data streams with missing values,” Mach. Learn., vol. 99, no. 1,         based change detection framework for multidimensional data
+      pp. 47–73, 2014.                                                        streams,” in Proc. 21th Int. Conf. Knowl. Discovery Data Mining,
+[15]   S. Amos, “When training and test sets are different: Characteriz-          2015, pp. 935–944.
+      ing learning transfer,” in Dataset Shift Mach. Learn., Cambridge,    [40]   F. Gu, G. Zhang, J. Lu, and C.-T. Lin, “Concept drift detection
+     MA, USA: MIT Press, pp. 3–28, 2009.                                 based on equal density estimation,” in Proc. Int. Joint Conf. Neural
+[16]    J. G. Moreno-Torres,  T. Raeder, R. Alaiz-Rodrıguez, N. V.          Netw., 2016, pp. 24–30.
+      Chawla, and F. Herrera, “A unifying view on dataset shift in    [41]   L. Bu, D. Zhao, and C. Alippi, “An incremental change detection
+       classiﬁcation,” Pattern Recognit., vol. 45, no. 1, pp. 521–530, 2012.             test based on density difference estimation,” IEEE Trans. Syst.
+[17]  M. Basseville and  I. V. Nikiforov, Detection of Abrupt Changes:       Man Cybern.: Syst., vol. 47, no. 10, pp. 2714–2726, Oct. 2017.
+      Theory and Application. Englewood Cliffs, NJ, USA: Prentice Hall,    [42]   C. Alippi and M. Roveri, “Just-in-time adaptive classiﬁers part II:
+       1993, vol. 104.                                                        designing the classiﬁer,” IEEE Trans. Neural Netw., vol. 19, no. 12,
+[18]  A. Dries and U. R€uckert, “Adaptive concept drift detection,” Sta-         pp. 2053–2064, Dec. 2008.
+         tistical Anal. Data Mining: The ASA Data Sci. J., vol. 2, no. 5–6,    [43]   C. Alippi, G. Boracchi, and M. Roveri, “A just-in-time adap-
+      pp. 311–327, 2009.                                                           tive classiﬁcation system based on the intersection of conﬁ-
+[19]   C. Alippi and M. Roveri, “Just-in-time adaptive classiﬁers part I:        dence intervals rule,” Neural Netw., vol. 24, no. 8, pp. 791–
+      Detecting nonstationary changes,” IEEE Trans. Neural Netw.,          800, 2011.
+       vol. 19, no. 7, pp. 1145–1153, Jul. 2008.                                [44]   C. Alippi, G. Boracchi, and M. Roveri, “Just-in-time ensemble of
+[20]    J. Gama, P. Medas, G. Castillo, and P. Rodrigues, “Learning with          classiﬁers,” in Proc. Int. Joint Conf. Neural Netw., 2012, pp. 1–8.
+        drift detection,” in Proc. 17th Brazilian Symp. Artif. Intell., 2004,    [45]   C. Alippi, G. Boracchi, and M. Roveri, “Just-in-time classiﬁers
+      pp. 286–295.                                                                 for recurrent concepts,” IEEE Trans. Neural Netw. Learn. Syst.,
+[21]   L. Bu, C. Alippi, and D. Zhao, “A pdf-free change detection test           vol. 24, no. 4, pp. 620–634, Apr. 2013.
+      based on density difference estimation,” IEEE Trans. Neural    [46]  W. Heng and Z. Abraham, “Concept drift detection for stream-
+      Netw. Learn. Syst., vol. 29, no. 2, pp. 324–334, Feb. 2018.                   ing data,” in Proc. Int. Joint Conf. Neural Netw., 2015, pp. 1–9.
+[22]   T. Dasu, S. Krishnan, S. Venkatasubramanian, and K. Yi, “An    [47]   Y. Zhang, G. Chu, P. Li, X. Hu, and X. Wu, “Three-layer concept
+       information-theoretic approach to detecting changes in multi-          drifting detection in text data streams,” Neurocomputing, vol. 260,
+      dimensional data  streams,”  in  Proc. Symp.  Interface  Statist.         pp. 393–403, 2017.
+      Comput. Sci. Appl., 2006, pp. 1–24.                                     [48]   L. Du, Q. Song, L. Zhu, and X. Zhu, “A selective detector ensem-
+[23]    I.  Frias-Blanco,    J.  D.  Campo-Avila,  G.  Ramos-Jimenez,          ble for concept drift detection,” Comput. J., vol. 58, no. 3, pp. 457–
+       R.  Morales-Bueno,  A.  Ortiz-Diaz, and  Y.  Caballero-Mota,          471, 2014.
+      “Online and non-parametric drift detection methods based on    [49]   B. I. F. Maciel, S. G. T. C. Santos, and R. S. M. Barros, “A light-
+       hoeffding’s bounds,” IEEE Trans. Knowl. Data Eng., vol. 27, no. 3,         weight concept drift detection ensemble,” in Proc. 27th IEEE Int.
+      pp. 810–823, Mar. 2015.                                                    Conf. Tools Artif. Intell., 2015, pp. 1061–1068.
+[24]  M. Yamada, A. Kimura, F. Naya, and H. Sawada, “Change-point    [50]   C. Alippi, G. Boracchi, and M. Roveri, “Hierarchical change-
+       detection with feature selection in high-dimensional time-series          detection tests,” IEEE Trans. Neural Netw. Learn. Syst., vol. 28,
+       data,” in Proc. 23rd Int. Joint Conf. Artif. Intell., 2013, pp. 1827–1833.          no. 2, pp. 246–258, Feb. 2017.
+[25]    J. Gama and G. Castillo, “Learning with local drift detection,” in    [51]   S. Yu and Z. Abraham, “Concept drift detection with hierarchical
+       Proc. 2nd Int. Conf. Adv. Data Mining Appl., 2006, pp. 42–55.               hypothesis testing,” in Proc. SIAM Int. Conf. Data Mining, 2017,
+[26]  M. Baena-Garcıa,  J. del Campo- Avila, R. Fidalgo, A.  Bifet,         pp. 768–776.
+       R. Gavalda, and R. Morales-Bueno, “Early drift detection meth-    [52]  H. Raza, G. Prasad, and Y. Li, “Ewma model based shift-detec-
+      od,” in Proc. 4th Int. Workshop Knowl. Discovery Data Streams, 2006,          tion methods for detecting covariate shifts in non-stationary
+      pp. 77–86.                                                          environments,” Pattern Recognit., vol. 48, no. 3, pp. 659–669, 2015.
+[27]   S. Xu and J. Wang, “Dynamic extreme learning machine for data    [53]   S. Yu, X. Wang, and J. C. Prıncipe, “Request-and-reverify: Hierar-
+      stream classiﬁcation,” Neurocomputing, vol. 238, pp. 433–449,           chical hypothesis testing for concept drift detection with expensive
+       2017.                                                                             labels,” in Proc. 27th Int. Conf. Artif. Intell., 2018, pp. 3033–3039.
+[28]   G.-B. Huang, Q.-Y. Zhu, and C.-K. Siew, “Extreme learning    [54]   P. M. Gonc¸alves Jr, S. G. de Carvalho Santos, R. S. Barros, and
+      machine: Theory and applications,” Neurocomputing, vol. 70,         D. C. Vieira, “A comparative study on concept drift detectors,”
+       no. 1–3, pp. 489–501, 2006.                                               Expert Syst. Appl., vol. 41, no. 18, pp. 8144–8156, 2014.
+[29]  G.  J. Ross, N. M. Adams, D. K. Tasoulis, and D.  J. Hand,    [55]   F. Pukelsheim, “The three sigma rule,” The Amer. Statistician,
+      “Exponentially weighted moving average charts for detecting con-           vol. 48, no. 2, pp. 88–91, 1994.
+       cept drift,” Pattern Recognit. Lett., vol. 33, no. 2, pp. 191–198, 2012.      [56]  A. Tsymbal, M. Pechenizkiy, P. Cunningham, and S. Puuronen,
+[30]  K. Nishida and K. Yamauchi, “Detecting concept drift using        “Dynamic integration of classiﬁers for handling concept drift,”
+        statistical testing,” in Proc. 10th Int. Conf. Discovery Sci., 2007,            Inf. Fusion, vol. 9, no. 1, pp. 56–68, 2008.
+      pp. 264–269.                                                           [57]   S. H. Bach and M. Maloof, “Paired learners for concept drift,” in
+[31]  A. Bifet and R. Gavalda, “Learning from time-changing data          Proc. 8th Int. Conf. Data Mining, 2008, pp. 23–32.
+      with adaptive windowing,” in Proc. SIAM Int. Conf. Data Mining,    [58]  D. Liu, Y. Wu, and H. Jiang, “FP-ELM: An online sequential
+       vol. 7, 2007, Art. no. 2007.                                               learning algorithm for dealing with concept drift,” Neurocomput-
+[32]  A. Bifet and R. Gavald, “Adaptive learning from evolving data           ing, vol. 207, pp. 322–334, 2016.
+       streams,” in Proc. 8th Int. Symp. Intell. Data Anal., 2009, pp. 249–260.    [59]  D. Han, C. Giraud-Carrier, and S. Li, “Efﬁcient mining of high-
+[33]  A. Bifet, G. Holmes, B. Pfahringer, and R. Gavalda, “Improving        speed uncertain data streams,” Appl.  Intell.,  vol.  43, no.  4,
+      adaptive bagging methods for evolving data streams,” in Proc.         pp. 773–785, 2015.
+       1st Asian Conf. Mach. Learn., 2009, pp. 23–37.                          [60]   S. G. Soares and R. Araujo, “An adaptive ensemble of on-line
+[34]  A. Bifet, G. Holmes, B. Pfahringer, R. Kirkby, and R. Gavalda,         extreme learning machines with variable forgetting factor for
+     “New ensemble methods for evolving data streams,” in Proc.        dynamic system prediction,” Neurocomputing, vol. 171, pp. 693–
+       15th ACM SIGKDD Int. Conf. Knowl. Discovery Data Mining, 2009,          707, 2016.
+      pp. 139–148.                                                           [61]   B. F. J. Manly and D. Mackenzie, “A cumulative sum type of
+[35]  H. M. Gomes, A. Bifet,  J. Read,  J. P. Barddal, F. Enembreck,        method for environmental monitoring,” Environmetrics, vol. 11,
+       B. Pfharinger, G. Holmes, and T. Abdessalem, “Adaptive random          no. 2, pp. 151–166, 2000.
+       forests for evolving data stream classiﬁcation,” Mach. Learn., 2017.     [62]   Y. Sun, K. Tang, Z. Zhu, and X. Yao, “Concept drift adaptation by
+[36]    J. Shao, Z. Ahmadi, and S. Kramer, “Prototype-based learning on          exploiting historical knowledge,” IEEE Trans. Neural Netw. Learn.
+       concept-drifting data streams,” in Proc. 20th ACM SIGKDD Int.            Syst., vol. 29, no. 10, pp. 4822–4832, Oct. 2018.
+       Conf. Knowl. Discovery Data Mining, 2014, pp. 412–421.                [63]  N. C. Oza and S. Russell, “Experimental comparisons of online
+[37]  D. Kifer, S. Ben-David, and J. Gehrke, “Detecting change in data        and batch versions of bagging and boosting,” in Proc. 7th ACM
+       streams,” in Proc. 30th  Int. Conf. Very Large Databases, 2004,       SIGKDD Int. Conf. Knowl. Discovery Data Mining, 2001, pp. 359–
+       vol. 30, pp. 180–191.                                                       364.
+[38]   X. Song, M. Wu, C. Jermaine, and S. Ranka, “Statistical change    [64]  A. Bifet, G. Holmes, and B. Pfahringer, “Leveraging bagging for
+       detection for multi-dimensional data,” in Proc. 13th ACM SIGKDD         evolving data streams,” in Proc. Joint Eur. Conf. Mach. Learn.
+        Int. Conf. Knowl. Discovery Data Mining, 2007, pp. 667–676.                 Knowl. Discovery Databases, 2010, pp. 135–150.
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 16 ---
+LU ET AL.: LEARNING UNDER CONCEPT DRIFT: A REVIEW                                                                               2361
+
+
+[65]   F. Chu and C. Zaniolo, “Fast and light boosting for adaptive min-    [89]    I. Frıas-Blanco, J. d. Campo-Avila, G. Ramos-Jimenez, A. C. P. L.
+      ing of data streams,” in Proc. 8th Paciﬁc-Asia Conf. Knowl. Discov-           F. Carvalho, A. Ortiz-D ıaz, and R. Morales-Bueno, “Online adap-
+       ery Data Mining, 2004, pp. 282–292.                                           tive decision trees based on concentration inequalities,” Knowl.-
+[66]   P. Li, X. Wu, X. Hu, and H. Wang, “Learning concept-drifting         Based Syst., vol. 104, pp. 179–194, 2016.
+      data streams with random ensemble decision trees,” Neurocom-    [90]    J. Gama, R. Sebasti~ao, and P. P. Rodrigues, “On evaluating
+       puting, vol. 166, pp. 68–83, 2015.                                      stream learning algorithms,” Mach. Learn., vol. 90, no. 3, pp. 317–
+[67]    J. Z. Kolter and M. A. Maloof, “Dynamic weighted majority: An          346, 2012.
+      ensemble method for drifting concepts,”  J. Mach. Learn. Res.,    [91]    I. Zliobait_e, “Controlled permutations for testing adaptive learn-
+       2007, pp. 2755–2790.                                                   ing models,” Knowl. Inf. Syst., vol. 39, no. 3, pp. 565–578, 2014.
+[68]   R. Elwell and R. Polikar, “Incremental learning of concept drift in    [92]  A. Bifet, G. Holmes, B. Pfahringer, and E. Frank, “Fast perceptron
+      nonstationary environments,” IEEE Trans. Neural Netw., vol. 22,          decision tree learning from evolving data streams,” in Proc. 14th
+       no. 10, pp. 1517–31, Oct. 2011.                                             Paciﬁc-Asia Conf. Knowl. Discovery Data Mining, 2010, pp. 299–310.
+[69]   X.-C. Yin, K. Huang, and H.-W. Hao, “De2: Dynamic ensemble    [93]    J. Cohen, “A coefﬁcient of agreement for nominal scales,” Educa-
+       of ensembles for learning nonstationary data,” Neurocomputing,           tional Psychological Meas., vol. 20, no. 1, pp. 37–46, 1960.
+       vol. 165, pp. 14–22, 2015.                                              [94]    I. Zliobait_e, A. Bifet,  J. Read, B. Pfahringer, and G. Holmes,
+[70]   P. Zhang, J. Li, P. Wang, B. J. Gao, X. Zhu, and L. Guo, “Enabling         “Evaluation methods and decision theory for classiﬁcation of
+        fast prediction for ensemble models on data streams,” in Proc.         streaming  data  with  temporal  dependence,”  Mach.  Learn.,
+       17th ACM SIGKDD Int. Conf. Knowl. Discovery Data Mining, 2011,           vol. 98, no. 3, pp. 455–482, 2015.
+      pp. 177–185.                                                           [95]  D. Brzezinski and J. Stefanowski, “Prequential auc for classiﬁer
+[71]   Y. Xu, R. Xu, W. Yan, and P. Ardis, “Concept drift learning with         evaluation and drift detection in evolving data streams,” in Proc.
+       alternating learners,” in Proc. Int. Joint Conf. Neural Netw., 2017,         3rd Int. Workshop New Frontiers Mining Complex Patterns, 2014,
+      pp. 2104–2111.                                                       pp. 87–101.
+[72]   L. Pietruczuk, L. Rutkowski, M. Jaworski, and P. Duda, “A    [96]  A. Bifet, G. D. F. Morales, J. Read, G. Holmes, and B. Pfahringer,
+     method for automatic adjustment of ensemble size in stream         “Efﬁcient online evaluation of big data stream classiﬁers,” in
+      data mining,” in Proc. Int. Joint Conf. Neural Netw., 2016, pp. 9–15.           Proc. 21th ACM SIGKDD Int. Conf. Knowl. Discovery Data Mining,
+[73]   S.-C. You and H.-T. Lin, “A simple unlearning framework for          2015, pp. 59–68.
+       online learning under concept drifts,” in Proc. 20th Paciﬁc-Asia    [97]  N. Japkowicz and M. Shah, Evaluating Learning Algorithms: A
+       Conf. Knowl. Discovery Data Mining, 2016, pp. 115–126.                      Classiﬁcation  Perspective. Cambridge,  U.K.: Cambridge Univ.
+[74]  D. Brzezinski and J. Stefanowski, “Reacting to different types of          Press, 2011.
+      concept drift: The accuracy updated ensemble algorithm,” IEEE    [98]  Q. McNemar, “Note on the sampling error of the difference
+       Trans. Neural Netw. Learn. Syst., vol. 25, no. 1, pp. 81–94, Jan. 2014.        between correlated proportions or percentages,” Psychometrika,
+[75]   P. Zhang, X. Zhu, and Y. Shi, “Categorizing and mining concept           vol. 12, no. 2, pp. 153–157, 1947.
+       drifting data streams,” in Proc. 14th ACM SIGKDD Int. Conf.    [99]    J. Demsar, “Statistical comparisons of classiﬁers over multiple
+      Knowl. Discovery Data Mining, 2008, pp. 812–820.                        data sets,” J. Mach. Learn. Res., vol. 7, no. Jan, pp. 1–30, 2006.
+[76]   Y. Sun, K. Tang, L. L. Minku, S. Wang, and X. Yao, “Online   [100]  J. Z. Kolter and M. A. Maloof, “Using additive expert ensembles
+      ensemble learning of data streams with gradually evolved class-          to cope with concept drift,” in Proc. 22nd Int. Conf. Mach. Learn.,
+       es,” IEEE Trans. Knowl. Data Eng., vol. 28, no. 6, pp. 1532–1545,          2005, pp. 449–456.
+       Jun. 2016.                                                            [101]  X. Wu, P. Li, and X. Hu, “Learning from concept drifting data
+[77]    J. Gama and P. Kosina, “Recurrent concepts in data streams clas-         streams with unlabeled data,” Neurocomputing, vol. 92, pp. 145–
+       siﬁcation,” Knowl. Inf. Syst., vol. 40, no. 3, pp. 489–507, 2013.                155, 2012.
+[78]    J. B. Gomes, M. M. Gaber, P. A. Sousa, and E. Menasalvas,   [102] W. N. Street and Y. Kim, “A streaming ensemble algorithm (sea)
+      “Mining recurring concepts in a dynamic feature space,” IEEE          for large-scale classiﬁcation,” in Proc. Seventh ACM Int. Conf.
+       Trans. Neural Netw. Learn. Syst., vol. 25, no. 1, pp. 95–110, Jan. 2014.         Knowl. Discovery Data Mining, 2001, pp. 377–382.
+[79]   Z. Ahmadi and S. Kramer, “Modeling recurring concepts in data   [103]  R. Fok, A. An, and X. Wang, “Mining evolving data streams with
+       streams: A graph-based framework,” Knowl. Inf. Syst., 2017.                particle ﬁlters,” Comput. Intell., vol. 33, no. 2, pp. 147–180, 2017.
+[80]  M. Pratama,  J. Lu, G. Zhang, et al.,“Evolving type-2 fuzzy   [104]  P. Kosina and J. Gama, “Very fast decision rules for classiﬁcation
+       classiﬁer,” IEEE Trans. Fuzzy Syst., vol. 24, no. 3, pp. 574–589,          in data streams,” Data Mining Knowl. Discovery, vol. 29, no. 1,
+       Jun. 2016.                                                           pp. 168–202, 2015.
+[81]   P. Domingos and G. Hulten, “Mining high-speed data streams,”   [105] H. Wang, W. Fan, P. S. Yu, and J. Han, “Mining concept-drifting
+       in Proc. 6th ACM SIGKDD Int. Conf. Knowl. Discovery Data Min-         data streams using ensemble classiﬁers,” in Proc. 9th ACM SIGKDD
+        ing, 2000, pp. 71–80.                                                                    Int. Conf. Knowl. Discovery Data Mining, 2003, pp. 226–235.
+[82]  G. Hulten, L. Spencer, and P. Domingos, “Mining time-changing   [106] A. Bifet, G. Holmes, R. Kirkby, and B. Pfahringer, “MOA: Massive
+      data streams,” in Proc. 7th ACM SIGKDD Int. Conf. Knowl. Discov-          online analysis,” J. Mach. Learn. Res., vol. 99, pp. 1601–1604, 2010.
+       ery Data Mining, 2001, pp. 97–106.                                   [107] V. M. Souza, D. F. Silva, J. Gama, and G. E. Batista, “Data stream
+[83]    J. Gama, R. Rocha, and P. Medas, “Accurate decision trees for          classiﬁcation guided by clustering on nonstationary environ-
+      mining high-speed data streams,” in Proc. 9th ACM SIGKDD Int.        ments and extreme veriﬁcation latency,” in Proc. SIAM Int. Conf.
+       Conf. Knowl. Discovery Data Mining, 2003, pp. 523–528.                   Data Mining, 2015, pp. 873–881.
+[84]  H. Yang and S. Fong, “Incrementally optimized decision tree for   [108] M. Lichman, “UCI machine learning repository,” 2013. [Online].
+      noisy big data,” in Proc. 1st Int. Workshop Big Data Streams Hetero-          Available: http://archive.ics.uci.edu/ml
+       geneous Source Mining Algorithms Syst. Program. Models Appl.,   [109] M. Harel, S. Mannor, R. El-Yaniv, and K. Crammer, “Concept
+       2012, pp. 36–44.                                                                   drift detection through resampling,” in Proc. 31st Int. Conf. Mach.
+[85]  H. Yang and S. Fong, “Countering the concept-drift problems in           Learn., 2014, pp. 1009–1017.
+       big data by an incrementally optimized stream mining model,” J.   [110]  X. Zhu, “Stream data mining repository,” 2010. [Online]. Avail-
+       Syst. Softw., vol. 102, pp. 158–166, 2015.                                      able: http://www.cse.fau.edu/ xqzhu/stream.html
+[86]   L.  Rutkowski, M.  Jaworski,  L.  Pietruczuk, and  P. Duda,   [111] M.  Harries,  “Splice-2  comparative  evaluation:  Electricity
+      “Decision trees for mining data streams based on the gaussian          pricing,” Tech. Rep., The University of South Wales, 1999.
+      approximation,” IEEE Trans. Knowl. Data Eng., vol. 26, no. 1,   [112]  I. Katakis, G. Tsoumakas, and I. Vlahavas, “Tracking recurring
+      pp. 108–119, Jan. 2014.                                                   contexts using ensemble classiﬁers: An application to email ﬁl-
+[87]   L.  Rutkowski,  L.  Pietruczuk,  P. Duda, and M.  Jaworski,          tering,” Knowl. Inf. Syst., vol. 22, no. 3, pp. 371–391, 2009.
+      “Decision  trees  for  mining  data  streams  based  on  the   [113]  I.  Katakis,  G.  Tsoumakas,  E.  Banos, N.  Bassiliades, and
+      mcdiarmid’s bound,” IEEE Trans. Knowl. Data Eng., vol. 25, no. 6,               I. Vlahavas, “An adaptive personalized news dissemination sys-
+      pp. 1272F–1279, Jun. 2013.                                            tem,” J. Intell. Inf. Syst., vol. 32, no. 2, pp. 191–212, 2008.
+[88]   L. Rutkowski, M. Jaworski, L. Pietruczuk, and P. Duda, “A new   [114]  I. Katakis, G. Tsoumakas, and I. P. Vlahavas, “An ensemble of
+     method for data stream mining based on the misclassiﬁcation          classiﬁers for coping with recurring contexts in data streams,” in
+       error,” IEEE Trans. Neural Netw. Learn. Syst., vol. 26, no.  5,          18th Eur. Conf. Artif. Intell., 2008, pp. 763–764.
+      pp. 1048–1059, May 2015.
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 17 ---
+2362                                      IEEE TRANSACTIONS ON KNOWLEDGE AND DATA ENGINEERING,  VOL. 31,  NO. 12, DECEMBER 2019
+
+
+[115]  S. J. Delany, P. Cunningham, A. Tsymbal, and L. Coyle, “A case-   [139]  J. Cendrowska, “Prism: An algorithm for inducing modular
+      based technique for tracking concept drift in spam ﬁltering,”          rules,” Int. J. Man Mach. Stud., vol. 27, no. 4, pp. 349–370, 1987.
+       Knowl.-Based Syst., vol. 18, no. 4–5, pp. 187–195, 2005.                [140] M. Pratama, S. G. Anavatti, M. Joo, and E. D. Lughofer, “pClass:
+[116]  L.-Y. Wang, C. Park, K. Yeon, and H. Choi, “Tracking concept      An effective classiﬁer for streaming examples,” IEEE Trans.
+        drift  using  a  constrained  penalized  regression  combiner,”         Fuzzy Syst., vol. 23, no. 2, pp. 369–386, Apr. 2015.
+      Comput. Stat. Data Anal., vol. 108, pp. 52–69, 2017.                   [141]  Y.-R. Yeh and Y.-C. F. Wang, “A rank-one update method for
+[117]  I. Zliobaite, A. Bifet, B. Pfahringer, and G. Holmes, “Active learn-           least squares linear discriminant analysis with concept drift,”
+      ing with drifting streaming data,” IEEE Trans. Neural Netw. Learn.          Pattern Recognit., vol. 46, no. 5, pp. 1267–1276, 2013.
+        Syst., vol. 25, no. 1, pp. 27–39, Jan. 2014.                              [142]  R. C. Cavalcante, L. L. Minku, and A. L. I. Oliveira, “Fedd: Fea-
+[118] G. Song, Y. Ye, H. Zhang, X. Xu, R. Y. K. Lau, and F. Liu,          ture extraction for explicit concept drift detection in time series,”
+     “Dynamic clustering forest: An ensemble framework to efﬁ-          in Proc. Int. Joint Conf. Neural Netw., 2016, pp. 740–747.
+       ciently classify textual data stream with concept drift,” Inf. Sci.,   [143] M. Pratama,  J. Lu, E. Lughofer, G. Zhang, and S. Anavatti,
+       vol. 357, pp. 125–143, 2016.                                              “Scaffolding type-2 classiﬁer for incremental learning under con-
+[119] G. Ditzler and R. Polikar, “Incremental learning of concept drift         cept drifts,” Neurocomputing, vol. 191, pp. 304–329, 2016.
+      from streaming imbalanced data,” IEEE Trans. Knowl. Data Eng.,
+       vol. 25, no. 10, pp. 2283–2301, Oct. 2013.                                                 Jie Lu received the PhD degree in information
+[120]  B. Mirza, Z. Lin, and N. Liu, “Ensemble of subset online sequen-                      systems from the Curtin University of Technol-
+         tial extreme learning machine for class imbalance and concept                        ogy, Australia, in 2000. She is a distinguished
+        drift,” Neurocomputing, vol. 149, pp. 316–329, 2015.                                         professor, the director of the Center for Artiﬁcial
+[121]  B. Mirza and Z. Lin, “Meta-cognitive online sequential extreme                            Intelligence, and the associate dean (Research
+       learning machine for imbalanced and concept-drifting data clas-                         Excellence) with the Faculty of Engineering and
+       siﬁcation,” Neural Netw., vol. 80, pp. 79–94, 2016.                                         Information Technology, University of Technol-
+[122]  S. Wang, L. L. Minku, and X. Yao, “Resampling-based ensemble                     ogy Sydney, Australia. Her research expertise
+     methods for online class imbalance learning,” IEEE Trans. Knowl.                      spans fuzzy transfer learning, decision support
+      Data Eng., vol. 27, no. 5, pp. 1356–1368, May 2015.                                     systems, recommender systems, and concept
+[123]  E. Arabmakki and M. Kantardzic, “Som-based partial labeling of                                   drift. She has published 10 research books and
+      imbalanced data stream,” Neurocomputing, vol. 262, pp. 120–133,   more than 400 papers in refereed journals and conference proceedings,
+       2017.                                                               with more than 170 papers in IEEE transactions and other international
+[124]  J. Lu, J. Xuan, G. Zhang, and X. Luo, “Structural property-aware    journals. She has received more than 20 Australian Research Council
+       multilayer network embedding for latent factor analysis,” Pattern   (ARC) Discovery Project grants and many other research projects. She
+       Recognit., vol. 76, pp. 228–241, 2018.                              serves as editor-in-chief for Knowledge-Based Systems (Elsevier), edi-
+[125] A. Katal, M. Wazid, and R. H. Goudar, “Big data: Issues, chal-    tor-in-chief for the International Journal on Computational Intelligence
+       lenges, tools and good practices,” in Proc. 6th Int. Conf. Contempo-   Systems (Atlantis), associate editor for the IEEE Transactions on Fuzzy
+       rary Comput., 2013, pp. 404–409.                                Systems, and has served as a guest editor of 12 special issues, general/
+[126] A. Andrzejak and J. B. Gomes, “Parallel concept drift detection   PC/organization chairs for 10 international conferences as well as hav-
+      with online map-reduce,” in Proc. 12th Int. Conf. Data Mining   ing delivered 20 keynote/plenary speeches at IEEE and other interna-
+      Workshops, 2012, pp. 402–407.                                            tional conferences. She is a fellow of the IEEE and fellow of the IFSA.
+[127] M. Tennant, F. Stahl, O. Rana, and J. B. Gomes, “Scalable real-
+      time classiﬁcation of data streams with concept drift,” Future
+       Generation Comput. Syst., vol. 75, pp. 187–199, 2017.                                    Anjin Liu received the BIT degree (Honor) from
+[128] C. C. Aggarwal, J. Han, J. Wang, and P. S. Yu, “A framework for                         the University of Sydney, in 2012. He is a post-
+       clustering evolving data streams,” in Proc. 29th Int. Conf. Very                          doctoral  research  associate  in  the A/DRsch
+       Large Databases, vol. 29, 2003, pp. 81–92.                                              Centre for Artiﬁcial Intelligence, Faculty of Engi-
+[129]  X. Song, H. He, S. Niu, and J. Gao, “A data streams analysis strat-                        neering and Information Technology, University
+      egy based on hoeffding tree with concept drift on hadoop sys-                            of Technology Sydney. His research interests
+      tem,” in Proc. 4th Int. Conf. Adv. Cloud Big Data, 2016, pp. 45–48.                           include concept  drift detection, adaptive data
+[130] V. Nguyen, T. D. Nguyen, T. Le, S. Venkatesh, and D. Phung,                       stream learning, multi-stream learning, machine
+      “One-pass logistic regression for label-drift and large-scale clas-                           learning, and big data analytics. He is a member
+       siﬁcation on distributed systems,” in Proc. 16th Int. Conf. Data                            of the IEEE.
+      Mining, 2016, pp. 1113–1118.
+[131] W. Chu, M. Zinkevich, L. Li, A. Thomas, and B. Tseng, “Unbiased
+       online active learning in data streams,” in Proc. 17th ACM SIGKDD                   Fan Dong received the dual PhD degree from the
+        Int. Conf. Knowl. Discovery Data Mining, 2011, pp. 195–203.                                    University  of Technology Sydney and  Beijing
+[132] G. Ditzler and R. Polikar, “Semi-supervised learning in nonsta-                             Institute of Technology, in 2018. His research fel-
+       tionary environments,” in Proc. Int. Joint Conf. Neural Netw., 2011,                       low of Centre for Artiﬁcial Intelligence, University
+      pp. 2741–2748.                                                                                 of Technology Sydney. His research interests
+[133] M.  J. Hosseini, A. Gholipour, and H. Beigy, “An ensemble                          include concept drift detection, adaptive learning
+       of  cluster-based  classiﬁers  for semi-supervised  classiﬁcation                       under concept drift, and data stream mining.
+       of non-stationary data streams,” Knowl. Inf. Syst., vol. 46, no. 3,
+      pp. 567–597, 2015.
+[134]  P. Zhang, X. Zhu,  J. Tan, and L. Guo, “Classiﬁer and cluster
+      ensembles for mining concept drifting data streams,” in Proc.
+       10th Int. Conf. Data Mining, 2010, pp. 1175–1180.
+[135]  S. Chandra, A. Haque, L. Khan, and C. Aggarwal, “An adaptive                                                                        Feng Gu received  the  bachelor’s degree  in
+      framework for multistream classiﬁcation,” in Proc. 25th ACM Int.                                                                                           software engineering from Zhejiang University,
+       Conf. Inf. Knowl. Manag., 2016, pp. 1181–1190.                                                                                          China, in 2012. He is working toward the PhD
+[136] A.  Haque,  L.  Khan, M.  Baron,  B.  Thuraisingham,  and                                                                                    degree at the Faculty of Engineering and Infor-
+      C. Aggarwal, “Efﬁcient handling of concept drift and concept                                                                                       mation Technology,  University  of Technology
+      evolution over stream data,” in Proc. 32nd Int. Conf. Data Eng.,                                                                                    Sydney, NSW, Australia. His research interests
+       2003, pp. 481–492.                                                                                                include stream data mining, adaptive learning
+[137] A. Haque, L. Khan, and M. Baron, “Sand: Semi-supervised adap-                                                                                     under concept drift, and evolving data.
+       tive novel class detection and classiﬁcation over data stream,” in
+       30th AAAI Conf. Artif. Intell., 2016, pp. 1652–1658.
+[138]  T. Le, F. Stahl, M. M. Gaber, J. B. Gomes, and G. D. Fatta, “On
+      expressiveness and uncertainty awareness in rule-based classiﬁ-
+       cation for data streams,” Neurocomputing, vol. 265, pp. 127–141,
+       2017.
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.
+--- Page 18 ---
+LU ET AL.: LEARNING UNDER CONCEPT DRIFT: A REVIEW                                                                               2363
+
+
+                      Jo~ao Gama is an associate professor with the                   Guangquan Zhang received the PhD degree in
+                       University of Porto, Portugal. He is also a senior                         applied mathematics from the Curtin University of
+                     researcher and member of the board of directors                       Technology, Australia, in 2001. He is an associ-
+                        of the Laboratory of  Artiﬁcial Intelligence and                         ate professor and the director of the Decision
+                     Decision Support (LIAAD), a group belonging to                     Systems and e-Service Intelligent (DeSI) Rese-
+                 INESC Porto. He serves as a member of the edi-                        arch Lab at the Center for Artiﬁcial Intelligence,
+                            torial board of the Machine Learning Journal,                         Faculty of Engineering and Information Technol-
+                   Data Mining and Knowledge Discovery,  Intelli-                        ogy, University of Technology Sydney, Australia.
+                     gent  Data  Analysis,  and New  Generation                        His research interests include fuzzy sets and sys-
+                    Computing. His main research  interest  is  in                       tems, fuzzy optimization, fuzzy transfer learning,
+                   knowledge discovery from data streams and                     and fuzzy modeling in machine learning and data
+evolving data. He has published more than 200 papers and a recent    analytics. He has authored ﬁve monographs, ﬁve textbooks, and
+book entitled Knowledge Discovery from Data Streams. He has exten-   400 papers including over 200 refereed international journal papers. He
+sive publications in the area of data stream learning.                   has won seven Australian Research Council (ARC) Discovery Projects
+                                                                        grants and many other research grants. He was awarded an ARC QEII
+                                                                            fellowship in 2005. He has served as a member of the editorial boards of
+                                                                        several international journals, as a guest editor of eight special issues of
+                                                          IEEE transactions and other international journals, and has co-chaired
+                                                                        several international conferences and workshops in the area of fuzzy
+                                                                     decision-making and knowledge engineering.
+
+
+
+                                        " For more information on this or any other computing topic,
+                                                                please visit our Digital Library at www.computer.org/publications/dlib.
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:52 UTC from IEEE Xplore. Restrictions apply.

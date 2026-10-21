@@ -1,0 +1,268 @@
+Title: A_survey_about_self-adaptive_anomaly-detection_in_software-defined_systems
+
+--- Page 1 ---
+   A survey about self-adaptive anomaly-detection in
+                software-defined systems
+
+                                Matthias Weiß                                                          Stefan Thich
+             Institute of Industrial Automation and Software Engineering                Institute of Industrial Automation and Software Engineering
+                              University of Stuttgart                                                   University of Stuttgart
+                                    Stuttgart, Germany                                                             Stuttgart, Germany
+                        matthias.weiss@ias.uni-stuttgart.de                                        st173930@stud.uni-stuttgart.de
+
+                             Maurice Artelt                                                   Michael Weyrich
+             Institute of Industrial Automation and Software Engineering                Institute of Industrial Automation and Software Engineering
+                              University of Stuttgart                                                   University of Stuttgart
+                                    Stuttgart, Germany                                                             Stuttgart, Germany
+                       maurice-paul.artelt@ias.uni-stuttgart.de                                   michael.weyrich@ias.uni-stuttgart.de
+
+           Abstract—The rise of software-defined automation systems    Unlike misuse based IDSs, which rely on known patterns of
+            is accompanied by an increase in interconnected services and    malicious   behavior,   anomaly-based   systems   must
+         networks. Among other implications, this leads to an expansion    discriminate between benign and malicious activity in an10.1109/IECON55916.2024.10905330       of the attack surface for cyber threats, which in turn can lead to    environment where data characteristics and attack methods
+DOI:       significant security issues and financial losses. Against this    can change rapidly [5]. Recent approaches in IDS research
+|      background,  this  paper  investigates  the  effectiveness  of    have focused on overcoming these challenges. This paper
+IEEE      anomaly-basedand preventing intrusionnew anddetectionevolving systemscyber threats.(IDS) forThedetectingpaper    aims  to provide an overview of  different techniques  to                                                               improve the system to better cope with the concept mismatch
+          especially  considers  the  challenge  of concept  drift, which                                                          phenomenon and to reduce the false positive rate.©2024      describes the phenomenon that the statistical properties of the
+        network traffic or behavior patterns that an IDS is trying to      The rest of the paper is structured as follows: Chapter 2
+         detect change over time. To accomplish this, a comprehensive    presents the methodology used to select the papers presented
+          literature  review,  prioritizing  recent  studies  since  2019,    and explained in Chapter 3. Chapter 4 discusses the results and
+         highlights the challenges of concept drift and the application of     outlines an approach to self-adaptive anomaly detection that
+         reinforcement learning in IDS. The results suggest that the    addresses the previously found research gaps. The paper is
+         integration of adaptive strategies and reinforcement learning in                                                             summarized and an outlook is given in chapter 5.
+       IDS enables significant improvements in anomaly detection.
+                                                                                                                           II. METHODOLOGY
+            Keywords—self-adaptive anomaly  detection, reinforcement978-1-6654-6454-3/24/$31.00|       learning, intrusion detection, concept drift                          For this paper, a systematic literature review according to
+                                                                         the Kitchenham methodology [6] is applied to analyze recent
+                                         I.  INTRODUCTION                      advancements  and  challenges  in  self-adaptive  anomalySociety                                                                             detection. The review was conducted using the IEEE Xplore            In the landscape of modern and future automation systems,
+                                                                           Digital Library, covering the period from 2019 to 2024 to         the proliferation of connected IT infrastructures leads to an
+                                                                       capture   both   current   findings   and   technological         increased amount of network interfaces, which inevitably
+                                                                  advancements.Electronics     expands  the  attack  surface  for  cyber  threats  [1].  This
+        expansion is not without significant financial implications;        In the context of the paper’s research question mentioned
+           statistical data estimates that between 2019 and 2023, the     in chapter 1, two critical aspects emerge from the initial pre-Industrial         global economy lost around $5.2 trillion in revenue due to    screening of publications as central to advancing the field of
+IEEE      cyberattacks [2]. Such figures prompt a critical examination    anomaly detection in IDS systems: the challenges of concept
+         of the development of more robust defenses against emerging     drift and the reduction of false positives. As such, two separatethe
+        cyber threats. One approach to minimize the problem are    search procedures were performed, which are described in theof
+        anomaly-based  intrusion  detection systems (IDS), which    following.
+         serve as a central mechanism for identifying anomalies and
+         mitigating  unauthorized  intrusions   [3].  However,  the    A. Concept Drift in Anomaly DetectionConference      effectiveness of these systems is continually challenged by the       Concept drift represents a fundamental challenge in the
+Annual     dynamicknown asnatureconceptof drift,cyberwherethreats,theparticularlybehavior ofthenetworkphenomenontraffic    realmdistributionof anomalychanges detection,over time where[7]. Thisthe phenomenonunderlying  datacan
+        evolves over time, potentially rendering existing detection    severely impact the performance of predictive models by
+50th-     models obsolete [4].                                     making  previously  learned  patterns  obsolete  [8,  9]. To
+                                                                        counteract this, there is a pressing need for adaptive strategies
+2024         This introduces the central research question of this paper:     that can recognize and adjust to concept drift effectively.      How  can  the  effectiveness  of  anomaly-based  intrusion
+         detection  systems (IDS) be improved  in  the  context  of      Keywords: The keywords used  for  the search wereIECON         increasingly connected driving to detect and prevent new and    "anomaly detection", "adaptive" and "concept drift". These
+         evolving cyber threats, while accounting for concept drift and    terms were chosen to identify papers that specifically address
+        minimizing false positives?                                     adaptive  anomaly  detection,  considering  changing  data
+                                                                               patterns.           There are several challenges in addressing  this issue.
+       Anomaly-based IDSs are at the forefront of detecting novel        Results: The initial search returned a total of 41 hits. To
+         attacks that have not been previously identified or catalogued.    increase the relevance of the results, a filter was first applied
+
+
+
+
+
+         Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:31 UTC from IEEE Xplore. Restrictions apply.
+--- Page 2 ---
+ to the titles of the papers, which reduced the number to 20    scenario where the statistical properties of the target variable
+ relevant publications. The abstracts of these 20 papers were     that the model is trying to predict change over time - a KDQ
+ then read to assess their suitability to the objectives of this     tree proves to be very promising  [9]. Concept  drift can
+ search. Based on this assessment, 4 papers were identified as     significantly impact the performance of predictive models by
+ particularly relevant and selected for detailed analysis.           rendering previously learned data patterns obsolete or less
+                                                                    accurate. The kdqTree helps to overcome this challenge by
+ B. Reducing False Positives in Anomaly Detection                                                              allowing more efficient data organization and retrieval based
+    The challenge of improving the effectiveness of anomaly-    on the current 'dominant' attributes or features of the data [11].
+ based intrusion detection systems (IDS)  lies primarily in    This capability ensures that the model can adapt more quickly
+ reducing false positives (FP) [10]. These FPs are not only    and efficiently to changes in data patterns, maintaining its
+ annoying but can also lead to a significant waste of resources    accuracy  and  relevance  in  dynamic  environments. By
+ as security teams spend time and energy investigating events    focusing on the most relevant dimensions of the data, a KDQ
+ that pose no  real  threat. A promising approach  to  this     tree helps to identify and respond to concept drift, making it
+ challenge is the application of reinforcement learning (RL),    an essential tool for adaptive learning systems that need to
+ which imposes stricter penalties for generating FPs, thereby    operate effectively in changing conditions.
+ increasing the accuracy of the IDS. As such, the
+                                               ARF: Adaptive Random Forest Classifier is a machine
+    Keywords: The  search used  specific terms such  as    learning model that combines several Hoeffding trees. When
+ "reinforcement   learning",   "adaptive"   and   "anomaly    making a final decision, it gathers opinions from all these trees
+ detection". This selection aimed to identify studies that focus    and selects the result with most votes as the result. This model
+ on improving anomaly detection systems through adaptive     is particularly adept at adapting to changes or "drifts" in the
+ methods and reinforcement learning.                            data over time.  It incorporates a special mechanism for
+                                                                  detecting these changes, known as the ADWIN algorithm, to     Results: The initial search returned 35 hits. A targeted
+                                                          remain relevant and accurate. ADWIN is connected to the  filter based on the titles narrowed this down to 15 relevant
+                                                 ARF. When ADWIN detects a potential change, it alerts the articles. Detailed analysis of the abstracts of these articles led
+                                                      model and causes new Hoeffding trees to be generated in the to the selection of three publications that presented innovative
+                                                           background. If the change is confirmed to be significant, these approaches  to  minimizing  FPs  through  reinforcement
+                                                new trees replace the current ones, ensuring that the model learning. These works were chosen for their direct relevance
+                                                           remains  effective. In addition, the model  is designed to to  improving  precision  in  anomaly-based  reinforcement
+                                                     remember previous configurations so that it can adapt quickly learning. Among the explored literature, a standout paper and
+                                                                                        if past conditions  recur.  It also uses  strategies such as published in 2022. The focus was on penalizing false positives
+                                                             resampling and selecting different features for splitting to and false negatives, and the methods and results presented met
+                                                              maintain its performance in diverse or unbalanced data sets. our requirements.
+                                                         Proposed Scheme: Figure 1 shows a technical illustration
+                         III. SURVEY RESULTS                                                                of  the model. The One-Class Support Vector Machine
+ Following  the methodology  of  the  systematic  literature   (OCSVM) anomaly detector first filters the incoming data to
+ review, this chapter presents the results of our review. For    allow normal behavior to pass through and be included in the
+ both the challenge of concept drift and the reduction of false     final prediction. Anomalous data is then analyzed by an ARF
+ positives, two papers are presented thoroughly, followed by     classifier, which uses an ensemble of Hoeffding trees together
+                                                             with a drift detection mechanism - ADWIN and kdqTree. If a list of alternative approaches. The beginning of each section
+                                                                   there is no drift, the ARF predictions are used for the final presents  the  preliminary  steps  used  in  the  presented
+                                                                    decision. If drift is detected, ADWIN adjusts the ARF by approaches, followed by the scheme that is actually proposed.
+                                                              updating its tree ensemble and incorporating these changes
+ A. Concept Drift in Anomaly Detection                          into the  final prediction. In a second phase of anomaly
+    Das and  Pasikhani  present an approach  to  adaptive     detection, a bagging ensemble of OCSVMs is used to identify
+ Intrusion  Detection  in  Acoustic  Sensor Networks  [11].     outliers by refining the decision boundary to minimize false
+ Technologies used  in  their system  include  the adaptive     positives. The final decision process integrates the  initial
+ random forest (ARF), the adaptive windowing algorithm   OCSVM outputs for normal instances, ARF predictions and
+ (ADWIN), and the k-dominant query tree (kdqTree), which    ensemble OCSVM analysis to classify the data as either
+ are described in the following.                              normal or indicative of an attack. If an attack is identified, the
+                                                          system alerts a cryptographically secure intrusion prevention
+   ADWIN: ADWIN  is an algorithm  that dynamically    system (IPS) for further action.
+ adjusts the size of a window (W) that grows as long as the data
+ pattern remains unchanged and shrinks when a change is    B. Reducing false positives in anomaly detection
+ detected. Based on the data distribution, the algorithm tries to      Zhang et al. [5] perform anomaly detection in time series
+ find two sub-windows within W (w0 and w1) that have    by  selecting models  via a  reinforcement  learning-based
+ different averages.                                                      classifier. This section focuses  first on the unsupervised
+                                                                  detection of anomalies in time series. Subsequently, the area    kdqTree: A kdqTree, short for k-dominant query tree, is
+                                                                of  reinforcement  learning  (RL)  is  explored,  using  the a specialized data structure designed to efficiently manage and
+                                                            mathematical framework of a Markov decision processes. query multi-dimensional data [12]. It extends the principles of
+ k-d trees (k-dimensional trees) by focusing on queries where       Unsupervised Anomaly Detection in Time Series: Time
+ certain dimensions are given more importance or dominance,     series data, represented as a sequence X consisting of either
+ over others. This makes kdqTrees particularly useful for     single values or vectors at each time point, are analysed for
+ dealing with datasets where not  all attributes are equally
+ relevant to every query. In the context of concept drift - a
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:31 UTC from IEEE Xplore. Restrictions apply.
+--- Page 3 ---
+    Fig. 1. Concept Drift Anomaly Detection based on [11]
+
+ anomalies using a particular approach. This method involves    C. Alternate Methods
+  first training a model on a series of data known to be normal,                                        LSTM Mitigator: This approach uses Long Short-Term
+ and then applying the model to a new set of data that may                                               Memory (LSTM) layers. These are described in more detail in
+ contain abnormal instances. The aim during training is to                                                                      [13]. The paper describes that LSTM layers can detect long-
+ familiarize the model with what constitutes normal behavior.                                                           term dependencies in the data and belong to the category of
+ When tested on a potentially contaminated dataset, the model                                                         deep learning, which makes them very efficient for large data
+ generates an anomaly score for each data point. By setting a                                                                             sets. A method has been developed that offers a powerful
+ pre-defined threshold, it becomes possible to distinguish the                                                                      alternative to conventional approaches to time series analysis.
+ normal from  the  anomalous,  thereby  categorizing  each                                                       However, it also has drawbacks. For example, LSTMs are
+ instance based on its score.                                                             very complex and computationally intensive, so they cannot
+    Reinforcement  Learning  and  Markov  Decision    be used in small systems with low local computing power.  I
+ Process: Reinforcement learning (RL) is a machine learning    see their application more in stationary areas with a lot of
+ approach  that  focuses  on  solving  sequential  decision    computing power and a high throughput of sensors, for
+ problems. Its goal is to enable an agent to find the best actions    example in an autonomous factory floor.
+ within an environment  to maximize cumulative rewards,                                              SALAD: Self-Adaptive Lightweight Anomaly Detection
+ typically formulated by a Markov Decision Process (MDP).                                                   (SALAD), as described in [14], is used to transform complex
+ An MDP is characterized by a set of states (S), actions (A),                                                            time series into average absolute relative error (AARE) series.
+ state transition probabilities (P), rewards (R), and a discount                                                          For each new data point in the time series, the absolute relative
+ factor (γ) that influences the calculation of future rewards and                                                                     error is calculated against a predicted value. The ARE of a
+ typically ranges between 0 and 1. A policy, π(a∣s), guides the                                                                data point is typically expressed as the ratio of the absolute
+ agent by mapping current states to probabilities of taking                                                                     error to the actual value, which allows the  error to be
+ certain actions, with the goal of maximizing the expected total                                                            normalized to make it comparable regardless of the size of the
+ reward.                                                                      data. The ARE is then calculated as the average of the ARE
+    Proposed Scheme: The model selection problem was    values over the most recently observed data points. This
+ formulated as an MDP. Figure 2 shows the MDP formulation    averaging helps to compensate for short-term fluctuations and
+ and the definitions of state, reward and action are presented in    focuses on the general trend of the error over time. The self-
+ the following section.                                          adaptive  detection  threshold  dynamically  adapts  to  the
+                                                            observed ARE values. This allows the system to automatically
+     State: The state space in this context is equivalent in size     calibrate  its sensitivity to detect anomalies based on the
+ to the model pool, with each state representing a selected     current data. The disadvantage of this method is that the use
+ anomaly detector. The state variables include a variety of    case was designed for time series, which is appropriate from
+ factors, including the scaled anomaly score and threshold    an approach  point of view as  it reduces computational
+ (both normalized to the [0, 1] range using min-max scaling),    complexity, but it is difficult to represent network logs and
+ the binary prediction label (where 0 indicates normal and 1     attacks as a time series.
+ indicates anomalous), the confidence in the distance to the
+ threshold, and the confidence in the prediction consensus.
+
+    Reward: The reward function is defined by comparing the
+ predicted label to the actual label and is represented by four
+ values  (true  positive,  true negative,  false negative,  false
+ positive). With the reward function,  it is possible steer the
+ model selection in a certain direction to reduce the FP rate,
+ which is a problem in anomaly-based IDS systems.
+
+     Action: The action space is discrete and corresponds to the
+ size of the model pool. In this setup, each action involves
+ selecting a candidate detector from the pool, identified by the
+ index of the selected model within the pool.                                                                                      Fig. 2. Model Selection of Anomaly Detectors MDP [5]
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:31 UTC from IEEE Xplore. Restrictions apply.
+--- Page 4 ---
+                   IV. RESEARCH GAPS                            series,  reducing  computational  intensity.  Based on  the
+                                                                           literature review, current research gaps in the IDS field were
+ A. Concept Drift Problem                                                                         identified. To close them, the methods are combined into one
+    Once the technologies have been presented, we evaluate    concept to highlight possible directions for future research. In
+ how  well  they  meet  our  requirements.  Adapting  this     this context, the authors outline a system that allows concept
+ technology to the automotive sector is challenging. In contrast     drift  detection,  regulates  the  false  positive  rate  with
+ to maritime applications where acoustics play a dominant role,    reinforcement learning or adaptive thresholds, and adds an
+ automotive sensor technologies are more diverse and must     adversarial and deep learning component.
+ deal with a wider range of environmental conditions and
+ sources of interference. Regarding the use of data sets, it is                 ACKNOWLEDGEMENT
+ important to note that synthetic or simulated data sets are often      The authors would like to thank the Ministry of Science,
+ used  in  initial research and development  to  test  certain    Research and Arts of the Federal State of Baden-Württemberg
+ technologies. The UW-ASN dataset used in this context,     for the financial support of the project SdMobi5 - TESSOF
+ which  is not a real-world dataset, was probably used to    within the Innovations Campus Mobilität der Zukunft.
+ evaluate the functionality and efficiency of the underwater
+ acoustic sensor IDS under controlled conditions. While such                      REFERENCES
+ datasets provide valuable insights into the performance and      [1]  M. Weiß, F. Dettinger, N. Jazdi, and M. Weyrich, "DevOps als Enabler
+ potential weaknesses of systems, benchmarking performance          der  kontinuierlichen  Funktionsverbesserung  und  automatisierten
+ against real-world datasets is critical to validate operational          Update-Analyse  in  software-definierten Systemen,"  in Automation
+ suitability.                                                                  2023, VDI Verlag, 2023, pp. 487–500.
+                                                                                      [2]   Statista Research Department. "Schätzung zur Höhe der entgangenen
+ B. False Positive Problem:                                          Umsätze durch Cyberangriffe nach Branchen weltweit für den Zeitraum
+    As effective as standard models such as OCSVM or         von 2019 bis 2023." [Online]. Available: https://de.statista.com/statistik/
+                                                                                   daten/studie/963494/umfrage/entgangener-umsatz-durch-
+ iForest may be, the complexity and dynamics of modern cyber                                                                                     cyberangriffe-nach-branchen-weltweit/
+ threats require more advanced and adaptive approaches. One                                                                                      [3]  M. Weiß, M.  Müller,  F.  Dettinger, N.  Jazdi, and M. Weyrich,
+ interesting  advance  in  this  area  is  the  integration  of          "Continuous Analysis and Optimization of Vehicle Software Updates
+ "reinforcement pool" approaches, which include concepts          using the Intelligent Digital Twin," in 2023 IEEE 28th International
+ such as the Concept Drift Detector. Another innovative step          Conference on Emerging  Technologies and  Factory  Automation
+  is the addition of an adversarial and deep learning component.          (ETFA),     Sinaia,    Romania,    2023,     pp.    1–7,     doi:
+ Adversarial  approaches  utilize  techniques  developed  in         10.1109/ETFA54631.2023.10275489.
+ Generative Adversarial Network (GAN) research to  train      [4]   F. Bayram, B. S. Ahmed, and A. Kassler, "From concept drift to model
+                                                                                      degradation: An overview on performance-aware  drift  detectors," models that are more resistant to manipulative attacks. This                                                                          Knowledge-Based  Systems,   vol.  245,   p.  108632,  2022,  doi:
+ methodology simulates attack and defense strategies during          10.1016/j.knosys.2022.108632.
+ the training process, allowing the system to learn to detect      [5]   J. E. Zhang, Di Wu, and B. Boulet, "Time Series Anomaly Detection via
+ even the most sophisticated intrusion attempts. Deep learning,          Reinforcement  Learning-Based  Model   Selection,"  2022,   doi:
+ in particular Convolutional Neural Networks (CNNs) and          10.48550/arXiv.2205.09884.
+ Recurrent Neural Networks (RNNs), complement traditional      [6]  B. A. Kitchenham, D. Budgen, and O. Pearl Brereton, "Using mapping
+ IDS  models  with  their  ability  to  recognize  complex           studies as the basis for further research – A participant-observer case
+ relationships in large amounts of data.                                        study," Information and Software Technology, vol. 53, no. 6, pp. 638–
+                                                                                  651, 2011, doi: 10.1016/j.infsof.2010.12.011.
+ C. Proposed Future Direction                                             [7]  A. F. J. Costa, R. A. S. Albuquerque, and E. M. d. Santos, "A Drift
+    To close the highlighted research gaps, the authors suggest          Detection Method Based on Active Learning," in 2018 International
+                                                                                          Joint Conference on Neural Networks (IJCNN), Rio de Janeiro, 2018,
+ combining  methods  of  concept   drift   detection  and           pp. 1–8, doi: 10.1109/IJCNN.2018.8489364.
+ reinforcement  learning.  The  purpose  of  the  latter   is                                                                                      [8]  M. Weiß,  J. Stümpfle,  F.  Dettinger, N.  Jazdi, and M. Weyrich,
+ specifically to minimize the false positive rate, a known          "Simulating Cloud Environments of Connected Vehicles for Anomaly
+ problem with anomaly-based IDS systems. The reinforcement           Detection," 2024, doi: 10.48550/arXiv.2404.11740.
+ learning pool utilizes technologies such as the concept drift      [9]   J. Lu, A. Liu, F. Dong, F. Gu, J. Gama, and G. Zhang, "Learning under
+ detector presented in chapter 3, which is particularly strong at         Concept Drift: A Review," IEEE Trans. Knowl. Data Eng., p. 1, 2018,
+ detecting and eliminating concept  drift, as well as other            doi: 10.1109/TKDE.2018.2876857.
+ technologies. The  false  positive  rate  is  penalized more     [10] H. Bangui, M. Ge, and B. Buhnova, "A hybrid machine learning model
+ severely to improve the accuracy and efficiency of the system            for intrusion detection in VANET," Computing, vol. 104, no. 3, pp. 503–
+                                                                                  531, 2022, doi: 10.1007/s00607-021-01001-0. in detecting real threats while minimizing the burden of false
+ alarms.                                                                      [11] S. Das, A. M. Pasikhani, P. Gope, J. A. Clark, C. Patel, and B. Sikdar,
+                                                                          "AIDPS:Adaptive  Intrusion  Detection and  Prevention System  for
+                                                                            Underwater    Acoustic    Sensor    Networks,"    2023,     doi:
+            V. CONCLUSION AND OUTLOOK                                                                                 10.48550/arXiv.2309.07730.
+ In this paper, a literature review was conducted focusing on      [12] T. Dasu,  S. Krishnan,  S. Venkatasubramanian, and K.  Yi, "An
+ self-adaptive anomaly detection systems in software-defined           Information-Theoretic   Approach   to   Detecting   Changes   in
+ automation systems, specifically intrusion detection systems.          MultiDimensional Data Streams," Interfaces, 2006.
+    The areas of concept drift and reinforcement learning were     [13] K. Ding, S. Ding, A. Morozov, T. Fabarisov, and K. Janschek, "On-Line
+                                                                                    Error Detection and Mitigation for Time-Series Data of Cyber-Physical
+ investigated, as concept drift and its changes play an important                                                                           Systems using Deep Learning Based Methods," in 2019 15th European
+ role in adaptivity, and intrusion detection systems have a high         Dependable Computing Conference (EDCC), Naples, Italy, 2019, pp. 7–
+ positive  error  rate  that can be  regulated with  rewards.           14, doi: 10.1109/EDCC.2019.00015.
+ Alternative approaches were also investigated, such as an     [14] M.-C. Lee,  J.-C.  Lin, and E. G. Gran, "SALAD:  Self-Adaptive
+ LSTM mitigator method for anomaly detection, and a method          Lightweight Anomaly Detection for Real-time Recurrent Time Series,"
+ where complex time series can be transformed into AARE          2021, doi: 10.48550/arXiv.2104.09968.
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:31 UTC from IEEE Xplore. Restrictions apply.

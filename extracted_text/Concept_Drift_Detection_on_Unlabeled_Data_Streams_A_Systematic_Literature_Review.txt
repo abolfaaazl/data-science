@@ -1,0 +1,332 @@
+Title: Concept_Drift_Detection_on_Unlabeled_Data_Streams_A_Systematic_Literature_Review
+
+--- Page 1 ---
+                            2020 IEEE Conference on Big Data and Analytics (ICBDA)
+    Concept Drift Detection on Unlabeled Data
+      Streams: A Systematic Literature Review
+
+
+
+
+
+         Nur Laila Ab Ghani                              Izzatdin Abdul Aziz                           Mazlina Mehat
+   Centre of Research in Data Science             Centre of Research in Data Science               Centre of Foundation Studies
+      Universiti Teknologi Petronas                    Universiti Teknologi Petronas                    Universiti Teknologi Petronas
+         Seri Iskandar, Malaysia                          Seri Iskandar, Malaysia                          Seri Iskandar, Malaysia
+      nur_19001423@utp.edu.my                      izzatdin@utp.edu.my                     mazlinamehat@utp.edu.my
+
+
+
+    Abstract—Dynamic data streams applications are bound to        In  data  stream  mining,  the  dynamically  changing
+ potential changes in data distribution, of which in the context of    environments where the distribution of data streams can
+ data stream mining,  will cause concept  drift. Data stream    change over time cause a phenomenon called concept drift.
+ mining model must have the capability to adapt to concept drift,    The problem of concept drift was first proposed in [1] where
+ otherwise, risk the deterioration of its learning performance.    the authors modelled a supervised learning task that drifted
+ Most of the existing surveys on concept drift detection methods    due to changing environment. Given a time period [0, t], a set
+ focused on labeled data streams, that may be inapplicable to    of data streams, denoted as S0, t = {d0, … , dt}, where di = (Xi,
+ scenario where true labels are unavailable. The aim of this                                                                                   yi) is a data element, Xi is the feature vector, yi is the label, and
+ systematic literature review is to study the existing concept drift                                                                                S0, t follows a certain distribution F0, t (X, y). Concept drift detection methods on unlabeled data streams, focusing on the
+                                                              occurs at timestamp t + 1 if F0, t (X, y) ≠ Ft+1, ∞ (X, y), denoted learning process and the way concept drift is monitored in the
+                                                               as ∃t: Pt (X, y) ≠ Pt+1 (X, y). Accordingly, concept drift at time data stream mining model. A total of 15 articles are selected for
+                                                                                               t can be defined as the change of the set of X that define y at final analysis, and it is found that most of the drift detection
+ methods were applied in a supervised learning setting. An    time  t. In order to avoid performance degradation of  its
+ experimental evaluation of the methods can be performed in the    learning algorithm, the data stream mining model must be able
+ future work to investigate their performance in unsupervised     to handle and adapt to concept drift. The availability of data
+ learning setting.                                                   labels will affect the choice of method to handle concept drift
+                                                                            [2]. If the true labels can be presented to the learning algorithm
+    Keywords—data   streams,   concept    drift,   unlabeled,    before the next data element  arrives, performance-based
+ unsupervised                                                      indicators such as accuracy, recall, precision, sensitivity, and
+                                                                       specificity can be used to detect concept drift. These indicators
+                              I.  INTRODUCTION                                                                    benefit from being accurate and independent of the learning
+    The  emergence  of  smart  phones,  Internet-of-things    algorithm. However, they require the availability of a true
+ devices  and  sensor  networks  has  contributed  to  an     label which may in turn delay the detection of concept drift if
+ overwhelming and ever-increasing volume of data currently    the true label is not immediately available. When the true
+ available in streaming format.  The data instances in data     labels arrive with delay or only a small number of true labels
+ streams applications arrive in sequence at a time-varying     is available, concept drift can be detected by monitoring the
+ interval. Data stream mining involves the process of storing,    predicted label with suitable statistical indicators. With the
+ processing, and extracting feasible knowledge from real-time    absence of labelled data, distribution of the data instances is
+ data that can assist in decision making and understanding     typically used to detect concept drift. In real-world data stream
+ phenomenal events. A majority of standard data mining model    problem,  it  is often the case that the true labels are not
+ are inapplicable to data stream mining due to three main    immediately available or nearly unavailable for concept drift
+ features of data streams: (1) Size: The data instances arrive in     detection.
+ bulk and can be infinite that it may be impossible for data                                                            Concept drift is a widely studied issue in data stream stream applications to have sufficient available memory to                                                        mining  research  in  the  last decade with comprehensive store the data instances in their original forms. In such case,                                                             surveys on concept drift detection methods can be found in [3 the data instances must be converted to a compact form using                                                     – 8]. With the exception of [8], most of the concept drift appropriate reduction method. (2) Speed: The high rate of                                                                  detection surveys focus on methods that assume true labels is arrival of data streams  requires the data streams  to be                                                           immediately available or arrive with delay, very few research processed as soon as it arrives in a single scan. (3) Data                                                           has been conducted  to  address  unlabeled  concept  drift distribution: Data streams are prone to various kind of changes                                                                  detection methods. A general criteria for designing concept in data distribution that should be dealt efficiently in case of                                                                              drift handling approach is proposed in [7] that outlined five  its occurrence. Applications with potential changes in data                                              common  questions: “How  are  data  processed  in  the distribution are prevalent. One real-world example involves a                                                                 application?”, “How is the learning task processed?”, “How sensor networks that gathers data about physical events. The                                                                              is concept drift monitored”, “How is concept drift handled?”, sensing units typically undergo irreversible ageing or defects                                                       and “What are the performance criteria to be considered?”. in their built-in senses. The physical events that the sensors                                                    The survey in [8] proposed concept drift detection taxonomy are monitoring can  also change over  time,  resulting  in                                                           based on the way data are processed within the application. In different sensor readings. In these conditions, change in the                                                                          this paper, literatures on unlabeled concept drift detection data distribution is inevitable.                                                       methods  are  systematically reviewed with  the  intent  of
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:07 UTC from IEEE Xplore. Restrictions apply.
+       978-1-7281-9246-8/20/$31.00 ©2020 IEEE       61
+--- Page 2 ---
+                            2020 IEEE Conference on Big Data and Analytics (ICBDA)
+
+
+
+ studying the learning process and the way concept drift is    exclusion criteria specified in Table II. This study focused on
+ monitored in the data stream mining model of the existing    peer-reviewed   journals  and   conference   proceedings,
+ literatures.  This  paper answered  the  following  research    excluding  systematic review  articles,  surveys, workshop
+ questions: (1) How many studies are there that discuss on    papers, and technical reports from the review. Furthermore,
+ concept drift detection method using unlabeled data streams?    the study concentrated solely on articles written in English. In
+ (2) How can the methods be categorized in terms of their    terms of the study timeline, the study expanded to a 16-year
+ learning task and concept drift monitoring? (3) How does the    period (2004 – 2020) due  to the frequency of  articles
+ concept drift detection methods work?                         published within the duration and to obtain detail information
+                                                            about the topic of interest. Overall, 14 articles that did not
+    The remainder of this paper is organized as follows: The                                                       meet the inclusion criteria were omitted from the review.
+ method used in this study is first explained followed by the
+ analysis of the results and discussion on the findings are then                                                                TABLE II.     SCREENING CRITERIA
+ elaborated. The last section concludes the paper.
+                                                                                 Criterion            Inclusion              Exclusion
+                     II. MATERIAL AND METHODS                                              Journal         articles,   Reviews,   workshop
+    The Preferred Reporting Items for Systematic Reviews        Source type       conference               papers,       technical                                                                                                proceedings               reports
+ and Meta-Analyses, PRISMA which outlines four stages of
+                                                                           Source language   English                Non-English
+ review was adopted in this study. The related articles were
+ gathered from selected databases and the articles that did not        Timeline         2004 - 2020           <2004
+ meet the criteria were excluded. The articles included for                                                                                 Subject area      Computing             Non-computing
+ review were further examined by analyzing the titles and
+ abstracts, and final articles that meet the eligibility criteria
+ were selected for analysis.                                D. Eligibility
+ A. Resources                              A  total of 228 that meet the inclusion  criteria were
+                                                             screened for eligibility. At this point, the titles and abstracts of    The review was performed using five key databases:                                                                  the papers were examined in detail to ensure they meet the
+ Scopus, Web of Science, IEEE, ACM and ScienceDirect. A                                                                  inclusion criteria and are suitable for use in the current review. total of 2100 articles pertaining to concept drift are indexed by                                                             Consequently, 187 articles were excluded as they concentrate Scopus, while a total of 1244 articles are indexed by Web of                                                     on concept drift detection from labeled data streams and Science. The  other  three  databases  (IEEE, ACM, and                                                                      briefly tap on unlabeled concept drift. As a result, a total of 15 ScienceDirect) indexes a total of 590, 116, and 262 articles                                                                          articles were selected for full-text reading and analysis. respectively.
+                                                                                                                  III. RESULTS B. Identification
+    The important step in a systematic literature review is to        Preliminary findings showed that 41 articles were related
+ construct relevant search string related to the topic of interest.     to the detection of concept drift from unlabeled data streams.
+ Three key terms that are the common keywords in similar    However, in-depth examination of the main contents further
+ researches were used in this study. Based on the search strings    excluded a total of 26 articles. Most of the excluded articles
+ listed in Table I, a total of 479 articles containing the key terms    were found to require partially labeled data in order to detect
+ in  its  title, abstract, or keyword, were retrieved from  all    concept drift, while some of the articles did not consist of the
+ databases (Scopus: 203, Web of Science: 131, IEEE: 62,    learning  process  applications  to  test  their concept  drift
+ ACM: 53, ScienceDirect: 30). In addition, the study also    detection method. To answer the first research question, this
+ performed manual searching and found 6 related articles, and    study found a total of 15 articles that can be analyzed in terms
+ 3 articles from [8] were also retrieved yielded altogether 488    of their learning process and concept drift monitoring method.
+ articles for screening.                                       Table III detailed the categorization of the final articles by
+                                                                 learning type, learning algorithms and drift indicator methods
+               TABLE I.     SEARCH STRING                    ordered by the most recent publications.
+
+      Database                    Search String                 TABLE III.    ANALYSIS OF EXISTING LITERATURES ON CONCEPT DRIFT
+                   TITLE-ABS-KEY(("concept     drift")   AND                  DETECTION FROM UNLABELED DATA STREAMS
+    Scopus
+                       ("unsupervised" OR "unlabeled"))
+                                                                                   Learning         Learning         Drift Detection                   TOPIC:   ((  "concept   drift"   )   AND      (            Articles   Web of Science                                                              Type          Algorithms        Method                      "unsupervised" OR "unlabeled"))
+                                                                                                       Support Vector      Kolmogorov–
+                         ("All  Metadata":"concept  drift") AND  ("All            [9]         Supervised
+                                                                                             Machine            Smirnov Test    IEEE             Metadata":"unsupervised"     OR        "All
+                                                                                                    Adapting           Kolmogorov–                       Metadata":"unlabeled" )                                   [10]        Supervised
+                                                                                                      Hoeffding Tree      Smirnov Test                        [Abstract:  "concept  drift"] AND  [[Abstract:
+   ACM                                                                                              Binary                       "unsupervised"] OR [Abstract: "unlabeled"]]                [11]        Supervised                            Jaccard distance
+                                                                                                                       Classification                            Title, abstract, keywords: ( "concept drift" ) AND
+    ScienceDirect                                                                                      Kernel Ridge          Clustering                              ( "unsupervised" OR "unlabeled" )                          [12]        Supervised
+                                                                                                         Regression             Similarities
+                                                                                                  Naïve Bayes, k-
+ C. Screening                                                                [13]        Supervised      Nearest Neighbor,    Kolmogorov–
+                                                                                                       Support Vector      Smirnov Test
+     After the retrieval of articles from the selected databases,                               Machine
+ duplicate articles were removed in the screening phase. In                                  Binary Relevance,                                                                                                                          Novelty
+  total, 246 articles are identical and subsequently removed. The        [14]        Supervised      Label Powerset,       Detection Test
+ remaining 242 articles were assessed against the inclusion and                                 Pruned Sets
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:07 UTC from IEEE Xplore. Restrictions apply.
+                                       62
+--- Page 3 ---
+                            2020 IEEE Conference on Big Data and Analytics (ICBDA)
+
+
+
+                Learning         Learning         Drift Detection       that is smaller than the significance value indicates that the     Articles
+                Type          Algorithms        Method        two data blocks has different distribution, thus, signaling that
+                                       Statistical Learning    Plover    [15]        Supervised                                        concept drift occurs.                             Theory              Algorithm
+    [16]        Supervised      Active learning      Margin Density         The test is sensitive to change, making  it an effective
+                               Gaussian-based                     method to detect concept drift event between two data blocks.
+    [17]        Unsupervised                                                   Chernoff Bound         It is model-independent and can be used on any learning                                  Clustering
+                             Weighted Extreme                      algorithms without the need of data labels. However,  it is                                                        Clustering
+    [18]        Supervised      Learning                                                             Similarities          designed to analyze one-dimensional data and cannot be easily
+                            Machine                            extended for multi-dimensional data [24]. In real scenario,
+                             Naïve Bayes,
+                                                                data streams are not limited to univariate data but may also    [19]        Supervised      Hoeffding Tree, k-    Confidence Vote
+                                Nearest Neighbor                         arrive in multivariate streams.
+                               Support Vector
+                              Machine, Linear       Clustering           B. Clustering Similarities
+    [20]        Supervised
+                                Discriminant           Similarities              Clustering is an unsupervised machine learning method
+                                Analysis                                  that groups instances of similar characteristics together. It is
+                                k-Nearest                           used in the pre-processing stage of supervised learning task to                               Neighbor, Naïve     Kolmogorov–
+    [21]        Supervised                               Bayes, Decision      Smirnov Test          label unlabeled data streams. Standard k-means clustering was
+                               Tree                                  applied in [12] and [20] to obtain an initial clustering structure
+                               Support Vector                           for unlabeled data streams. k-means clustering typically group    [22]        Supervised                        Margin Density
+                            Machine                               instances into user-defined instances, k. Instances closer to
+    [23]        Supervised      k-Nearest Neighbor   Confidence Vote     any  cluster  centroid  are  grouped  in  the same  cluster.
+                                                                 Clustering similarities is utilized in concept drift detection by
+                                                                    calculating  the  difference between subsequent  unlabeled
+                            4.5                                                  instances and  the  cluster  centroids based on Euclidean
+                         4
+                            3.5                                                     distance. If the subsequent unlabeled instances deviate from
+                         3
+                            2.5                                                  the initial cluster set, a concept drift is signaled to the base
+                         2
+                            1.5                                                supervised learning algorithm.
+                         1
+                            0.5
+                         0                                          The fundamental issue that needs to be considered in
+                                                                standard k-means clustering is the definition of the optimal
+                                                     number of clusters. Poor definition of the number of clusters
+                                                                leads to inaccurate clustering of unlabeled data streams. k-
+                                                    means is sensitive to outliers that can be mistaken as concept
+                                                                                  drift. A challenge in data streams clustering is to distinguish
+  Fig. 1. Drift detection method by frequency of use.                                                          whether the change in the data streams is due to concept drift
+    Based on Table  III, most concept  drift detection on    or  outlier. As  the  current concept  drift  detection from
+ unlabeled data streams were applied in supervised learning    unlabeled data streams is limited to k-means clustering, it is
+ setting with only one application on unsupervised learning. In     crucial to study other type of clustering method that is capable
+ general, concept drift was being detected from variety of    of handling outliers.
+ classification algorithms based on Kolmogorov–Smirnov test,
+                                                          C. Confidence Vote Jaccard distance, clustering similarities, novelty detection test,
+ Plover algorithm, Chernoff bound, confidence  vote, and       Ensemble  classifier  is a supervised machine learning
+ margin density. In the order of frequency of use as visualized    method  that  divide a  dataset  into  several samples and
+ in  Fig.   1,  the  Kolmogorov–Smirnov   test,  clustering    independently create a base classifier for each sample. Each
+ similarities, confidence vote, and margin density are the top    base  classifier outputs a confidence vote that  is used to
+ drift detection methods used in the literatures.                   generate a new classifier with a higher confidence vote than
+                                                                  the base classifiers. To detect concept drift, the data streams is
+                     IV. DISCUSSION                          divided into several data blocks and the confidence vote of the
+                                                            base classifier for each data block is calculated. Significant    This section explained each of the concept drift detection
+                                                         change in the confidence vote signals a concept drift. methods listed in previous section:
+                                                      The concept drift detection based on confidence vote of A. Kolmogorov–Smirnov test
+                                                         ensemble  classifier avoid the needs  for labeled  data  to
+    Kolmogorov–Smirnov test is a hypothesis test used to                                                                    calculate prediction error. It is model independent and can be
+ check if two samples are of the same distribution. The test                                                                applied using any learning algorithms. Concept drift can be
+ depends on two metrics, p-value and significance value of the                                                                detected with smaller false alarm rate and detection misses.
+ two samples. The p-value is a probability of an instance                                                       However, in the existing studies [19, 23], this method was
+ occurring. The significance value or alpha, α is a threshold                                                            only applied to categorical and one-dimensional data stream.
+ value that determines whether the p-value will be rejected, or                                                                Further exploration using this method can look into the effects
+ otherwise. Its value depends on the problem at hand, but the                                                                of  different  types  of  data  streams  on  the  algorithm
+ value is typically set to 0.05 or 0.01.                                                             performance.
+     In concept  drift detection, data streams arriving  at a                                                       D. Margin Density
+ specific time are divided into data blocks of equal number of
+                                                                   In a supervised learning problem, a decision boundary is instances. The p-value for each two data blocks is calculated
+                                                                  the line on hyperplane that differentiate between classes. A and compared with user-defined significance value. A p-value
+                                                         margin is defined as the region near to the decision boundary
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:07 UTC from IEEE Xplore. Restrictions apply.
+                                       63
+--- Page 4 ---
+                            2020 IEEE Conference on Big Data and Analytics (ICBDA)
+
+
+
+ containing instances with uncertain class. The margin density    H. Chernoff Bound
+ method relies on the classifier’s margin to detect concept drift.                                                      The Chernoff bound is a probability theory that refers to
+  It calculates the proportion of data instances in the margin and                                                                  the total amount of instances that deviates from the mean
+ triggers a drift alert when the margin density exceeds density                                                                   value. In order to detect concept drift, the authors in [17]
+ threshold.                                                                        utilized the Chernoff bound to define the number of instances
+    This method  is model-independent, and any learning     that deviates from the mean value in a set of data streams
+ algorithms can be applied as the base classifier. However, this    blocks. The key step of this approach is to determine the total
+ method depends on the definition of density threshold that    amount of instances needed to indicate that the learning
+ may  varies in  different applications and  requires expert    algorithm has expired and a new one should be learned from
+ judgement. Moreover, the problem if differentiating between     data. This approach is sensitive to the size of data blocks,
+ a concept drift and outliers in the margin is an important issue    where small data blocks cause detection error. Future work
+ that needs to be tackled. Future work can explore on the    should investigate the estimation of the number of instances
+ evaluation of the margin density in detecting drifts from multi-     for training data, where new instances could appear or deleted
+ classification  problems  [16] and  the  use  of  ensemble    from the data stream.
+ classifiers as the base classifiers to improve the algorithm
+                                                                        V. CONCLUSION accuracy [22].
+                                                         Based on the research questions specified in the earlier
+ E. Jaccard Distance                                                                  section of this paper, a total of 15 articles are categorized in
+    The  Jaccard  distance   is  a   statistical  measure  of    terms of  its learning type, algorithms, and drift detection
+ dissimilarity between data samples. To detect concept drift,    monitoring method. Most of the drift detection methods were
+ the data streams is divided into a set of data blocks and the    applied in a supervised learning setting with various use of
+ distance between instances in the data block is computed     drift indication methods. The methods can be divided into two
+ based on Jaccard similarity. A Jaccard similarity greater than    approaches: one  using  statistical  approach, and  another
+ the threshold value indicates concept drift. Instances with    approach is based on machine learning. The Kolmogorov–
+ concept drift are removed, and the learning model is updated    Smirnov test, Jaccard distance, Plover algorithm and Chernoff
+ accordingly.                                           bound are based on statistical theory, while the clustering
+                                                                           similarities, confidence vote, margin density, and novelty    This method depends on a user-defined threshold that may                                                                  detection test use machine learning approach. Out of all the affects the algorithm capability to detect concept drift and                                                                      identified concept drift detection methods for unlabeled data increase false alarm rates. In addition, the proposed method in                                                                 streams, the most employed method  is the Kolmogorov– [11] was applied  to  binary  classifiers,  thus having  the                                                      Smirnov test, a data-distribution based method capable of constraint of imbalanced class in multi-class classification and
+                                                            monitoring distribution change in unlabeled data streams. window size which can be further explored.
+                                       A  large-scale  comparison  of  labeled  concept  drift
+ F. Novelty Detection Test                                                                  detection methods has been presented in [25]. Future work
+    The  novelty  detection  test  utilized novelty  detection   may focus on performing experimental evaluation of the
+ procedure to signal an update to the base classifier when any    methods in this paper in unsupervised learning setting.
+ new pattern is detected. Any new instances that cannot be
+ classified by the base classifier is marked as ‘unknown’ and                      REFERENCES
+ sent to the novelty detection procedure. The novelty detection      [1]  Schlimmer, J. C., & Granger, R. H. (1986). Incremental learning from
+ procedure  executes  a  k-means  clustering  algorithm  to          noisy data. Machine learning, 1(3), 317-354.
+ determine whether the ‘unknown’ instance is a new label or      [2]   Park, C. H. (2018, January). Anomaly pattern detection on data
+ otherwise. If  it is a new label, the base classifier will be           streams. In 2018 IEEE International Conference on Big Data and Smart
+ updated accordingly.                                                 Computing (BigComp) (pp. 689-692). IEEE.
+                                                                                      [3]  Hu, H., Kantardzic, M., & Sethi, T. S. (2020). No Free Lunch Theorem
+     Similar to the previous proposed method using clustering            for concept drift detection in streaming data classification: A review.
+ similarities, the novelty detection test proposed by [14] also         Wiley  Interdisciplinary  Reviews:  Data  Mining  and Knowledge
+ employed k-means clustering and will suffer the same issues          Discovery, 10(2), e1327.
+ of determining number of clusters, outlier sensitivity, and      [4]  Wares, S., Isaacs, J., & Elyan, E. (2019). Data stream mining: methods
+ processing time.                                                       and challenges for handling concept drift. SN Applied Sciences, 1(11),                                                                              1412.
+ G. Plover Algorithm                                                         [5]   Iwashita, A. S., & Papa, J. P. (2018). An overview on concept drift
+                                                                                          learning. Ieee Access, 7, 1532-1547.
+     In the Plover algorithm proposed by [15],  statistical                                                                                      [6]  Lu,  J., Liu, A., Dong, F., Gu, F., Gama, J., & Zhang, G. (2018).
+ metrics  specifically the means,  variances, skewness and          Learning under concept  drift: A  review. IEEE  Transactions on
+ kurtosis, are used as the measures to support the detection of         Knowledge and Data Engineering, 31(12), 2346-2363.
+  drifts. The Power Spectrum analysis is also employed as a      [7]  Khamassi, I., Sayed-Mouchaweh, M., Hammami, M., & Ghédira, K.
+ measure to detect  drift in terms of data amplitudes and           (2018). Discussion and review on evolving data streams and concept
+ frequencies.                                                                                    drift adapting. Evolving systems, 9(1), 1-23.
+                                                                                     [8]  Gemaque, R. N., Costa, A. F. J., Giusti, R., & dos Santos, E. M. (2020).
+    The proposed algorithm is capable of detecting drifts and       An  overview  of  unsupervised  drift  detection  methods.  Wiley
+ estimate its window length; however, it requires selection of            Interdisciplinary Reviews: Data Mining and Knowledge Discovery,
+ appropriate  metrics,  according  to  different  application          e1381.
+ domains. For instance, means is known to be sensitive to      [9]   Asghari, M., Sierra-Sosa, D., Telahun, M., Kumar, A., & Elmaghraby,
+ outliers. Further studies may extend this algorithm to consider         A. S. (2020). Aggregate density-based concept drift identification for
+                                                                        dynamic sensor data models. Neural Computing and Applications, 1-
+ other metrics related to statistical learning theory.                         13.
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:07 UTC from IEEE Xplore. Restrictions apply.
+                                       64
+--- Page 5 ---
+                            2020 IEEE Conference on Big Data and Analytics (ICBDA)
+
+
+
+
+  [10] Korycki, L., & Krawczyk, B. (2019, October). Unsupervised Drift     [18] Han, D., Li, S., Wei, F., Tang, Y., Zhu, F., & Wang, G. (2018). Two
+       Detector  Ensembles  for  Data  Stream  Mining.  In  2019 IEEE           birds with one stone: classifying positive and unlabeled examples on
+       International Conference on Data Science and Advanced Analytics           uncertain data streams. Neurocomputing, 277, 149-160.
+     (DSAA) (pp. 317-325). IEEE.                                            [19] D’Ettorre, S., Viktor, H. L., & Paquet, E. (2017, October). Context-
+  [11] Abdualrhman, M. A. A., & Padma, M. C. (2019). CD2A: Concept Drift          based abrupt change detection and adaptation for categorical data
+       Detection Approach Toward Imbalanced Data Stream. In Emerging           streams. In International Conference on Discovery Science (pp. 3-17).
+      Research in Electronics, Computer Science and Technology (pp. 597-           Springer, Cham.
+       612). Springer, Singapore.                                               [20] Kim, Y., & Park, C. H. (2017). An efficient concept drift detection
+  [12] Gautam, C., Bansal, R., Garg, R., Agarwalla, V., & Tiwari, A. (2019).         method for streaming data under limited labeling. IEICE Transactions
+    A  Fast  Adaptive  Classification  Approach  Using  Kernel Ridge         on Information and systems, 100(10), 2537-2546.
+       Regression and Clustering for Non-stationary Data Stream. In Machine     [21] dos Reis, D. M., Flach, P., Matwin, S., & Batista, G. (2016, August).
+       Intelligence and Signal Analysis (pp. 739-751). Springer, Singapore.             Fast  unsupervised   online   drift   detection  using   incremental
+  [13] Himaja, D., Padmaja, T. M., & Krishna, P. R. (2019). An Unsupervised          kolmogorov-smirnov test. In Proceedings of the 22nd ACM SIGKDD
+        Drift Detector for Online Imbalanced Evolving Streams. In DATA (pp.           International Conference on Knowledge Discovery and Data Mining
+       225-232).                                                                        (pp. 1545-1554).
+  [14] Júnior, J. D. C., Faria, E. R., Silva, J. A., Gama, J., & Cerri, R. (2019,     [22]  Sethi, T. S., & Kantardzic, M. M. (2015, January). Don't Pay for
+        July). Pruned Sets for Multi-Label Stream Classification without True           Validation: Detecting  Drifts from Unlabeled data Using Margin
+       Labels. In 2019 International Joint Conference on Neural Networks           Density. In INNS Conference on Big Data (Vol. 53, pp. 103-112).
+      (IJCNN) (pp. 1-8). IEEE.                                                [23] Haque, A., Khan, L., & Baron, M. (2015, May). Semi supervised
+  [15] de Mello, R. F., Vaz, Y., Grossi, C. H., & Bifet, A. (2019). On learning           adaptive framework for classifying evolving data stream. In Pacific-
+       guarantees to unsupervised concept drift detection on data streams.          Asia Conference on Knowledge Discovery and Data Mining (pp. 383-
+      Expert Systems with Applications, 117, 90-102.                                394). Springer, Cham.
+  [16] Costa, A. F. J., Albuquerque, R. A. N. S., & dos Santos, E. M. (2018,     [24] Lu, N., Zhang, G., & Lu,  J. (2014). Concept  drift detection via
+        July). A drift detection method based on active learning. In 2018         competence models. Artificial Intelligence, 209, 11-28.
+       International Joint Conference on Neural Networks (IJCNN) (pp. 1-8).     [25] Barros, R., & Santos, S. (2019). An overview and comprehensive
+      IEEE.                                                                 comparison of ensembles for concept drift. Information Fusion, 52,
+  [17] Diaz-Rozo, J., Bielza, C., & Larrañaga, P. (2018). Clustering of data         213–244.
+       streams with dynamic gaussian mixture models: an IoT application in
+        industrial processes. IEEE Internet of Things Journal, 5(5), 3533-3547.
+
+
+
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:07 UTC from IEEE Xplore. Restrictions apply.
+                                       65

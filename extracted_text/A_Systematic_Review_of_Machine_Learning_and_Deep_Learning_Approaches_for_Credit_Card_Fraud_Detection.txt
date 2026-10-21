@@ -1,0 +1,888 @@
+Title: A_Systematic_Review_of_Machine_Learning_and_Deep_Learning_Approaches_for_Credit_Card_Fraud_Detection
+
+--- Page 1 ---
+   A Systematic Review of Machine Learning and Deep
+     Learning Approaches for Credit Card Fraud Detection
+                     GannaTullah Gouda                    Abdelrahman Mahmoud         Ahmed Khaled Abdulfatah
+                    Egyptian Russian University               Egyptian Russian University         Egyptian Russian University
+                             Cairo, Egypt                                Cairo, Egypt                        Cairo, Egypt
+                    gannaasaad@gmail.com             abdelrahman-ahmed@eru.edu.eg      ahmedkhaled5186@gmail.com
+                            Ali Mohamed                     Shady A.Abdelmoneim              Asmaa F. Hassan
+                    Egyptian Russian University               Egyptian Russian University          Arab Open University
+                            Cairo, Egypt                                 Cairo, Egypt                         Cairo, Egypt
+                alimohamedali2033@gmail.com              shady-abdelhady@eru.edu.eg         asmaa.fawzy@aou.edu.eg
+
+
+             Abstract: The increasing sophistication of payment card fraud    straightforward and easy to implement, they have notable
+        needs enhanced  artificial  intelligence  (AI)  treatments.  This     limitations. Their rigidity prevents them from adapting to
+         systematic review critically assesses the landscape of Machine    evolving fraud tactics, often resulting in high false-positive
+        Learning (ML) and Deep Learning (DL) applications in credit                                                                               rates that inconvenience legitimate customers and increase
+         card fraud detection from 2021 to 2024 (77 studies), focusing on                                                                         the need for manual reviews. Furthermore, these systems are         unsolved AI obstacles and  potential for advancement. While
+                                                                        often reactive, identifying fraud only after  it has occurred        popular  algorithms  such  as Random  Forest  and  Logistic10.1109/ICCA66035.2025.11430904         Regression continue to thrive, and deep learning methods such as     rather than proactively preventing  it, which can lead to
+DOI:    CNNs and LSTMs gain traction, our analysis reveals critical gaps     financial losses and reputational damage [3]. The complex|       in addressing fundamental AI problems such as robustness against    nature of modern fraud requires more sophisticated solutions,
+IEEE       adversarial   attacks,   effective  concept   drift  management,    such as machine learning (ML). Machine learning algorithms        comprehensive  missing  data  imputation  strategies, and  the    have revolutionized the field of fraud detection by offering
+©2025      untappedLanguage potentialModels (LLMs)of emergingand advancedAI paradigmsoptimizationsuchtechniques.as Large    automated data analysis and advanced pattern recognition                                                                              capabilities [4]. These systems can process vast quantities of
+         This paper is more than just a method review; it lays out a strategic                                                                       data and identify subtle patterns that traditional methods
+       AI research roadmap for future advances in fraud detection,
+                                                                might overlook. Additionally, ML models continuously learn         highlighting the importance of explainable, adaptive, and scalable
+                                                              and improve as new data becomes available, enabling more       AI solutions to manage shifting risks and practical implementation
+         challenges.                                                     accurate and proactive fraud detection. By leveraging ML,
+                                                                            financial  institutions  can  significantly  improve  fraud
+        Keywords: Credit Card Fraud Detection, Machine Learning, Deep    detection and prevention, ultimately improving security and
+         Learning, AI-based Optimization, Systematic Review.              customer satisfaction [3, 5].979-8-3315-9953-9/25/$31.00|                                                      Deep Learning (DL) represents a significant advancement in                                         I.   INTRODUCTION
+                                                                              credit  card  fraud  detection,  offering  superior  pattern
+       The rapid increase in digital financial activities, accelerated    recognition capabilities compared to traditional rule-based(ICCA)       by the recent global health crisis, has led to a substantial    and machine learning models. DL models, such as recurrent
+         increase in the volume of electronic transactions. A recent    neural networks (RNNs) and autoencoders, can automatically
+        study stated that in the second quarter of 2021, Mastercard     learn complex  transaction  patterns,  enhancing  real-time
+       and Visa issued 1,131 million and 1,156 million cards,    anomaly  detection.  Moreover, DL  models  can  scaleApplications
+         respectively  [1].  However,  this  surge  has  introduced     effectively with increasing transaction volumes, making themand         significant   challenges,   particularly   concerning    illicit     particularly  suitable  for  large  financial  institutions and
+          activities involving payment cards. Such fraudulent practices    payment processors that handle millions of transactions daily
+        have become a major concern for financial organizations     [6]. The digital transformation of finance has inadvertentlyComputer
+        worldwide. Global losses attributed to payment card fraud    amplified the threat of credit card fraud, evolving into aon
+        have increased  significantly over the past decade.  It  is     sophisticated,  dynamic,  and  economically  damaging
+         anticipated that the problem will become more severe in the    challenge. Detecting such fraud is not merely a classification
+         future.  Projections  indicate  that worldwide  losses from    problem but a complex Artificial Intelligence (AI) challengeConference     payment card fraud could reach 49.32 billion USD by 2030    characterized by extreme data imbalance, continuous concept
+          [2]. This consistent upward trend highlights the increasing     drift due to evolving fraudster tactics, the necessity for real
+        complexity of fraudulent activities and the difficulties in    time  processing,  and  the  critical  demand  for  model
+         effectively combating them.                                         interpretability. While existing literature offers reviews onInternational
+                                                ML/DL  applications  in  this  domain,  a  comprehensive     A report indicated that financial losses due to credit and debit
+2025                                                                    systematic  analysis   that   critically  evaluates  the  AI        cards are among the most significant sources of losses in the
+                                                                    methodologies,  identifies  specific  AI  limitations,  and         financial sector. Therefore, developing efficient credit card
+                                                                     provides a forward-looking AI research roadmap remains         fraud-detection systems is necessary to mitigate these losses.
+                                                                            largely  unexplored.  This  paper  addresses  this  gap by        This sharp increase  is mainly driven by volume of card
+                                                                   conducting  a  rigorous  systematic review  of 77  studies         transactions and the expansion of digital payment platforms,
+                                                                     published between 2021 and 2024. Our objective is not just         highlighting  the  urgent need  for more advanced  fraud
+                                                                             to summarize prevalent ML/DL techniques, but to analyze        prevention techniques [1]. Traditional methods for detecting
+                                                                                 their  inherent AI  strengths  and  weaknesses,  uncover       payment card fraud typically rely on rule-based systems and
+                                                                             significant omissions such as the underutilization of advanced          statistical analysis. These systems apply predefined criteria,
+                                                                       optimization  and  emerging AI  paradigms  like  Large        such as flagging transactions that exceed a specific value or
+                                                            Language Models (LLMs), and ultimately, to chart a clear         originate from unusual locations. While these methods are
+                                                                    course  for  future AI  research  to develop more  robust,
+
+         Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 2 ---
+ adaptive, and  explainable  fraud  detection  systems. The    the significance of the topic, outlines the objectives, and
+ subsequent sections outline the methodology, present key     situates  the  research  within  the  broader  financial  and
+ findings, and discuss their implications for future research    technological landscape. The research problem  is clearly
+ directions and practical applications.                            defined, highlighting its importance and linking it to existing
+                                                                            literature. This is followed by Research Questions, which
+                     II.  RESEARCH QUESTIONS                                                         frame the investigation and ensure a focused exploration of
+ The study utilized the PICO framework, as shown in Table 1:    the topic. The Theoretical Background offers an overview
+ Population, Intervention, Comparison, Outcomes along with    of relevant theories and concepts, sitting the study within its
+ Language and Timing criteria, to define relevant keywords    academic   context.   Additionally,   the   Meta-Survey
+ and construct precise search strings for addressing research    summarizes trends in AI-based fraud detection and identifies
+ questions.                                         commonly  used methods and  techniques. The Review
+                                                    Methodology  details  the  search  strategy,  inclusion and
+ Table 1: PICO Criteria
+                                                               exclusion criteria, and data extraction and synthesis methods,
+   Population    Financial institutions specifically banks                                                              ensuring quality and rigor in the analysis. The Results section
+   Intervention   Using artificial intelligent technologies in credit card     synthesizes key findings, highlighting emerging trends and
+                  fraud detection                                                                research gaps. Finally, the Conclusion consolidates the main
+   Comparison   In this investigation, no comparative intervention is      findings,   discusses   their   implications,  acknowledges
+                    anticipated.
+                                                                       limitations, and suggests future research directions. This
+   Outcomes    Enhance fraud detection systems in banks using                                                                   structured  approach  ensures  a  coherent  and  detailed
+                machine and deep learning techniques
+                                                           examination of the topic.
+     Timing     4 years period
+    Language     Articles were reported in English
+ The review comprises two main parts: a systematic literature                  IV.  THEORETICAL BACKGROUND
+ review and a bibliometric analysis, both aimed at achieving
+                                                              A. Financial fraud overview the study's objectives. Bibliometric analysis serves as the
+ initial phase of the review and addresses the following    Financial fraud refers to any deliberate act of deception or
+ questions:                                                  manipulation intended  to gain an unauthorized financial
+                                                              advantage, often at the expense of individuals, businesses, or
+     1)  What is the distribution of studies per year?              institutions. Financial fraud encompasses a wide range of
+     2)  Which countries have contributed the most to this     activities, including identity theft, credit card fraud, insurance
+ topic?                                                            fraud, money laundering, embezzlement, and phishing scams.
+     3)  What are the leading journals publishing studies on    Perpetrators  exploit  vulnerabilities  in  financial  systems,
+ machine learning and deep learning approaches for credit     digital platforms, and human behavior to carry out fraudulent
+ card fraud detection?                                                  activities. Financial fraud poses significant economic, legal,
+                                                       and  reputational  risks,  highlighting  the need  for robust
+ The second phase, the systematic review, focuses on the     security  measures,  regulatory  compliance,  and  public
+ following research questions:                                awareness to effectively detect and prevent such crimes.
+   1)   How many credit card fraud detection articles utilize      1) Insurance fraud
+ machine learning, deep learning, or both?                       Insurance  fraud  involves  the  deliberate  deception  or
+   2)   What fraud detection algorithms are commonly used      misrepresentation by individuals or organizations to obtain
+                                                                       financial benefits or advantages to which they are not in this area?
+                                                                            entitled. It can occur at various stages of the insurance   3)   How many studies discuss supervised, unsupervised,
+                                                                    process, including application, claim submission, or policy or semi-supervised techniques?
+                                                                renewal. Common  types  of  insurance  fraud  include
+   4)   How  frequently  are   class  imbalance   issues                                                                        falsifying claims, staging accidents, inflating damages, and
+ addressed?                                                                providing false information to secure lower premiums.
+   5)   How  frequently  is  the  missing  data  problem       Perpetrators may range from policyholders and third-party
+ addressed? 6) How many articles incorporate optimization      claimants to professionals such as doctors or contractors
+ techniques?                                       who collaborate to defraud insurers. Insurance fraud not
+   7) What are the top 10 AI-based optimization techniques      only causes financial losses for insurance companies but
+ used in credit card fraud detection, and how do they compare       also leads to higher premiums for honest policyholders,
+ in terms of implementation frequency? 8) What gaps remain      underscoring the need for effective fraud detection systems
+ in this area?                                              and strict regulatory oversight [7].
+
+                   III.  RESEARCH STRUCTURE                   2) Bank fraud
+ The review is structured to provide a comprehensive analysis     Bank fraud is a broad category of financial crime involving
+ of AI techniques in credit card fraud detection. It begins with        illegal activities designed to deceive banks or financial
+ an Introduction, which establishes the significance of the       institutions to gain unauthorized access to funds, assets, or
+ topic, outlines the objectives, and situates the research within       services.  This  includes  actions  such  as  falsifying
+ the  broader  financial and  technological  landscape. The      documents,  forging  signatures,  manipulating  account
+ research  problem   is  clearly  defined,  highlighting   its       balances, or transferring funds without the account holder’s
+ importance and linking  it  to  existing  literature. This  is     knowledge  or  consent.  It can  also  involve complex
+ followed by Re The review  is  structured  to provide a      schemes like identity theft or wire fraud, where criminals
+ comprehensive analysis of AI techniques in credit card fraud      use fake identities or hijack legitimate accounts to steal
+ detection. It begins with an Introduction, which establishes      money. One of the most common forms of bank fraud is
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 3 ---
+    credit card fraud, which occurs when individuals gain    B. Artificial Intelligence technologies overview
+   unauthorized access to someone’s credit card information     Artificial intelligence (AI)  is a broad  field of computer
+   and use it for personal gain [8].                              science focused on developing systems capable of performing
+                                                                   tasks that typically require human intelligence. These tasks
+   3) Credit card fraud                                         include  learning,  problem-solving,  decision-making, and
+   Credit card fraud can take several forms. Card-not-present    understanding language and  perception. AI  technologies
+   fraud occurs when thieves use stolen credit card details to    encompass machine learning, deep learning, natural language
+   make online or phone transactions without physically    processing, computer vision, robotics, and expert systems,
+   possessing the card. This type of fraud is often facilitated    each enabling machines to analyze data, recognize patterns,
+   by data breaches, phishing attacks, or the sale of stolen   make decisions, and automate tasks across various fields.
+    credit card information on the dark web. In  contrast,
+                                                                  1) Machine Learning (ML)   cardpresent fraud involves the physical theft or cloning of
+                                                       Machine learning (ML) is a subfield of AI that enables   a credit card, enabling criminals to conduct fraudulent
+                                                             systems to learn from data without explicit programming.    transactions by  mimicking  the  legitimate  cardholder.
+                                     ML algorithms build a model based on sample data, known   Fraudsters may also use skimming, a technique where a
+                                                                  as training data, to make predictions or decisions. This   small device copies information from a card's magnetic
+                                                                   learning  process  allows  systems  to  enhance   their    stripe at ATMs or point-of-sale terminals. Additionally,
+                                                            performance over time as they are exposed to more data   they may exploit fraudulent applications to open new
+                                                                        [12].   accounts or obtain loans under false pretenses [9].
+
+                                                                  2) Deep Learning (DL)   4) Taxation fraud
+                                                    Deep learning (DL) is a specialized subfield of machine   Tax fraud involves illegal manipulation of a business's
+                                                                   learning  that  utilizes  artificial  neural  networks  with    structure or financial records to reduce tax liability. Unlike
+                                                                  multiple layers (deep neural networks) to analyze data. DL    tax evasion, which relies on legal methods to minimize
+                                                         models automatically extract complex features from raw    taxes, tax fraud entails deliberate actions to mislead or
+                                                                        data, making them particularly effective for tasks involving   deceive tax authorities. This includes falsifying income,
+                                                                  unstructured data such as images, text, and speech [13].    inflating expenses, or concealing  assets  to evade  tax
+   payments. Tax fraud is driven by the intent to violate the
+   law and often exploits weaknesses in the tax system,      3) Data Mining
+   inadequate  enforcement,  or  legislative  loopholes.  Its      Data  mining  is  the  process  of  discovering  patterns,
+   consequences are severe, leading to significant public      anomalies, and valuable insights from large datasets.  It
+   revenue  losses  and  straining  government  resources.      leverages techniques from statistics, machine learning, and
+   Despite ongoing efforts to combat it, tax fraud remains a      database systems to extract knowledge and transform raw
+    persistent issue, particularly during economic crises when      data into actionable information for decision-making and
+     its impact on public finances becomes more pronounced       analysis.
+    [10].
+                                                                  4) Expert Systems
+   5) Corporate fraud                                         Expert systems are AI-driven applications designed  to
+   Corporate fraud refers to deceptive practices carried out by       replicate human expertise in specific areas. They utilize a
+    individuals or groups within a company to secure an unfair      knowledge base and a set of rules to analyze problems and
+    financial  gain,  often  at  the  expense  of  investors,      provide solutions or recommendations. Expert systems are
+   employees, customers, or stakeholders. It can take various      widely applied in fields such as diagnosing diseases in
+   forms,  including   financial  statement  manipulation,       healthcare, detecting fraud in finance, and troubleshooting
+   embezzlement, insider trading, bribery, accounting fraud,       technical issues in engineering [14].
+   and misappropriation of company assets. Corporate fraud
+    often involves senior executives or employees exploiting      5) Computer Vision
+    their positions of trust to conceal financial discrepancies,     Computer  vision  is a branch of  artificial  intelligence
+    inflating  profits,  or  cover  operational  losses.  Such      focused on enabling machines to process and interpret
+    fraudulent activities can severely damage a company's       visual information from the world. It encompasses tasks
+    reputation, lead to significant financial losses, and result in      such as image recognition, object detection, and video
+    legal penalties, underscoring the need for strong corporate       analysis. Computer vision is widely applied in self-driving
+   governance, transparency, and regulatory compliance to       cars for object detection, medical imaging for diagnosing
+   prevent and detect fraud. 6) Mortgage fraud                     conditions, and security systems for facial recognition [15].
+
+   Mortgage fraud involves deceptive practices in real estate      6) Chatbots
+   transactions to unlawfully obtain financial gain. It falls into      Chatbots are conversational AI systems designed to interact
+   two  main  categories:  fraud-for-property  and  fraud-      with users in a natural, human-like manner. They can
+    forprofit. Fraud-for-property occurs when borrowers, often      process text or voice inputs and generate responses based
+   aided by real estate professionals, falsify income or assets      on programmed scripts or AI-driven algorithms. They are
+    to secure loans they cannot afford. In contrast, fraud-     commonly used in customer service, virtual assistants, and
+    forprofit schemes,  driven by  greed,  typically  involve      e-commerce  platforms  to  answer  inquiries,  provide
+   industry  insiders  inflating  property  values  to  extract       support,  and   assist  with  tasks  such  as  booking
+   fraudulent funds. These schemes often rely on identity      appointments or processing orders [16].
+    theft, forged documents, and misrepresentations during the
+   mortgage lending process [11].
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 4 ---
+                     V. META-SURVEY                         challenges missing data and class imbalance highlighting the
+                                                                       strategies employed to mitigate these challenges. Finally, this This section provides an overview of prior reviews on credit
+                                                              study aims to uncover research gaps, particularly in the areas card fraud detection using AI techniques as illustrated in
+                                                                of handling missing data, addressing class imbalance, and Table 2. O. A. Bello explores the application of deep learning,
+                                                          improving the overall effectiveness of machine learning particularly neural networks and anomaly detection, in cyber
+                                                       methods in credit card fraud detection. financial fraud detection. The study examines the use of
+ CNNs and RNNs for detecting fraud patterns and employs
+ autoencoders and GANs for anomaly detection in the absence
+ of labeled data. It highlights key challenges, including data
+ quality  and  computational  resources  constraints,  while
+ emphasizing the necessity of continuous model training. The
+ objective is to demonstrate how deep learning can enhance
+ fraud detection accuracy and efficiency in the financial sector
+ [3].     The systematic review by Suraya Nurain Kalid
+ explores credit card fraud and payment default challenges,
+ focusing on imbalanced and overlapping classes. It reviews
+ machine learning solutions, recommending deep learning,
+ ensemble methods, and sampling techniques to improve
+ detection. The study also stresses the use of evaluation
+ metrics  that  assess  performance  separately  for  fraud,
+ defaults, and normal transactions. [5]. The systematic review
+ by Rui Miguel Dantas explores the growing issue of credit
+ card fraud, particularly in the context of cybercrimes.  It
+ examines a range of  articles from leading databases  to
+ identify key gaps and research opportunities in the detection
+ of fraud using machine learning. The review highlights the
+ effectiveness of both supervised and unsupervised machine
+ learning techniques  in combating cybercrime within the
+ credit card industry. While the field has gained prominence
+ over the past decade, the study emphasizes the need for
+ further advancements in both quantitative and qualitative
+ research to enhance fraud detection methods [20].
+
+ The objective of our study is to conduct a comprehensive
+ bibliometric analysis of previous research on credit card fraud
+ detection, identifying key trends, prominent research areas,
+ and the evolution of the field. We focus on the most used
+ machine learning algorithms and deep learning techniques for
+ fraud detection, evaluating their effectiveness and limitations.
+ Additionally, we examine studies that address two major data
+                               Table 2: Comparison of other related studies in the same domain: (✓: YES, ✘: NO)
+
+                                                                                            Methodology           AI Technology
+
+
+
+     Authors      Year                            Objective of study
+
+
+
+
+    Matin et al.            Review literature on financial statement fraud detection using ML/DM
+                  2021                                        ✘   ✔    ✔    ✔    ✔    ✘   ✔        [17]                 techniques, datasets, and research gaps.
+
+     Marco               Analyze   literature on       fraud     detection using ML and
+   Sánchez et al    2021             fraud triangle/diamond theories to identify gaps and future  ✔   ✔    ✘    ✘    ✔    ✔   ✔
+        [18]                  directions.
+
+                         Conduct a review to compare credit card datasets, machine learning
+   Kalid et al. [5]   2024                                        ✘   ✔    ✔    ✔    ✔    ✔   ✔
+                            techniques, and evaluation metrics.
+
+
+                            This study explores machine learning and deep learning techniques for
+    Eyad et al.
+                  2023    credit card fraud detection, highlighting their advantages over traditional  ✘   ✔    ✘    ✔    ✔    ✔   ✘
+        [19]
+                           methods.
+
+                       The paper reviews machine learning in financial cybercrime detection,
+   Rui, et al [20]    2022    focusing on credit card fraud, performance metrics, datasets, and  ✔   ✘    ✘    ✔    ✔    ✘   ✘
+                           research gaps.
+
+   O. A. Bello, et al         The paper aims to analyze techniques used for credit card fraud detection,
+                  2022                                        ✘   ✔    ✘    ✘    ✔    ✘   ✔
+        [3]                   exploring their effectiveness, limitations, and possible improvements
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+                           This study conducts a bibliometric analysis, identifying key trends,
+   Our review    2025   methods, and challenges                           ✔ ✔     ✘    ✔    ✔     ✔ ✘
+--- Page 5 ---
+               VI.  REVIEW METHODOLOGY                    logical  operators,  align  with  the  requirements  of  the
+                                                               systematic  review  methodology.  Additionally,  Scopus This section outlines the approach used to conduct the review.
+                                                              provides   robust   filtering  and   bibliometric   analysis A systematic literature review methodology is employed to
+                                                                        capabilities,  ensuring  a  comprehensive  and  structured investigate  credit  card  fraud  detection  techniques. As
+                                                          approach to the literature review. illustrated  in Fig.  1, the process begins with a Search
+ Strategy, which defines the targeted keywords to refine the
+ search context. The search is conducted within the Scopus    C. Study Selection Criteria
+ database. Next, the Studies Selection phase establishes    Study selection criteria define the specific guidelines used to
+ criteria for identifying, screening, and selecting relevant    determine which  studies are included or excluded  in a
+ studies. Following  this, the Data Analysis phase applies    research review, ensuring relevance to the research objective.
+ bibliometric and content analysis to systematically review    Each paper was  evaluated based on  the  inclusion and
+ and evaluate the identified literature. Finally, the Results    exclusion criteria outlined below:
+ synthesize insights from the bibliometric analysis and present
+                                                                  1) Eligibility Criteria the conclusions of the systematic review. This structured
+                                      A paper was included if its title contained “credit card fraud approach ensures a comprehensive evaluation of the field.
+                                                                    detection" OR  "Credit  card  fraud" AND  "artificial
+                                                                       intelligence "OR  "AI" OR  "machine  learning" OR
+                                             "ML"OR "deep learning" OR "DL" OR "Data Mining",
+                                                     The same criteria applied to the abstract. If the title and
+                                                                       abstract were insufficient for determining relevance, the
+                                                                               full text of the article was reviewed to assess whether it met
+                                                                   these requirements.
+                                                                  2) Inclusion/Exclusion Criteria
+                                                                  In addition to the above, the articles’ relevancy was filtered
+                                                               using the following criteria set:
+                                                                                 •   Topic Relevance: Papers must address credit card
+                                                                       fraud detection using techniques such as AI, ML,
+                                                         DL, or data mining.
+                                                                                 •   Keywords: The  research must  include  specific
+ Fig. 1. Systematic review methodology                                   keywords such as "Fraud Detection" or "Credit Card
+                                                                       Fraud."
+ A. Search Strategy                                                           •   Publication Year: Papers published between 2021
+ A comprehensive search for publications on credit card fraud           and 2024 are considered.
+ detection using AI techniques was conducted on December          •   Language: Only  articles written  in English are
+ 20, 2024, utilizing the Scopus database. The advanced search             included.
+ functionality in Scopus enabled the use of Boolean operators          •   Subject Area: The study must fall under the field of
+ such as "OR" and "AND" to refine the results.                                                                computer science.
+    The search parameters were defined as follows:                     •   Document Type: The  analysis includes  journal
+                                                                                    articles ("ar") and conference papers ("cp").
+   1)  journal articles and conference papers,  2) published
+                                                                                 •   Publication Stage: Papers must be  at the  final   between 2021 and 2024, 3) written in English,
+                                                                          publication stage.
+   4)  finalized and at the publication stage, and 5)
+                                                                                 •    Availability: Publications must be accessible via the   within the field of computer science.
+                                                               Scopus  database  and   available   for   full-text
+ Detailed descriptions of the search parameters are provided
+                                                                 download.
+ below.
+
+ TITLE-ABS-KEY("credit card fraud detection" OR "Credit
+ card fraud" AND  ("artificial  intelligence "OR "AI" OR
+ "machine learning" OR "ML"OR "deep learning" OR "DL"
+ OR "Data Mining")) AND PUBYEAR > 2020 AND
+ PUBYEAR < 2025 AND (EXACTKEYWORD("Fraud
+ Detection") OR EXACTKEYWORD("Credit Card Fraud"))
+ AND SUBJAREA("COMP") AND PUBYEAR > 2020 AND
+ PUBYEAR < 2025 AND ( LIMIT-TO ( PUBSTAGE,"final"
+ ) OR LIMIT-TO (PUBSTAGE,"English" ) ) AND ( LIMITTO
+ ( DOCTYPE, "ar" ) OR LIMIT-TO ( DOCTYPE,"cp" ) )
+
+ B. Database Sources
+ Scopus was  selected  as  the  primary  database  for  this
+ systematic review because  it  offers broad  coverage  of
+ scientific publications, including conference proceedings and
+ journal articles. It is recognized as a reliable platform for
+ accessing high-impact  research  across  various academic
+ disciplines. Its advanced search features, such as the use of
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 6 ---
+                                                                    findings,  identifying  key  themes  and  concepts,  and
+                                                           uncovering underlying meanings. This approach provided
+                                                                     rich qualitative data to complement the insights gained from
+                                                                 bibliometric analysis.
+
+                                                                                        VII. RESULTS
+
+                                                              A. Bibliometric Analysis
+                                                               Bibliometric  analysis provides a  structured approach  to
+                                                     mapping the intellectual landscape of AI techniques in credit
+                                                              card fraud detection by analyzing publications and citations.
+
+                                                RQ1: What is the distribution of studies per year?
+                                                      Through the analysis of 517 included papers, Fig. 3 illustrates
+                                                                 the annual distribution of studies from 2021 to 2024 reveals a
+                                                                     clear upward  trend,  reflecting  a  significant  increase  in
+                                                                research activity on AI-driven fraud detection. The number of
+                                                                   studies rose from 94 in 2021 to 125 in 2022, followed by a
+                                                                    further increase to 157 in 2023. Although there was a slight
+                                                                 decline to 141 studies in 2024, the overall volume remains
+                                                              higher than in previous years. This trend highlights the
+                                                        growing interest in AI-driven solutions for fraud detection,
+ Fig. 2. Flowchart detailing the data collection, assessment, and inclusion     likely driven by the escalating sophistication of fraudulent
+ processes                                                                activities  and  the  need  for  more  advanced  detection
+                                                        mechanisms. The  consistent growth  in  research  output
+       a) Identification                                       underscores the dynamic nature of this field and the ongoing
+ The research process began with an extensive search of the    need for innovation to address emerging challenges in credit
+ Scopus database, yielding an initial pool of 1,995 records.    card fraud.
+ This broad search aimed to capture all potentially relevant
+                                                                                   Fig. 3. Distribution of studies per year
+ studies within the scope of the research scope. The next step
+ involved applying inclusion and exclusion criteria to ensure
+ relevance, leading to the removal of 1,478 records that did not
+ meet the predefined conditions. As a result, the dataset was
+ narrowed to 517 records for further analysis.
+
+       b) Screening
+ After the initial identification phase, as shown in Fig. 2, the
+ remaining 517  records underwent  a  detailed  screening
+ process to assess their relevance and suitability for inclusion.
+ At this stage, 429 records were excluded, primarily due to
+ unavailability for download, preventing further analysis. The
+ 88 reports that passed the screening were then rigorously
+ evaluated for alignment with the study's objectives, leading   RQ2: Which countries have contributed the most to this
+ to the exclusion of 11 reports that were deemed unrelated to    topic?
+ the research focus.                                               Fig. 4 highlights the geographic distribution of research
+                                                                   contributions, with India leading as the leading contributor to
+        c) Included                                                             AI-driven  credit  card  fraud  detection  research.  This
+ Ultimately, 77 studies were deemed relevant and of sufficient                                                       dominance  can  be  attributed  to  India's  rapid  digital
+ quality for inclusion in the final review. These studies form                                                                 transformation,  a  vast  technology  workforce,  and  the
+ the foundation of research analysis, offering valuable insights                                                                 increasing adoption of digital payment systems, necessitating
+ and data to address the research questions                                                        advanced fraud detection mechanisms. China and the United
+                                                                   States follow closely, reflecting their strong technological       d) Data synthesis and analysis
+                                                                       infrastructure, substantial investment in AI research, and the To gain a comprehensive understanding of our subjects, we
+                                                            high volume of digital transactions in these regions. integrated  bibliometric and  content  analysis. This  dual
+ approach leveraged the strengths of both methods, allowing    Saudi  Arabia  and  Morocco  also  demonstrate  notable
+ us to benefit from the broad insights of bibliometric analysis     contributions, reflecting a growing interest in leveraging AI
+ while delving  into the in-depth knowledge provided by     to combat fraud in emerging digital economies. The inclusion
+ content   analysis.  Bibliometric  analysis  systematically    of countries like Bangladesh, Iraq, and Egypt in the top ten
+ assessed the research landscape. By examining publication     further underscores that credit card fraud detection is a global
+ and citation data, identifying key studies, trends, and patterns    concern,  with  research  activity  extending  to  regions
+ in credit card fraud detection research. It helped map research    undergoing  rapid  digitalization. However,  the  relatively
+ areas, uncover knowledge gaps, assess research impact, and    lower contributions from the United Kingdom and Australia
+ guide future research efforts. Meanwhile, content analysis   may indicate differing research priorities or a more mature
+ systematically  examined  qualitative  data  from  selected    fraud detection ecosystem in these regions. This geographic
+ studies,  offering an  in-depth  understanding  of  research
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 7 ---
+   diversity underscores the worldwide significance of AI in  ACM  International  Conference  Proceedings  Series and
+   fraud prevention and highlights the need for collaborative,    Journal  of Big Data  highlight a growing emphasis on
+   cross-border  research  efforts  to  effectively  address  this    impactful  publications  within  these   journals,   further
+   universal challenge.                                              solidifying their role in advancing research in this area. These
+                                                                       insights collectively provide a comprehensive view of the
+                                                                  research    landscape,    underscoring    the    significant
+                                                                   contributions of these journals to the advancement of AI-
+                                                            based credit card fraud detection methods.
+
+
+
+
+
+Fig. 4.  Countries contribution in this topic
+
+  RQ3: What are the leading journals publishing studies on
+   machine learning and deep learning approaches for credit
+   card fraud detection?
+  The analysis of publication trends in machine learning and
+   deep learning for credit card fraud detection reveals a
+   dynamic interplay between research volume and academic
+   influence. Fig. 5, which highlights the top five journals by
+   document contribution, shows a notable upward trend for          Fig. 6. Journals Cite score
+  IEEE Access, peaking in 2024, indicating a considerable
+   increase in research output in this domain. A similar trend is
+                                                                B. Content Analysis   observed with Lecture Notes in Networks and Systems,
+   which experienced substantial     growth, culminating      The following questions pertain specifically to the second
+            in      2023. Conversely, Advances        in          stage, which is systematic review:
+             Intelligent      Systems and                                                 RQ4: How many credit card fraud detection articles utilize
+  Computing maintained a stable publication rate, reflecting a
+                                                      machine learning, deep learning, or both?   consistent and steady contribution to the field. This disparity
+                                                                  In Table 3, the analysis of credit card fraud detection reveals   in publication volume underscores the evolving nature of
+                                                              a substantial reliance on machine learning (ML) and deep   research          activity within   this     specialized
+                                                                   learning (DL) techniques. Fig. 7 highlights the widespread          domain, demonstrating shifting academic priorities
+                                                              use of these approaches, with 41  articles applying ML   and emerging research directions.
+                                                                   algorithms, 15 utilizing DL methods, and 19 integrating both.
+                                                              This  distribution  highlights  the  increasing  adoption  of
+                                                          advanced  computational  techniques   in   this  domain,
+                                                                 leveraging the respective strengths of each method. ML's
+                                                                      adaptability and effectiveness in handling structured data are
+                                                                        likely contributed to its broad application, while DL's ability
+                                                                       to  capture complex  patterns  within  large,  unstructured
+                                                                     datasets is gaining prominence in addressing the evolving
+                                                                     sophistication of fraud attempts.
+
+
+                                                          Table 3: distribution of learning across papers
+    Fig. 5. Distribution of studies per year
+                                                                    Learning  Paper                               Paper
+                                                                                                               Count
+   Fig. 6 and the accompanying analysis of CiteScore trends
+                                                                         Machine                        [1], [2], [21]–[76]                  41
+   provide a complementary perspective on the quality and       Learning
+   impact of research in AI-driven credit card fraud detection.         Both        [4], [6], [21], [24], [27], [29], [31], [35], [37], [38],      19
+  IEEE Access, despite its high publications volume, saw a                        [40]–[42], [45], [50], [60], [63], [74], [77]–[90]
+   remarkable rise in CiteScore from 2017 onwards, peaking in        Deep       [21]–[24], [27], [29], [35], [37], [38], [40]–[42],       15
+   2022. This sharp increase indicates that the journal has been       Learning            [45], [56], [60], [63], [74], [88]–[89]
+   attracting high-quality research in recent years, reinforcing its
+   growing influence. Meanwhile, Lecture Notes in Networks
+   and Systems and Advances  in  Intelligent Systems and
+   Computing   maintained   relatively   stable   CiteScores,
+   reflecting a robust reputation and stable academic standing
+   within the field. Additionally, the upward CiteScore trends in
+
+  Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 8 ---
+                                                            with 58 articles employing this approach. A minority of
+                                                                   studies (13)  integrate both supervised and unsupervised
+                                                                 techniques, while only 4 papers focus solely on unsupervised
+                                                                    learning. Fig. 8 suggests a preference for supervised methods,
+                                                                      likely due to the  availability of labeled  datasets, which
+                                                                            facilitates  model  training  and  evaluation. The  limited
+                                                                exploration    of   unsupervised   approaches    presents
+                                                                  opportunities for novel research directions. Additionally, the
+                                                                 inclusion of a single digital twin-related article underscores
+                                                                 the current limited adoption of this emerging methodology.
+                                                         Table 5: learning type distribution across papers
+                                                                   Learning                  Paper                Paper
+                                                              Type                                            count
+                                                                                                                                   [1], [2], [4], [21]–[25], [27], [30]–[34], [36], [37],
+ Fig. 7. Number of Articles Utilizing ML, DL, or Both                                                   [39]–[44], [47], [48], [49], [53], [54], [55]–[56],
+                                                                  Supervised                                        58                                                                                                              [58]–[59], [62], [63]–[65], [66]–[72], [73]–[76],
+ RQ5: What fraud detection algorithms are commonly used                           [79]–[84], [85], [86], [90], [91]
+                                                                 Both           [6], [29], [35], [38], [45]–[46], [50]–[52], [60],      13
+ in this area?                                                                                                  [74], [78], [89]
+ The choice of specific algorithms reflects the diverse nature     Unsupervised    [26], [28], [61], [77]                       4
+ of fraud detection problems. Table 4 shows that the Random       Digital Twin    [62]                                  1
+ Forest is the most common (35 articles), followed by Logistic
+ Regression (25) and SVM (24), often used for imbalanced
+ datasets. Decision Trees (18) and KNN (14) are valued for
+ interpretability. Advanced models  like CNNs  (13) and
+ LSTMs   capture   complex   patterns   and   temporal
+ dependencies. Ensemble methods such as XGBoost (11) and
+ AdaBoost (7), and ANNs (9) further enhance accuracy. Table
+ IV summarizes the frequency of these models, highlighting
+ the need for scalable, adaptive, and accurate fraud detection
+ approaches.
+
+
+                                                                                                        Fig. 8. Type of learning per paper
+ Table 4: Distribution of algorithms across papers
+
+                                                RQ8: How frequently are class imbalance issues addressed?                                                   Paper
+  Algorithm                  Paper                                                   Count     According  to  the  analysis  in Table  6, Random Under
+                                                          sampling is the most frequently used technique for addressing
+                     [1]–[2], [21], [24]–[25], [27], [29], [32], [36]–[39],               class imbalance, appearing in 11 papers. SMOTE follows
+  Random        [41], [45]–[47], [49]–[51], [53], [55]–[56], [59],                 closely, being utilized in 9 papers, highlighting its widespread                                                   35
+    Forest        [63]–[64], [66]–[68], [70]–[71], [74]–[75], [89],              adoption in balancing datasets. ADASYN is applied in 4
+                                        [91]                               papers, while Feedback Mechanism is mentioned in 2 papers.
+                          [1], [21], [24]–[25], [29], [34], [36], [39], [41],             Advanced approaches like Generative Adversarial Networks
+   Logistic        [44], [46], [53], [55]–[56], [58]–[59], [65], [68]–      25     (GANs) and Incremental Learning are each referenced in 2
+ Regression               [69], [71], [74], [76], [89], [91]
+                                                                 papers, demonstrating their growing significance in handling
+                          [1], [21]–[22], [29], [39], [40], [42], [47], [50],                 class imbalance. Hybrid methods, combining oversampling
+   SVM           [52], [54], [55]–[56], [58], [60], [62], [65], [66],   24      and under sampling strategies, appear in 1 paper, reflecting
+                               [69], [71]–[72], [74], [76], [89]
+                                                                        interest  in  integrated  techniques. Additionally, emerging
+  Decision                          [1], [21], [24], [27], [29]–[30], [34], [38], [39],              methods like Density-Oriented Fuzzy C-Means (DOFCM)
+    Tree             [41], [53], [66], [71]–[72], [74], [76], [91]        18      and Value Clustering for Categorical Attributes (VCCA) are
+                                                          each mentioned in 1 paper, showcasing innovative solutions   KNN           [21], [29], [39], [42], [44], [47], [53], [55], [58],      14
+                                  [65], [72], [76], [89], [91]                         in the field.
+                      [31], [41]–[42], [44], [50], [63], [81], [82]–[84],
+   CNN                              [88], [89]                  13                                                         Table 6: Resampling techniques and their paper distribution
+                          [2], [24]–[25], [30], [34], [46], [53], [55], [59],                                                                 Paper
+  XGBoost                            [70], [74]                  11        Resampling Technique             Papers            count
+
+   ANN            [22]–[23], [30], [34], [44], [56], [64], [69]        9                                                      [6], [21], [34], [39], [42], [44]–
+                                                    Random Under sampling    [45], [47], [60], [75], [82]          11
+   LSTM            [6], [24], [35], [37], [40], [60], [63], [80], [88]       9                                                      [1], [34], [40], [56], [63], [68],
+                                                          SMOTE                [71], [73], [91]                 9
+  AdaBoost              [1]–[2], [29], [37], [49], [68], [71]           7
+                                                            ADASYN                 [6], [29], [53], [82]               4
+
+                                                     Random Oversampling      [34], [82], [85]                 3
+ RQ6: How many studies discuss supervised, unsupervised,
+ or semi-supervised techniques?                                 SMOTE-ENN             [37], [86]                     2
+ In Table 5, the analysis indicates a strong emphasis on                                                                   Incremental learning       [42], [79]                     2
+ supervised learning in credit card fraud detection research,
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 9 ---
+        Adaboost              [43], [49]                     2
+                                                                       Missing Data                                Paper
+                                                                                         Paper
+    Cluster-Based Under       [44], [67]                                  Problem                                   count
+                                                    2         sampling
+                                                                           Yes                      [2], [29], [35]            3
+   Feedback mechanism       [45], [51]                     2
+                                                                                                 [1, 2, 4, 6, 21 -93] exclude: [29],
+                                                            No                                     74       BSMOTE             [40]                        1                                             [2], [35]
+
+         GAN                  [40], [62]                     2     RQ10: How  many  articles  incorporate  optimization
+                                                           techniques?
+        MFGAN              [40]                        1
+                                                               Table 7 presents an overview of the 77 reviewed papers,
+           SBS                [44]                        1       revealing that 16 employed optimization algorithms, while 58
+                                                                      relied on standard or simpler methods. This distribution
+  Tomek links algorithm     [45]                        1                                                               suggests  that  most  studies  did  not  require  advanced
+      GA in Feature           [21]                                  optimization  techniques,  likely  due  to  their  relatively
+                                                    1        aggregation                                         complete datasets with minimal missing values. The 16
+                                                             papers that incorporated optimization algorithms may have   Oversampling followed by  [82]
+                                                    1       faced more complex challenges, such as high-dimensional      oversampling
+                                                                data or  intricate  feature  interactions,  necessitating more
+   Oversampling followed by  [82]                                   sophisticated  approaches.  In  contrast,  the remaining 58                                                    1
+    under sampling                                           papers may have opted for simpler methodologies due to the
+  Under sampling followed [82]                                  straightforward nature of their datasets or the adequacy of
+                                                    1     by oversampling                                            basic machine learning models for their specific use cases. As
+                                                   shown in Fig. 9, this variation in methodological choices
+        Nearmiss             [76]                        1
+                                                                  highlights  the  diverse  range  of  problems  and  data
+    Minimize using class      [90]                                     characteristics encountered in credit card fraud detection
+                                                    1          weights                                                  research.
+   Layer-Wise    Relevance [84]                              Table 7: Optimization technique usage in papers                                                    1     Propagation (LRP)
+                                                                     Optimization                                    Paper
+                                                                                          Paper                                                                                                                    count     Local Interpretable       [84]                                      Usage
+      Model-agnostic                                  1
+                                                                                                                     [1], [4], [6], [33], [35], [39]–[41], [48]–
+    Explanations (LIME)                                                   Yes                                        16                                                                                                          [50], [72], [78], [79], [82], [88]
+      Shapley Additive         [84]
+                                                    1                                   [1], [2], [21]–[30], [31]–[32], [34],    Explanations (SHAP)
+                                                                                                  [36]–[38], [42]–[47], [51]–[56], [58]–
+                                                           No                                                                                                              58  Density Oriented Fuzzy C    [73]                                                                                                          [62], [63]–[71],  [73], [75]–[77], [80]–
+                                                    1         Means                                                                                     [81], [83]–[87], [90]–[91]
+
+         VCCA             [85]                        1
+
+   KNN under sampling     [70]                        1
+ RQ9: How  frequently  is  the  missing  data  problem
+ addressed?
+ According to Table 7, only 3 out of 77 papers (approximately
+ 4%) explicitly addressed the challenge of missing data, as
+ seen  in  references  [29],  [2],  and  [35].  Conversely,  a
+ significant majority of 74 papers (about 96%) did not tackle
+ this problem. This low frequency suggests that the missing
+ data may be an underappreciated aspect within the field.
+ Missing  data can  substantially  affect  the accuracy and                           Fig. 9.     Paper used optimization algorithms
+ reliability of machine learning models, as incomplete datasets
+ can introduce bias and lead to unreliable results. The reasons   RQ11: What  are  the  top  10  AI-based  optimization
+ for this oversight could include assumptions of complete data    techniques used in credit card fraud detection, and how do
+ by researchers, the complexity of handling missing data, or a    they compare in terms of implementation frequency?
+ lack of awareness regarding its potential impact on model    Table 8 outlines several AI-based optimization techniques
+ performance. Ignoring missing data can result in suboptimal    used  in  credit  card  fraud  detection,  with  the  Genetic
+ model performance and  potentially  flawed  conclusions.    Algorithm  being  the  most  frequently  used  technique,
+ Therefore, future research should place greater emphasis on    appearing in four papers ([1], [48], [79], [49]). This method
+ addressing missing data appropriately. Techniques such as    mimics natural selection and evolution to optimize complex
+ mean  imputation,  regression  imputation,  or  advanced    problems, making  it  suitable  for  feature  selection and
+ methods  like  multiple  imputation  could  enhance  the    parameter  tuning.  Particle Swarm  Optimization  (PSO)
+ robustness of AI models used in credit card fraud detection.     follows closely, applied in three papers ([35], [79], [72]),
+                                                                  inspired by the social behavior of bird flocking or fish
+        TABLE II.     ADDRESSED MISSING DATA PROBLEM             schooling and effective for optimizing multi-dimensional
+                                                               search spaces. The Adam optimizer, an adaptive learning rate
+                                                               optimization algorithm  that combines the advantages of
+                                                   AdaGrad and RMSProp, has been utilized in two papers
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 10 ---
+ ([82], [6]) for efficient and robust performance in training   Among  the  reviewed  papers,  none   utilized  LLMs,
+ machine learning models. The distribution of these top three    highlighting a missed opportunity to leverage their potential
+ optimization  algorithms  is  visually  represented  in  Fig     for improving fraud detection through enhanced  feature
+ 10Error! Reference source not found. Other less frequently     extraction, context understanding, and anomaly detection.
+ used techniques include AGTO, Ant Colony Optimization,    Additionally, while missing data is a common challenge in
+ Bat Optimization Algorithm, COA, CoatiOA, Competitive     financial datasets, only 3 out of 77 papers addressed this
+ Swarm Optimization (CSO), Differential Evolution Feature     issue,  indicating  the  need  for  more  robust  handling
+ Selection (DEFS),  Genetic Algorithm  Feature  Selection    techniques. The underutilization of LLMs and the inadequate
+ (GAFS), Grid Search, Modular Neural Network, MSGD,     attention to missing data suggest that researchers have yet to
+ Neural Aggregate  Generator  (NAG),  Polynomial  Self-     fully leverage these tools to enhance model performance and
+ Learning (PSLPSO), Random Forest hyperparameter tuning,     practical  applicability.  Future  studies  should  focus  on
+ Rock Hyrax Swarm Optimization (RHSO), and SGD. These     integrating LLMs  into  fraud  detection frameworks and
+ methods address challenges such as high-dimensional data    developing advanced methods for managing incomplete or
+ handling, model accuracy improvement, and computational    noisy data. Addressing these gaps could lead to more accurate
+ efficiency enhancement in credit card fraud detection.          and reliable AI-driven solutions, better equipped to handle the
+                                                              complexities of realworld financial transactions.
+ Table 8: optimization algorithms
+                                                  Paper
+        Optimization algorithm           Paper                                                     count                            VIII. CONCLUSION
+                                                     [1], [48], [79],              This systematic review has moved beyond a mere synthesis
+            Genetic Algorithm                                                   4        of current practices, offering a critical AI-centric analysis of                                               [49]
+                                                       machine learning and deep learning approaches in credit card               Particle Swarm                [35], [79], [72]     3
+                                                               fraud  detection. We  underscore  that  while  traditional
+             Adam                         [82], [6]       2        supervised  learning  and  established  algorithms  remain
+             AGTO                        [33]         1         prevalent, the field urgently requires a strategic shift towards
+                                                              addressing fundamental AI challenges posed by the dynamic
+        Ant colony optimization               [49]         1
+                                                       and adversarial nature of financial fraud. Our comprehensive
+       Bat Optimization Algorithm             [41]         1       roadmap  highlights  critical  future research avenues: the
+              COA                        [33]         1         integration of sophisticated AI optimization strategies, the
+                                                         development of robust AI techniques for missing data and
+                CoatiOA                       [33]         1                                                            concept drift, and the exploration of novel AI paradigms such
+     Competitive Swarm Optimization            [4]          1        as Large Language Models (LLMs) and Graph Neural
+                                                       Networks (GNNs).  Crucially, the  future of AI  in fraud       Differential    Evolution    Feature
+                                               [72]         1        detection hinges advancements in AI and building inherently             Selection (DEFS)
+                                                                robust models against adversarial attacks. By committing to
+    Genetic Algorithm Feature Selection          [72]         1
+                                                                          this research agenda, the AI community can collaboratively
+               Grid Search                     [40]         1        develop the next generation of  intelligent, adaptive, and
+        Modular Neural Network               [78]         1        trustworthy fraud detection systems, thereby fortifying global
+                                                                    financial  ecosystems  against  increasingly  sophisticated
+            MSGD                        [82]         1                                                                         threats.
+    Neural Aggregate Generator (NAG)          [88]         1
+    Polynomial Self-Learning (PSLPSO)          [39]         1                          REFERENCES
+                                                                                     [1]  I. D. Mienye and Y. Sun, "A machine learning method with hybrid    Random forest hyperparameter
+                                               [49]         1               feature selection for improved credit card fraud detection," Applied                 tuning                                                                                    Sciences, vol. 13, no. 12, 2023.
+     Rock Hyrax Swarm Optimization                                           [2] D.  P. Prabha and C. V. Priscilla, "Probabilistic XGBoost threshold
+                                               [72]         1                classification  with  autoencoder  for  credit  card  fraud  detection,"              (RHSO)
+                                                                                         International Journal on Recent and Innovation Trends in Computing and
+              SGD                        [82]         1             Communication, vol. 11, no. 8s, pp. 528-537, 2023.
+                                                                                     [3] O. A. Bello, A. F. Ogundipe, O. K. Folake, Z. Budale, and O. E. Ejiofor,
+                                                                           "Enhancing  cyber  financial  fraud  detection  using  deep  learning
+                                                                                    techniques: A study on neural networks and anomaly detection," 2022.
+                                                                                     [4] E. Rawashdeh  et  al.,  "Efficient  credit card fraud  detection using
+                                                                                   evolutionary hybrid feature selection and random weight networks,"
+                                                                                         International Journal of Data and Network Science, vol. 8, no. 1, pp.
+                                                                           463472, 2024.
+                                                                                     [5] S. N. Kalid et al., "Detecting frauds and payment defaults on credit card
+                                                                                    data inherited with imbalanced class distribution and overlapping class
+                                                                              problems: A systematic review," IEEE Access, vol. 12, pp. 23636-23652,
+                                                                             2024.
+                                                                                     [6] S. S. Sulaiman,  I. Nadher, and S. M. Hameed, "Credit card fraud
+                                                                                      detection using improved deep learning models," Computers, Materials
+                                             & Continua, vol. 78, no. 1, pp. 1049-1069, 2024.
+                                                                                     [7] R. A. Derrig, "Insurance fraud," Journal of Risk and Insurance, vol. 69,
+                      Fig. 10.    Top 3 used optimization algorithms                no. 3, pp. 271-287, 2002.
+                                                                                     [8] M. L. Bhasin, "The role of technology in combatting bank frauds:
+                                                                                    Perspectives and prospects," ECOFORUM, 2016.
+ RQ12: What gaps remain in this area?                                 [9] W. Hilal, S. A. Gadsden, and J. Yawney, "Financial fraud: A review of
+ The primary gaps in credit card fraud detection research        anomaly detection techniques and recent advances," Expert Systems
+ include the limited integration of large language models         with Applications, vol. 193, 2022.                                                                               [10] L. Popescu, "Addressing tax fraud in the tax literature," Scientific
+ (LLMs), despite their growing application in other fields.          Bulletin – Economic Sciences, 2021.
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 11 ---
+ [11] A. T. Carswell and D. C. Bachtel, "Mortgage fraud: A risk factor analysis     [38] R. Gupta et al., "AI-enhanced data mining for fraud detection in financial
+     of affected communities," Crime, Law and Social Change, vol. 52, no. 4,          transactions,"  in  Proc. 3rd  International Conference on Sentiment
+     pp. 347-364, 2009.                                                         Analysis and Deep Learning (ICSADL), 2024, pp. 244-249.
+ [12] C. Janiesch, P. Zschech, and K. Heinrich, "Machine learning and deep     [39] A. Mniai, M. Tarik, and K. Jebari, "A novel framework for credit card
+      learning," Electronic Markets, vol. 31, no. 3, pp. 685-695, 2021.                fraud detection," IEEE Access, vol. 11, pp. 112776-112786, 2023.
+ [13] Y. LeCun, Y. Bengio, and G. Hinton, "Deep learning," Nature, vol. 521,     [40] Y. Xie et al., "A credit card fraud detection model based on multi-feature
+     no. 7553, pp. 436-444, 2015.                                                  fusion and generative adversarial network," Computers, Materials &
+ [14] B. Reddy and R. Fields, "From past to present – A comprehensive         Continua, vol. 76, no. 3, pp. 2707-2726, 2023.
+      technical review of rule-based expert systems from 1980 - 2021," in     [41] H. Sikkandar et al., "An intelligent approach for anomaly detection in
+     Proc. ACM Southeast Conference, 2022, pp. 167-172.                             credit card data using bat optimization algorithm," Inteligencia Artificial,
+ [15] M.-H. Guo et al., "Attention mechanisms in computer vision: A survey,"          vol. 26, no. 72, pp. 202-222, 2023.
+     Computational Visual Media, vol. 8, no. 3, pp. 331-368, 2022.              [42] X. Feng and S.-K. Kim, "Novel machine learning based credit card fraud
+ [16] H. B. Essel et al., "The impact of a virtual teaching assistant (chatbot) on          detection systems," Mathematics, vol. 12, no. 12, 2024.
+      students' learning in Ghanaian higher education," International Journal     [43] V. H. Khang, C. T. A., and N. D. Thuan, "Detecting fraud transaction
+     of Educational Technology in Higher Education, vol. 19, no. 1, 2022.            using Ripper algorithm combines with ensemble learning model,"
+ [17] M. N. Ashtiani and B. Raahemi, "Intelligent fraud detection in financial          International Journal of Advanced Computer Science and Applications,
+     statements using machine learning and data mining: A systematic         2023.
+      literature review," IEEE Access, vol. 10, pp. 72504-72525, 2022.            [44] H. Ahmad et  al., "Class balancing framework for credit card fraud
+ [18] M. Sánchez-Aguayo, L. Urquiza-Aguiar, and J. Estrada-Jiménez, "Fraud         detection based on clustering and similarity-based selection (SBS),"
+      detection using the fraud triangle theory and data mining techniques: A          International Journal of Information Technology, vol. 15, no. 1, pp.
+      literature review," Computers, vol. 10, no. 10, 2021.                         325333, 2023.
+ [19] E. A. L. Marazqah Btoush et al., "A systematic review of literature on     [45] A. Ruchay et  al., "The imbalanced classification of fraudulent bank
+      credit card cyber fraud detection using machine and deep learning,"          transactions using machine learning," Mathematics, vol. 11, no. 13,
+     PeerJ Computer Science, vol. 9, p. e1278, 2023.                              2023.
+ [20] R. M. Dantas et al., "Systemic acquired critique of credit card deception     [46] J. L. Leevy et al., "Investigating the effectiveness of one-class and binary
+     exposure through machine  learning," Journal of Open Innovation:          classification for fraud detection," Journal of Big Data, vol. 10, no. 1,
+     Technology, Market, and Complexity, vol. 8, no. 4, 2022.                      2023.
+ [21] M. Seera et al., "An intelligent payment card fraud detection system,"     [47] A. R. Khalid et al., "Enhancing credit card fraud detection: An ensemble
+     Annals of Operations Research, pp. 1-23, 2021.                            machine learning approach," Big Data and Cognitive Computing, vol. 8,
+ [22] O. Ndama, I. Bensassi, and E. M. En-naimi, "Innovative credit card fraud         no. 1, 2024.
+      detection: A hybrid model combining artificial neural networks and     [48] A.-W. K. Al-Faqeh et al., "Credit card fraud detection via integrated
+     support vector machines," IAES  International Journal of Artificial         account and transaction submodules," Arabian Journal for Science and
+      Intelligence (IJ-AI), vol. 13, no. 3, 2024.                                      Engineering, vol. 46, no. 10, pp. 10023-10031, 2021.
+ [23] K. Sreekanth et al., "Prevention of credit card fraud transaction using GA     [49] V. S. S. Karthik, A. Mishra, and U. S. Reddy, "Credit card fraud detection
+      feature selection for web-based application," Indonesian Journal of        by modelling behaviour pattern using hybrid ensemble model," Arabian
+      Electrical Engineering and Computer Science, vol. 35, no. 3, 2024.              Journal for Science and Engineering, vol. 47, no. 2, pp. 1987-1997, 2021.
+ [24] I. D. Mienye and T. G. Swart, "A hybrid deep learning approach with     [50] S. Ingole et al., "Service-based credit card fraud detection using Oracle
+      generative  adversarial  network  for  credit  card  fraud  detection,"      SOA Suite," SN Computer Science, vol. 2, no. 3, 2021.
+     Technologies, vol. 12, no. 10, 2024.                                       [51] U. Kirithika, S. K. S. Raja, C. J. Raman, and V. Balaji, "A novel fraud
+ [25] C. Yan et al., "Enhancing credit card fraud detection through adaptive          detection scheme  for  credit  card usage employing random  forest
+     model optimization," in Proc. IEEE 7th International Conference on Big         algorithm combined with feedback mechanism," Journal of Information
+     Data and Artificial Intelligence (BDAI), 2024, pp. 49-54.                     Technology Management, 2021.
+ [26] M. Katsouda et al., "Mining association of outliers in time series," in     [52] I. Sadgali, N. Sael, and F. Benabbou, "Human behavior scoring in credit
+     Recent Advancements in Tourism Business, Technology and Social         card  fraud  detection,"  IAES  International  Journal  of  Artificial
+      Sciences, 2024, pp. 433-444.                                                       Intelligence, vol. 10, no. 3, 2021.
+ [27] R. K. L. Kennedy et al., "Synthesizing class labels for highly imbalanced     [53] A. Priyadarshini et  al., "Fraudulent credit card transaction detection
+      credit card fraud detection data," Journal of Big Data, vol. 11, no. 1,         using  soft computing techniques," Indonesian Journal of Electrical
+     2024.                                                                    Engineering and Computer Science, vol. 23, no. 3, 2021.
+ [28] H. Oh and D. K. Park, "Quantum support vector data description for     [54] K. Poongodi and D. Kumar, "Support vector machine with information
+     anomaly detection," Machine Learning: Science and Technology, vol. 5,         gain based classification for credit card fraud detection system," The
+     no. 3, 2024.                                                                       International Arab Journal of Information Technology, vol. 18, no. 2,
+ [29] R. Ku et al., "A machine learning based approach for the fraud detection         2021.
+      in imbalanced credit card transaction dataset," International Journal of     [55] N.  R.  Dzakiyullah,  A.  Pramuntadi,  and  A.  K.  Fauziyyah,
+      Electronics and Communication Engineering, vol. 11, no. 8, pp. 244-259,         "Semisupervised classification on credit card fraud detection using
+     2024.                                                                        autoencoders," Journal of Applied Data Sciences, 2021.
+ [30] B. S. Bala, P. P. Yadav, and M. R. Reddy, "An intelligent approach to     [56] P. Sharma et al., "Machine learning model for credit card fraud detection
+      detect and predict online fraud transaction using XGBoost algorithm,"            - A comparative analysis," The International Arab Journal of Information
+     Indonesian Journal of Electrical Engineering and Computer Science, vol.         Technology, 2021.
+      35, no. 3, 2024.                                                           [57] P. Chatterjee, D. Das, and D. B. Rawat, "Digital twin for credit card fraud
+ [31] S. Al Balawi and N. Aljohani, "Credit-card fraud detection system using          detection:    Opportunities,    challenges,   and    fraud    detection
+     neural  networks," The  International Arab  Journal  of  Information         advancements," Future Generation Computer Systems, vol. 158, pp.
+     Technology, vol. 20, no. 2, 2023.                                           410-426, 2024.
+ [32] K. K. Renganathan et al., "Credit card fraud detection with advanced     [58] S. G. Deshpande, G. P. Gawali, R. B. Ghayalkar, S. M. Chavan, J. H.
+     graph based machine  learning  techniques," Indonesian  Journal  of        Meshram, and D. R. Tripathi, "Machine learning for fraud detection:
+      Electrical Engineering and Computer Science, vol. 35, no. 3, 2024.             Comparative  analysis  of  algorithms and performance  evaluation,"
+ [33] M. A. Salam, D. L. E.-B., K. M. Fouad, and M. S. E. Elsayed,        Nanotechnology Perceptions, 2024.
+     "Enhancing fraud detection in credit card transactions using optimized     [59] O. Ogundile et al., "Credit card fraud: Analysis of feature extraction
+      federated learning model," International Journal of Advanced Computer         techniques for ensemble hidden Markov model prediction approach,"
+     Science and Applications, 2024.                                           Applied Sciences, vol. 14, no. 16, 2024.
+ [34] P. Gupta, A. V., M. R. Khan, R. Ahmed, M. Shuaib, and S. Alam,     [60] S. Saad, I. Nadher, and S. M. Hameed, "Credit card fraud detection
+     "Unbalanced   credit   card   fraud   detection   data: A  machine         challenges and solutions: A review," Iraqi Journal of Science, pp.
+      learningoriented comparative study of balancing techniques," Procedia        22872303, 2024.
+     Computer Science, 2023.                                                  [61] Y. Huang  et  al.,  "Interpretable  single-dimension  outlier  detection
+ [35] P. K. Sree, V. Kakulapati, and B. Indira, "A novel method of fraud        (ISOD): An unsupervised outlier detection method based on quantiles
+      detection of credit cards by fuzzy, LSTM, and PSO optimization,"        and skewness coefficients," Applied Sciences, vol. 14, no. 1, 2023.
+      International Journal on Recent and Innovation Trends in Computing and     [62] B. Alshawi, "Comparison of SVM kernels in credit card fraud detection
+     Communication, vol. 11, no. 7, pp. 229-234, 2023.                             using GANs," International Journal of Advanced Computer Science and
+ [36] M. Valavan and S. Rita, "Predictive-analysis-based machine learning         Applications, 2024.
+     model for fraud detection with boosting classifiers," Computer Systems     [63] T. Baabdullah et al., "Efficiency of federated learning and blockchain in
+     Science and Engineering, vol. 45, no. 1, pp. 231-245, 2023.                     preserving privacy and enhancing the performance of credit card fraud
+ [37] I. D. Mienye and Y. Sun, "A deep learning ensemble with data          detection (CCFD) systems," Future Internet, vol. 16, no. 6, 2024.
+     resampling for credit card fraud detection," IEEE Access, vol. 11, pp.     [64] A. Muaz, M. Jayabalan, and V. Thiruchelvam, "A comparison of data
+     30628-30638, 2023.                                                      sampling techniques  for  credit card fraud  detection,"  International
+                                                                                   Journal of Advanced Computer Science and Applications, 2020.
+
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
+--- Page 12 ---
+ [65] N. Rosley, G. K. Tong, K. H. Ng, S. N. Kalid, and K. C. Khor,     [90] O. Ndama, I. Bensassi, and E. M. En-Naimi, "Optimizing credit card
+     "Autoencoders with reconstruction error and dimensionality reduction         fraud detection: A deep learning approach to imbalanced datasets,"
+      for credit card fraud detection," Journal of System and Management          International Journal of Electrical and Computer Engineering (IJECE),
+      Sciences, 2022.                                                                     vol. 14, no. 4, 2024.
+ [66] V. Plakandaras  et  al., "Credit card fraud detection with automated     [91] B.  Vihurskyi,  "Credit  card  fraud  detection with XAI: Improving
+     machine learning systems," Applied Artificial Intelligence, vol. 36, no.          interpretability and trust," in Proc. Third International Conference on
+      1, 2022.                                                                        Distributed  Computing  and  Electrical  Circuits  and  Electronics
+ [67] W. Li, C.-S. Wu, and S.-M. Ruan, "CUS-RF-based credit card fraud       (ICDCECE), 2024, pp. 1-6.
+      detection with imbalanced data," Journal of Risk Analysis and Crisis     [92] R. Alothman, H. A. Talib, and M. S. Mohammed, "Fraud detection under
+     Response, vol. 12, no. 3, 2022.                                                  the unbalanced class based on gradient boosting," Eastern-European
+ [68] S. Saraf and A. Phakatkar, "Credit card fraud detection using hybrid         Journal of Enterprise Technologies, vol. 2, no. 2(116), pp. 6-12, 2022.
+     ensemble model: Bagging and boosting approaches for data imbalance,"     [93] I. D. Mienye and N. Jere, "Deep learning for credit card fraud detection:
+      International Journal of Advanced Computer Science and Applications,     A review of algorithms, challenges, and solutions," IEEE Access, vol.
+     2022.                                                                         12, pp. 96893-96910, 2024.
+ [69] S. Khan, A. Alourani, B. Mishra, A. Ali, and M. Kamal, "Developing a
+      credit card fraud detection model using machine learning approaches,"
+      International Journal of Advanced Computer Science and Applications,
+     2022.
+ [70] N. S. Alfaiz and S. M. Fati, "Enhanced credit card fraud detection model
+     using machine learning," Electronics, vol. 11, no. 4, 2022.
+ [71] M. R. Baker, Z. N. Mahmood, and E. H. Shaker, "Ensemble learning with
+     supervised machine  learning models  to  predict  credit  card  fraud
+      transactions," Revue  d'Intelligence Artificielle,  vol. 36, no.  4, pp.
+     509518, 2022.
+ [72] B. K. Padhi et al., "RHSOFS: Feature selection using the rock hyrax
+    swarm optimization algorithm for credit card fraud detection system,"
+     Sensors, vol. 22, no. 23, 2022.
+ [73] K. Upadhyay, P. Kaur, and R. Sachdeva, "Fast and robust fuzzy-based
+     hybrid data-level method to handle class imbalance," International
+     Journal of Advanced Computer Science and Applications, 2022.
+ [74] G. Schrijver, D. K. Sarmah, and M. El-hajj, "Automobile insurance fraud
+      detection using data mining: A systematic literature review," Intelligent
+     Systems with Applications, vol. 21, 2024.
+ [75] G. M. Paldino et al., "The role of diversity and ensemble learning in
+      credit card fraud detection," Advances in Data Analysis and
+      Classification, pp. 1-25, 2022.
+ [76] F. Jeribi, "A comprehensive machine learning framework for anomaly
+      detection in credit card transactions," International Journal of Advanced
+     Computer Science & Applications, 2024.
+ [77] F. Adesola et al., "Design and implementation of a web-based credit card
+     fraud detection system," in Proc. International Conference on Science,
+     Engineering and Business for Driving Sustainable Development Goals
+    (SEB4SDG), 2024, pp. 1-10.
+ [78] F. O. Aghware, R. E. Y., P. O. Ejeh, C. C. Odiakaose, F. U. Emordi, and
+     A. A. Ojugo, "DeLClustE: Protecting users from credit card fraud
+      transaction via the deep learning cluster ensemble," International Journal
+     of Advanced Computer Science and Applications, vol. 14, no. 6, 2023.
+ [79] B. Lebichot et al., "Incremental learning strategies for credit cards fraud
+      detection," International Journal of Data Science and Analytics, vol. 12,
+     no. 2, pp. 165-174, 2021.
+ [80] I. Sadgali, N. Sael, and F. Benabbou, "Bidirectional gated recurrent unit
+      for improving classification in credit card fraud detection," Indonesian
+     Journal of Electrical Engineering and Computer Science, vol. 21, no. 3,
+     2021.
+ [81] N. Mqadi, N. Naicker, and T. Adeliyi, "A SMOTE based oversampling
+      data-point approach to solving the credit card data imbalance problem in
+      financial fraud detection," International Journal of Computing and
+      Digital Systems, vol. 10, no. 1, pp. 277-286, 2021.
+ [82] M. Abdul Salam et al., "Federated learning model for credit card fraud
+      detection with data balancing techniques," Neural Computing and
+      Applications, vol. 36, no. 11, pp. 6231-6256, 2024.
+ [83] V. G. Krishnan et al., "Development of deep learning based intelligent
+     approach for credit card fraud detection," International Journal on Recent
+     and Innovation Trends in Computing and Communication, vol. 10, no.
+     12, pp. 133-139, 2022.
+ [84] I. Ullah et al., "Explaining deep learning models for tabular data using
+      layer-wise relevance propagation," Applied Sciences, vol. 12, no. 1,
+     2021.
+ [85] E. M. Carneiro et al., "High-cardinality categorical attributes and credit
+     card fraud detection," Mathematics, vol. 10, no. 20, 2022.
+ [86] V. Narayan and S. Ganapathisamy, "Hybrid sampling and similarity
+      attention layer in bidirectional long short term memory in credit card
+     fraud detection," International Journal of Intelligent Engineering and
+     Systems, vol. 15, no. 6, pp. 35-44, 2022.
+ [87] B. Kasasbeh, B. Aldabaybah, and H. Ahmad, "Multilayer perceptron
+       artificial neural networks-based model for credit card fraud detection,"
+     Indonesian Journal of Electrical Engineering and Computer Science, vol.
+     26, no. 1, 2022.
+ [88] K. Ghosh Dastidar et al., "NAG: Neural feature aggregation framework
+      for credit card fraud detection," Knowledge and Information Systems,
+      vol. 64, no. 3, pp. 831-858, 2022.
+ [89] D. Hove, O. Olugbara, and A. Singh, "Bibliometric analysis of recent
+      trends in machine learning for online credit card fraud detection," Journal
+     of Scientometric Research, vol. 13, no. 1, pp. 43-57, 2024.
+
+Authorized licensed use limited to: Universiti Pertahanan Nasional Malaysia. Downloaded on October 18,2026 at 20:00:46 UTC from IEEE Xplore. Restrictions apply.
