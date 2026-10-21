@@ -46,7 +46,7 @@ To minimize false exclusions, uncertain papers are retained in a separate group.
 | 19 | Towards Computational Performance Engineering for Unsupervised Drift Detection | Important perspective on runtime and computational cost, not just accuracy; relevant to defensible experimental design. | Initial performance analysis of two detectors; benchmark scope needs review. | Perf GitHub URL appears. | High |
 | 20 | LAMDA: A Longitudinal Android Malware Benchmark for Concept Drift Analysis (ICLR 2026 filename) | Potentially valuable longitudinal benchmark/data contribution; data quality can determine thesis feasibility even if it is not a new detector. | Temporal malware/family drift is central; inspect license, availability, labels, splits, and temporal ground truth. | IQSeC-Lab/LAMDA GitHub URL and project page appear. | High for dataset relevance; venue/status to verify |
 
-## B. Inspect further / reserve — 11 papers
+## B. Inspect further / reserve — 12 distinct papers
 
 These remain in consideration and should not be discarded without further evidence.
 
@@ -91,14 +91,14 @@ These pairs count as two scientific papers, not four. Source files remain untouc
 
 ## Code and data verification status
 
-URLs were extracted from the paper text, but live repository state, code completeness, dependency installation, dataset licensing, and end-to-end reproducibility have **not** yet been confirmed.
+URLs were extracted from the paper text. A partial live repository check is now documented in [STAGE2_CODE_DATA_VERIFICATION.md](STAGE2_CODE_DATA_VERIFICATION.md). Some repositories are confirmed to exist, but code execution, dataset download/licensing, and end-to-end reproducibility remain unverified.
 
 - “URL mentioned in paper” is a lead, not proof of accessible/runnable code.
 - “Real-world dataset” does not prove that the data are public.
 - Synthetic ground truth may be known by construction, but the generator and drift-time labels must be checked.
 - Benchmarks may define detection timing differently; metric compatibility must be examined.
 
-Next verification priority: shortlist items 1–5, 9, 15–20, plus reserve items 24, 25, 28, and 29 if their code/data could change the ranking.
+Next verification priority: remaining shortlist papers and reserve items 24, 25, 28, and 29 where code/data evidence could change the ranking. Avoid repeating checks already recorded in STAGE2_CODE_DATA_VERIFICATION.md.
 
 ## Second-pass advisor audit checklist
 
@@ -112,4 +112,4 @@ Before treating this result as stable, re-check:
 
 ## Next step
 
-Create a precise inventory of publication metadata and filenames, verify public code and dataset/ground-truth evidence for shortlisted and borderline papers, then re-rank and choose the final seminar set and base-paper candidates.
+Continue verifying publication metadata and public code/data/ground-truth evidence for the remaining shortlisted and borderline papers. Then re-rank candidates and select the final seminar set and base-paper candidates.
