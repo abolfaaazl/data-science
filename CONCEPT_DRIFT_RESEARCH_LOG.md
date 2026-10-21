@@ -107,10 +107,10 @@ No dimension should be treated as a hard exclusion rule in the initial pass. Rec
 - [x] User reports that PDFs were converted to readable text files locally and uploaded to `extracted_text/`.
 - [x] GitHub tree was checked: 41 `.txt` files are present in `extracted_text/`.
 - [x] The repository contains the source PDF collection as well.
-- [ ] Complete inventory: match all PDF/TXT names, inspect duplicates and extraction quality.
-- [ ] First-pass screening of all 41 texts.
-- [ ] Build the provisional 15–20-paper shortlist and borderline group.
-- [ ] Verify public code and dataset evidence for retained/borderline papers.
+- [x] Initial inventory: 41 extracted-text files confirmed; two duplicate pairs identified from matching titles/content, leaving 39 distinct papers.
+- [x] First-pass text screening performed across the collection using titles/abstracts, methods/evaluation clues, conclusions/limitations, and in-text URLs.
+- [x] Provisional shortlist and reserve/lower-priority groups drafted; shortlist is intentionally conservative and not final.
+- [ ] Second-pass verification of publication metadata, public code, datasets, ground truth, and reproducibility.
 - [ ] Deep-read and rank final candidates.
 
 No full 41-paper screening is claimed complete at the time this file was created.
@@ -139,3 +139,11 @@ For each work session, append:
 - PDF collection: https://github.com/abolfaaazl/data-science
 
 When referring to a paper, use its exact filename/title to avoid confusing similarly named versions. Treat identical PDF/TXT duplicates as one paper for scientific counting, but retain an audit record of both files.
+
+
+### 2026-10-21 — First-pass screening completed (provisional)
+- Added `FIRST_PASS_SCREENING.md` with a provisional 20-paper shortlist, 12 papers to inspect further, and 7 distinct lower-priority papers; a duplicate DRIFTLENS file is separately listed for audit, so there are 40 category rows for 39 distinct papers.
+- Two duplicate pairs identified: the two differently named copies of the unsupervised benchmark survey, and the two differently named copies of DRIFTLENS.
+- The review is based on extracted text and URL mentions; live code repositories, licenses, dataset accessibility, venue status, and end-to-end reproducibility remain unverified.
+- An advisor-style audit found and corrected an initially omitted industrial-process drift review in the reserve group.
+- Next action: verify source metadata and code/data/ground-truth evidence for shortlisted and borderline papers before making final seminar selections.
