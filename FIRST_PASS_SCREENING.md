@@ -113,3 +113,30 @@ Before treating this result as stable, re-check:
 ## Next step
 
 Continue verifying publication metadata and public code/data/ground-truth evidence for the remaining shortlisted and borderline papers. Then re-rank candidates and select the final seminar set and base-paper candidates.
+
+
+## Seminar-to-thesis selection criteria (2026-10-21)
+
+The final 7–10 papers must form a coherent explanation of the field and support the choice of one thesis-base paper. Keep separate judgements for **seminar value** and **thesis-base value**.
+
+### Seminar value
+- Explain the problem, terminology, drift types, and why detection matters.
+- Cover complementary method families rather than repeating the same approach.
+- Include credible evaluation/benchmark work so datasets and metrics can be discussed accurately.
+- Include limitations, open problems, and a relevant application where useful.
+- Fit a coherent theoretical presentation of the approved general topic.
+
+### Thesis-base value
+- Clearly identify the problem and proposed method.
+- Public implementation corresponds to the paper and has understandable run instructions.
+- Data are obtainable and reuse terms are acceptable.
+- Ground truth supports intended metrics; controlled synthetic drift points are particularly useful for detection-timing experiments.
+- Baselines and metrics are sufficiently clear to reproduce.
+- A concrete, testable weakness suggests a bounded extension.
+- Implementation burden is realistic for the student's current ML background.
+- A credible path exists from baseline reproduction to improvement and fair evaluation.
+
+**Important:** public code alone does not make a paper a good thesis base, and a paper without code can still be valuable for the seminar. Reproduce the baseline before finalizing an improvement; do not claim novelty before checking related work and the actual limitation.
+
+### Narrative composition rule
+The 7–10 papers should complement each other: foundational/survey coverage, contrasting detection methods, evaluation/benchmark evidence, and work that motivates a research gap. The exact number in each role is flexible. Include the thesis-base paper in the narrative, but do not let the implementation candidate alone dictate the whole seminar set.
