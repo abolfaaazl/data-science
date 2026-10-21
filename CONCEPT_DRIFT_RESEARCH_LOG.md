@@ -40,7 +40,7 @@ Treat unknown code, dataset, ground-truth, or reproducibility status as **unknow
 
 **Outputs:** inventory, duplicate pairs, unmatched files, extraction warnings.
 
-### Stage 1 — Conservative first-pass screening (current planned stage)
+### Stage 1 — Conservative first-pass screening (completed provisionally; see FIRST_PASS_SCREENING.md)
 For every paper, inspect available title, abstract, keywords, publication year/venue, research question, method category, evaluation summary, and conclusion/limitations where available.
 
 Record at least:
@@ -55,7 +55,7 @@ Record at least:
 
 **Output target:** retain approximately 15–20 papers, with a separate “needs further inspection” group if necessary. Do not force the shortlist to exactly 15–20 by prematurely excluding ambiguous papers.
 
-### Stage 2 — Verify implementation and data (for shortlisted and borderline papers)
+### Stage 2 — Verify implementation and data (in progress; see STAGE2_CODE_DATA_VERIFICATION.md)
 - Search the paper itself for code/data links and inspect the linked public repository when feasible.
 - Verify whether a repository exists, whether it matches the paper, what language/framework it uses, whether instructions and dependencies exist, and whether results appear reproducible.
 - Verify dataset names, access conditions, labels/ground truth, drift types, data format, and evaluation metrics.
