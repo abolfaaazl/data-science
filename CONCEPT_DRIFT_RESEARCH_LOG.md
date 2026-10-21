@@ -158,3 +158,38 @@ Public repositories were confirmed for the unsupervised benchmark, WinDrift++, P
 No code was executed, no dependencies installed, no datasets downloaded, and no result tables reproduced. Real-world streams generally do not guarantee exact drift timestamps, while controlled synthetic streams can. The original 20-paper shortlist is preserved. Practical candidates for the next reproducibility pass are PUDD, WinDrift++, and the unsupervised benchmark, but no base paper has been selected.
 
 **Next step:** verify the remaining shortlist/reserve papers and publication metadata, then conduct a structured comparison of methods, metrics, baselines, ground truth, limitations, and thesis-extension potential. Use MarkIt only after the candidate set narrows.
+
+
+## 2026-10-21 — Seminar-to-thesis selection principle (user clarification)
+
+The selection objective is not simply to find the 7–10 individually strongest papers. The final set should work as a coherent literature narrative and also support choosing one feasible thesis-base paper.
+
+### Seminar paper set (7–10 papers)
+Select complementary roles rather than seven to ten papers that all do the same thing:
+1. One or two foundational/survey papers that define Concept Drift, its types, and the main detection/adaptation families.
+2. Two or three direct detection-method papers representing meaningfully different approaches.
+3. One or two evaluation/benchmark papers that clarify datasets, metrics, and limitations.
+4. One or two papers that expose an important unresolved challenge or a promising application, without letting the seminar drift away from the approved general topic.
+5. Ensure the chosen base paper is included and can be explained in the overall narrative.
+
+The exact allocation is flexible; paper quality and complementarity take priority over filling fixed slots.
+
+### Thesis-base paper selection
+A candidate should be judged on:
+- clear and defensible research problem;
+- accessible implementation and understandable method;
+- dataset access and well-defined ground truth, preferably with controlled synthetic streams for detection-timing metrics;
+- baseline methods and evaluation metrics that can be reproduced;
+- a concrete limitation or research gap that could be tested, not merely claimed;
+- realistic complexity for a master's student with limited prior ML experience;
+- a credible route from reproduction → one bounded improvement → fair comparative evaluation;
+- publication quality and enough novelty to support a defensible proposal.
+
+Having GitHub code is useful but not sufficient. The code must correspond to the paper, dependencies and data must be obtainable, and the baseline must be reproducible before proposing a modification. An improvement is not guaranteed to be publishable simply because it changes a parameter or replaces a component.
+
+### Decision policy
+Keep two related but distinct rankings:
+- **Seminar value:** explanatory coverage, scientific credibility, diversity of approaches, recency where relevant, and usefulness to the narrative.
+- **Thesis-base value:** reproducibility, data/ground-truth feasibility, implementation complexity, measurable limitations, and extension potential.
+
+Do not remove an excellent explanatory/survey paper merely because it has no code. Do not select a base paper merely because it has a repository. The final 7–10-paper set should be chosen after the deeper review, and the base paper should be selected by a separate explicit decision matrix.
