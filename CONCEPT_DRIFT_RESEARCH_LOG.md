@@ -263,3 +263,21 @@ PUDD and WinDrift++ are currently the strongest practical thesis-base candidates
 - **Efficiency:** Continue the Stage 2 funnel only where additional evidence could change candidate ranking. Then deep-read a smaller group with MarkIt.
 
 **Next action:** finish high-impact repository/data checks for the remaining shortlist and a small number of reserve papers, then create a comparative decision matrix with two independent scores: seminar value and thesis-base value. The present ranking is interim, not final.
+
+
+### 2026-10-21 — Candidate narrowing for faster MarkIt workflow
+
+To avoid prolonging Stage 2 indefinitely, created `CANDIDATE_PRIORITY_MATRIX.md` to identify a focused set for Markdown conversion and deep reading. It prioritizes 12 papers across surveys, direct detectors, evaluation/benchmarking, theory, computational performance, and one real industrial application. Priority is not final seminar selection.
+
+Key new clarifications:
+- STUDD is a published 2023 method reporting 19 data streams. The paper-linked repository URL is stale, but the public `elwer/perf_dd` repository contains an adapted STUDD implementation as part of the DATA 2024 performance experiments. This supports keeping STUDD for deep reading, while exact reproduction correspondence still needs checking.
+- D3 explicitly states that its logistic-regression version is limited to linear patterns in P(X), and lists nonlinear classifiers as future work. This is a possible comparison axis, not a novelty claim: related work must be checked before proposing a nonlinear replacement.
+- The predictive-maintenance paper (Computers & Industrial Engineering, 2019) has a real radial-fan run-to-failure case alongside synthetic experiments. It offers useful application context, but data/code availability and event-ground-truth definitions remain uncertain.
+- CV4CDD-4D (Process Science, 2025) is a recent supervised computer-vision approach for event logs and four drift types. It is a reserve candidate because its process-mining/event-log framing is specialized and may not fit the general seminar as well as the prioritized papers.
+- LAMDA and BenchMFC are retained as alternatives, not both required: malware-domain depth is only warranted if an application focus is chosen.
+
+#### Advisor audit of the accelerated plan
+
+The user clarified that final 7–10 selection comes **after Markdown conversion**. Therefore the current deliverable is a prioritized conversion/deep-reading set, not a premature final seminar selection. This reduces the initial pool from 39 distinct papers to 12 high-information candidates while preserving a reserve list for substitutions.
+
+The plan still matches the original goals: field coverage, complementary method families, honest ground-truth discussion, and a separate code/data/reproducibility test for the thesis-base paper. PUDD and WinDrift++ remain the leading implementation candidates, not final choices. The next stage should start MarkIt conversion for the 12 priority papers, then extract comparable evidence rather than continue open-ended repository browsing.
