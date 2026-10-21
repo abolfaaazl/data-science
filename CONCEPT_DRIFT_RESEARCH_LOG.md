@@ -147,3 +147,14 @@ When referring to a paper, use its exact filename/title to avoid confusing simil
 - The review is based on extracted text and URL mentions; live code repositories, licenses, dataset accessibility, venue status, and end-to-end reproducibility remain unverified.
 - An advisor-style audit found and corrected an initially omitted industrial-process drift review in the reserve group.
 - Next action: verify source metadata and code/data/ground-truth evidence for shortlisted and borderline papers before making final seminar selections.
+
+
+## Stage 2 update — 2026-10-21 (partial verification pass)
+
+A live public-repository check was completed for 11 implementation/benchmark candidates. The evidence and caveats are documented in [STAGE2_CODE_DATA_VERIFICATION.md](STAGE2_CODE_DATA_VERIFICATION.md).
+
+Public repositories were confirmed for the unsupervised benchmark, WinDrift++, PUDD, the evaluation framework, driftbench, D3, Drift-Lens, and LAMDA. The Type-LDA URL appears to have moved to Type-LDD; the paper-linked STUDD URL returns a moved/redirect response; and the old Perf URL returns 404 while a likely matching Perf_DD repository exists. These last three require paper-to-repository correspondence checks.
+
+No code was executed, no dependencies installed, no datasets downloaded, and no result tables reproduced. Real-world streams generally do not guarantee exact drift timestamps, while controlled synthetic streams can. The original 20-paper shortlist is preserved. Practical candidates for the next reproducibility pass are PUDD, WinDrift++, and the unsupervised benchmark, but no base paper has been selected.
+
+**Next step:** verify the remaining shortlist/reserve papers and publication metadata, then conduct a structured comparison of methods, metrics, baselines, ground truth, limitations, and thesis-extension potential. Use MarkIt only after the candidate set narrows.
