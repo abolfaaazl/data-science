@@ -105,3 +105,44 @@ No full repository execution, dataset download, or baseline reproduction has bee
 3. Treat the optimized CNN/adaptive-window paper cautiously until its code, data, and comparative protocol are verified.
 4. Keep the 2024 WIREs review as a strong broad-review candidate, while avoiding redundant survey-heavy final selection.
 5. No repository has been executed and no paper's results have been reproduced during these checks.
+
+
+### Publication metadata and repository recheck: PUDD, WinDrift++, and KDD 2026 evaluation framework
+
+#### PUDD — Early Concept Drift Detection via Prediction Uncertainty
+
+- **Venue verified:** AAAI 2025 Technical Track; DOI `10.1609/aaai.v39i18.34105`; pages 19124–19132.
+- **Repository verified:** `RocStone/PUDD` is public and identifies itself as the AAAI-2025 implementation. README gives explicit reproduction commands and lists datasets: sine, SEA variants, mixed, powersupply, elec2, airline, and CIFAR-10; it also lists dependencies including River, NumPy, PyTorch, torchvision, and tqdm.
+- **Reproducibility caveat:** The repository is small and contains scripts/notebooks/data/results, which is encouraging, but has only a few commits and instructions include image preprocessing for CIFAR-10. Start with one synthetic/tabular dataset, pin compatible dependency versions, and compare one reported table before considering a full reproduction. Tests have not been run.
+- **Advisor judgement:** Strong current thesis-base candidate because the core idea and detection target are clear and controlled synthetic streams are available. The contribution to a thesis must not simply be “try another dataset”; first reproduce the baseline, then identify a specific limitation and test a bounded change.
+
+#### WinDrift++ — A diversified detector for concept drift
+
+- **Venue verified:** IEEE Transactions on Artificial Intelligence, volume 7, issue 5, pages 2577–2593, 2026; DOI `10.1109/TAI.2025.3619461`. The university publication record gives an early-online date of 15 October 2025 and issue publication on 1 May 2026.
+- **Repository verified:** `Naureenaqvi/windriftplusplus` is public. README links the implementation to the paper, lists synthetic and real-world evaluation (22 synthetic, 8 real-world), gives `pytest` commands and claims 47 tests pass. It lists an MIT license for the implementation.
+- **Reproducibility caveat:** The README's claimed test result is not independently verified here. Dataset-by-dataset access, drift onset labels, dependency compatibility, and the exact path for recreating paper tables remain to be checked. A test suite is encouraging but is not equivalent to reproducing the published experiments.
+- **Advisor judgement:** A strong candidate for a practical baseline and seminar method. It may be a better implementation candidate than a deep-learning-heavy method, but complexity and experimental reproducibility must be compared directly against PUDD before choosing.
+
+#### A Framework for Evaluating and Benchmarking Concept Drift Detection Methods
+
+- **Venue verified:** Listed on the official KDD 2026 papers page under Datasets and Benchmarks; publication metadata identifies DOI `10.1145/3770855.3819070` and pages 8671–8682 in the KDD 2026 proceedings.
+- **Repository:** `vcerqueira/experiments-drift_evaluation` remains the paper-linked public repository noted above.
+- **Advisor judgement:** High seminar value because evaluation protocol, controlled drift positions, and benchmark design are central to a defensible thesis. It is better treated initially as an evaluation-methodology reference than as the first implementation base, because reproducing an entire benchmark framework is broader than reproducing one detector.
+
+#### A benchmark and survey of fully unsupervised concept drift detectors
+
+- **Venue verified:** International Journal of Data Science and Analytics; published online 27 August 2024 and included in volume 19 (2025), pages 1–31; DOI `10.1007/s41060-024-00620-y`.
+- **Advisor judgement:** This remains one of the strongest seminar anchors: it combines a survey and empirical benchmark and directly matches unsupervised detection. It is not necessary for a review paper to have a simple dataset setup to be valuable for the seminar. Its external dataset acquisition and long runtime remain practical obstacles to reproducing the whole benchmark.
+
+## Candidate comparison snapshot (not final selection)
+
+| Candidate | Seminar value | Thesis-base feasibility | Main unresolved risk |
+|---|---|---|---|
+| 2024/2025 unsupervised benchmark survey | Very high | Medium-low for full reproduction | External data acquisition; long full benchmark runtime |
+| PUDD (AAAI 2025) | High | High relative to current pool | Dependencies; full paper-table reproduction not tested |
+| WinDrift++ (IEEE TAI 2026 issue) | High | High relative to current pool | Tests and dataset/ground-truth protocol not independently verified |
+| KDD 2026 evaluation framework | Very high | Medium | Scope and setup may be too broad for a first implementation |
+| BenchMFC (Computers & Security 2024) | High for benchmark/application | Low-medium | Malware-domain complexity and large raw archive |
+| Smart-home VAE detector (Applied Intelligence 2023 issue) | Medium-high | Low for real-world reproduction | Real data are private; real-world ground truth is weak |
+
+This is a qualitative screening snapshot, not a scored final ranking. Do not interpret “high feasibility” as proven runnable code: no environment was created, no dependencies were installed, and no reported results were reproduced.
