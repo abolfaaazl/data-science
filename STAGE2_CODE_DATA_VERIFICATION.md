@@ -49,3 +49,15 @@ This pass checked public GitHub repository endpoints and visible repository cont
 - Deep review of algorithms, metrics, baselines, limitations, and thesis-extension potential.
 
 **Next action:** finish Stage 2 checks for remaining shortlist/reserve papers and publication metadata, then compare the top candidates using a structured method/data/reproducibility/extension matrix. MarkIt deep reading should begin only after this candidate set is narrowed.
+
+
+## Review scope and decision sequence (2026-10-21)
+
+The corpus contains 41 extracted-text files but 39 distinct papers after deduplication. The goal is not to deep-read every paper equally. Finish an auditable first-pass screen of all distinct papers, complete Stage 2 checks on the shortlist and plausible reserve candidates, then deep-read a smaller evidence-selected set (initially about 8–12, adjusted as needed).
+
+The seminar and proposal should be aligned from the start but should not be treated as the same selection problem:
+- **Seminar track:** choose a coherent, scientifically credible and complementary 7–10-paper narrative; code is not required for a paper to be valuable here.
+- **Thesis-base track:** separately prioritize paper–repository correspondence, reproducibility, accessible data, meaningful ground truth, clear metrics/baselines, manageable implementation, and a testable extension.
+- **Synthesis bridge:** derive a candidate research gap from the seminar literature, then validate it against the deeper technical review and related work. Do not claim novelty or promise a contribution before this check.
+
+No full repository execution, dataset download, or baseline reproduction has been completed merely by checking public repository contents. Repository availability is not proof of reproducibility.
