@@ -140,3 +140,17 @@ The final 7–10 papers must form a coherent explanation of the field and suppor
 
 ### Narrative composition rule
 The 7–10 papers should complement each other: foundational/survey coverage, contrasting detection methods, evaluation/benchmark evidence, and work that motivates a research gap. The exact number in each role is flexible. Include the thesis-base paper in the narrative, but do not let the implementation candidate alone dictate the whole seminar set.
+
+
+## Review-depth policy and seminar/proposal alignment (2026-10-21)
+
+The corpus has 41 extracted-text files representing 39 distinct papers after deduplication. All distinct papers receive an auditable first-pass screen; they do **not** all require an equally deep review.
+
+- Keep the initial screen broad so a paper is not missed simply because it lacks code or looks less implementation-oriented.
+- Apply Stage 2 repository/data checks to the provisional shortlist and reserve papers that could change the ranking.
+- Deep-read a smaller evidence-selected set (initially around 8–12; adjust based on quality and redundancy).
+- Reconsider a deprioritized paper if it fills a missing seminar role or has evidence that changes its value.
+
+Seminar selection and thesis-base selection use separate criteria. A strong survey may be central to the seminar without code. An algorithm paper with a credible, reproducible implementation may be the thesis base even if it is less useful for explaining the whole field. Do not force a fixed number of papers into categories or retain weak/redundant papers just to fill a quota.
+
+The seminar and proposal should be aligned from the beginning: the seminar synthesizes the field and motivates a research gap; a parallel thesis-candidate track tests implementation/data feasibility. The final thesis problem and proposed improvement remain provisional until related work is checked and the baseline can be reproduced.
