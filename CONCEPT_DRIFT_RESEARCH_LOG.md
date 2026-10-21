@@ -216,3 +216,26 @@ The intended chain is:
 **corpus screening → seminar literature narrative → evidence-based research gap → candidate problem statement → baseline reproduction → bounded improvement and evaluation → proposal/thesis plan.**
 
 Do not promise a thesis contribution before the gap is checked against related work. The seminar topic is approved, but the exact thesis problem, method change, dataset/protocol, and contribution remain provisional until evidence supports them.
+
+
+### 2026-10-21 — Stage 2 continuation and advisor audit
+
+Additional primary-source/public-repository checks were recorded in `STAGE2_CODE_DATA_VERIFICATION.md` and reflected in `FIRST_PASS_SCREENING.md`.
+
+Key evidence updates:
+- BenchMFC is a verified 2024 Computers & Security dataset/benchmark paper with a matching public repository, temporal/family/packer metadata, and precomputed feature options. Full raw sample archives are large (README lists ~83 GB); treat it as a strong seminar benchmark candidate but a higher-risk thesis route due to malware-domain complexity.
+- The Applied Intelligence smart-home VAE detector uses controlled artificial drifts, but the authors state the real-world data are not public and reliable real-world ground truth is mostly unavailable. Keep it for evaluation-limitations discussion rather than a default reproduction base.
+- The optimized CNN/adaptive-window paper's publication metadata is confirmed, but paper-matched code and transparent reproducible data/protocol remain unverified. Do not rank it highly as a thesis base based on reported accuracy alone.
+- The 2024 WIREs systematic review is a strong broad-review candidate, subject to overlap checks with other surveys.
+- The predictive-maintenance candidate remains unresolved; lack of a confirmed code/data link in this pass is not proof that none exists.
+
+#### Advisor-style audit against project goals
+
+1. **Seminar breadth:** still supported by the current pool—surveys, direct detection methods, theory, benchmark/evaluation papers, and application-specific work are represented. The final set must avoid redundant surveys and must not be dominated by code availability.
+2. **Thesis feasibility:** there are several plausible implementation directions (including PUDD, WinDrift++, D3, and possibly the unsupervised benchmark), but none is yet proven reproducible because no code has been executed and no paper results have been reproduced.
+3. **Data and ground truth:** the concern is real, not hypothetical. Real-world streams may lack exact drift-onset labels; synthetic controlled data and clearly documented drift positions should be part of any defensible detection experiment. Real-world datasets can be supplementary rather than the sole evaluation basis.
+4. **Novelty:** no thesis improvement is approved at this stage. Candidate gaps must be derived from limitations and related work, then tested for novelty and feasibility after baseline reproduction.
+5. **Workflow efficiency:** the review funnel is appropriate: first-pass screen all 39 distinct papers, continue targeted Stage 2 checks, then deep-read a smaller evidence-selected set rather than treating all papers equally.
+6. **Current outcome:** progress is aligned with the user's goals, but selection is not complete. Next, finish remaining high-impact code/data and venue checks, create a comparison matrix for seminar value and thesis-base value separately, then use MarkIt for deep reading of the strongest candidates.
+
+Do not report this stage as implementation or reproduction. It is a source-checked documentary verification pass only.
