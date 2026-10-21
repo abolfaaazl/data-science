@@ -193,3 +193,26 @@ Keep two related but distinct rankings:
 - **Thesis-base value:** reproducibility, data/ground-truth feasibility, implementation complexity, measurable limitations, and extension potential.
 
 Do not remove an excellent explanatory/survey paper merely because it has no code. Do not select a base paper merely because it has a repository. The final 7–10-paper set should be chosen after the deeper review, and the base paper should be selected by a separate explicit decision matrix.
+
+
+### 2026-10-21 — Review scope and seminar/proposal alignment
+
+#### Decision: do not deep-read all 41 files equally
+The repository contains 41 extracted-text files but 39 distinct papers after identifying two duplicate pairs. We should preserve an auditable first-pass decision for every distinct paper, but **we do not need to conduct a full, equally detailed review of all 39**.
+
+Use a funnel:
+1. **Inventory and deduplicate all 41 files**; map each file to its paper and record duplicates.
+2. **First-pass screen all 39 distinct papers** using title, abstract, research question, method, evaluation clues, conclusion, publication details, and code/data links. Record a reason for deprioritization rather than silently dropping papers.
+3. **Stage 2 verification** for the provisional shortlist and any reserve papers that could plausibly change the ranking: check paper–repository correspondence, code contents and run instructions, data access, ground truth, metrics, dependencies, license/terms, and publication metadata.
+4. **Deep-read a smaller candidate set** (initially about 8–12 papers, adjusted to the evidence) with MarkIt: method, assumptions, baselines, experiments, limitations, threats to validity, and possible research gaps.
+5. Select the final **7–10 seminar papers** based on complementarity and scientific value, and choose the thesis-base paper using a separate reproducibility/extension matrix.
+
+Reopen a deprioritized paper if new evidence indicates that it fills a missing role, has a substantially better reproducibility path, or challenges the current ranking. This avoids both extremes: overlooking the corpus and wasting time deeply reviewing every paper.
+
+#### Decision: seminar and thesis proposal should be aligned from the start, but not collapsed into one task
+The seminar should establish the conceptual map of concept drift, compare credible approaches, explain evaluation/data/ground-truth issues, and synthesize a defensible research gap. In parallel, maintain a **thesis-candidate track** that checks code, data, reproducibility, and extension feasibility. The seminar's research-gap synthesis should inform the proposal, while the thesis-base choice must still be validated by deeper technical review and a baseline reproduction attempt.
+
+The intended chain is:
+**corpus screening → seminar literature narrative → evidence-based research gap → candidate problem statement → baseline reproduction → bounded improvement and evaluation → proposal/thesis plan.**
+
+Do not promise a thesis contribution before the gap is checked against related work. The seminar topic is approved, but the exact thesis problem, method change, dataset/protocol, and contribution remain provisional until evidence supports them.
