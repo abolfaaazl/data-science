@@ -239,3 +239,27 @@ Key evidence updates:
 6. **Current outcome:** progress is aligned with the user's goals, but selection is not complete. Next, finish remaining high-impact code/data and venue checks, create a comparison matrix for seminar value and thesis-base value separately, then use MarkIt for deep reading of the strongest candidates.
 
 Do not report this stage as implementation or reproduction. It is a source-checked documentary verification pass only.
+
+
+### 2026-10-21 — Lead-candidate publication checks and interim comparison
+
+Primary publication metadata was checked for the leading candidates and recorded in Stage 2:
+- PUDD is confirmed as an AAAI 2025 paper (DOI 10.1609/aaai.v39i18.34105) with a public repository and explicit experiment commands.
+- WinDrift++ is confirmed in IEEE Transactions on Artificial Intelligence, 2026 issue (DOI 10.1109/TAI.2025.3619461); its public repository includes test instructions and claims 47 passing tests, but this has not been independently run.
+- The evaluation framework is listed on the official KDD 2026 papers page and has DOI 10.1145/3770855.3819070.
+- The fully unsupervised survey/benchmark is confirmed in the International Journal of Data Science and Analytics, online 2024 / issue 2025 (DOI 10.1007/s41060-024-00620-y).
+
+#### Interim supervisor comparison
+
+PUDD and WinDrift++ are currently the strongest practical thesis-base candidates in the checked pool, with different trade-offs. PUDD has a clearly articulated uncertainty-based detection signal and synthetic/tabular entry points; WinDrift++ has a diversified statistical-test approach and a repository that claims a test suite. Neither is yet proven reproducible. The broad unsupervised survey/benchmark and the KDD evaluation framework are particularly valuable for the seminar's scientific framing and evaluation protocol. BenchMFC strengthens benchmark/application coverage but carries greater domain and data-size burden.
+
+#### Audit against the user's stated objectives
+
+- **Seminar:** The candidate pool is broad enough to construct a complementary 7–10-paper story, but the final selection still requires overlap checks among surveys and deep reading of the methods/results.
+- **Thesis:** We have plausible, code-backed candidates; we have not yet earned the right to promise a specific improvement because no baseline has been executed or reproduced.
+- **Ground truth:** The concern remains central. Use controlled synthetic streams with known drift positions as the core detection-timing evaluation, then add real-world streams where appropriate while clearly stating label/onset limitations.
+- **Implementation burden:** Avoid making deep learning or malware analysis the default path. Start with one tractable baseline and a small controlled dataset.
+- **Novelty and academic quality:** Any proposed improvement must be justified by a documented limitation, compared with related work, and evaluated against fair baselines; do not assume a gap from a paper's own conclusion alone.
+- **Efficiency:** Continue the Stage 2 funnel only where additional evidence could change candidate ranking. Then deep-read a smaller group with MarkIt.
+
+**Next action:** finish high-impact repository/data checks for the remaining shortlist and a small number of reserve papers, then create a comparative decision matrix with two independent scores: seminar value and thesis-base value. The present ranking is interim, not final.
