@@ -154,3 +154,16 @@ The corpus has 41 extracted-text files representing 39 distinct papers after ded
 Seminar selection and thesis-base selection use separate criteria. A strong survey may be central to the seminar without code. An algorithm paper with a credible, reproducible implementation may be the thesis base even if it is less useful for explaining the whole field. Do not force a fixed number of papers into categories or retain weak/redundant papers just to fill a quota.
 
 The seminar and proposal should be aligned from the beginning: the seminar synthesizes the field and motivates a research gap; a parallel thesis-candidate track tests implementation/data feasibility. The final thesis problem and proposed improvement remain provisional until related work is checked and the baseline can be reproduced.
+
+
+## Second-pass changes to the provisional ranking (2026-10-21)
+
+The following evidence updates the provisional judgement without finalizing the 7–10-paper set:
+
+- **Promote BenchMFC (currently reserve item 29) for active seminar consideration.** Its 2024 Computers & Security publication and paper-matched public repository are confirmed. It has temporal, family, and packer metadata, but the full archive is about 83 GB; the paper's experiment subset includes a much smaller precomputed-feature archive. This is a strong benchmark/data paper and a useful way to discuss realistic drift, but malware-domain complexity means it is not a default thesis-base choice.
+- **Retain “Unsupervised statistical concept drift detection for behaviour abnormality detection” for seminar coverage.** The paper uses a VAE/statistical test and controlled artificial drift, but the authors state the real-world smart-home data are not publicly available and most real-world observations lack reliable ground truth. This makes it useful for discussing evaluation limitations, but a weak default choice for reproducing real-world results.
+- **Keep the optimized Deep CNN/adaptive-window framework provisional.** Publication metadata is confirmed, but a paper-matched repository and transparent data/protocol have not been independently verified. The CNN plus metaheuristic optimization adds implementation burden; do not choose it as thesis base from reported accuracy alone.
+- **Retain the 2024 WIREs systematic review as a strong seminar candidate**, subject to redundancy checks against the other broad reviews.
+- **Predictive-maintenance drift paper remains unresolved.** No verified paper-matched public repository/data protocol was established in this pass. Recheck its exact source PDF before lowering its priority.
+
+These changes are candidate-ranking updates only. They do not yet select the final seminar set or thesis-base paper. The code/data evidence and caveats are recorded in Stage 2.
