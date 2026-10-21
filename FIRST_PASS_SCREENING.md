@@ -17,7 +17,7 @@ To minimize false exclusions, uncertain papers are retained in a separate group.
 
 - Provisional shortlist: 20 distinct papers.
 - Inspect further / reserve: 12 distinct papers.
-- Lower priority for the central set: 8 distinct papers.
+- Lower priority for the central set: 7 distinct papers.
 - Total distinct papers accounted for: 39 (40 category rows because the duplicate DRIFTLENS copy is separately listed in the audit/lower-priority section).
 - Duplicate text/PDF pairs: 2 pairs.
 
