@@ -1,198 +1,88 @@
-# دفتر ممیزی متن کامل مقالات Concept Drift
+# ممیزی متن کامل مقالات Concept Drift
 
-**آخرین به‌روزرسانی:** ۲۳ اکتبر ۲۰۲۶  
 **موضوع سمینار:** استفاده از الگوریتم‌های یادگیری ماشین در تشخیص تغییر الگو در داده‌های پویا  
-**دامنه فعلی:** ممیزی دقیق ۱۰ نامزد کاری؛ فهرست هنوز نهایی نیست.  
-**قاعده اعتبار:** تا وقتی بررسی PDF انجام و شواهد صفحه‌دار ثبت نشده، یادداشت‌های قبلی فقط «ارزیابی اولیه بر اساس MarkIt» هستند، نه یافته تأییدشده از PDF.
+**وضعیت:** یادداشت‌های محتوایی با بررسی PDF اصلی تکمیل می‌شوند؛ فهرست مقالات هنوز نهایی نیست.
 
-## ۱. هدف این دفتر
+این فایل برای ثبت یافته‌های مستند از متن کامل مقالات است، نه شرح روند گفتگو یا تکرار گزارش‌ها. هر فایل مخزن مطابق هدفی که برای آن ایجاد شده مدیریت و به‌روزرسانی می‌شود: README مسیر کار را نگه می‌دارد، گزارش اولیه جمع‌بندی ۱۶ مقاله است، ماتریس نقش و هم‌پوشانی مقالات را مقایسه می‌کند و این فایل محتوای بررسی‌شده از PDFها را نگه می‌دارد.
 
-این فایل مرجع ماندگارِ شواهد استخراج‌شده از PDF اصلی هر مقاله است تا در مقایسه‌های بعدی مجبور نباشیم هر بار کل PDF و متن MarkIt را از ابتدا بخوانیم. گزارش ۱۶ مقاله، جمع‌بندی اولیه علمی را نگه می‌دارد؛ ماتریس ۱۶ مقاله، نقش و هم‌پوشانی را مقایسه می‌کند؛ این دفتر، شواهد دقیق و قابل ارجاع هر مقاله را ثبت می‌کند.
+## مقاله‌های در صف بررسی
 
-- [README و مسیر پژوهش](README.md)
-- [گزارش بررسی اولیه ۱۶ مقاله](MARKDOWN_DEEP_READ_STAGE1.md)
-- [ماتریس مقایسه تطبیقی ۱۶ مقاله](COMPARATIVE_MATRIX_16_PAPERS.md)
-- [راهنمای MarkIt و نگاشت مقاله‌ها](markit_concept_drift/readme.md)
-- [گزارش ثبت جست‌وجوهای تکمیلی](CONCEPT_DRIFT_RESEARCH_LOG.md)
+### 1. A systematic review on detection and adaptation of concept drift in streaming data using machine learning techniques (2024)
+- [PDF اصلی](A%20systematic%20review%20on%20detection%20and%20adaptation%20of%20concept%20drift%20in%20streaming%20data.pdf) | [MarkIt](markit_concept_drift/1.%20A%20Systematic%20Review%20on%20Detection%20and%20Adaptation%20of%20Concept%20Drift%20in%20Streaming%20Data.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
 
-## ۲. قالب ثابت ممیزی هر مقاله
+### 2. A benchmark and survey of fully unsupervised concept drift detectors on real-world data streams (online 2024 / issue 2025)
+- [PDF اصلی](1.%20A%20benchmark%20and%20survey%20of%20fully%20unsupervised%20concept%20drift%20detectors.pdf) | [MarkIt](markit_concept_drift/2.%20A%20Benchmark%20and%20Survey%20of%20Fully%20Unsupervised%20Concept%20Drift%20Detectors.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
 
-برای هر مقاله، در صورت ارتباط، موارد زیر با ارجاع به شماره صفحه، بخش، شکل، جدول یا معادله PDF ثبت شود.
+### 3. A Framework for Evaluating and Benchmarking Concept Drift Detection Methods (KDD 2026)
+- [PDF اصلی](A%20Framework%20for%20Evaluating%20and%20Benchmarking%20Concept%20Drift.pdf) | [MarkIt](markit_concept_drift/3.%20A%20Framework%20for%20Evaluating%20and%20Benchmarking%20Concept%20Drift%20Detection%20Methods.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
 
-1. **مشخصات کتاب‌شناختی:** عنوان کامل، نویسندگان، محل انتشار، تاریخ آنلاین/شماره مجله، DOI و نسخه PDF بررسی‌شده.
-2. **سؤال پژوهش و سهم اصلی:** مسئله دقیق، ادعای نوآوری نویسندگان و تفاوت آن با کارهای پیشین.
-3. **تعریف مسئله و فرض‌ها:** نوع جریان، هدف تشخیص، نقش برچسب‌ها، فرض ایستایی/تغییر و فرض‌های آماری یا مدل.
-4. **روش:** سیگنال تشخیص، مراحل الگوریتم، فرمول‌ها، آستانه‌ها، پنجره‌ها، پارامترها و شبه‌کد. فرمول‌های مهم نباید صرفاً از متن MarkIt کپی شوند.
-5. **داده و Ground Truth:** نام و منشأ هر مجموعه‌داده، مصنوعی یا واقعی‌بودن، نحوه تولید/تزریق Drift، نوع و زمان Drift، زمان رخداد معلوم/نامعلوم و وضعیت دسترسی به برچسب.
-6. **پروتکل آزمایش:** Baselineها، نحوه تنظیم پارامتر، تقسیم داده، تعداد تکرارها، آزمون آماری، سخت‌افزار و جزئیات لازم برای مقایسه منصفانه.
-7. **معیارها:** تعریف دقیق معیارهای Detector و learner (برای مثال detection delay، missed detection، false alarm، event precision/recall/F1 و predictive accuracy). معیارهای هم‌نام را بدون بررسی فرمول و پنجره ارزیابی یکسان فرض نکن.
-8. **نتایج اصلی:** یافته‌های مهم نویسندگان، با شماره صفحه/جدول/شکل و محدوده‌ای که نتیجه در آن برقرار گزارش شده است. هر ادعای برتری باید همراه با داده، Baseline و معیار همان مقایسه ثبت شود.
-9. **محدودیت‌ها و تهدیدهای اعتبار:** محدودیت‌های تصریح‌شده نویسندگان؛ سپس جداگانه خطرهایی که در بررسی ما دیده می‌شود، مانند دامنه داده محدود، تنظیم نابرابر Baselineها، نبود Ground Truth یا معیار نامتناسب.
-10. **کد و بازتولیدپذیری:** پیوند مخزن، commit/tag یا نسخه بررسی‌شده، داده‌ها، وابستگی‌ها، دستور اجرا و نتیجه واقعی. «کد وجود دارد»، «تست مخزن می‌گذرد» و «نتایج مقاله بازتولید شد» سه ادعای متفاوت‌اند.
-11. **ارزیابی در پروژه ما:** ارزش برای سمینار؛ موضوعات هم‌پوشان و مکمل؛ مناسب‌ترین جایگاه در روایت؛ پتانسیل جداگانه برای پایان‌نامه؛ هزینه/ریسک اجرا؛ پرسش‌های باز.
-12. **وضعیت و تصمیم:** یکی از وضعیت‌های «در انتظار ممیزی»، «ممیزی PDF انجام شد»، «نیازمند راستی‌آزمایی بیشتر»، «آماده مقایسه نهایی». توصیه موقت می‌تواند «حفظ»، «جایگزین‌پذیر» یا «خارج از فهرست» باشد، اما انتخاب نهایی فقط بعد از مقایسه مجموعه انجام می‌شود.
+### 4. Early Concept Drift Detection via Prediction Uncertainty (PUDD; AAAI 2025)
+- [PDF اصلی](3.%20Early%20Concept%20Drift%20Detection%20via%20Prediction%20Uncertainty.pdf) | [MarkIt](markit_concept_drift/4.%20PUDD.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
 
-### قواعد ثبت شواهد
+### 5. WinDrift++: A Diversified Detector for Concept Drift (online 2025 / issue 2026)
+- [PDF اصلی](2.%20WinDrift_A_Diversified_Detector_for_Concept_Drift.pdf) | [MarkIt](markit_concept_drift/5.%20WinDrift%2B%2B.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
 
-- **گزارش نویسندگان:** ادعایی که مقاله بیان کرده است.
-- **برداشت تحلیلی:** تفسیر ما از روش، طراحی یا نتیجه.
-- **تأیید مستقل:** فقط نتیجه‌ای که واقعاً دوباره اجرا/محاسبه شده و خروجی آن ثبت شده باشد.
-- **مورد حل‌نشده:** پرسشی که متن در دسترس پاسخ قطعی نداده یا به فایل/آزمایش دیگری نیاز دارد.
-- برای اعداد مهم، حداقل ارجاع صفحه و جدول/شکل را ثبت کن؛ اگر شماره صفحه PDF با شماره صفحه چاپی فرق دارد، مشخص کن کدام شماره استفاده شده است.
-- در صورت ناقص‌بودن PDF یا استخراج، ابهام را ثبت کن؛ با حدس پر نکن.
+### 6. Unsupervised Concept Drift Detection with a Discriminative Classifier (D3; CIKM 2019)
+- [PDF اصلی](Unsupervised%20Concept%20Drift%20Detection%20with%20a%20Discriminative.pdf) | [MarkIt](markit_concept_drift/6.%20D3.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
 
-## ۳. وضعیت ده نامزد کاری
+### 7. STUDD: A student–teacher method for unsupervised concept drift detection (2023)
+- [PDF اصلی](a%20student%E2%80%93teacher%20method%20for%20unsupervised.pdf) | [MarkIt](markit_concept_drift/7.%20STUDD.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
 
-این فهرست صرفاً صف بررسی دقیق است. ترتیب آن ترتیب اجرایی پیشنهادی است، نه رتبه علمی نهایی. مواردی که هنوز از PDF ممیزی نشده‌اند، در ستون وضعیت همین‌طور باقی می‌مانند.
+### 8. Towards Computational Performance Engineering for Unsupervised Concept Drift Detection (DATA 2024)
+- [PDF اصلی](Towards%20Computational%20Performance%20Engineering%20for.pdf) | [MarkIt](markit_concept_drift/10.%20Towards%20Computational%20Performance%20Engineering%20for%20Unsupervised%20Concept%20Drift%20Detection.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
 
-| شناسه در مجموعه | مقاله | PDF اصلی در مخزن | MarkIt | وضعیت ممیزی PDF |
-|---|---|---|---|---|
-| 1 | A systematic review on detection and adaptation of concept drift in streaming data using machine learning techniques (2024) | [PDF](A%20systematic%20review%20on%20detection%20and%20adaptation%20of%20concept%20drift%20in%20streaming%20data.pdf) | [Markdown](markit_concept_drift/1.%20A%20Systematic%20Review%20on%20Detection%20and%20Adaptation%20of%20Concept%20Drift%20in%20Streaming%20Data.md) | در انتظار ممیزی |
-| 2 | A benchmark and survey of fully unsupervised concept drift detectors on real-world data streams (online 2024 / issue 2025) | [PDF](1.%20A%20benchmark%20and%20survey%20of%20fully%20unsupervised%20concept%20drift%20detectors.pdf) | [Markdown](markit_concept_drift/2.%20A%20Benchmark%20and%20Survey%20of%20Fully%20Unsupervised%20Concept%20Drift%20Detectors.md) | در انتظار ممیزی |
-| 3 | A Framework for Evaluating and Benchmarking Concept Drift Detection Methods (KDD 2026) | [PDF](A%20Framework%20for%20Evaluating%20and%20Benchmarking%20Concept%20Drift.pdf) | [Markdown](markit_concept_drift/3.%20A%20Framework%20for%20Evaluating%20and%20Benchmarking%20Concept%20Drift%20Detection%20Methods.md) | در انتظار ممیزی |
-| 4 | Early Concept Drift Detection via Prediction Uncertainty (PUDD; AAAI 2025) | [PDF](3.%20Early%20Concept%20Drift%20Detection%20via%20Prediction%20Uncertainty.pdf) | [Markdown](markit_concept_drift/4.%20PUDD.md) | در انتظار ممیزی |
-| 5 | WinDrift++: A Diversified Detector for Concept Drift (online 2025 / issue 2026) | [PDF](2.%20WinDrift_A_Diversified_Detector_for_Concept_Drift.pdf) | [Markdown](markit_concept_drift/5.%20WinDrift%2B%2B.md) | در انتظار ممیزی |
-| 6 | Unsupervised Concept Drift Detection with a Discriminative Classifier (D3; CIKM 2019) | [PDF](Unsupervised%20Concept%20Drift%20Detection%20with%20a%20Discriminative.pdf) | [Markdown](markit_concept_drift/6.%20D3.md) | در انتظار ممیزی |
-| 7 | STUDD: A student–teacher method for unsupervised concept drift detection (2023) | [PDF](a%20student%E2%80%93teacher%20method%20for%20unsupervised.pdf) | [Markdown](markit_concept_drift/7.%20STUDD.md) | در انتظار ممیزی |
-| 10 | Towards Computational Performance Engineering for Unsupervised Concept Drift Detection (DATA 2024) | [PDF](Towards%20Computational%20Performance%20Engineering%20for.pdf) | [Markdown](markit_concept_drift/10.%20Towards%20Computational%20Performance%20Engineering%20for%20Unsupervised%20Concept%20Drift%20Detection.md) | در انتظار ممیزی |
-| 13 | Concept drift detection in delayed and partially labeled data streams: An experimental survey (2026) | [PDF](markit_concept_drift/13.%20Concept%20drift%20detection%20in%20delayed%20and%20partially%20labeled%20data%20streams%20An%20experimental%20survey.pdf) | [Markdown](markit_concept_drift/13.%20Concept%20drift%20detection%20in%20delayed%20and%20partially%20labeled%20data%20streams%20An%20experimental%20survey.md) | در انتظار ممیزی |
-| 15 | From XAI to MLOps: Explainable concept drift detection with the partial dependence profiles-based approach (2026) | [PDF](markit_concept_drift/15.%20From%20XAI%20to%20MLOps%20Explainable%20concept%20drift%20detection%20with%20the%20partial%20dependence%20profiles-based%20approach.pdf) | [Markdown](markit_concept_drift/15.%20From%20XAI%20to%20MLOps%20Explainable%20concept%20drift%20detection%20with%20the%20partial%20dependence%20profiles-based%20approach.md) | در انتظار ممیزی |
+### 9. Concept drift detection in delayed and partially labeled data streams: An experimental survey (2026)
+- [PDF اصلی](markit_concept_drift/13.%20Concept%20drift%20detection%20in%20delayed%20and%20partially%20labeled%20data%20streams%20An%20experimental%20survey.pdf) | [MarkIt](markit_concept_drift/13.%20Concept%20drift%20detection%20in%20delayed%20and%20partially%20labeled%20data%20streams%20An%20experimental%20survey.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
 
-## ۴. فرم ثبت ممیزی برای هر مقاله
-
-برای هر مقاله، یک بخش با همین قالب تکمیل شود. تا وقتی ممیزی انجام نشده، فیلدها خالی بمانند و فقط وضعیت و یادداشت اولیه وارد شود.
-
-### مقاله [شناسه و عنوان کامل]
-
-**وضعیت:** در انتظار ممیزی PDF  
-**نسخه/مسیر PDF:**  
-**تاریخ ممیزی:**  
-**ممیزی‌کننده/نوبت بررسی:**  
-
-#### A. مشخصات و سؤال پژوهش
-- مشخصات کتاب‌شناختی و DOI:
-- صفحه/بخش سؤال اصلی:
-- ادعای اصلی نویسندگان:
-- تفاوت ادعاشده با Related Work:
-- **شواهد PDF (صفحه/بخش):**
-
-#### B. روش و فرض‌ها
-- خانواده روش / سیگنال تشخیص:
-- مراحل اصلی الگوریتم:
-- فرمول‌ها یا پارامترهای تعیین‌کننده:
-- فرض‌های مربوط به برچسب و زمان دسترسی:
-- انواع Drift پوشش‌داده‌شده:
-- **شواهد PDF (صفحه/معادله/شکل/الگوریتم):**
-
-#### C. داده‌ها، Ground Truth و پروتکل
-- داده‌ها و منشأ:
-- داده مصنوعی/واقعی و نحوه تولید Drift:
-- زمان رخداد Drift معلوم است؟ چگونه؟
-- Baselineها و شیوه تنظیم:
-- تعداد تکرارها و آزمون آماری:
-- **شواهد PDF (صفحه/جدول/پیوست):**
-
-#### D. معیارها و نتایج
-- معیارهای خود Detector:
-- معیارهای عملکرد learner:
-- نتایج کلیدی با شماره جدول/شکل:
-- در چه شرایطی برتری گزارش شده است؟
-- آیا مقایسه‌ها با پروتکل یکسان انجام شده‌اند؟
-- **شواهد PDF (صفحه/جدول/شکل):**
-
-#### E. محدودیت‌ها و تهدیدهای اعتبار
-- محدودیت‌های تصریح‌شده نویسندگان:
-- محدودیت‌های احتمالی تشخیص‌داده‌شده در ممیزی:
-- تعمیم‌پذیری به داده‌های دیگر:
-- ابهام‌های باقی‌مانده:
-
-#### F. کد و بازتولیدپذیری
-- پیوند مخزن/نسخه:
-- دسترسی داده و دستور اجرا:
-- تطابق کد با مقاله:
-- آزمایش واقعی اجراشده و محیط:
-- خروجی/لاگ قابل بررسی:
-- وضعیت: کد پیدا نشد / کد پیدا شد / اجرا شد / نتیجه مقاله بازتولید شد.
-- **توجه:** وضعیت آخر تنها با شواهد اجرای واقعی انتخاب شود.
-
-#### G. ارزیابی برای پروژه سمینار و پایان‌نامه
-- سهم یکتای مقاله در روایت سمینار:
-- مقاله‌های مشابه/هم‌پوشان:
-- مقاله‌های مکمل:
-- بهترین بخش سمینار برای استفاده:
-- پتانسیل جداگانه برای مقاله مبنای پایان‌نامه و دلیل:
-- ریسک فنی/داده‌ای:
-- تصمیم موقت: حفظ / جایگزین‌پذیر / خارج از صف / نیازمند بررسی بیشتر.
-- دلیل تصمیم و شواهد:
-- کار بعدی مشخص:
-
----
-
-## ۵. خلاصه‌های اولیه برای هدایت ممیزی (هنوز تأییدشده از PDF نیستند)
-
-این یادداشت‌ها از بررسی قبلی متن MarkIt و مقایسه اولیه آمده‌اند. در زمان ممیزی PDF، باید تأیید، اصلاح یا رد شوند.
-
-### شناسه 1 — مرور عمومی 2024
-**پرسش ممیزی:** آیا پروتکل مرور، بازه جست‌وجو، تعریف‌ها و taxonomy آن برای مبانی سمینار کافی است؟ با مقاله 14 چه هم‌پوشانی و چه ارزش افزوده‌ای دارد؟  
-**فرض اولیه:** مناسب برای صورت‌بندی مفاهیم Detection/Adaptation و ایجاد نقشه کلی؛ مرور تا 2022 گزارش شده و برای روندهای جدید به منابع تکمیلی نیاز دارد.  
-**اولویت PDF:** روش مرور، taxonomy، معیارهای ارزیابی و بخش‌های محدودیت/آینده پژوهش.
-
-### شناسه 2 — بنچمارک Detectorهای کاملاً بدون‌ناظر
-**پرسش ممیزی:** کدام روش‌ها واقعاً اجرا شده‌اند و ارزیابی جریان‌های واقعی با نبود Ground Truth طبیعی چگونه انجام شده است؟  
-**فرض اولیه:** مرجع مهم برای روش‌های بدون‌ناظر و محدودیت ارزیابی روی داده واقعی.  
-**اولویت PDF:** معیارهای ورود/خروج روش‌ها، منشأ داده، تعریف معیارهای جانشین، نحوه انتخاب Baseline و نتایج تک‌معیاره در برابر نتیجه کلی.
-
-### شناسه 3 — چارچوب ارزیابی و بنچمارک (KDD 2026)
-**پرسش ممیزی:** Driftهای کنترل‌شده دقیقاً چگونه تولید می‌شوند و معیار رخدادمحور هشدارها را چگونه با زمان واقعی/تزریق‌شده تطبیق می‌دهد؟  
-**فرض اولیه:** منبع اصلی برای Ground Truth کنترل‌شده و مقایسه منصفانه است، نه الزاماً الگوریتم Detector جدید.  
-**اولویت PDF:** تعریف هر سازوکار تزریق Drift، زمان آغاز/پایان، tolerant window، معیارها، تنظیم پارامتر و پروتکل cross-dataset.
-
-### شناسه 4 — PUDD (AAAI 2025)
-**پرسش ممیزی:** تعریف دقیق PU-index و Bucketing چیست؟ فرض‌های آزمون آماری، آستانه‌ها و تعریف Early Detection کدام‌اند؟  
-**فرض اولیه:** روش مستقیم مبتنی بر عدم‌قطعیت پیش‌بینی و نامزد فنی برای بررسی مستقل.  
-**اولویت PDF:** معادلات/شبه‌کد، نحوه دسترسی به برچسب، آستانه، معیار تأخیر/هشدار کاذب، جزئیات داده‌ها و ablation.
-
-### شناسه 5 — WinDrift++
-**پرسش ممیزی:** اجزای آزمون‌های چندگانه و پنجره‌های چندمقیاسی دقیقاً چگونه ترکیب می‌شوند؟ تنظیمات Baselineها و پروتکل داده چقدر منصفانه‌اند؟  
-**فرض اولیه:** Detector مستقیم متمایز از PUDD و نامزد جدی برای مقایسه؛ ادعای برتری هنوز باید به شرایط و معیارهای مقاله محدود شود.  
-**اولویت PDF:** الگوریتم، آزمون‌های آماری، آستانه‌ها/پنجره‌ها، ablation، معیارهای هشدار کاذب و تأخیر.
-
-### شناسه 6 — D3
-**پرسش ممیزی:** طبقه‌بند پنجره قدیمی و جدید چگونه آموزش می‌بیند و از چه قاعده‌ای هشدار Drift ساخته می‌شود؟  
-**فرض اولیه:** Baseline نسبتاً ساده برای خانواده classifier-based؛ ارزش آن در مقایسه و توضیح‌پذیری است.  
-**اولویت PDF:** سیگنال دقیق هشدار، تفکیک تغییر P(X) از تغییر مفهوم، نوع Drift، داده‌ها و محدودیت مدل خطی.
-
-### شناسه 7 — STUDD
-**پرسش ممیزی:** Teacher و Student چگونه ساخته می‌شوند، mimic loss چطور پایش می‌شود و برچسب‌های تأخیری/ناقص در ارزیابی چه معنایی دارند؟  
-**فرض اولیه:** خانواده‌ای متمایز مبتنی بر اختلاف رفتار دو مدل؛ نسخه اقتباسی کد نباید با بازتولید رسمی اشتباه شود.  
-**اولویت PDF:** آموزش/به‌روزرسانی دو مدل، آستانه و سیگنال، baselineها، داده‌ها، تحلیل هزینه و ارتباط دقیق نتایج با نسخه کد.
-
-### شناسه 10 — Performance Engineering
-**پرسش ممیزی:** پیچیدگی نظری هر Detector با چه مفروضاتی محاسبه شده و زمان اجرا چگونه اندازه‌گیری شده است؟  
-**فرض اولیه:** مکمل بخش ارزیابی عملیاتی و هزینه اجرا؛ نه محور الگوریتم جدید سمینار.  
-**اولویت PDF:** تعریف workload، محیط اجرا، ابزار سنجش، معیارهای زمان/حافظه و مرز تعمیم اعداد runtime.
-
-### شناسه 13 — تأخیر و کمبود برچسب
-**پرسش ممیزی:** taxonomy مقاله چگونه روش‌ها را بر اساس availability/delay طبقه‌بندی می‌کند و آزمایش‌های partial-label و delayed-label دقیقاً چه پروتکلی دارند؟  
-**فرض اولیه:** مکمل متمایز برای واقع‌گرایی فرض برچسب و ارزیابی Detector؛ آزمایش Deep Learning در این مطالعه پوشش ندارد.  
-**اولویت PDF:** تعریف چهار حالت دسترسی به برچسب، مجموعه‌داده‌های مصنوعی، ترتیب ایجاد تغییر، تعداد تکرارها، معیارهای detector، جدول‌های اصلی و ضمیمه‌ها. فایل MarkIt این مقاله در مجموعه تکراری شماره 17 هم دیده شده بود؛ محتوای آن کپی مقاله 13 است و منبع علمی جداگانه محسوب نمی‌شود.
-
-### شناسه 15 — PDD و XAI
-**پرسش ممیزی:** Partial Dependence Profiles چگونه ساخته و مقایسه می‌شوند؟ L2، L2Der و PDI دقیقاً چه چیزی را می‌سنجند و آستانه هشدار چگونه تعیین می‌شود؟  
-**فرض اولیه:** روش متمایز برای تشخیص توضیح‌پذیر و رابطه ویژگی–پیش‌بینی؛ ورود آن به فهرست نهایی به ارزش افزوده‌اش نسبت به PUDD و هزینه اجرا بستگی دارد.  
-**اولویت PDF:** معادلات، انتخاب ویژگی‌ها، تعداد نمونه‌ها/Batchها، آستانه، مقایسه با Baselineها، Ground Truth و تحلیل هزینه.
-
-## ۶. کنترل پایان هر ممیزی
-
-پیش از علامت‌زدن «ممیزی PDF انجام شد»، مطمئن شو:
-- [ ] نسخه PDF و اطلاعات کتاب‌شناختی ثبت شده است.
-- [ ] روش و فرمول‌های تعیین‌کننده با متن اصلی تطبیق داده شده‌اند.
-- [ ] داده، نوع Drift، Ground Truth و دسترسی به برچسب مشخص شده است.
-- [ ] معیارهای Detector از معیارهای learner جدا شده‌اند.
-- [ ] دست‌کم نتایج مهم با شماره صفحه/جدول/شکل ثبت شده‌اند.
-- [ ] گزارش نویسندگان، تحلیل ما و تأیید مستقل قاطی نشده‌اند.
-- [ ] محدودیت‌ها، هم‌پوشانی و ارزش یکتای مقاله نوشته شده‌اند.
-- [ ] پرسش‌های باز و اقدام بعدی مشخص‌اند.
-- [ ] وضعیت کد/بازتولید فقط بر اساس شواهد واقعی انتخاب شده است.
-
-**وضعیت کلی این دفتر در زمان ایجاد:** قالب و صف کاری آماده است؛ ممیزی دقیق PDFهای ۱۰ نامزد هنوز انجام نشده و هیچ مقاله‌ای در فهرست نهایی سمینار یا مبنای پایان‌نامه انتخاب نشده است.
+### 10. From XAI to MLOps: Explainable concept drift detection with the partial dependence profiles-based approach (2026)
+- [PDF اصلی](markit_concept_drift/15.%20From%20XAI%20to%20MLOps%20Explainable%20concept%20drift%20detection%20with%20the%20partial%20dependence%20profiles-based%20approach.pdf) | [MarkIt](markit_concept_drift/15.%20From%20XAI%20to%20MLOps%20Explainable%20concept%20drift%20detection%20with%20the%20partial%20dependence%20profiles-based%20approach.md)
+- **وضعیت:** در انتظار بررسی PDF
+- **مسئله و سهم مقاله:**
+- **روش‌ها و مفاهیم کلیدی:**
+- **داده‌ها، ارزیابی و نتایج:**
+- **محدودیت‌ها و نکات قابل استناد:**
