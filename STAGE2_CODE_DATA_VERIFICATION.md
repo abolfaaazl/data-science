@@ -5,6 +5,9 @@
 **Repository under review:** https://github.com/abolfaaazl/data-science  
 **Status:** Partial evidence-backed pass; no implementation has been executed.
 
+> **یادداشت وضعیت فعلی — ۲۲ اکتبر ۲۰۲۶:** این سند گزارش بررسی کد، داده و Ground Truth در مرحله قبلی است؛ بخش «Next action» آن مربوط به زمان ثبت همین گزارش است و نباید به‌صورت خودکار اولویت جاری تلقی شود. طبق برنامه فعلی، دو ماه آینده تمرکز اصلی روی فهم علمی حوزه و نگارش سمینار است. جست‌وجوی تکمیلی و بررسی منابع تازه در صورت وجود خلأ علمی انجام می‌شود؛ بازتولید و انتخاب مقاله مبنا عمدتاً در ماه پروپوزال پیگیری خواهد شد. برای برنامه جاری به [README اصلی](README.md) مراجعه کن.
+
+
 ## Scope and confidence rules
 
 This pass checked public GitHub repository endpoints and visible repository contents for 11 papers with strong direct relevance to Concept Drift detection, benchmarking, or evaluation. A public repository is not proof that code runs or reproduces the paper. Dataset names in a paper are not proof of download access, reuse rights, or exact drift timestamps.
