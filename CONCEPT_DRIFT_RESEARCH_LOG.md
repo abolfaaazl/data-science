@@ -384,3 +384,23 @@ This is a documentary deep-reading pass only. **No code has been run, no dataset
 
 #### گام بعدی
 نقشه را با ساختار موردنظر سمینار تطبیق بده و سپس متن کامل سه منبع با اولویت بالا (delayed/partially labeled survey، survey انواع drift، و روش تبیین‌پذیر PDD) را بررسی کن. برای هرکدام مشخص کن آیا واقعاً خلأیی را پر می‌کند، آیا منبع دیگری در مخزن همین نقش را دارد و آیا باید به مطالعه عمیق/منابع سمینار اضافه شود. هنوز بازتولید کد یا تصمیم مقاله مبنا لازم نیست.
+
+
+### 2026-10-22 — جست‌وجوی هدفمند و محدودکردن مقالات مکمل به چهار مورد
+
+در پاسخ به خطر بزرگ‌شدن بی‌رویه مجموعه منابع، جست‌وجوی تکمیلی بر اساس نقشه پوشش انجام شد. به جای انتخاب یک مقاله برای هر زیرعنوان، گزینه‌ها بر اساس **ارزش افزوده مستقل نسبت به منابع موجود** محدود شدند.
+
+#### نتیجه جست‌وجوی منبع‌محور
+- [Concept drift detection in delayed and partially labeled data streams: An experimental survey](https://doi.org/10.1016/j.dsp.2026.106325) — صفحه ناشر آن را Open Access معرفی می‌کند و می‌گوید داده و کد در مقاله به اشتراک گذاشته شده‌اند. خلأ مستقیم: label delay و label scarcity.
+- [A survey of processing methods for different types of concept drift](https://doi.org/10.1016/j.datak.2025.102525) — مرور ۲۰۲۶ درباره drift تک‌نوعی، چندنوعی و group drift، و تمایز real/virtual. ارزش افزوده اصلی: اصلاح taxonomy؛ کیفیت و دامنه روش مرور هنگام مطالعه کامل باید بررسی شود.
+- [From XAI to MLOps: Explainable concept drift detection with the partial dependence profiles-based approach](https://doi.org/10.1016/j.future.2026.108586) — روش PDD با Partial Dependence Profiles برای تشخیص و تبیین تغییر. صفحه مقاله شش آزمایش روی داده‌های مصنوعی و واقعی و مقایسه با detectorهای متداول را توصیف می‌کند. پیاده‌سازی مرتبط در بسته عمومی [datadriftR](https://github.com/ugurdar/datadriftR) وجود دارد؛ تطابق دقیق نسخه package با روش نسخه نهایی مقاله هنوز باید بررسی شود.
+- [Anticipating to Change: A Proactive Approach for Concept Drift Adaptation in Data Streams](https://doi.org/10.1007/s10994-025-06945-4) — مقاله Open Access با کد عمومی [Vgueca/ProactiveHT](https://github.com/Vgueca/ProactiveHT). فقط برای تعریف و توضیح مرز Detection، prediction و Adaptation؛ نه به‌عنوان یکی از روش‌های اصلی تشخیص سمینار.
+
+#### تصمیم اجرایی
+- سه مقاله اول نامزدهای مکمل اصلی‌اند؛ مورد چهارم منبع کمکی کوتاه است.
+- برای ارزیابی و Ground Truth مقاله جدیدی اضافه نشود؛ چارچوب KDD 2026 از قبل در مجموعه ۱۲تایی موجود است.
+- مرور بدون‌ناظر ۲۰۲۴ و مرور تشخیص Concept Drift در جریان تصویر نیز در مخزن موجودند؛ دانلود یا اضافه‌کردن دوباره آن‌ها لازم نیست.
+- این تصمیم **غربال مستند بر اساس صفحات ناشر/منابع رسمی و اطلاعات موجود** است؛ به‌معنای مطالعه کامل یا تأیید مستقل نتایج آزمایش‌ها نیست. کیفیت روش مرور، پروتکل نتایج و هم‌پوشانی دقیق مقالات جدید هنوز باید از متن کامل بررسی شود.
+- سند تصمیم و راهنمای مطالعه: [TARGETED_GAP_PAPERS.md](TARGETED_GAP_PAPERS.md).
+
+گام بعدی: ابتدا متن کامل سه مقاله اصلی را با حد مطالعه تعریف‌شده در سند هدفمند بررسی و فقط ارزش افزوده واقعی آن‌ها را در ماتریس سمینار ثبت کن. انتخاب مقاله مبنای پایان‌نامه و بازتولید کد همچنان به مرحله پروپوزال موکول است.
