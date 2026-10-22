@@ -281,3 +281,24 @@ Key new clarifications:
 The user clarified that final 7–10 selection comes **after Markdown conversion**. Therefore the current deliverable is a prioritized conversion/deep-reading set, not a premature final seminar selection. This reduces the initial pool from 39 distinct papers to 12 high-information candidates while preserving a reserve list for substitutions.
 
 The plan still matches the original goals: field coverage, complementary method families, honest ground-truth discussion, and a separate code/data/reproducibility test for the thesis-base paper. PUDD and WinDrift++ remain the leading implementation candidates, not final choices. The next stage should start MarkIt conversion for the 12 priority papers, then extract comparable evidence rather than continue open-ended repository browsing.
+
+
+### 2026-10-22 — Stage 3: first deep-reading pass over the 12 MarkIt papers
+
+The user uploaded all 12 prioritized Markdown conversions to `markit_concept_drift/`. The folder contains 12 paper files plus `readme.md`, which maps the shortened/numbered filenames to the full paper titles. The initial comparative evidence report is saved at [`MARKDOWN_DEEP_READ_STAGE1.md`](MARKDOWN_DEEP_READ_STAGE1.md).
+
+#### Main evidence-based conclusions
+- The current pool has complementary roles: one broad 2024 systematic review; one benchmark/survey of fully unsupervised detectors; the KDD 2026 evaluation framework; detector families represented by PUDD, WinDrift++, D3, STUDD and Plover; Type-LDA for the detection/adaptation boundary; performance engineering; a process-curve benchmark with controlled labels; and a predictive-maintenance case study.
+- The most defensible current seminar backbone is the broad review + unsupervised benchmark + KDD evaluation framework, supplemented by distinct methods rather than redundant surveys. The final 7–10 papers remain unselected until method/table checks and overlap review are complete.
+- PUDD and WinDrift++ remain the leading thesis-base candidates for a small reproducibility gate, not final choices. PUDD's manual alarm-threshold setting is a concrete research lead; WinDrift++'s fixed hierarchical window scales are another. Neither is a novelty claim until related work is checked and an original baseline is reproduced.
+- D3 is a useful classical baseline: the paper explicitly says its logistic-regression version is limited to linear patterns in P(X). This is a plausible experimental axis, but replacing the classifier alone is not assumed novel.
+- The ground-truth concern is confirmed as central. Synthetic or injected drift supports known onset evaluation; natural real-world streams generally do not provide verified historical onset timestamps. The KDD framework evaluates controlled injected changes on real-world datasets, while the process-curve benchmark generates drift segments with known labels.
+- STUDD is useful as a distinct unsupervised signal based on student–teacher mimic loss, but the adapted implementation in the performance-engineering repository must not be treated as an exact reproduction of the original paper.
+- Type-LDA is primarily a drift-type-aware adaptation framework, so include it in the seminar only if it adds a useful explanation of the detection/adaptation boundary. It is not required for a detection-focused thesis.
+- The predictive-maintenance paper adds a useful industrial case, but its real radial-fan data and paper-matched code have not been verified as publicly reproducible. The high-dimensional process-drift benchmark is better for explaining controlled ground truth, but it is a specialized process-curve setting.
+
+#### Conversion-quality note
+The folder listing confirms all 12 files are present. Some conversions include large embedded image payloads and inconsistent abstract/heading formats. Before using method-defining formulas, results tables, or figure-based claims, compare those specific items with the original PDFs. This is a targeted quality check, not a reason to redo all conversions.
+
+#### Status and next action
+This is a documentary deep-reading pass only. **No code has been run, no dataset has been downloaded, and no reported result has been independently reproduced.** Next, perform targeted PDF verification of the most decision-relevant tables/formulas and inspect the PUDD and WinDrift++ repositories' smallest runnable examples. Then select one small baseline reproduction path. Keep seminar-paper selection and thesis-base selection as separate decisions.
