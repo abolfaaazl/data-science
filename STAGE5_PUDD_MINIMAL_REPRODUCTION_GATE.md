@@ -4,6 +4,9 @@
 **Purpose:** Define the smallest honest test before committing to PUDD as the thesis base.  
 **Status:** Source inspection only; upstream code has not been executed.
 
+> **یادداشت اولویت زمانی — ۲۲ اکتبر ۲۰۲۶:** این فایل یک برنامه فنی آماده برای ارزیابی محدود PUDD است؛ به‌معنای تصمیم قطعی برای انتخاب PUDD نیست و اجرای آن در حال حاضر اولویت اصلی پروژه محسوب نمی‌شود. طبق برنامه کاربر، دو ماه آینده عمدتاً به پوشش علمی و نگارش سمینار اختصاص دارد. این Gate را برای مرحله انتخاب مقاله مبنا/پروپوزال نگه دار؛ فقط اگر یک پرسش فنی برای توضیح درست موضوع سمینار ضروری شد، بخش محدودی از آن را زودتر اجرا کن. نامزدهای فعلی و نتایج جست‌وجوی علمی آینده می‌توانند انتخاب را تغییر دهند.
+
+
 ## 1. Exact official starting command
 
 The repository README's Table 1 example is:
