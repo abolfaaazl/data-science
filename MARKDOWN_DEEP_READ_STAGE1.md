@@ -1,5 +1,13 @@
 # Stage 3 — Deep Reading of the 12 MarkIt Papers (Initial Evidence Report)
 
+## راهنمای فارسی و اولویت فعلی پروژه
+
+این سند خلاصه مقایسه اولیه ۱۲ مقاله تبدیل‌شده با MarkIt است؛ هدفش ثبت شواهد و کمک به ساختن تصویر علمی حوزه است، نه انتخاب قطعی مقاله سمینار یا پایان‌نامه. نام مقاله‌ها، اصطلاحات تخصصی و جزئیات علمی در متن اصلی انگلیسی حفظ شده‌اند تا با نسخه مقاله و ارجاع‌ها قابل تطبیق باشند.
+
+طبق برنامه اعلام‌شده در ۲۲ اکتبر ۲۰۲۶، در دو ماه آینده حدود ۸۰٪ تمرکز روی شناخت منسجم حوزه و نگارش سمینار با عنوان «استفاده از الگوریتم‌های یادگیری ماشین در تشخیص تغییر الگو در داده‌های پویا» است. بنابراین نتیجه‌های این گزارش باید به تدوین ساختار سمینار و شناسایی خلأهای پوشش کمک کنند. جست‌وجوی جدید در پایگاه‌های علمی و وب‌سایت ناشران مجاز است و در صورت نیاز تکرار می‌شود؛ اگر منبع مهمی پیدا شد که دسته روش، تعریف مسئله، ارزیابی یا محدودیت‌های موجود را بهتر روشن کند، ماتریس باید به‌روزرسانی شود.
+
+PUDD و WinDrift++ فقط دو نامزد موقت برای مرحله انتخاب مقاله مبنا هستند. بررسی بازتولیدپذیری و انتخاب قطعی، عمدتاً در ماه اختصاص‌یافته به پروپوزال انجام می‌شود؛ در مرحله سمینار فقط بررسی فنی‌ای را زودتر انجام بده که برای درک درست یک ادعای علمی لازم باشد.
+
 **Date:** 2026-10-22  
 **Scope:** First deep-reading pass over the 12 Markdown conversions in `markit_concept_drift/`.  
 **Status:** Preliminary comparative analysis; **not** the final 7–10 seminar-paper selection and **not** a thesis-base decision. No experiment has been run and no reported result has been independently reproduced.
@@ -169,9 +177,12 @@ These are candidate research directions, not novelty claims. A contribution is d
 - No natural real-world stream is assumed to have exact ground-truth drift timestamps.
 - No thesis novelty claim is made from an author’s future-work paragraph alone.
 
-## Next actions
+## Next actions — revised for the seminar-first timeline
 
-1. Check conversion quality of the method-defining equations, figures and tables in papers 2–5 and 8, against the original PDFs.
-2. Inspect exact dataset lists, drift labels, metric definitions, baseline configurations and repository instructions for PUDD and WinDrift++.
-3. Run only a minimal reproducibility test for one candidate at a time; do not attempt all 12 papers or every dataset.
-4. Use the findings to update the priority matrix and select a complementary final seminar set, separately from the thesis-base decision.
+1. Build a coverage map for the seminar: definition and scope of Concept Drift; types and scenarios of drift; major families of ML-based detection methods; distinction between Detection and Adaptation; supervised/unsupervised settings and label assumptions; datasets and benchmarks; Ground Truth; metrics and threats to validity; major limitations and recent research directions.
+2. Compare this map with the 12-paper report and the existing priority matrix. Identify specific missing parts of the story rather than assuming that the current collection is complete.
+3. Perform targeted searches in relevant scholarly databases and publisher sites for updated surveys, important primary methods from 2024–2026, and work on evaluation/benchmarks/Ground Truth. Record the search query, date, venue/database, useful results and why each new paper changes or does not change coverage in CONCEPT_DRIFT_RESEARCH_LOG.md.
+4. Verify method-defining formulas, tables and figures against the original PDF only when they matter to explaining a selected method or supporting a seminar claim. Do not repeat all PDF conversions or all deep-reading work without a concrete reason.
+5. Select the final 7–10 seminar papers only after the narrative is scientifically coherent and the key method families and evaluation issues are represented. If a new paper provides a stronger or missing role, allow it to replace a current candidate.
+6. Keep PUDD and WinDrift++ as provisional thesis candidates. Defer the full reproduction gate and thesis-base decision until the month planned for proposal preparation, except where a bounded code check is necessary to resolve an important seminar claim.
+7. When proposal preparation begins, compare 2–3 candidates against reproducibility, data access, Ground Truth, metrics, baselines, implementation cost and extension potential. A paper's stated future work is a lead for a literature search, not proof of novelty.
