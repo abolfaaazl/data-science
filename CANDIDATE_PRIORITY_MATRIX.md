@@ -55,3 +55,8 @@ Papers currently in the lower-priority group or those whose central contribution
 - Thesis-base selection will remain a separate decision, likely centered first on PUDD versus WinDrift++, with D3/STUDD as simpler comparative baselines and the benchmark papers informing evaluation.
 - The next useful action after conversion is a focused extraction of each priority paper's: research question, method, assumptions, data, ground truth, metrics, baselines, reported limitations, reproducibility steps, and plausible but unclaimed extension.
 - No implementation or result reproduction has been completed at this stage.
+
+
+## Stage 3 update — 2026-10-22
+
+The first deep-reading pass of all 12 MarkIt conversions has been documented in [MARKDOWN_DEEP_READ_STAGE1.md](MARKDOWN_DEEP_READ_STAGE1.md). The initial comparison highlights PUDD and WinDrift++ as the leading reproduction candidates for separate follow-up checks, with the unsupervised benchmark and KDD 2026 framework informing evaluation. This is **not** the final seminar list or a thesis-base decision. See the report for paper-specific evidence, limitations, conversion notes and next gates.
