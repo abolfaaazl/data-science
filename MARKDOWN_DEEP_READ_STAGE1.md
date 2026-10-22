@@ -1,190 +1,527 @@
-# Stage 3 — Deep Reading of the 12 MarkIt Papers (Initial Evidence Report)
+# بررسی علمی تطبیقی ۱۶ مقاله Concept Drift — گزارش کاری سمینار
 
-## راهنمای فارسی و اولویت فعلی پروژه
+**تاریخ بازسازی:** ۲۲ اکتبر ۲۰۲۶  
+**موضوع مصوب سمینار:** استفاده از الگوریتم‌های یادگیری ماشین در تشخیص تغییر الگو در داده‌های پویا  
+**مجموعه مورد بررسی:** ۱۶ فایل Markdown فعلی در پوشه markit_concept_drift  
+**وضعیت تصمیم:** تحلیل و مقایسه علمی؛ نه فهرست نهایی ۷ تا ۱۰ مقاله سمینار و نه انتخاب مقاله مبنای پایان‌نامه.
 
-این سند خلاصه مقایسه اولیه ۱۲ مقاله تبدیل‌شده با MarkIt است؛ هدفش ثبت شواهد و کمک به ساختن تصویر علمی حوزه است، نه انتخاب قطعی مقاله سمینار یا پایان‌نامه. نام مقاله‌ها، اصطلاحات تخصصی و جزئیات علمی در متن اصلی انگلیسی حفظ شده‌اند تا با نسخه مقاله و ارجاع‌ها قابل تطبیق باشند.
+---
 
-طبق برنامه اعلام‌شده در ۲۲ اکتبر ۲۰۲۶، در دو ماه آینده حدود ۸۰٪ تمرکز روی شناخت منسجم حوزه و نگارش سمینار با عنوان «استفاده از الگوریتم‌های یادگیری ماشین در تشخیص تغییر الگو در داده‌های پویا» است. بنابراین نتیجه‌های این گزارش باید به تدوین ساختار سمینار و شناسایی خلأهای پوشش کمک کنند. جست‌وجوی جدید در پایگاه‌های علمی و وب‌سایت ناشران مجاز است و در صورت نیاز تکرار می‌شود؛ اگر منبع مهمی پیدا شد که دسته روش، تعریف مسئله، ارزیابی یا محدودیت‌های موجود را بهتر روشن کند، ماتریس باید به‌روزرسانی شود.
+## 1. هدف و نحوه استفاده از این گزارش
 
-PUDD و WinDrift++ فقط دو نامزد موقت برای مرحله انتخاب مقاله مبنا هستند. بررسی بازتولیدپذیری و انتخاب قطعی، عمدتاً در ماه اختصاص‌یافته به پروپوزال انجام می‌شود؛ در مرحله سمینار فقط بررسی فنی‌ای را زودتر انجام بده که برای درک درست یک ادعای علمی لازم باشد.
+این سند برای پاسخ به یک پرسش مشخص تهیه شده است: **هر یک از ۱۶ مقاله چه سهم علمی‌ای در فهم و پوشش موضوع سمینار دارد، چه شواهدی ارائه می‌کند، و چه محدودیت‌هایی باید هنگام استناد به آن در نظر گرفته شود؟**
 
-**Date:** 2026-10-22  
-**Scope:** First deep-reading pass over the 12 Markdown conversions in `markit_concept_drift/`.  
-**Status:** Preliminary comparative analysis; **not** the final 7–10 seminar-paper selection and **not** a thesis-base decision. No experiment has been run and no reported result has been independently reproduced.
+در این مرحله هر ۱۶ مقاله در مجموعه بررسی باقی می‌مانند. قرار نیست به‌ازای هر زیرعنوان یک مقاله جداگانه به فهرست نهایی اضافه شود. پس از مقایسه کامل، منابع نهایی سمینار بر اساس مکمل‌بودن و ارزش علمی انتخاب خواهند شد. انتخاب مقاله مبنای پایان‌نامه تصمیمی جداگانه است و فعلاً انجام نمی‌شود.
 
-## Executive findings
+### ملاحظات اعتبار تحلیل
 
-1. The 12 expected Markdown files are present. Their shortened filenames are manageable because the titles and bibliographic details can be matched from the document contents.
-2. The conversions are generally usable for scientific screening: abstracts or equivalent opening summaries, section structure, method descriptions, experiments and conclusions are recoverable in the files. However, several files contain very large embedded base64 images, and some article layouts have irregular headings/abstract labels. This makes automated reading and file navigation noisier, not necessarily scientifically incomplete.
-3. The strongest complementary seminar backbone currently looks like: **the 2024 systematic review**, **the fully unsupervised detector benchmark**, **the KDD 2026 evaluation framework**, and a carefully chosen set of distinct methods such as **PUDD**, **WinDrift++**, **D3/STUDD**, with **Type-LDA** if the seminar needs to explain adaptation rather than detection alone. This is a working direction, not the final list.
-4. The clearest initial thesis-base comparison remains **PUDD vs WinDrift++**, but neither should be selected solely from paper claims or repository presence. PUDD has a clear proposed signal and a stated open issue around manually setting the alarm threshold. WinDrift++ has a useful explicit limitation around fixed hierarchical windows and future adaptive windows. Each needs a small reproduction check before deciding.
-5. The most important methodological issue across this literature is **ground truth**. Synthetic data give known drift positions but may not represent real streams; real streams often lack verified onset labels. The KDD 2026 framework injects controlled drift into real-world datasets to bridge that gap, while the process-drift benchmark has verified ground truth for its generated process curves. Neither automatically solves ground truth for arbitrary natural streams.
-6. No evidence yet justifies selecting one algorithm as “best overall.” The papers use different data, drift definitions, metrics, labeling assumptions, and domains; their headline scores are not directly comparable.
+- تحلیل حاضر بر متن Markdown تبدیل‌شده با MarkIt و اطلاعات کتاب‌شناختی قابل مشاهده در همان فایل‌ها استوار است. این تبدیل در برخی مقاله‌ها فرمول‌ها، نمادها، جدول‌ها یا شکل‌ها را ناقص کرده است؛ بنابراین برای فرمول تعیین‌کننده، شبه‌کد، پروتکل دقیق آزمایش و عددی که قرار است در سمینار نقل شود باید به PDF اصلی مراجعه کرد.
+- «مقاله گزارش می‌کند» با «این نتیجه مستقلانه بازتولید شده است» یکسان نیست. در این مرحله نتایج آزمایش‌ها به‌طور مستقل بازتولید نشده‌اند.
+- کد عمومی به‌تنهایی اثبات‌کننده قابلیت بازتولید نیست؛ باید انطباق کد با مقاله، داده‌ها، پارامترها و پروتکل نیز بررسی شود.
+- نداشتن Ground Truth در یک جریان واقعی را نباید با نداشتن برچسب کلاس یکی گرفت. برچسب هر نمونه و زمان دقیق رخداد Concept Drift دو نوع اطلاعات متفاوت‌اند.
+- هر «خلأ پژوهشی» که در این سند مطرح می‌شود، ابتدا به معنای **مسئله یا محدودیت آشکارشده در مجموعه فعلی** است؛ قبل از تبدیل آن به ادعای نوآوری پایان‌نامه، باید ادبیات مرتبط و کارهای جدیدتر بررسی شود.
 
-## Conversion quality and reading notes
+## 2. تصویر کلی از پوشش ۱۶ مقاله
 
-- Files 1, 2, 5, 11 and 12 include sizeable embedded image payloads. These can dominate file size and interfere with programmatic extraction. Keep the Markdown source; do not manually delete images until the relevant tables/figures have been checked against the original PDF.
-- Several converted papers use inconsistent heading styles (for example, “ABSTRACT”, “Abstract”, or a journal-style “a b s t r a c t”). A heading parser may miss a section even when the content is present.
-- The systematic review and unsupervised benchmark contain table-like material that should be inspected as tables, not treated as ordinary prose. In particular, the inclusion/search protocol, algorithm comparisons, dataset descriptions and metric definitions matter.
-- For final extraction, verify equations and method-defining tables against the original PDF for PUDD, WinDrift++, Type-LDA, Plover, and the KDD evaluation framework. Do not repair minor OCR/formatting noise unless it changes a method, parameter, result or citation.
+| شماره | مقاله | نقش علمی اصلی | ارتباط با عنوان سمینار |
+|---:|---|---|---|
+| 1 | A systematic review on detection and adaptation of concept drift in streaming data using machine learning techniques (2024) | مرور عمومی و ساختار مفهومی | زیاد؛ نقطه شروع تعاریف و دسته‌بندی |
+| 2 | A benchmark and survey of fully unsupervised concept drift detectors on real-world data streams (online 2024 / issue 2025) | مرور و بنچمارک تشخیص بدون‌ناظر | بسیار زیاد؛ روش‌ها، اجرا و مسئله ارزیابی |
+| 3 | A Framework for Evaluating and Benchmarking Concept Drift Detection Methods (KDD 2026) | پروتکل ارزیابی، Ground Truth کنترل‌شده و مقایسه منصفانه | بسیار زیاد؛ روش‌شناسی ارزیابی |
+| 4 | Early Concept Drift Detection via Prediction Uncertainty (PUDD; AAAI 2025) | تشخیص بر اساس عدم‌قطعیت پیش‌بینی | بسیار زیاد؛ یک روش مشخص یادگیری ماشین |
+| 5 | WinDrift++: A Diversified Detector for Concept Drift (IEEE TAI, 2026 issue) | مجموعه‌ای از آزمون‌های آماری و پنجره‌های چندمقیاسی | زیاد؛ روش مستقیم و نقطه مقایسه |
+| 6 | Unsupervised Concept Drift Detection with a Discriminative Classifier (D3; CIKM 2019) | تشخیص بدون‌ناظر با طبقه‌بند تفکیک‌کننده | زیاد؛ روش ساده و قابل توضیح |
+| 7 | STUDD: A student–teacher method for unsupervised concept drift detection (2023) | پایش خطای تقلید Student از Teacher | زیاد؛ خانواده متفاوت تشخیص بدون‌ناظر |
+| 8 | Concept Drift Adaptation by Exploiting Drift Type (Type-LDA; ACM TKDD 2024) | استفاده از نوع Drift برای سازگارکردن مدل | متوسط؛ مکمل برای مرزبندی Detection و Adaptation |
+| 9 | On Learning Guarantees to Unsupervised Concept Drift Detection on Data Streams (Plover; 2018) | مبانی نظری و کران‌های یادگیری | متوسط؛ عمق نظری، با دشواری ریاضی بیشتر |
+| 10 | Towards Computational Performance Engineering for Unsupervised Concept Drift Detection (DATA 2024) | زمان اجرا، پیچیدگی و مصرف منابع | زیاد برای ارزیابی؛ نه یک Detector جدید |
+| 11 | A method to benchmark high-dimensional process drift detection (2025) | بنچمارک تخصصی تغییر در داده‌های فرایندی و معیار زمانی | متوسط؛ نمونه‌ای روشن از Ground Truth کنترل‌شده |
+| 12 | Machine learning based concept drift detection for predictive maintenance (2019) | مطالعه موردی صنعتی و داده سری زمانی | متوسط؛ کاربردی و دامنه‌محور |
+| 13 | Concept drift detection in delayed and partially labeled data streams: An experimental survey (2026) | مرور و آزمایش در حضور تأخیر/کمبود برچسب | بسیار زیاد؛ شرایط واقعی دسترسی به برچسب |
+| 14 | A survey of processing methods for different types of concept drift (2026) | طبقه‌بندی Drift تک‌نوعی، ترکیبی و گروهی | زیاد برای تعریف دامنه و انواع؛ بخشی از تمرکز بر پردازش/سازگاری است |
+| 15 | From XAI to MLOps: Explainable concept drift detection with the partial dependence profiles-based approach (2026) | Profile Drift Detection و توضیح‌پذیری | زیاد؛ روش جدید با خروجی توضیحی |
+| 16 | Anticipating to Change: A Proactive Approach for Concept Drift Adaptation in Data Streams (online 2025 / volume 2026) | سازگاری پیش‌دستانه مدل | مکمل؛ موضوع اصلی آن Adaptation است نه Detection |
 
-## Paper-by-paper evidence matrix
+### نتیجه کلی
 
-### 1. A systematic review on detection and adaptation of concept drift in streaming data using machine learning techniques (2024)
-**Role:** Broad survey and seminar orientation; low value as a direct implementation base.
+مجموعه ۱۶تایی اکنون چند بُعد متفاوت را پوشش می‌دهد: تعریف‌ها و انواع Drift، روش‌های مستقیم تشخیص، روش‌های بدون‌ناظر، عدم‌قطعیت، آزمون‌های آماری، طبقه‌بند تفکیک‌کننده، Student–Teacher، توضیح‌پذیری، ارزیابی، Ground Truth، تأخیر برچسب، کارایی محاسباتی و مرز تشخیص با سازگاری مدل.
 
-- **Scope/contribution:** Reviews concept drift types, datasets, detection techniques, adaptation approaches, evaluation metrics and future research directions. Its selection process examines literature from 2012–2022.
-- **Seminar value:** High for defining the vocabulary and organizing the seminar; useful for separating detection from adaptation and for introducing the main algorithm families.
-- **Limitations to keep in view:** It is a survey, not a controlled benchmark. Its literature window ends in 2022, so it cannot be the only source for current methods. The paper itself notes that existing material is scattered; we should still cross-check its taxonomy against newer work.
-- **Decision:** Keep as the broad review candidate, but avoid adding multiple broad surveys to the final seminar unless they contribute clearly different taxonomies.
+این گستردگی برای بررسی علمی مناسب است؛ اما در نگارش نهایی نباید همه ۱۶ مقاله به یک اندازه شرح داده شوند. چند مقاله مرور یا بنچمارک نقش ساختاری دارند و چند روش منتخب باید با جزئیات بیشتر مقایسه شوند.
 
-### 2. A benchmark and survey of fully unsupervised concept drift detectors on real-world data streams (online 2024; issue 2025)
-**Role:** Key unsupervised-detection survey and benchmark.
+---
 
-- **Scope/contribution:** Reviews 61 publications; identifies 10 algorithms that satisfy the authors’ inclusion criteria for a sufficiently faithful implementation; evaluates 7 of them on 11 real-world data streams.
-- **Important implementation/evaluation detail:** Three candidates are not evaluated for practical reasons: some were too slow in the authors’ implementation and one relied too heavily on chance. The paper recommends D3, IBDD and SPLL depending on the target metric, rather than claiming one universal winner.
-- **Seminar value:** Very high. It exposes the difference between a paper proposing an algorithm and an algorithm that can be implemented faithfully and run at stream speed.
-- **Ground-truth caveat:** Real-world streams are valuable but often do not have exact drift-onset labels. The paper therefore discusses proxy metrics and also checks behavior on synthetic data. Metric definitions and their failure modes must be explained rather than copying headline rankings.
-- **Decision:** Keep as a core seminar paper and as an implementation/evaluation reference. Reproducing the full benchmark is likely too much for the first implementation milestone.
+## 3. بررسی تک‌تک مقاله‌ها
 
-### 3. A Framework for Evaluating and Benchmarking Concept Drift Detection Methods (KDD 2026)
-**Role:** Evaluation design, drift ground truth and fair comparison.
+## مقاله 1 — A systematic review on detection and adaptation of concept drift in streaming data using machine learning techniques (2024)
 
-- **Scope/contribution:** Benchmarks 14 detectors on 7 real-world streams. It injects controlled changes using Monte Carlo trials, considering four drift mechanisms—class-prior changes, label swaps, feature permutations and feature filtering—with abrupt and gradual transitions.
-- **Evaluation contributions:** Timing-aware metrics include an F1 detection score, drift recall and false-alarm rate; the framework also proposes leave-one-dataset-out hyperparameter optimization.
-- **Seminar value:** Very high because it directly addresses inconsistent protocols and unknown drift points in natural data.
-- **Interpretation caveat:** This creates known drift points for the *injected changes*, not verified historical drift labels for the untouched original streams. Results should be described as controlled experiments on real-world data, not proof that every naturally occurring drift in those datasets has ground truth.
-- **Decision:** Keep as a core methodology paper. It may be too broad to adopt wholesale as a first thesis implementation, but its protocol can inform a smaller, defensible experiment.
+**نقش:** مرور عمومی برای شکل‌دادن چارچوب مفهومی سمینار.
 
-### 4. Early Concept Drift Detection via Prediction Uncertainty (PUDD; AAAI 2025)
-**Role:** Main thesis-base candidate, pending reproduction.
+**پرسش و ایده اصلی:** مقاله ادبیات مربوط به انواع Concept Drift، روش‌های Detection، راهبردهای Adaptation، مجموعه‌داده‌ها، معیارهای ارزیابی و جهت‌های پژوهشی را جمع‌بندی می‌کند. بازه بررسی ادبیات آن تا سال ۲۰۲۲ است.
 
-- **Core idea:** Uses a Prediction Uncertainty Index (PU-index) instead of relying only on classification error. The paper argues that the prediction-probability/uncertainty distribution can shift before the error rate changes. It uses adaptive PU-index bucketing and a Pearson chi-square test.
-- **Evaluation described:** Synthetic streams and real-world streams including airline, electricity (elec2), power supply and image experiments based on CIFAR-10. The image scenario is generated to model changing user interests.
-- **Strengths:** Clear hypothesis; meaningful distinction from error-rate detectors; theoretical analysis plus experiments; public repository and a potentially manageable first experiment on synthetic/tabular data.
-- **Limitations/research lead:** The conclusion explicitly says alarm-threshold determination remains manual and should be automated. The chunk-based setup and statistical-test assumptions also need to be understood before proposing a change.
-- **Risks:** The image/CIFAR branch introduces deep-learning and compute overhead. It should not be the first reproduction target. Theoretical claims and the precise meaning of “early” detection must be checked against the definitions and metrics in the paper.
-- **Decision:** High-priority reproduction candidate. First reproduce one small synthetic or tabular result and at least one baseline before committing to an extension.
+**ارزش علمی برای سمینار:**
+- نقطه شروعی برای تعریف اصطلاحات و ساختار کلی موضوع فراهم می‌کند.
+- نشان می‌دهد Detection و Adaptation دو بخش مرتبط، اما متفاوت، از مسئله‌اند.
+- به ساختن فهرست اولیه خانواده‌های روش‌ها و معیارهای ارزیابی کمک می‌کند.
 
-### 5. WinDrift++: A Diversified Detector for Concept Drift (IEEE Transactions on Artificial Intelligence; 2026 issue)
-**Role:** Main thesis-base candidate, pending reproduction.
+**محدودیت‌ها و احتیاط‌ها:**
+- مقاله مرور است، نه یک آزمایش کنترل‌شده برای تعیین بهترین روش.
+- بازه ادبیات آن با روش‌ها و ارزیابی‌های جدید ۲۰۲۵ و ۲۰۲۶ پوشش کامل ندارد.
+- مرورهای دیگر در مجموعه نباید صرفاً به دلیل داشتن عنوان Survey کنار هم نگه داشته شوند؛ باید ارزش افزوده هرکدام مشخص باشد.
 
-- **Core idea:** Extends WinDrift with a committee of empirical-CDF-based statistical distance tests (including KS, Cramér–von Mises, Anderson–Darling, Kuiper and EMD) and hierarchical sliding windows at multiple temporal scales.
-- **Evaluation described:** 22 synthetic and 8 real-world datasets; comparisons against eight state-of-the-art detectors. The paper reports better detection accuracy and lower false-positive rates; it favors majority voting as a practical trade-off.
-- **Strengths:** A concrete statistical detector, broad claimed evaluation, code/data repository and a clear baseline for comparing detector design choices.
-- **Explicit limitation:** Fixed hierarchical window sizes can limit adaptation to highly dynamic drift patterns. The authors list adaptive windows (e.g., ADWIN-style adjustment), noisy/irregular data and finer drift-type classification as future directions.
-- **Risks:** The number of named datasets does not by itself prove every dataset can be obtained or every result reproduced. We must verify the exact dataset list, drift labels, metric setup, baseline fairness, and whether tests run in our environment.
-- **Decision:** High-priority reproduction candidate. Test a small synthetic case first; do not begin with all 30 datasets.
+**کاربرد در روایت سمینار:** برای شروع تعریف و ساختار حوزه مناسب است. بهتر است با مقاله‌های جدیدتر و بنچمارک‌ها تکمیل شود، نه اینکه به‌تنهایی مبنای تمام ادعاهای به‌روز باشد.
 
-### 6. Unsupervised Concept Drift Detection with a Discriminative Classifier (D3; CIKM 2019)
-**Role:** Simple, explainable baseline and a source of a specific limitation.
+**جمع‌بندی:** ارزش بالا برای زمینه‌سازی؛ ارزش پایین‌تر به‌عنوان مقاله مستقیم برای پیاده‌سازی یا مقاله مبنای پایان‌نامه.
 
-- **Core idea:** A discriminative classifier (logistic regression in the paper) is trained to distinguish samples from an older window and a newer window. A change in separability is used as an unsupervised drift signal.
-- **Evaluation described:** 8 datasets; comparison against commonly used detectors.
-- **Strengths:** Relatively simple to explain and implement; useful as a baseline for newer methods and as an example of feature-distribution monitoring without post-deployment labels.
-- **Explicit limitation:** The authors state that logistic regression limits detection to linear patterns in P(X), and suggest kernelized/nonlinear classifiers and stream-dependent parameterization as future work.
-- **Research caution:** “Replace logistic regression with a nonlinear model” is a plausible experiment, not automatically a novel thesis contribution. It would need a specific hypothesis, fair tuning, and evidence that it improves detection under well-defined nonlinear drifts without unacceptable false alarms/runtime.
-- **Decision:** Keep as a key comparison baseline; likely easier than reproducing a complex recent method.
+---
 
-### 7. STUDD: A student–teacher method for unsupervised concept drift detection (2023)
-**Role:** Distinct method family and useful seminar comparison.
+## مقاله 2 — A benchmark and survey of fully unsupervised concept drift detectors on real-world data streams (online 2024 / issue 2025)
 
-- **Core idea:** A student model learns to mimic a teacher model. During deployment, changes in the student’s mimic loss are monitored as a drift signal, avoiding the need for continuously available true labels.
-- **Evaluation described:** 19 data streams; experiments also analyze label access/delay and algorithm choices.
-- **Strengths:** Conceptually distinct from direct distribution-distance tests and error-rate monitoring; helps explain unsupervised detection in the absence of labels.
-- **Risks:** The original repository URL was previously found stale. A later performance-engineering repository contains an adapted STUDD implementation, but that is not evidence that the original paper’s full results are reproduced exactly.
-- **Decision:** Good seminar candidate. Use the adapted implementation only after documenting what differs from the original algorithm and protocol.
+**نقش:** مرور تخصصی و مقایسه تجربی تشخیص‌دهنده‌های بدون‌ناظر.
 
-### 8. Concept Drift Adaptation by Exploiting Drift Type (Type-LDA; ACM TKDD 2024)
-**Role:** Detection-to-adaptation bridge, not a pure detector comparison.
+**پرسش و ایده اصلی:** مقاله بررسی می‌کند وقتی پس از استقرار مدل برچسب واقعی مرتب در دسترس نیست، چه روش‌هایی برای تشخیص تغییر وجود دارند و در عمل چگونه قابل پیاده‌سازی و مقایسه‌اند.
 
-- **Core idea:** Attempts to determine both *when* drift occurred and *how* it occurred. A drift-type identifier and drift-point locator are used to guide model relearning; it also includes stream-based active learning.
-- **Drift types discussed:** Sudden, gradual, incremental and recurring are introduced, but the method’s stated focus is on immediate types and it excludes recurring drift in its setup.
-- **Strengths:** Directly clarifies the difference between detecting change and using information about the change to adapt a model. This matters if the seminar title and thesis direction later expand beyond detection.
-- **Risks:** More complex than a detector-only method; relies on synthetic data with known drift types for pretraining components. The code path appears to have changed from Type-LDA to Type-LDD, so paper/repository correspondence needs a separate check.
-- **Decision:** Include if adaptation is a meaningful seminar section. Do not make it the default thesis base before understanding the training pipeline and reproduction cost.
+**شواهد گزارش‌شده:** نویسندگان ۶۱ انتشار را مرور می‌کنند، ۱۰ الگوریتم را مطابق معیارهای شمول خود برای پیاده‌سازی قابل‌قبول می‌دانند و ۷ الگوریتم را روی ۱۱ جریان داده واقعی ارزیابی می‌کنند. سه گزینه به دلایل اجرایی یا رفتاری در بنچمارک نهایی ارزیابی نشده‌اند. پیشنهادهای مقاله بسته به معیار هدف متفاوت است؛ بنابراین پیام آن «یک برنده قطعی برای همه شرایط» نیست.
 
-### 9. On Learning Guarantees to Unsupervised Concept Drift Detection on Data Streams (Plover; 2018)
-**Role:** Theory and assumptions.
+**ارزش علمی برای سمینار:**
+- تفاوت بین الگوریتم پیشنهادی در مقاله و پیاده‌سازی واقعاً قابل اجرا را نشان می‌دهد.
+- مسئله نبود زمان دقیق Drift در داده‌های واقعی را برجسته می‌کند.
+- برای مقایسه روش‌های بدون‌ناظر و شرح محدودیت معیارهای ارزیابی مناسب است.
 
-- **Core idea:** Uses algorithmic stability and concentration inequalities to derive a bound for change detection and proposes the incremental Plover detector with a method for estimating window length.
-- **Strengths:** Provides theoretical depth and demonstrates that detector behavior depends on the chosen measure function and application domain.
-- **Limitations for this project:** Mathematical density is high relative to the user’s current background; the paper is older and does not appear to be the easiest path to an implementation-based thesis.
-- **Decision:** Optional seminar support for theoretical foundations. Do not choose as the first thesis-base paper unless the supervisor explicitly wants a theory-heavy direction.
+**محدودیت‌ها و احتیاط‌ها:**
+- امتیازهای روی جریان‌های واقعی لزوماً با Ground Truth مستقل در زمان رخداد Drift محاسبه نمی‌شوند.
+- برخی معیارهای نیابتی (proxy) می‌توانند جنبه‌هایی از کیفیت Detector را نشان دهند، اما معادل Precision/Recall مبتنی بر زمان واقعی Drift نیستند.
+- بازتولید کل بنچمارک برای پروژه فعلی لازم نیست؛ ارزش اصلی در taxonomy، انتخاب Baselineها و نکات ارزیابی است.
 
-### 10. Towards Computational Performance Engineering for Unsupervised Concept Drift Detection (DATA 2024)
-**Role:** Runtime/memory evaluation and methodological caution.
+**کاربرد در روایت سمینار:** یکی از گزینه‌های اصلی برای بخش روش‌های بدون‌ناظر و دشواری مقایسه نتایج.
 
-- **Core idea:** Argues that detector evaluation should include computational complexity and empirical performance, not only detection quality. It discusses complexity for existing detectors and traces two implementations with HPC tools.
-- **Strengths:** Adds a dimension missing from accuracy-only comparisons: runtime, memory, scaling and bottlenecks. It also notes that complexity expressions alone do not substitute for empirical measurements.
-- **Limitations:** The paper presents an initial performance analysis rather than a complete benchmark of every detector. The tooling and environment may be heavier than needed for a first thesis implementation.
-- **Decision:** Valuable as a seminar complement or as a secondary evaluation dimension; not the default base paper.
+**جمع‌بندی:** از نظر آموزشی و روش‌شناختی بسیار ارزشمند؛ به شرط توضیح دقیق محدودیت Ground Truth و معیارها.
 
-### 11. A method to benchmark high-dimensional process drift detection (2025)
-**Role:** Ground-truth-controlled benchmark for a specialized industrial setting.
+---
 
-- **Core idea:** Generates multivariate process curves with controlled drift segments and introduces temporal AUC (TAUC) to assess whether a detector identifies drift segments with the right temporal consistency.
-- **Evidence:** Uses three generated benchmark datasets; the paper reports that methods can struggle when there are multiple drift segments, and that ordinary AUC can disagree with TAUC.
-- **Strengths:** A clear example of a dataset with known ground truth and a metric designed around temporal segments.
-- **Limitations:** Process curves from manufacturing are not interchangeable with general-purpose data streams. The benchmark is narrow and should not be generalized to all concept-drift tasks.
-- **Decision:** Keep as a targeted seminar option if ground truth and industrial/process data deserve a dedicated section. Not a default thesis base unless choosing this domain deliberately.
+## مقاله 3 — A Framework for Evaluating and Benchmarking Concept Drift Detection Methods (KDD 2026)
 
-### 12. Machine learning based concept drift detection for predictive maintenance (2019)
-**Role:** Applied industrial case study.
+**نقش:** چارچوب ارزیابی، کنترل Drift و مقایسه منصفانه.
 
-- **Core idea:** Uses multivariate time-series regression and rolling-horizon forecasting to detect and, to some extent, predict drift in condition-monitoring data. It evaluates synthetic streams and a run-to-failure radial-fan case.
-- **Strengths:** Shows a real industrial use case and a distinction between detecting a drift after it appears and forecasting it earlier.
-- **Limitations:** The real-world study is a specific industrial case; open paper-matched code/data has not been verified. The case data were supplied by an industry partner, so availability and repeatability must not be assumed.
-- **Decision:** Useful as an application paper if the final seminar needs predictive maintenance. Lower priority for thesis implementation until data/code access is established.
+**پرسش و ایده اصلی:** نتایج مقاله‌های مختلف به دلیل تفاوت در داده، نوع Drift، معیار، انتخاب پارامتر و تنظیمات آزمایش به‌سادگی قابل مقایسه نیستند. چارچوب مقاله تغییر کنترل‌شده را روی داده‌های واقعی اعمال می‌کند تا زمان تغییرِ تزریق‌شده معلوم باشد و امکان مقایسه دقیق‌تری فراهم شود.
 
-## Cross-paper comparison: the main distinctions
+**شواهد گزارش‌شده:** مقاله ۱۴ تشخیص‌دهنده را روی ۷ جریان داده واقعی بررسی می‌کند و چهار سازوکار تغییر را در بر می‌گیرد: تغییر نسبت کلاس‌ها، جابه‌جایی برچسب‌ها، جایگشت ویژگی‌ها و حذف/فیلتر ویژگی‌ها؛ برای برخی سازوکارها گذار ناگهانی و تدریجی نیز بررسی می‌شود. معیارهای حساس به زمان، از جمله امتیاز F1 تشخیص، Recall تغییر و نرخ هشدار کاذب، و روشی برای تنظیم پارامتر به‌صورت leave-one-dataset-out مطرح شده‌اند.
 
-| Dimension | Papers that best illustrate it | What we can safely say |
+**ارزش علمی برای سمینار:**
+- مهم‌ترین منبع این مجموعه برای توضیح طراحی آزمایش و مقایسه منصفانه است.
+- به مسئله اصلی Ground Truth پاسخ عملی می‌دهد: تغییر کنترل‌شده و زمان آن معلوم است.
+- کمک می‌کند «کیفیت طبقه‌بند» و «کیفیت تشخیص‌دهنده Drift» با هم اشتباه نشوند.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- تغییرهای تزریق‌شده زمان شروع معلوم دارند؛ این به معنای داشتن برچسب تاریخی دقیق برای همه تغییرهای طبیعی در داده اصلی نیست.
+- یک چارچوب ارزیابی عمومی، تمام انواع Drift و تمام شرایط واقعی را پوشش نمی‌دهد.
+- باید تعریف پنجره تطبیق هشدار، معیار زمانی، تنظیم پارامتر و شیوه تولید Drift از متن کامل استخراج شود.
+
+**کاربرد در روایت سمینار:** منبع محوری برای بخش Ground Truth، معیارها و تهدیدهای اعتبار مقایسه.
+
+**جمع‌بندی:** برای دفاع علمی از ارزیابی‌ها بسیار مهم است؛ اما لزوماً مناسب‌ترین مقاله برای پیاده‌سازی مستقل در ابتدای پروژه نیست.
+
+---
+
+## مقاله 4 — Early Concept Drift Detection via Prediction Uncertainty (PUDD; AAAI 2025)
+
+**نقش:** روش مستقیم تشخیص بر مبنای عدم‌قطعیت پیش‌بینی.
+
+**ایده اصلی:** خطای طبقه‌بند همیشه در ابتدای تغییر افزایش پیدا نمی‌کند. PUDD به‌جای پایش صرف خطا، شاخص PU-index را بر مبنای عدم‌قطعیت پیش‌بینی تعریف می‌کند؛ برای نمونه‌ای با برچسب واقعی، این شاخص به‌صورت یک منهای احتمال پیش‌بینی‌شده برای کلاس واقعی بیان می‌شود. مقاله از Adaptive PU-index Bucketing و آزمون Pearson Chi-square برای مقایسه توزیع‌ها استفاده می‌کند.
+
+**ارزش علمی برای سمینار:**
+- نمونه روشنی است از استفاده از سیگنال حاصل از مدل برای تشخیص تغییر.
+- با روش‌های صرفاً مبتنی بر خطای پیش‌بینی یا فاصله توزیعی تفاوت دارد.
+- برای نشان‌دادن مفهوم «تشخیص زودتر از افت آشکار عملکرد» مناسب است.
+
+**داده و ارزیابی گزارش‌شده:** مقاله داده‌های مصنوعی، جریان‌های جدولی/واقعی و آزمایش‌های تصویری را شرح می‌دهد؛ شاخه تصویری پیچیدگی محاسباتی بالاتری دارد.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- تعیین آستانه هشدار از مسائل مطرح‌شده در نتیجه‌گیری مقاله است.
+- فرض‌های آزمون آماری، روش تشکیل باکت‌ها و تعریف معیارهای Early Detection باید دقیق مطالعه شود.
+- وجود کد عمومی به معنی بازتولید مستقل نتایج نیست. اجرای قبلی کاربر روی sine/GNB صرفاً یک اجرای مقدماتی بوده و نتیجه تجمیعی آن را نباید معادل ارزیابی کامل کیفیت Detector دانست.
+
+**کاربرد در روایت سمینار:** مقایسه با روش‌های مبتنی بر خطا، آماره‌های توزیع و روش‌های توضیح‌پذیر؛ به‌ویژه برای بحث حساسیت سیگنال تشخیص.
+
+**جمع‌بندی:** نامزد مهم مقایسه علمی و فنی؛ هنوز انتخاب قطعی مقاله مبنا نیست.
+
+---
+
+## مقاله 5 — WinDrift++: A Diversified Detector for Concept Drift (IEEE Transactions on Artificial Intelligence؛ شماره/دوره ۲۰۲۶)
+
+**نقش:** تشخیص‌دهنده آماری با چند آزمون و پنجره‌های زمانی چندمقیاسی.
+
+**ایده اصلی:** روش مجموعه‌ای از آزمون‌های فاصله/توزیع مبتنی بر Empirical CDF، از جمله KS، Cramér–von Mises، Anderson–Darling، Kuiper و EMD را ترکیب می‌کند و از پنجره‌های سلسله‌مراتبی با مقیاس‌های زمانی متفاوت استفاده می‌کند.
+
+**شواهد گزارش‌شده:** مقاله ۲۲ مجموعه‌داده مصنوعی و ۸ مجموعه‌داده واقعی را معرفی می‌کند و با هشت Detector مقایسه می‌شود. ادعای عملکرد بهتر و هشدارهای مثبت کاذب کمتر، نتیجه گزارش‌شده نویسندگان است و نباید بدون همسان‌سازی پروتکل به‌صورت حکم عمومی نقل شود.
+
+**ارزش علمی برای سمینار:**
+- یک خانواده روش متفاوت از PUDD و از روش‌های مبتنی بر classifier ارائه می‌کند.
+- امکان بحث درباره انتخاب آزمون آماری، رأی‌گیری، اندازه پنجره و حساسیت به Driftهای با سرعت متفاوت را فراهم می‌کند.
+- به موضوع هزینه محاسباتی و معامله بین تنوع آزمون‌ها و پیچیدگی می‌پردازد.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- پنجره‌های سلسله‌مراتبی ثابت می‌توانند با الگوهای بسیار متغیر سازگاری محدودی داشته باشند.
+- تعداد مجموعه‌داده به‌تنهایی برای قضاوت کافی نیست؛ دسترسی به داده، برچسب زمان Drift، پارامترها و برابری Baselineها باید بررسی شوند.
+- ادعای وجود تست یا کد در مخزن عمومی بدون اجرای مستقل به‌معنای تأیید بازتولید نیست.
+
+**کاربرد در روایت سمینار:** مقایسه مستقیم با PUDD برای نشان‌دادن تفاوت سیگنال عدم‌قطعیت و مقایسه آماری توزیع‌ها.
+
+**جمع‌بندی:** روش مقایسه‌ای جدی؛ انتخاب برای پیاده‌سازی پایان‌نامه منوط به بررسی امکان بازتولید است.
+
+---
+
+## مقاله 6 — Unsupervised Concept Drift Detection with a Discriminative Classifier (D3; CIKM 2019)
+
+**نقش:** روش پایه، نسبتاً ساده و قابل توضیح برای تشخیص بدون‌ناظر.
+
+**ایده اصلی:** یک طبقه‌بند تفکیک‌کننده، مانند Logistic Regression، نمونه‌های یک پنجره قدیمی را از نمونه‌های پنجره جدید تفکیک می‌کند. تغییر در میزان تفکیک‌پذیری دو پنجره به‌عنوان نشانه تغییر در فضای ویژگی‌ها در نظر گرفته می‌شود.
+
+**شواهد گزارش‌شده:** مقاله روش را روی هشت مجموعه‌داده مقایسه می‌کند.
+
+**ارزش علمی برای سمینار:**
+- الگوریتمی نسبتاً قابل‌فهم برای توضیح نقش ML در خودِ فرآیند تشخیص فراهم می‌کند.
+- امکان مقایسه با روش‌های مبتنی بر آزمون آماری، عدم‌قطعیت و Student–Teacher وجود دارد.
+- برای فهم تفاوت تشخیص تغییر توزیع ویژگی‌ها و تشخیص افت کیفیت پیش‌بینی مفید است.
+
+**محدودیت‌ها و احتیاط‌ها:** نویسندگان محدودیت Logistic Regression را برای الگوهای غیرخطی در P(X) بیان می‌کنند. جایگزینی با یک طبقه‌بند غیرخطی صرفاً یک ایده آزمایشی است، نه نوآوری تضمین‌شده؛ باید با فرضیه روشن، تنظیم منصفانه پارامترها و بررسی نرخ هشدار کاذب و زمان اجرا سنجیده شود.
+
+**کاربرد در روایت سمینار:** نمونه پایه برای خانواده classifier-based و برای توضیح اینکه «بدون‌ناظر» لزوماً به معنی «بدون استفاده از مدل یادگیری ماشین» نیست.
+
+**جمع‌بندی:** Baseline آموزشی مفید و نسبتاً ساده؛ ارزش مقایسه‌ای آن بیشتر از تازگی انتشار است.
+
+---
+
+## مقاله 7 — STUDD: A student–teacher method for unsupervised concept drift detection (2023)
+
+**نقش:** روش تشخیص بدون‌ناظر بر مبنای اختلاف رفتار دو مدل.
+
+**ایده اصلی:** یک Student رفتار Teacher را تقلید می‌کند. هنگام ورود نمونه‌های جدید، تغییر در mimic loss میان Student و Teacher پایش می‌شود و می‌تواند نشانه تغییر در رابطه داده و مدل باشد؛ نیازی نیست برچسب واقعی هر نمونه پس از استقرار دائماً در دسترس باشد.
+
+**شواهد گزارش‌شده:** آزمایش روی ۱۹ جریان داده و بررسی انتخاب الگوریتم و وضعیت دسترسی/تأخیر برچسب در مقاله گزارش شده است.
+
+**ارزش علمی برای سمینار:**
+- با D3 و آزمون‌های آماری تفاوت مفهومی دارد.
+- برای توضیح تشخیص بدون‌ناظر مبتنی بر رفتار مدل مناسب است.
+- می‌تواند نشان دهد حتی وقتی برچسب نداریم، هنوز می‌توان سیگنال‌های جانشین برای تغییر پایش کرد.
+
+**محدودیت‌ها و احتیاط‌ها:** نشانی مخزن اصلی قبلاً نامطمئن/ازکارافتاده تشخیص داده شده بود و یک پیاده‌سازی اقتباس‌شده در پروژه‌ای دیگر دیده شده است. نسخه اقتباس‌شده لزوماً بازتولید دقیق مقاله اصلی نیست. همچنین تغییر mimic loss الزاماً به‌تنهایی ثابت نمی‌کند مفهوم هدف عوض شده؛ باید فرض‌ها و حالت‌های هشدار کاذب بررسی شوند.
+
+**کاربرد در روایت سمینار:** نماینده یک خانواده مستقل روش‌های بدون‌ناظر و نقطه مقایسه با D3 و PUDD.
+
+**جمع‌بندی:** از نظر پوشش خانواده روش‌ها ارزشمند؛ وضعیت بازتولید دقیق آن نامطمئن است.
+
+---
+
+## مقاله 8 — Concept Drift Adaptation by Exploiting Drift Type (Type-LDA; ACM TKDD 2024)
+
+**نقش:** پیوند میان تشخیص Drift و سازگارکردن مدل.
+
+**ایده اصلی:** چارچوب Type-LDA سعی می‌کند هم زمان/نقطه Drift و هم نوع آن را تشخیص دهد و از این اطلاعات برای انتخاب زمان مناسب بازآموزی مدل استفاده کند. شناسایی نوع Drift با آموزش روی داده مصنوعیِ دارای نوع تغییر معلوم انجام می‌شود؛ سپس مکان‌یاب نقطه تغییر برای تصمیم درباره زمان بازآموزی کمک می‌کند.
+
+**ارزش علمی برای سمینار:**
+- برای توضیح اینکه دانستن زمان Drift و دانستن نوع آن دو هدف متمایزند مفید است.
+- ارتباط Detection با تصمیم عملیاتی بعد از هشدار را نشان می‌دهد.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- مقاله روش خالص تشخیص نیست؛ مسئله اصلی آن Adaptation است.
+- وابستگی بخشی از چارچوب به داده مصنوعی با نوع Drift معلوم باید در تعمیم نتایج لحاظ شود.
+- تطابق نام و نسخه کد عمومی با مقاله اصلی نیازمند بررسی است؛ تغییر نام احتمالی Type-LDA/Type-LDD را نباید بدون کنترل مستندات نادیده گرفت.
+
+**کاربرد در روایت سمینار:** بخش کوتاهی برای مرزبندی Detection و Adaptation؛ نه محور غالب سمینار.
+
+**جمع‌بندی:** از نظر مفهومی مکمل است؛ برای موضوع مصوب، اولویت آن پایین‌تر از Detectorهای مستقیم است.
+
+---
+
+## مقاله 9 — On Learning Guarantees to Unsupervised Concept Drift Detection on Data Streams (Plover; 2018)
+
+**نقش:** مبانی نظری تشخیص بدون‌ناظر.
+
+**ایده اصلی:** مقاله از Algorithmic Stability و نابرابری‌های تمرکز برای استخراج کران‌های مرتبط با تشخیص تغییر استفاده می‌کند و Detector افزایشی Plover و روشی برای تخمین طول پنجره را ارائه می‌دهد.
+
+**ارزش علمی برای سمینار:**
+- مانع از آن می‌شود که سمینار فقط فهرستی از الگوریتم‌ها باشد.
+- نقش فرض‌ها، تابع سنجش و طول پنجره در اعتبار نتیجه نظری را نشان می‌دهد.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- متن ریاضی متراکم است و برای توضیح کامل آن باید زمان اختصاص داد.
+- ضمانت نظری معمولاً مشروط به فرض‌های مشخص است و لزوماً به همه جریان‌های واقعی تعمیم نمی‌یابد.
+- مقاله قدیمی‌تر از بخش عمده روش‌های جدید در مجموعه است.
+
+**کاربرد در روایت سمینار:** می‌توان نکته‌ای محدود درباره فرض‌های نظری یا تضمین‌های تشخیص آورد، بدون آنکه وارد اثبات‌های طولانی شد.
+
+**جمع‌بندی:** مکمل نظری مفید، اما احتمالاً نه یکی از محورهای مرکزی گزارش و نه مسیر اجرایی ساده.
+
+---
+
+## مقاله 10 — Towards Computational Performance Engineering for Unsupervised Concept Drift Detection (DATA 2024)
+
+**نقش:** بررسی هزینه محاسباتی و کامل‌کردن معیارهای مقایسه.
+
+**ایده اصلی:** نویسندگان استدلال می‌کنند که کیفیت Detector نباید فقط با معیار تشخیص سنجیده شود؛ زمان اجرا، پیچیدگی، مصرف منابع و گلوگاه‌های محاسباتی نیز برای جریان آنلاین مهم‌اند. مقاله پیچیدگی تعدادی از Detectorهای بدون‌ناظر را توضیح می‌دهد و شیوه‌های تحلیل عملکرد را با ردیابی دو پیاده‌سازی نمایش می‌دهد.
+
+**ارزش علمی برای سمینار:**
+- بُعدی مکمل به Precision/Recall و Detection Delay اضافه می‌کند.
+- نشان می‌دهد یک Detector با کیفیت تشخیص مطلوب، اگر در سرعت جریان داده اجرا نشود، شاید عملی نباشد.
+- مبنایی برای توضیح تفاوت پیچیدگی نظری و زمان اجرای اندازه‌گیری‌شده فراهم می‌کند.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- این کار یک تحلیل آغازین از عملکرد محاسباتی است، نه بنچمارک کامل تمام Detectorها.
+- زمان اجرا به سخت‌افزار، زبان، کتابخانه‌ها، اندازه داده و جزئیات پیاده‌سازی وابسته است.
+- ابزارهای HPC که در مقاله به کار رفته‌اند ممکن است برای سمینار تشریح شوند، بی‌آنکه لازم باشد کل محیط آزمایشی بازتولید شود.
+
+**کاربرد در روایت سمینار:** بخش معیارهای عملیاتی و مقایسه منصفانه؛ برای توضیح اینکه زمان اجرا معیار مکمل کیفیت تشخیص است.
+
+**جمع‌بندی:** مقاله مکمل مهم برای ارزیابی؛ به‌تنهایی روش تشخیص جدیدی برای محور اصلی سمینار ارائه نمی‌کند.
+
+---
+
+## مقاله 11 — A method to benchmark high-dimensional process drift detection (2025)
+
+**نقش:** بنچمارک دارای Ground Truth کنترل‌شده در داده‌های فرایندی/صنعتی.
+
+**ایده اصلی:** مقاله منحنی‌های فرایندی چندمتغیره با بخش‌های Drift کنترل‌شده می‌سازد و معیار Temporal AUC (TAUC) را برای سنجش شناسایی بخش‌های زمانی تغییر معرفی می‌کند.
+
+**ارزش علمی برای سمینار:**
+- مثال روشن از این است که داده مصنوعیِ کنترل‌شده چگونه زمان تغییر معلوم را برای ارزیابی فراهم می‌کند.
+- تفاوت AUC معمولی و معیاری که ساختار زمانی/بخش‌های تغییر را در نظر می‌گیرد، می‌تواند در بخش معیارهای ارزیابی مطرح شود.
+- برای بحث دشواری تشخیص چند Drift در یک جریان مفید است.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- مسئله منحنی‌های فرایندی تخصصی است و نماینده تمام جریان‌های داده نیست.
+- نتایج این بنچمارک را نباید بدون دلیل به داده‌های عمومی، متن، تصویر یا همه سری‌های زمانی تعمیم داد.
+- اگر از TAUC در سمینار استفاده شود، تعریف دقیق آن و چگونگی برخوردش با چند بخش Drift باید با PDF اصلی بررسی شود.
+
+**کاربرد در روایت سمینار:** نمونه موردی برای Ground Truth و معیار زمان‌محور، نه چارچوب اصلی تمام مقایسه‌ها.
+
+**جمع‌بندی:** مکمل خوب برای بخش ارزیابی؛ انتخاب آن به فضای قابل‌اختصاص در سمینار بستگی دارد.
+
+---
+
+## مقاله 12 — Machine learning based concept drift detection for predictive maintenance (2019)
+
+**نقش:** مطالعه موردی کاربرد صنعتی.
+
+**ایده اصلی:** مقاله از رگرسیون سری زمانی چندمتغیره و پیش‌بینی در افق لغزان برای تشخیص و تا حدی پیش‌بینی Drift در پایش وضعیت تجهیزات استفاده می‌کند. آزمایش‌های مصنوعی و یک مطالعه موردی فن شعاعی در داده run-to-failure گزارش شده‌اند.
+
+**ارزش علمی برای سمینار:**
+- یک نمونه ملموس از دلیل اهمیت Drift در سیستم عملیاتی ارائه می‌دهد.
+- تفاوت رخداد Drift، آشکارشدن افت عملکرد و پیش‌بینی زودترِ تغییر را قابل بحث می‌کند.
+- نشان می‌دهد نوع کاربرد و ساختار داده بر انتخاب روش تشخیص اثر دارد.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- بخش واقعی یک مطالعه صنعتی خاص است؛ تعمیم آن به همه کاربردها نیازمند احتیاط است.
+- دسترسی عمومی و بازتولیدپذیری داده فن و کد متناظر با مقاله هنوز تأیید نشده است.
+- کاربرد صنعتی ارزش توضیحی دارد، اما لزوماً بهترین مسیر برای پیاده‌سازی در پروژه فعلی نیست.
+
+**کاربرد در روایت سمینار:** یک مثال کاربردی در نگهداری و تعمیرات پیش‌بینانه، به‌ویژه اگر لازم باشد مزیت عملی پایش Drift توضیح داده شود.
+
+**جمع‌بندی:** برای زمینه‌سازی کاربردی مفید؛ از نظر اجرایی تا زمان تأیید دسترسی داده/کد گزینه پرریسک‌تری است.
+
+---
+
+## مقاله 13 — Concept drift detection in delayed and partially labeled data streams: An experimental survey (Digital Signal Processing, 2026)
+
+**نقش:** مرور و ارزیابی تشخیص در شرایط تأخیر و کمبود برچسب.
+
+**پرسش اصلی:** بسیاری از Detectorها فرض می‌کنند برچسب هر نمونه تقریباً بلافاصله بعد از پیش‌بینی در دسترس است. در کاربرد واقعی ممکن است برچسب دیر برسد یا برای بعضی نمونه‌ها هرگز تولید نشود. این مقاله روش‌ها و ارزیابی را در هر دو وضعیت بررسی می‌کند.
+
+**چارچوب دسته‌بندی:** روش‌ها را بر حسب پایش داده خام، پایش توزیع و طبقه‌بندی خروجی دسته‌بندی می‌کند و بین روش‌های وابسته به برچسب‌های ناقص، مستقل از برچسب و متکی بر برچسب دیررس تمایز می‌گذارد.
+
+**شواهد آزمایشی گزارش‌شده:**
+- آزمایش کمبود برچسب، ۹۵، ۹۶، ۹۷، ۹۸ و ۹۹ درصد برچسب‌های غیرقابل‌دسترس را بررسی می‌کند؛ برای هر وضعیت ۳۰ تکرار انجام شده است.
+- آزمایش تأخیر برچسب اندازه‌های ۱۰۰۰، ۲۰۰۰، ۴۰۰۰، ۸۰۰۰ و ۱۰۰۰۰ نمونه را بررسی می‌کند؛ هر تنظیم ۳۰ تکرار دارد.
+- ارزیابی بر پایه Prequential Evaluation تغییر داده شده تا برچسب‌ها حذف یا دیررس شوند. آزمایش‌ها روی انواع جریان مصنوعی با Drift ناگهانی و تدریجی انجام می‌شوند.
+
+**ارزش علمی برای سمینار:**
+- به یکی از فرض‌های مهم روش‌های برچسب‌محور می‌پردازد.
+- برای تفکیک «بدون‌ناظر»، «با برچسب ناقص» و «با برچسب دیررس» منبع مستقیم فراهم می‌کند.
+- نشان می‌دهد معیار ارزیابی باید با مدل دسترسی به برچسب سازگار باشد.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- ارزیابی مقاله شامل Detectorهای مبتنی بر Deep Learning نیست؛ نویسندگان این موضوع را محدودیت آزمایش خود می‌دانند.
+- نتیجه‌گیری‌ها به جریان‌های مصنوعی، سطح تأخیر/کمبود برچسب و روش‌های منتخب وابسته‌اند؛ از آن‌ها نباید نتیجه گرفت که یک روش در تمام داده‌های واقعی بهتر است.
+- معیارهایی مانند TPD، تأخیر تشخیص و هشدار کاذب باید دقیق تعریف شوند؛ نام مشابه معیارها الزاماً به معنی پروتکل یکسان در مقاله‌های مختلف نیست.
+
+**کاربرد در روایت سمینار:** برای فصل فرض‌های یادگیری و محدودیت دسترسی به برچسب، و برای بحث اینکه چرا روش بدون‌ناظر یا نیمه‌نظارتی می‌تواند در برخی محیط‌ها لازم باشد.
+
+**جمع‌بندی:** یک مکمل مستقیم و مهم به مجموعه اضافه می‌کند؛ ارزش آن در پوشش مسئله برچسب است، نه معرفی یک الگوریتم منفرد به‌عنوان برنده.
+
+---
+
+## مقاله 14 — A survey of processing methods for different types of concept drift (Data & Knowledge Engineering, 2026)
+
+**نقش:** taxonomy انواع Drift منفرد، ترکیبی و گروهی.
+
+**ایده اصلی:** مقاله روش‌های پردازش/مدیریت Drift را در سه سطح دسته‌بندی می‌کند: انواع منفرد، انواع ترکیبی و Group Concept Drift در چند جریان داده. برای انواع منفرد، تغییر واقعی و مجازی و زیرنوع‌هایی مانند abrupt، gradual، recurrent و local بررسی می‌شوند. برای Drift ترکیبی نیز ترکیب‌هایی از abrupt، gradual، incremental و recurring مطرح شده‌اند.
+
+**ارزش علمی برای سمینار:**
+- کمک می‌کند طبقه‌بندی فقط به «ناگهانی/تدریجی» محدود نماند.
+- تفاوت یک جریان داده با چند جریان مرتبط را توضیح می‌دهد.
+- نمونه‌هایی از روش‌های group drift مانند GDDM، TW-CDM و FairFedDrift و تفاوت سیگنال‌های آن‌ها را مطرح می‌کند.
+- برای شناسایی این پرسش مفید است که الگوریتم مورد مطالعه دقیقاً کدام نوع Drift را هدف گرفته است.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- عنوان از «processing methods» صحبت می‌کند و پوشش آن از تشخیص صرف گسترده‌تر است؛ بخشی از روش‌ها با پردازش یا سازگاری مدل سروکار دارند.
+- این مقاله یک taxonomy/مرور است، نه یک ارزیابی تجربی یکپارچه که همه روش‌ها را تحت پروتکل واحد مقایسه کند.
+- ادعای نو بودن طبقه‌بندیِ سه‌گانه را باید در برابر کارهای قبلی سنجید. برای معرفی مقاله به‌عنوان مرور نظام‌مند، وجود و کیفیت پروتکل روشن جست‌وجو و انتخاب منابع باید تأیید شود.
+- پوشش group drift و داده‌های نامتوازن چندکلاسه در ادبیات محدودتر است؛ خود مقاله نیز آن‌ها را مسیرهای باز می‌داند.
+
+**کاربرد در روایت سمینار:** منبعی برای اصلاح taxonomy انواع Drift و توضیح اینکه یک Detector محدود به یک نوع تغییر ممکن است در سناریوی ترکیبی یا چندجریانی کافی نباشد.
+
+**جمع‌بندی:** مکمل مهم از نظر پوشش انواع؛ با این قید که تمام روش‌های مرورشده لزوماً Detectorهای یادگیری ماشین نیستند و نباید در بخش اصلی روش‌های تشخیص خلط شوند.
+
+---
+
+## مقاله 15 — From XAI to MLOps: Explainable concept drift detection with the partial dependence profiles-based approach (Future Generation Computer Systems, 2026)
+
+**نقش:** تشخیص Drift همراه با توضیح رابطه ویژگی‌ها با پیش‌بینی مدل.
+
+**ایده اصلی:** روش Profile Drift Detection (PDD) از Partial Dependence Profiles (PDPs) استفاده می‌کند و تغییر این پروفایل‌ها را با سه معیار می‌سنجد:
+- **L2:** فاصله کلی بین پروفایل‌ها.
+- **L2Der:** اختلاف مشتق/شیب پروفایل‌ها برای تشخیص تغییر شکل و رفتار محلی.
+- **PDI:** مقایسه جهت افزایشی یا کاهشی پروفایل در نقاط متناظر.
+
+نسخه توسعه‌یافته PDD-k چند ویژگی مهم را پایش می‌کند؛ اگر معیارهای آن از آستانه‌ها عبور کنند، Drift اعلام می‌شود و فرآیند بازآموزی/تنظیم مجدد اجرا می‌شود.
+
+**داده و طراحی ارزیابی گزارش‌شده:** شش مجموعه‌داده SEA، Hyperplane، NOAA، Ozone، Elec2 و Friedman استفاده شده‌اند. برای مدل‌ها از Logistic Regression، Decision Tree و Random Forest استفاده می‌شود و برای Friedman رگرسیون خطی به‌کار رفته است. مقاله روش را با HDDM-A، HDDM-W، KSWIN، Page-Hinkley، DDM و EDDM مقایسه می‌کند. دانه‌بندی Batch نیز در ۱۰، ۲۰ و ۳۰ Batch بررسی شده است.
+
+**ارزش علمی برای سمینار:**
+- از «آیا Drift رخ داده؟» به «کدام رابطه ویژگی-پیش‌بینی تغییر کرده است؟» نزدیک می‌شود.
+- برای بخش XAI و توضیح‌پذیری یک روش ملموس ارائه می‌کند.
+- بر اهمیت تعداد ویژگی‌های پایش‌شده، اندازه Batch و هزینه محاسباتی تأکید دارد.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- نتیجه به ساختار PDP، انتخاب ویژگی‌های مهم و آستانه‌های تنظیم‌شده حساس است.
+- در برخی وضعیت‌ها تغییرهای کوچک اما تجمعی می‌توانند از آستانه یک Batch عبور نکنند؛ در مقابل، آستانه نامناسب می‌تواند هشدار کاذب ایجاد کند.
+- پایش چند ویژگی هزینه را افزایش می‌دهد. نویسندگان با کاهش نمونه و فشرده‌سازی شبکه PDP کاهش زمان را گزارش می‌کنند، اما این اعداد به تنظیمات آزمایش مشخص وابسته‌اند.
+- مقایسه با Baselineهای دارای تنظیمات پیش‌فرض لزوماً معادل مقایسه کاملاً بهینه‌شده برای همه روش‌ها نیست.
+- مقاله بین Concept Drift و Data/Covariate Drift هم تمایز می‌گذارد؛ در استفاده از مثال‌ها باید دقیقاً مشخص شود کدام تغییر اندازه‌گیری شده است.
+- تبدیل MarkIt در فرمول‌ها ناقص است؛ برای توضیح دقیق متریک‌ها و الگوریتم، PDF اصلی لازم است.
+
+**کاربرد در روایت سمینار:** نمونه‌ای از Detector تبیین‌پذیر؛ می‌توان آن را با PUDD مقایسه کرد: PUDD تغییر در شاخص عدم‌قطعیت را رصد می‌کند، در حالی که PDD تغییر در منحنی‌های وابستگی جزئی را دنبال می‌کند.
+
+**جمع‌بندی:** روش جدید و متمایزی برای پوشش تبیین‌پذیری است، اما ادعای «بهترین روش» یا تعمیم‌پذیری آن هنوز از متن مقاله به‌تنهایی نتیجه نمی‌شود. پیاده‌سازی عمومی مرتبط باید با روش نهایی مقاله تطبیق داده شود.
+
+---
+
+## مقاله 16 — Anticipating to Change: A Proactive Approach for Concept Drift Adaptation in Data Streams (Machine Learning; online 2025 / volume 2026)
+
+**نقش:** سازگاری پیش‌دستانه و مرزبندی آن با تشخیص واکنشی.
+
+**ایده اصلی:** در سازگاری واکنشی، تغییر پس از رخ‌دادن شناسایی می‌شود و سپس مدل به‌روزرسانی می‌شود. مقاله سازوکارهایی برای پیش‌بینی حرکت داده و تغییر ساختار مدل قبل از افت قابل‌توجه عملکرد مطرح می‌کند. چهار راهبرد مبتنی بر Very Fast Decision Tree (VFDT) پیشنهاد می‌شوند: Move، Move and Rotate، Move and Create و Shadow.
+
+**طراحی آزمایش گزارش‌شده:**
+- جریان‌های مصنوعی بر مبنای Random Radial Basis Function Generator ساخته شده‌اند.
+- ۷۲ پیکربندی پایه با ابعاد ویژگی و تعداد خوشه‌های متفاوت بررسی شده‌اند؛ سناریوهای Drift از چهار نوع حرکت خوشه‌ای مانند Chase، Cross، Split و Merge استفاده می‌کنند.
+- جریان‌ها دودسته‌ای و متوازن طراحی شده‌اند تا تمرکز آزمایش بر تغییر مفهوم باشد.
+- مقاله آزمایش‌هایی روی شرایط سرعت‌های مختلف Drift و داده‌های واقعی نیز شرح می‌دهد. معیار اصلی Prequential Accuracy با پنجره لغزان ۵۰۰ نمونه است و معیارهای تکمیلی برای اپیزودهای افت عملکرد و توانایی پیش‌دستی معرفی می‌شوند.
+
+**ارزش علمی برای سمینار:**
+- تفاوت «تشخیص پس از رخداد»، «پیش‌بینی تغییر» و «تغییر دادن/سازگارکردن مدل» را روشن می‌کند.
+- نشان می‌دهد یک مقاله با عنوان مرتبط با Concept Drift ممکن است موضوع اصلی‌اش Detector نباشد.
+- برای بحث Adaptation می‌تواند مثال پژوهشی ملموسی باشد.
+
+**محدودیت‌ها و احتیاط‌ها:**
+- تمرکز اصلی مقاله روی Drift افزایشی است؛ سودمندی پیش‌دستی برای همه Driftهای ناگهانی تضمین نشده است.
+- موفقیت روش به فرض یا برآورد روند حرکت داده وابسته است؛ برآورد نادرست می‌تواند باعث ناپایداری یا تغییر نامناسب مدل شود.
+- معیار اصلی دقت پیش‌بینی، معیار مستقیمی برای سنجش کیفیت یک Drift Detector نیست. این نتایج نباید مستقیماً با F1 تشخیص یا Detection Delay یک مقاله دیگر مقایسه شوند.
+- کد عمومی مقاله وجود دارد، اما وجود مخزن هنوز به معنای بازتولید مستقل نتیجه‌ها نیست.
+
+**کاربرد در روایت سمینار:** فقط برای یک بخش کوتاه درباره ارتباط Detection با Response/Adaptation. بهتر است در مقایسه اصلی الگوریتم‌های تشخیص، با Detectorهای مستقیم هم‌ردیف نشود.
+
+**جمع‌بندی:** مکمل مفهومی مفید؛ برای عنوان فعلی، اولویت آن از سه مقاله جدیدی که مستقیماً مسئله تشخیص را پوشش می‌دهند پایین‌تر است.
+
+---
+
+## 4. مقایسه خانواده‌های روش‌ها
+
+| خانواده/سیگنال | مقاله‌های نماینده در مجموعه | سیگنال اصلی | نکته مقایسه‌ای |
+|---|---|---|---|
+| مرورهای کلی و taxonomy | 1، 2، 13، 14 | دسته‌بندی ادبیات | هر مرور سؤال متفاوتی را پاسخ می‌دهد؛ هم‌پوشانی باید هنگام انتخاب نهایی کنترل شود |
+| آزمون‌های آماری و توزیعی | 2، 3، 5، 10؛ Baselineهای مقاله 15 | تفاوت آماری میان پنجره‌ها/توزیع‌ها | به متغیر پایش‌شده، اندازه پنجره، آستانه و هزینه اجرا حساس‌اند |
+| عدم‌قطعیت پیش‌بینی | 4 (PUDD) | تغییر در توزیع PU-index | ممکن است تغییری را نشان دهد که خطای خام هنوز آشکار نکرده، ولی به نحوه ساخت شاخص و آستانه وابسته است |
+| طبقه‌بند تفکیک‌کننده | 6 (D3) | میزان تفکیک‌پذیری پنجره قدیمی و جدید | سادگی و تفسیرپذیری خوب؛ نسخه خطی محدودیت برای تغییرهای غیرخطی دارد |
+| Student–Teacher | 7 (STUDD) | تغییر در تقلید رفتار مدل | بدون برچسب مستقیم ممکن است؛ تغییر خطای تقلید الزاماً با هر تغییر مفهومی برابر نیست |
+| پروفایل‌های توضیح‌پذیر | 15 (PDD) | تغییر در PDP ویژگی‌های مهم | هم سیگنال تشخیص و هم توضیح رابطه ویژگی-پیش‌بینی؛ هزینه و آستانه مهم‌اند |
+| روش‌های برچسب‌محور/با برچسب ناقص یا دیررس | 13 و Detectorهای مرورشده در 2 | خطای مدل، خروجی طبقه‌بندی یا سیگنال‌های داده | زمان رسیدن برچسب، مدل ارزیابی را تغییر می‌دهد |
+| نظری | 9 (Plover) | کران‌ها و تضمین‌های مشروط | فرض‌های نظری باید قبل از تعمیم به محیط واقعی بیان شوند |
+| سازگاری مبتنی بر نوع یا پیش‌دستی | 8 (Type-LDA)، 16 | زمان/نوع Drift و تغییر مدل | به بخش Response/Adaptation مربوط است و نباید با Detection خلط شود |
+
+**نکته مهم:** این خانواده‌ها کاملاً جدا از یکدیگر نیستند. مثلاً یک روش می‌تواند هم آماری باشد و هم از مدل یادگیری ماشین سیگنال بگیرد. هدف جدول، ساختن چارچوب مقایسه است، نه طبقه‌بندی مطلق تمام الگوریتم‌ها.
+
+---
+
+## 5. جمع‌بندی مسائل علمی که باید در سمینار روشن شوند
+
+### 5.1 تعریف و مرزبندی مفاهیم
+سمینار باید تعریف کاری مشخصی از Concept Drift داشته باشد و آن را با Data Drift، Model Drift، Anomaly Detection و Out-of-Distribution اشتباه نگیرد. تغییر در P(X) به‌تنهایی لزوماً به معنی تغییر رابطه P(Y|X) نیست. اصطلاحات میان مقالات ممکن است متفاوت استفاده شوند؛ این اختلاف باید مشخص شود، نه اینکه پنهان بماند.
+
+### 5.2 انواع Drift
+تعریف abrupt، gradual، incremental و recurring ضروری است. مقاله 14 کمک می‌کند تغییرهای ترکیبی، local و group/multistream نیز از قلم نیفتند؛ اما بخش اصلی سمینار نباید به فهرست طولانی زیرنوع‌ها تبدیل شود. باید روشن شود هر نوع تغییر چه چالشی برای Detector ایجاد می‌کند.
+
+### 5.3 نقش یادگیری ماشین در Detector
+«استفاده از ML در تشخیص» یک خانواده واحد نیست. در مجموعه فعلی، طبقه‌بند تفکیک‌کننده، مدل Teacher–Student، شاخص عدم‌قطعیت و PDPهای توضیح‌پذیر سیگنال‌های متفاوتی می‌سازند. روش‌های آزمون آماری نیز باید به‌عنوان روش‌های مقایسه‌ای/پایه معرفی شوند، اما همه آن‌ها را نباید به‌صورت خودکار الگوریتم یادگیری ماشین نامید.
+
+### 5.4 Ground Truth و ماهیت داده
+سه حالت را از هم جدا کن:
+1. داده مصنوعی با Drift از پیش تعیین‌شده؛
+2. داده واقعی که Drift کنترل‌شده به آن تزریق شده است؛
+3. جریان طبیعی واقعی که زمان دقیق Drift آن معلوم نیست یا تأیید مستقل ندارد.
+
+مقاله 3 برای حالت دوم و مقاله 11 برای یک بنچمارک تخصصیِ ساخته‌شده مفیدند. برچسب کلاس نمونه‌ها، به‌تنهایی، زمان شروع Drift را معلوم نمی‌کند. در ارزیابی Detector، کیفیت طبقه‌بند و توانایی شناسایی رویداد Drift باید با معیارهای جداگانه سنجیده شوند.
+
+### 5.5 معیارهای سنجش
+معیارهای مناسب بسته به نوع آزمایش متفاوت‌اند:
+- **Detection quality:** Precision، Recall و F1 برای رویدادهای Drift با تعریف روشن؛
+- **Timing:** Detection Delay و شیوه تطبیق هشدار با زمان واقعی/تزریق‌شده تغییر؛
+- **False alarms / missed drifts:** هشدارهای کاذب و تغییرهای شناسایی‌نشده؛
+- **Predictive performance:** Accuracy، F1 طبقه‌بند یا خطای پیش‌بینی قبل و بعد از تغییر؛
+- **Runtime/resource use:** زمان اجرا، حافظه و مقیاس‌پذیری.
+
+Accuracy بالای مدل معادل Detector خوب نیست. همین‌طور مقایسه اعداد مقاله‌ها بدون داده، Drift، معیار و پروتکل مشترک معتبر نیست.
+
+### 5.6 محدودیت‌های مشترک و موضوعات باز
+از کنار هم گذاشتن ۱۶ مقاله، این محورهای قابل پیگیری دیده می‌شوند:
+- تأخیر یا کمبود برچسب و وابستگی روش‌های برچسب‌محور؛
+- تشخیص Driftهای تدریجی و تغییرهای کوچک اما تجمعی؛
+- آستانه‌گذاری، اندازه پنجره/Batch و حساسیت به پارامترها؛
+- نیاز به Ground Truth و معیارهای قابل مقایسه؛
+- trade-off بین کیفیت تشخیص، تأخیر، هشدار کاذب و هزینه اجرا؛
+- تشخیص توضیح‌پذیر و شناسایی ویژگی‌هایی که رابطه آن‌ها با خروجی تغییر کرده است؛
+- تعمیم روش‌ها به Drift ترکیبی و گروهی در چند جریان داده؛
+- مرزبندی تشخیص از سازگاری واکنشی یا پیش‌دستانه مدل.
+
+این محورها «فهرست نوآوری‌های تأییدشده برای پایان‌نامه» نیستند. برای انتخاب مسئله پژوهشی باید کارهای مرتبط، روش‌های جدید، فرضیات و امکان ارزیابی آن مسئله دوباره بررسی شود.
+
+---
+
+## 6. نقش پیشنهادی مقاله‌ها در ساختار علمی سمینار
+
+این بخش برای سازمان‌دهی روایت علمی است، نه انتخاب فهرست نهایی.
+
+| بخش احتمالی سمینار | مقاله‌های مناسب برای مطالعه و استناد | دلیل |
 |---|---|---|
-| Broad taxonomy and terminology | Systematic review (1) | Best for organizing the field, not for comparing raw performance |
-| Fully unsupervised detector implementation and benchmark | Unsupervised benchmark (2), D3 (6), STUDD (7) | No continuous true labels are required by these detector approaches, but evaluation may still use labels or synthetic drift positions |
-| Controlled evaluation and cross-dataset tuning | KDD framework (3) | Controlled drift injection makes the injected onset known; it does not reveal natural historical onset in untouched real data |
-| Uncertainty-based early signal | PUDD (4) | Tests whether prediction uncertainty changes before classification error; alarm threshold remains a research opportunity |
-| Distribution tests + multi-scale windows | WinDrift++ (5) | Designed to detect multiple kinds of statistical change; fixed windows are an acknowledged limitation |
-| Type-aware adaptation | Type-LDA (8) | Goes beyond “when did drift happen?” to “what kind of drift happened and how should the model relearn?” |
-| Formal guarantees | Plover (9) | Provides theoretical assumptions/bounds, but higher mathematical and implementation burden |
-| Runtime/memory | Performance engineering (10) | Quality metrics alone are not enough when detectors must run online |
-| Controlled process ground truth and temporal score | Process benchmark (11) | Strong within its process-curve domain, not a universal concept-drift benchmark |
-| Industrial application | Predictive maintenance (12) | Useful application evidence; dataset/code reproducibility remains unverified |
+| تعریف مسئله، انواع و اصطلاحات | 1، 13، 14 | تعریف پایه، تغییر در حضور برچسب ناقص/دیررس، انواع ترکیبی و گروهی |
+| خانواده‌های اصلی Detectorها | 2، 4، 5، 6، 7، 13، 15 | پوشش روش‌های بدون‌ناظر، آزمون آماری، عدم‌قطعیت، classifier، student–teacher و PDD |
+| ارزیابی، داده و Ground Truth | 2، 3، 10، 11، 13 | تفاوت معیارها، Drift تزریق‌شده، ارزیابی زمان‌محور، هزینه محاسباتی و نبود برچسب |
+| توضیح‌پذیری و چرایی تغییر | 15 | نشان‌دادن اینکه یک Detector می‌تواند نشانه‌ای از علت تغییر هم ارائه کند |
+| کاربرد صنعتی | 12؛ و بر حسب نیاز 11 | نمونه نگهداری پیش‌بینانه و داده فرایندی |
+| Detection در برابر Adaptation | 1، 8، 16 | تفاوت هشدار، تصمیم برای بازآموزی و سازگاری پیش‌دستانه |
+| مبانی نظری | 9 | فرض‌ها و تضمین‌های تئوریک، اگر سطح جزئیات سمینار اجازه دهد |
 
-## نامزدهای پایان‌نامه — مسیر بررسی در مرحله پروپوزال
+---
 
-این بخش یک برنامه فنی آینده‌نگر است، نه دستور اجرای کار فوری. اولویت دو ماه آینده نگارش سمینار است؛ در ماه پس از آن، این پرسش‌ها برای انتخاب مقاله مبنا دوباره بررسی خواهند شد. نامزدهای فعلی صرفاً موقت‌اند و جست‌وجوی علمی جدید می‌تواند گزینه‌های دیگری اضافه کند.
+## 7. آنچه هنوز تصمیم‌گیری نشده است
 
-The two strongest current candidates are PUDD and WinDrift++, for different reasons:
+- هیچ فهرست نهایی ۷ تا ۱۰ مقاله برای سمینار انتخاب نشده است.
+- هیچ‌کدام از PUDD، WinDrift++ یا مقاله دیگری به‌عنوان مقاله قطعی مبنای پایان‌نامه انتخاب نشده‌اند.
+- هیچ روش یا تغییر الگوریتمی به‌عنوان نوآوری پایان‌نامه تأیید نشده است.
+- هنوز بازتولید مستقل نتیجه‌های ادعاشده در این ۱۶ مقاله انجام نشده است.
+- اضافه‌شدن مقاله‌های ۱۳ تا ۱۶ به مجموعه تحلیل، به‌معنی آن نیست که همه آن‌ها حتماً باید در گزارش نهایی سمینار نقل شوند.
 
-- **PUDD:** an identifiable open issue around manual alarm-threshold selection, and a clear first experiment on synthetic/tabular streams.
-- **WinDrift++:** an identifiable open issue around fixed window scales and a clear baseline implementation based on statistical tests.
+## 8. گام بعدی
 
-Do not choose between them from the reported accuracy alone. **When the proposal phase begins**, the next gate should be a bounded reproducibility check:
-1. Select one synthetic dataset with known drift locations from each repository.
-2. Run the authors’ smallest documented example with pinned dependencies.
-3. Confirm that the detector produces alarms and that the evaluation script can score them against known drift locations.
-4. Reproduce one reported table row or figure as closely as practical.
-5. Record runtime, environment, any code/data modifications, and discrepancies.
-6. Only then compare a narrowly scoped extension (for example, threshold calibration for PUDD or adaptive window selection for WinDrift++) against the original method and fair baselines.
+گام بعدی بهتر است انتخاب مقاله نهایی نباشد. ابتدا با همین ۱۶ مقاله یک **ماتریس مقایسه علمی یکپارچه** بسازیم که در آن هر مقاله بر اساس سؤال پژوهش، نوع روش، شرایط دسترسی به برچسب، داده و Ground Truth، معیارها، محدودیت‌ها، نقش در سمینار و میزان هم‌پوشانی با بقیه مقایسه شود. پس از دیدن این ماتریس، منابع نهایی سمینار را بر اساس مکمل‌بودن انتخاب می‌کنیم و مقاله مبنای پایان‌نامه را جدا نگه می‌داریم.
 
-These are candidate research directions, not novelty claims. A contribution is defensible only after a more targeted literature check confirms that the exact proposed extension is not already solved and after a controlled experiment shows a meaningful benefit.
-
-## Decisions intentionally not made yet
-
-- The final 7–10 seminar papers are not selected here.
-- No claim is made that any repository’s tests pass in our environment.
-- No dataset is yet declared “easy” solely because a link or filename exists.
-- No natural real-world stream is assumed to have exact ground-truth drift timestamps.
-- No thesis novelty claim is made from an author’s future-work paragraph alone.
-
-## Next actions — revised for the seminar-first timeline
-
-1. Build a coverage map for the seminar: definition and scope of Concept Drift; types and scenarios of drift; major families of ML-based detection methods; distinction between Detection and Adaptation; supervised/unsupervised settings and label assumptions; datasets and benchmarks; Ground Truth; metrics and threats to validity; major limitations and recent research directions.
-2. Compare this map with the 12-paper report and the existing priority matrix. Identify specific missing parts of the story rather than assuming that the current collection is complete.
-3. Perform targeted searches in relevant scholarly databases and publisher sites for updated surveys, important primary methods from 2024–2026, and work on evaluation/benchmarks/Ground Truth. Record the search query, date, venue/database, useful results and why each new paper changes or does not change coverage in CONCEPT_DRIFT_RESEARCH_LOG.md.
-4. Verify method-defining formulas, tables and figures against the original PDF only when they matter to explaining a selected method or supporting a seminar claim. Do not repeat all PDF conversions or all deep-reading work without a concrete reason.
-5. Select the final 7–10 seminar papers only after the narrative is scientifically coherent and the key method families and evaluation issues are represented. If a new paper provides a stronger or missing role, allow it to replace a current candidate.
-6. Keep PUDD and WinDrift++ as provisional thesis candidates. Defer the full reproduction gate and thesis-base decision until the month planned for proposal preparation, except where a bounded code check is necessary to resolve an important seminar claim.
-7. When proposal preparation begins, compare 2–3 candidates against reproducibility, data access, Ground Truth, metrics, baselines, implementation cost and extension potential. A paper's stated future work is a lead for a literature search, not proof of novelty.
+**وضعیت ثبت فایل:** این گزارش به‌عنوان نسخه بازسازی‌شده بررسی علمی ۱۶ مقاله در مسیر اصلی پروژه قرار می‌گیرد. این اقدام به معنی تأیید سایر تغییرات احتمالی در READMEها، راهنماهای پوشه یا Research Log نیست؛ برای تغییر هر فایل دیگر، ابتدا اجازه جداگانه گرفته می‌شود.
