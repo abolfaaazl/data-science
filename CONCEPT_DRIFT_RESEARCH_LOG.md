@@ -4,7 +4,7 @@
 **Approved seminar topic:** Using machine-learning algorithms to detect pattern changes in dynamic data (Concept Drift)  
 **Repository:** `abolfaaazl/data-science`  
 **Working language:** Persian for analysis and planning; retain original English paper titles and technical terms.  
-**Last updated:** 2026-10-21
+**Last updated:** 2026-10-22
 
 ## 1. Purpose of this file
 
@@ -12,11 +12,23 @@ This is the persistent project log for the literature-screening workflow. At the
 
 This file records the workflow and decisions; it is not itself evidence that a screening stage has been completed.
 
+## وضعیت جاری و اولویت زمانی — به‌روزرسانی ۲۲ اکتبر ۲۰۲۶
+
+اولویت فعلی پروژه از این تاریخ **فهم علمی و نگارش سمینار** است: طبق برنامه کاربر، حدود ۸۰٪ تمرکز در دو ماه آینده باید روی پوشش نظام‌مند حوزه و آماده‌کردن سمینار باشد. پس از این بازه، حدود یک ماه برای انتخاب مقاله مبنا، مشخص‌کردن مسئله دقیق و تدوین پروپوزال پایان‌نامه در نظر گرفته شده است.
+
+- ماتریس ۱۲ مقاله و گزارش مطالعه عمیق مرحله اول، نقطه شروع هستند؛ انتخاب‌های آن‌ها موقتی است و فهرست نهایی سمینار یا پایان‌نامه نیست.
+- لازم است جست‌وجوی تکمیلی در پایگاه‌های علمی و وب‌سایت ناشران معتبر انجام شود و در صورت نیاز در چند نوبت به‌روز شود. این کار برای تکمیل پوشش علمی است، نه برای تکرار بی‌دلیل غربالگری قبلی.
+- هر نوبت جست‌وجو باید پرسش مشخص، پایگاه/ناشر، تاریخ، نتیجه مهم و تأثیر آن بر نقشه پوشش سمینار را ثبت کند. مقاله جدید در صورت داشتن ارزش علمی واقعی می‌تواند وارد ماتریس شود و نامزدهای فعلی را جابه‌جا کند.
+- تا زمان پایان سمینار، اجرای طولانی و انتخاب قطعی PUDD یا WinDrift++ اولویت نخست نیست. بررسی فنی محدود فقط وقتی انجام شود که به فهم علمی سمینار کمک کند.
+- هنگام آماده‌سازی پروپوزال، گزینه‌های موجود و مقالات جدید باید دوباره بر پایه ارتباط علمی، قابلیت بازتولید، دسترسی به داده، Ground Truth، معیارها، خطوط پایه و ظرفیت توسعه مقایسه شوند.
+
 ## 2. Research objective
 
-From the current collection of 41 extracted-text files (corresponding to 41 PDFs), identify a **provisional shortlist of about 15–20 papers** for the seminar. This is a conservative first-pass screen, not the final selection. Later, assess the shortlist in depth and select the strongest seminar set and one or more defensible base-paper candidates for the thesis proposal.
+هدف جاری فقط تولید یک فهرست محدود مقاله نیست؛ باید برای سمینار با عنوان «استفاده از الگوریتم‌های یادگیری ماشین در تشخیص تغییر الگو در داده‌های پویا» یک **پوشش علمی منسجم و قابل‌دفاع** ایجاد شود. این کار شامل تعریف دقیق Concept Drift، انواع تغییر، خانواده‌های روش‌های تشخیص، نقش Machine Learning، مرز Detection و Adaptation، داده‌ها و بنچمارک‌ها، Ground Truth، معیارهای ارزیابی، محدودیت‌ها و روندهای پژوهشی است.
 
-The central topic is Concept Drift in evolving/dynamic data streams. Papers on detection, adaptation, detection-and-adaptation frameworks, benchmarks, evaluation, and relevant applications may all be useful, but their role and relevance must be explicitly classified.
+مجموعه ۴۱ فایل متنی اولیه پس از رفع تکراری‌ها حدود ۳۹ مقاله متمایز دارد؛ ۱۲ مقاله برای تبدیل MarkIt و مطالعه عمیق‌تر اولویت گرفته‌اند. این ۱۲ مقاله فقط نامزدهای فعلی‌اند. در صورت نیاز، جست‌وجوی تازه در پایگاه‌های علمی و صفحات ناشران انجام می‌شود و نتایج مرتبط می‌توانند مجموعه را تغییر دهند. انتخاب نهایی ۷ تا ۱۰ مقاله سمینار پس از اطمینان از پوشش و مکمل‌بودن منابع انجام می‌شود. انتخاب مقاله مبنای پایان‌نامه جداست و برای مرحله پروپوزال نگه داشته می‌شود.
+
+این دفترچه باید هم تاریخچه تصمیم‌های قبلی و هم برنامه جاری را نگه دارد؛ توصیه‌های قدیمی در ثبت‌های تاریخ‌دار، سابقه تاریخی هستند و لزوماً اولویت امروز را تعیین نمی‌کنند.
 
 ## 3. Conservative screening policy
 
@@ -102,7 +114,7 @@ No dimension should be treated as a hard exclusion rule in the initial pass. Rec
 6. After deep reading: ranked recommendations for seminar theory, practical implementation, and thesis base paper.
 7. A running decision log with completed work, findings, changes, open questions, and the next action.
 
-## 7. Current state (2026-10-21)
+## 7. وضعیت ثبت‌شده در ۲۱ اکتبر ۲۰۲۶ (تصویر تاریخی)
 
 - [x] User reports that PDFs were converted to readable text files locally and uploaded to `extracted_text/`.
 - [x] GitHub tree was checked: 41 `.txt` files are present in `extracted_text/`.
@@ -312,3 +324,21 @@ This is a documentary deep-reading pass only. **No code has been run, no dataset
 - Added `STAGE5_PUDD_MINIMAL_REPRODUCTION_GATE.md` with exact command, environment/smoke-test gate, alarm-trace gate, evaluation gate, pass/fail criteria, and decision rule.
 - Execution status: source inspection only. Local shell could not resolve GitHub DNS, so the upstream repository could not be cloned/run in this environment. This does not establish failure on the user's Windows machine. No reproduction is claimed.
 - Decision: PUDD remains a provisional candidate, not the final thesis base. Next evidence needed is a single successful SINE/GNB run plus an interpretable alarm trace and event-level evaluation. If that requires substantial reconstruction, pivot to a simpler detector/baseline with clearer ground-truth metrics.
+
+
+### 2026-10-22 — بازتنظیم اولویت‌ها بر اساس زمان‌بندی کاربر
+
+#### تصمیم فعلی: سمینار مقدم بر انتخاب مقاله پایان‌نامه است
+کاربر روشن کرد که حدود ۸۰٪ تمرکز او طی دو ماه آینده روی نگارش سمینار است و حدود یک ماه پس از آن را برای انتخاب مقاله مبنا و آماده‌سازی پروپوزال در نظر گرفته است. بنابراین توصیه‌های قبلی برای بازتولید فوری PUDD یا انتخاب سریع مقاله مبنا، دیگر گام بعدی اصلی نیستند؛ سندهای فنی مربوطه حفظ می‌شوند، اما برای مرحله بعدی کنار گذاشته شده‌اند مگر آنکه به فهم یک ادعای علمی سمینار کمک کنند.
+
+#### روش کار مورد توافق
+1. از ماتریس [CANDIDATE_PRIORITY_MATRIX.md](CANDIDATE_PRIORITY_MATRIX.md) و گزارش [MARKDOWN_DEEP_READ_STAGE1.md](MARKDOWN_DEEP_READ_STAGE1.md) به‌عنوان مبنای موجود استفاده شود؛ غربالگری قبلی بدون دلیل از ابتدا تکرار نشود.
+2. نقشه پوشش سمینار با بخش‌های مفهومی، خانواده‌های روش‌ها، ML، Detection/Adaptation، داده و Ground Truth، معیارها، بنچمارک‌ها، محدودیت‌ها و روندهای تازه ساخته شود.
+3. اگر برای پوشش یک بخش یا تعریف مسئله منبع کافی نیست، در پایگاه‌ها و سایت‌های ناشران معتبر جست‌وجوی جدید انجام شود. تکرار جست‌وجو در آینده مجاز است، چون وضعیت انتشار و شناخت حوزه می‌تواند تغییر کند.
+4. برای هر دور جست‌وجو، پرسش‌ها، پایگاه/ناشر، تاریخ، منابع مهم، نقش هر منبع در پوشش علمی و تصمیم اضافه/عدم اضافه‌کردن ثبت شود. جست‌وجوی تکراری که هیچ خلأ یا تصمیمی را تغییر نمی‌دهد، متوقف شود.
+5. پس از آماده‌شدن سمینار، نامزدهای فعلی و هر مقاله جدید با معیارهای جداگانه بررسی شوند؛ PUDD و WinDrift++ گزینه‌های موقت‌اند، نه تصمیم قطعی. سپس در ماه پروپوزال بازتولید محدود و ارزیابی فنی گزینه برتر انجام شود.
+
+#### کارهای ثبت‌شده در تاریخچه که همچنان معتبرند
+- ۱۲ مقاله تبدیل MarkIt شده و گزارش مطالعه عمیق اولیه تهیه شده است.
+- کد PUDD در یک اجرای اولیه محلی روی sine/GNB اجرا شده؛ این نتیجه معادل بازتولید مقاله یا ارزیابی کامل تشخیص drift نیست.
+- پرسش‌های مربوط به Ground Truth، معیارهای event-level، تطبیق PDF با Markdown و امکان اجرای کد همچنان برای تصمیم مقاله پایان‌نامه معتبرند؛ اولویت زمانی انجام آن‌ها به مرحله مناسب منتقل شده است.
