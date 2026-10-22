@@ -1,17 +1,23 @@
-# Candidate Priority Matrix — Before MarkIt Deep Reading
+# ماتریس اولویت‌بندی مقالات کاندید — مرحله اولیه انتخاب برای MarkIt
 
-**Date:** 2026-10-21  
-**Purpose:** Narrow the 39 distinct papers to a manageable set for Markdown conversion and deep reading. This is **not** the final 7–10-paper seminar selection and does not lock the thesis topic.
+**تاریخ شروع:** ۲۱ اکتبر ۲۰۲۶  
+**هدف اولیه:** محدودکردن مجموعه حدود ۳۹ مقاله متمایز به گروهی قابل‌مدیریت برای تبدیل به Markdown و مطالعه عمیق. این فایل **فهرست نهایی ۷ تا ۱۰ مقاله سمینار نیست** و موضوع پایان‌نامه را قطعی نمی‌کند.
 
-## Decision rule
+## راهنمای استفاده و اولویت فعلی
 
-Prioritize papers that are likely to change one of these decisions:
-1. How we explain the field in the seminar.
-2. Which detection-method families we compare.
-3. Which data/ground-truth/evaluation protocol is defensible.
-4. Which paper could be reproduced and extended for the thesis.
+این ماتریس سابقه تصمیم‌گیری است: نشان می‌دهد هر مقاله چرا برای مطالعه زودتر انتخاب شده و هنگام مطالعه چه نکاتی باید بررسی شوند. این اولویت‌ها برای مدیریت زمان بوده‌اند، نه حکم قطعی درباره برتری علمی مقاله‌ها.
 
-Use separate judgments for seminar value and thesis-base value. Public code is not a prerequisite for seminar value; it is only one requirement for thesis feasibility. Do not treat a GitHub README as proof of reproducibility.
+طبق برنامه فعلی، در دو ماه آینده اولویت اصلی فهم حوزه و نگارش سمینار است؛ جست‌وجوی علمی تکمیلی در پایگاه‌های معتبر و صفحات ناشران نیز می‌تواند تکرار شود تا خلأهای پوشش موضوع پیدا شوند. ۱۲ مقاله این ماتریس فقط نامزدهای فعلی‌اند و ممکن است با شواهد تازه تغییر کنند. انتخاب مقاله مبنای پروپوزال در ماه بعد از سمینار و با معیارهای جداگانه انجام می‌شود.
+
+## معیار اولویت‌بندی
+
+مقاله‌ها بر اساس احتمال تأثیرگذاری بر این تصمیم‌ها اولویت گرفته‌اند:
+1. چطور حوزه Concept Drift را در سمینار توضیح بدهیم و سازمان‌دهی کنیم.
+2. کدام خانواده‌های روش تشخیص باید با هم مقایسه شوند.
+3. چه پروتکل داده، Ground Truth و ارزیابی برای یک مقایسه علمی قابل‌دفاع است.
+4. کدام مقاله ممکن است در آینده قابلیت بازتولید و توسعه برای پایان‌نامه داشته باشد.
+
+ارزش مقاله برای سمینار را از ارزش آن برای مقاله مبنای پایان‌نامه جدا ارزیابی کن. برای سمینار داشتن کد عمومی ضروری نیست؛ برای پایان‌نامه وجود کد فقط یکی از عوامل امکان‌پذیری است. وجود README در GitHub اثبات نمی‌کند که کد اجرا می‌شود یا نتایج مقاله قابل‌بازتولیدند.
 
 ## Priority A — Convert to Markdown and deep-read first
 
@@ -48,15 +54,17 @@ Use separate judgments for seminar value and thesis-base value. Public code is n
 
 Papers currently in the lower-priority group or those whose central contribution is adjacent to concept-drift detection should remain searchable in the repository. Reopen them only if the higher-priority set fails to cover a necessary role or new evidence changes the ranking. This is a time-allocation decision, not a declaration that those papers are poor.
 
-## What this matrix means
+## معنی این ماتریس و وضعیت فعلی
 
-- **12 papers are prioritized for Markdown conversion/deep reading**, not selected as the final seminar set.
-- After reading these, we may replace some with Priority B papers; the final 7–10 should be complementary, not simply the first seven rows.
-- Thesis-base selection will remain a separate decision, likely centered first on PUDD versus WinDrift++, with D3/STUDD as simpler comparative baselines and the benchmark papers informing evaluation.
-- The next useful action after conversion is a focused extraction of each priority paper's: research question, method, assumptions, data, ground truth, metrics, baselines, reported limitations, reproducibility steps, and plausible but unclaimed extension.
-- No implementation or result reproduction has been completed at this stage.
+- **۱۲ مقاله برای تبدیل MarkIt و مطالعه عمیق‌تر اولویت گرفته‌اند**؛ این به‌معنای انتخاب نهایی سمینار نیست.
+- پس از مطالعه این گروه، می‌توان بعضی مقاله‌های اولویت B را جایگزین کرد. فهرست نهایی باید مقاله‌های مکمل را پوشش دهد، نه اینکه صرفاً هفت ردیف اول انتخاب شوند.
+- انتخاب مقاله مبنای پایان‌نامه تصمیم جداگانه‌ای است. PUDD و WinDrift++ دو نامزد فعلی‌اند، اما نامزدهای دیگری که در جست‌وجوی تازه پیدا شوند نیز می‌توانند وارد مقایسه شوند. D3 و STUDD ممکن است برای مقایسه روش‌ها مفید باشند و مقاله‌های بنچمارک به طراحی ارزیابی کمک کنند.
+- مطالعه عمیق اولیه ۱۲ مقاله در [MARKDOWN_DEEP_READ_STAGE1.md](MARKDOWN_DEEP_READ_STAGE1.md) ثبت شده است. هنوز هیچ نتیجه‌ای به‌صورت مستقل بازتولید نشده است.
 
+## به‌روزرسانی اولویت پژوهش — ۲۲ اکتبر ۲۰۲۶
 
-## Stage 3 update — 2026-10-22
+**تمرکز اصلی دو ماه آینده، پوشش علمی و نگارش سمینار است.** هدف، رسیدن به نقشه‌ای منسجم از مفهوم Concept Drift، انواع تغییر، خانواده روش‌های تشخیص، رابطه Detection و Adaptation، دیتاست‌ها، Ground Truth، معیارهای ارزیابی، محدودیت‌ها و جهت‌های پژوهشی است. مرورهای جدید و مقاله‌های مهم ۲۰۲۴ تا زمان جست‌وجو نیز باید به‌صورت هدفمند در منابع معتبر و سایت‌های ناشران بررسی شوند؛ به‌ویژه اگر بتوانند دسته‌ای از روش‌ها یا خلأیی را روشن کنند که در مجموعه فعلی پوشش کافی ندارد.
 
-The first deep-reading pass of all 12 MarkIt conversions has been documented in [MARKDOWN_DEEP_READ_STAGE1.md](MARKDOWN_DEEP_READ_STAGE1.md). The initial comparison highlights PUDD and WinDrift++ as the leading reproduction candidates for separate follow-up checks, with the unsupervised benchmark and KDD 2026 framework informing evaluation. This is **not** the final seminar list or a thesis-base decision. See the report for paper-specific evidence, limitations, conversion notes and next gates.
+هنگام هر جست‌وجوی تازه، پرسش جست‌وجو، پایگاه/ناشر، تاریخ، منابع مهم پیدا‌شده و دلیل اثرگذاری آن‌ها را در [CONCEPT_DRIFT_RESEARCH_LOG.md](CONCEPT_DRIFT_RESEARCH_LOG.md) ثبت کن. اگر منبع جدیدی پوشش علمی را بهتر می‌کند، ماتریس قابل‌تغییر است. از بازبینی کامل مجموعه قبلی بدون دلیل مشخص خودداری کن، اما خود را به همان مجموعه هم محدود نکن.
+
+در ماه بعد از تکمیل سمینار، نامزدهای مقاله مبنا بر اساس قابلیت اجرا و بازتولید، دسترسی به داده، Ground Truth، کیفیت خط‌پایه‌ها، هزینه پیاده‌سازی و ظرفیت توسعه دوباره ارزیابی می‌شوند. هر اشاره به PUDD یا WinDrift++ در این فایل یک **فرضیه کاری موقت** است، نه انتخاب قطعی یا ادعای نوآوری.
