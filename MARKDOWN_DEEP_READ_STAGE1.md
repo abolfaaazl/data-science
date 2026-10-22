@@ -152,14 +152,16 @@ PUDD و WinDrift++ فقط دو نامزد موقت برای مرحله انتخ�
 | Controlled process ground truth and temporal score | Process benchmark (11) | Strong within its process-curve domain, not a universal concept-drift benchmark |
 | Industrial application | Predictive maintenance (12) | Useful application evidence; dataset/code reproducibility remains unverified |
 
-## Preliminary thesis direction: what to test before deciding
+## نامزدهای پایان‌نامه — مسیر بررسی در مرحله پروپوزال
+
+این بخش یک برنامه فنی آینده‌نگر است، نه دستور اجرای کار فوری. اولویت دو ماه آینده نگارش سمینار است؛ در ماه پس از آن، این پرسش‌ها برای انتخاب مقاله مبنا دوباره بررسی خواهند شد. نامزدهای فعلی صرفاً موقت‌اند و جست‌وجوی علمی جدید می‌تواند گزینه‌های دیگری اضافه کند.
 
 The two strongest current candidates are PUDD and WinDrift++, for different reasons:
 
 - **PUDD:** an identifiable open issue around manual alarm-threshold selection, and a clear first experiment on synthetic/tabular streams.
 - **WinDrift++:** an identifiable open issue around fixed window scales and a clear baseline implementation based on statistical tests.
 
-Do not choose between them from the reported accuracy alone. The next gate should be a bounded reproducibility check:
+Do not choose between them from the reported accuracy alone. **When the proposal phase begins**, the next gate should be a bounded reproducibility check:
 1. Select one synthetic dataset with known drift locations from each repository.
 2. Run the authors’ smallest documented example with pinned dependencies.
 3. Confirm that the detector produces alarms and that the evaluation script can score them against known drift locations.
