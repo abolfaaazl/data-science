@@ -302,3 +302,13 @@ The folder listing confirms all 12 files are present. Some conversions include l
 
 #### Status and next action
 This is a documentary deep-reading pass only. **No code has been run, no dataset has been downloaded, and no reported result has been independently reproduced.** Next, perform targeted PDF verification of the most decision-relevant tables/formulas and inspect the PUDD and WinDrift++ repositories' smallest runnable examples. Then select one small baseline reproduction path. Keep seminar-paper selection and thesis-base selection as separate decisions.
+
+
+### Stage 5 — Minimal PUDD reproduction gate defined (2026-10-22)
+
+- Inspected the official PUDD README, `main.py`, `main_ensemble.py`, and `load_dataset.py`. Official first command for the tabular/synthetic Table 1 path is `python main.py --threshold -1 --continual True --dataset_name sine --classifier_name GNB`; avoid CIFAR-10 at the first step.
+- Source-level finding: SINE variants are changed every 10 chunks by the generator structure, but `load_dataset_with_drift(..., seed, drift_every_k_chunks)` does not use either argument. Seed control must be verified rather than assumed.
+- The main script saves aggregate predictive accuracy/configuration/runtime to `result.csv`; this alone is not an event-level detection evaluation. Alarm/reset traces must be aligned with known transition indices to calculate delay, misses, and false alarms.
+- Added `STAGE5_PUDD_MINIMAL_REPRODUCTION_GATE.md` with exact command, environment/smoke-test gate, alarm-trace gate, evaluation gate, pass/fail criteria, and decision rule.
+- Execution status: source inspection only. Local shell could not resolve GitHub DNS, so the upstream repository could not be cloned/run in this environment. This does not establish failure on the user's Windows machine. No reproduction is claimed.
+- Decision: PUDD remains a provisional candidate, not the final thesis base. Next evidence needed is a single successful SINE/GNB run plus an interpretable alarm trace and event-level evaluation. If that requires substantial reconstruction, pivot to a simpler detector/baseline with clearer ground-truth metrics.
