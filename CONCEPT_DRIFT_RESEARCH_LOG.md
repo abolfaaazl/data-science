@@ -342,3 +342,45 @@ This is a documentary deep-reading pass only. **No code has been run, no dataset
 - ۱۲ مقاله تبدیل MarkIt شده و گزارش مطالعه عمیق اولیه تهیه شده است.
 - کد PUDD در یک اجرای اولیه محلی روی sine/GNB اجرا شده؛ این نتیجه معادل بازتولید مقاله یا ارزیابی کامل تشخیص drift نیست.
 - پرسش‌های مربوط به Ground Truth، معیارهای event-level، تطبیق PDF با Markdown و امکان اجرای کد همچنان برای تصمیم مقاله پایان‌نامه معتبرند؛ اولویت زمانی انجام آن‌ها به مرحله مناسب منتقل شده است.
+
+
+### 2026-10-22 — جست‌وجوی مقدماتی برای نقشه پوشش علمی سمینار
+
+#### هدف
+پس از روشن‌شدن اینکه دو ماه آینده عمدتاً برای فهم حوزه و نگارش سمینار است، نقشه پوشش علمی تهیه شد؛ پرسش این دور جست‌وجو این بود که ۱۲ مقاله مطالعه‌شده چه بخش‌هایی را پوشش می‌دهند و چه خلأهایی نیازمند جست‌وجوی تکمیلی‌اند. این دور جایگزین غربالگری قبلی نیست و انتخاب نهایی سمینار یا پایان‌نامه را تعیین نمی‌کند.
+
+#### عبارت‌های جست‌وجوی استفاده‌شده
+- `concept drift detection machine learning survey review 2025 2026 streaming data`
+- `concept drift detection taxonomy methods machine learning data streams survey`
+- `unsupervised concept drift detection benchmark evaluation ground truth 2024 2025 2026`
+- `concept drift detection delayed labels incomplete labels review 2025 2026`
+- `deep learning concept drift detection unstructured data survey 2025`
+- `concept drift detection methods machine learning statistical distribution error based ensemble survey`
+- `evaluation metrics concept drift detection delay false alarms benchmark synthetic real world data streams`
+- `concept drift detection adaptation drift type machine learning survey 2024 2026`
+- جست‌وجوی تکمیلی در صفحات ناشران با عنوان‌های دقیق:
+  - `"A Framework for Evaluating and Benchmarking Concept Drift Detection Methods" KDD 2026`
+  - `"From XAI to MLOps" "Explainable concept drift detection" 2026`
+  - `"Concept drift detection in delayed and partially labeled data streams" "October 15, 2026" code data`
+  - `"A survey of processing methods for different types of concept drift" journal 2026 group`
+
+#### یافته‌های مهم از بررسی اولیه صفحات ناشر
+1. **Concept drift detection in delayed and partially labeled data streams: An experimental survey** — Digital Signal Processing، انتشار ۱۵ اکتبر ۲۰۲۶، DOI: 10.1016/j.dsp.2026.106325. مستقیماً شرایط تأخیر برچسب و کمبود برچسب، taxonomy روش‌ها و ارزیابی تجربی را پوشش می‌دهد. این محور در ۱۲ مقاله مطالعه‌شده نماینده مستقیم کافی نداشت؛ اولویت بالا برای غربالگری متن کامل.
+2. **A survey of processing methods for different types of concept drift** — Data & Knowledge Engineering، شماره ژانویه ۲۰۲۶، DOI: 10.1016/j.datak.2025.102525. دسته‌بندی drift منفرد، انواع ترکیبی و group drift را بررسی می‌کند و باید از نظر افزوده‌شدن taxonomy جدید نسبت به مرورهای فعلی ارزیابی شود.
+3. **From XAI to MLOps: Explainable concept drift detection with the partial dependence profiles-based approach** — Future Generation Computer Systems، جلد اکتبر ۲۰۲۶، DOI: 10.1016/j.future.2026.108586. روش Profile Drift Detection با Partial Dependence Profiles را پیشنهاد می‌کند و بُعد تبیین‌پذیری را وارد تشخیص تغییر می‌کند؛ اولویت بالا برای غربالگری، اما ادعاهای عملکردی هنوز مستقل بازتولید نشده‌اند.
+4. **Concept drift detection in image data stream: a survey on current literature, limitations and future directions** — منتشرشده ۱۱ دسامبر ۲۰۲۵، Artificial Intelligence Review، DOI: 10.1007/s10462-025-11428-y. در مجموعه PDF مخزن از قبل وجود دارد؛ به‌عنوان منبع مکمل دامنه تصویر شناخته شد، نه مقاله جدیدی که نیاز به دریافت مجدد داشته باشد.
+5. **Anticipating to Change: A Proactive Approach for Concept Drift Adaptation in Data Streams** — منتشرشده ۱۴ دسامبر ۲۰۲۵، Machine Learning، DOI: 10.1007/s10994-025-06945-4. برای توضیح Detection در برابر Adaptation و سازگاری پیش‌دستانه مفید است؛ تمرکز اصلی آن adaptation است، نه صرفاً تشخیص.
+6. **A Framework for Evaluating and Benchmarking Concept Drift Detection Methods** — تأیید صفحه کنفرانس/انتشار KDD 2026 و DOI: 10.1145/3770855.3819070؛ این مقاله از قبل جزو ۱۲ نامزد است، پس یافته تازه درباره آن ورود مقاله جدید نیست، بلکه تأیید اهمیتش به‌عنوان مرجع ارزیابی است.
+7. **One or two things we know about concept drift—a survey on monitoring in evolving environments. Part A: detecting concept drift** — Frontiers in Artificial Intelligence، ۱۹ ژوئن ۲۰۲۴، DOI: 10.3389/frai.2024.1330257. در مخزن فعلی موجود است ولی جزو ۱۲ مقاله تبدیل‌شده نیست؛ برای مقایسه taxonomy روش‌های بدون‌ناظر ارزش بررسی دارد.
+
+#### نتیجه این دور نسبت به نقشه پوشش
+- مجموعه فعلی نقطه شروع مناسبی دارد: مرور کلی، روش‌های بدون‌ناظر، uncertainty، classifier-based، statistical tests، student–teacher، ارزیابی و benchmark، نظریه و کارایی محاسباتی.
+- سه خلأ/محور با اولویت تکمیلی مشخص شد: **(الف) delayed/partial labels، (ب) دسته‌بندی جدید drift types و group/multistream، (ج) explainable concept drift detection**.
+- منابع تخصصی تصویر و adaptation باید بنا به نیاز روایت سمینار نگه داشته شوند؛ نباید دامنه را به همه کاربردها گسترش داد.
+- نتیجه فعلاً غربالگری اولیه بر اساس صفحه ناشر و چکیده/اطلاعات قابل مشاهده است؛ متن کامل، روش مرور، جداول و ارجاعات هنوز برای منابع جدید بررسی نشده است. هیچ مقاله جدیدی به‌صرف عنوان یا تازگی، خودکار وارد فهرست نهایی نشود.
+
+#### فایل خروجی
+نقشه فارسی پوشش علمی و عبارات جست‌وجو در [SEMINAR_COVERAGE_MAP.md](SEMINAR_COVERAGE_MAP.md) ذخیره شد.
+
+#### گام بعدی
+نقشه را با ساختار موردنظر سمینار تطبیق بده و سپس متن کامل سه منبع با اولویت بالا (delayed/partially labeled survey، survey انواع drift، و روش تبیین‌پذیر PDD) را بررسی کن. برای هرکدام مشخص کن آیا واقعاً خلأیی را پر می‌کند، آیا منبع دیگری در مخزن همین نقش را دارد و آیا باید به مطالعه عمیق/منابع سمینار اضافه شود. هنوز بازتولید کد یا تصمیم مقاله مبنا لازم نیست.
